@@ -190,42 +190,42 @@ export default function Forecasting() {
                     <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 text-sm font-semibold">
+                <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
                   {forecasts.map((f) => (
                     <tr key={f.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-3 whitespace-nowrap">
                         <div>
                           <span className="font-mono text-xxs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
                             {f.kode_obat}
                           </span>
-                          <h4 className="font-semibold text-slate-900 mt-1.5 text-sm">{f.nama_obat}</h4>
-                          <p className="text-xxs text-slate-400 mt-1 font-medium">Lead Time Supplier: {f.lead_time_hari} Hari</p>
+                          <h4 className="font-medium text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
+                          <p className="text-xxs text-slate-400 mt-0.5 font-medium">Lead Time Supplier: {f.lead_time_hari} Hari</p>
                         </div>
                       </td>
 
                       {/* Moving average demand */}
-                      <td className="px-6 py-4 text-center whitespace-nowrap font-mono font-semibold text-slate-800">
+                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-normal text-slate-700">
                         {f.proyeksi_kebutuhan} <span className="text-xxs font-normal text-slate-400">unit/bln</span>
                       </td>
 
                       {/* Safety stock */}
-                      <td className="px-6 py-4 text-center whitespace-nowrap font-mono text-slate-500">
+                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono text-slate-500">
                         {f.safety_stock} <span className="text-xxs font-normal text-slate-300">unit</span>
                       </td>
 
                       {/* Reorder limit */}
-                      <td className="px-6 py-4 text-center whitespace-nowrap font-mono font-semibold text-indigo-700 bg-indigo-50/30">
+                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-medium text-indigo-700 bg-indigo-50/30">
                         {f.reorder_qty} <span className="text-xxs font-normal text-indigo-400">unit</span>
                       </td>
 
                       {/* Current stock from latest month remaining */}
-                      <td className="px-6 py-4 text-center whitespace-nowrap font-mono font-semibold text-slate-700">
+                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-normal text-slate-600">
                         {f.current_stock} <span className="text-xxs font-normal text-slate-350">unit</span>
                       </td>
 
                       {/* ROP status tag */}
-                      <td className="px-6 py-4 text-right whitespace-nowrap">
-                        <span className={`inline-flex items-center space-x-1 text-xxs font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider ${
+                      <td className="px-6 py-3 text-right whitespace-nowrap">
+                        <span className={`inline-flex items-center space-x-1 text-xxs font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
                           f.status_stok === 'Kritis (Perlu Order)'
                             ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-150'
                             : 'bg-emerald-100 text-emerald-800 border border-emerald-150'

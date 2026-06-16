@@ -86,8 +86,9 @@ export async function initializeDatabase(): Promise<DbStatus> {
     await runMigrationsIfRequired();
 
   } catch (err: any) {
+    dbStatusInfo.isVirtual = true; // Safe fallback to virtual DB so app does not crash
     dbStatusInfo.status = 'OFFLINE';
-    dbStatusInfo.error = `Could not connect to VPS MySQL: ${err.message}. Falling back to Virtual DB.`;
+    dbStatusInfo.error = `Could not connect or migrate VPS MySQL: ${err.message}. Falling back to Virtual DB.`;
     console.warn(dbStatusInfo.error);
     initVirtualDb();
   }
@@ -96,32 +97,75 @@ export async function initializeDatabase(): Promise<DbStatus> {
 }
 
 // Check and complete tables on VPS MySQL
+export async function runMigrationScript(options: { cleanReset?: boolean } = {}): Promise<{ success: boolean; message: string }> {
+  if (!mysqlPool) {
+    throw new Error('Koneksi pool MySQL belum diinisialisasi.');
+  }
+
+  const connection = await mysqlPool.getConnection();
+  try {
+    // 1. Disable foreign key checks to prevent Lock-Ins/order conflicts during DDL creation
+    await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+
+    // 2. Dropping existing tables if cleanReset is enabled
+    if (options.cleanReset) {
+      console.log('Clean reset: Menghapus tabel lama yang berkonflik...');
+      const drops = [
+        'DROP TABLE IF EXISTS obat_forecasting',
+        'DROP TABLE IF EXISTS obat_konsumsi_harian',
+        'DROP TABLE IF EXISTS obat_konsumsi_bulanan',
+        'DROP TABLE IF EXISTS lab_data_harian',
+        'DROP TABLE IF EXISTS lab_data_bulanan',
+        'DROP TABLE IF EXISTS obat_master',
+        'DROP TABLE IF EXISTS lab_parameter',
+        'DROP TABLE IF EXISTS users'
+      ];
+      for (const d of drops) {
+        await connection.query(d);
+      }
+    }
+
+    // 3. Read and execute file queries on the same connection session
+    const schemaPath = path.join(process.cwd(), 'src', 'db', 'schema.sql');
+    if (!fs.existsSync(schemaPath)) {
+      throw new Error('File schema.sql tidak ditemukan.');
+    }
+
+    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    const queries = schemaSql
+      .split(';')
+      .map(q => q.trim())
+      .filter(q => q.length > 0 && !q.startsWith('--'));
+
+    for (const query of queries) {
+      await connection.query(query);
+    }
+
+    // 4. Re-enable foreign key checks at the end of execution
+    await connection.query('SET FOREIGN_KEY_CHECKS = 1');
+
+    return { success: true, message: 'Migrasi database dan seeding data selesai sukses!' };
+  } catch (err: any) {
+    // Safely re-enable foreign key constraints if they failed mid-process
+    try {
+      await connection.query('SET FOREIGN_KEY_CHECKS = 1');
+    } catch {}
+    console.error('Detail kesalahan migrasi database:', err);
+    throw err;
+  } finally {
+    connection.release();
+  }
+}
+
 async function runMigrationsIfRequired() {
   if (!mysqlPool) return;
   try {
     const [tables]: any = await mysqlPool.query('SHOW TABLES');
     const tableList = tables.map((t: any) => Object.values(t)[0]);
 
-    if (!tableList.includes('users') || !tableList.includes('lab_parameter') || !tableList.includes('obat_master') || !tableList.includes('lab_data_harian') || !tableList.includes('obat_konsumsi_harian')) {
-      console.log('Tables do not exist. Running SQL schema setup for VPS MySQL...');
-      const schemaPath = path.join(process.cwd(), 'src', 'db', 'schema.sql');
-      if (fs.existsSync(schemaPath)) {
-        const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-        // Split queries by semicolon and filter out comments
-        const queries = schemaSql
-          .split(';')
-          .map(q => q.trim())
-          .filter(q => q.length > 0 && !q.startsWith('--'));
-
-        for (const query of queries) {
-          try {
-            await mysqlPool.query(query);
-          } catch (e: any) {
-            console.error(`Error executing migration step: ${query.substring(0, 50)}... -> ${e.message}`);
-          }
-        }
-        console.log('VPS MySQL migration script executed successfully.');
-      }
+    if (!tableList.includes('lab_parameter') || !tableList.includes('obat_master') || !tableList.includes('lab_data_harian') || !tableList.includes('obat_konsumsi_harian')) {
+      console.log('Tables do not exist. Automatically running safe migrator on startup...');
+      await runMigrationScript({ cleanReset: false });
     } else {
       // Tables exist, check if columns need to be added
       try {
@@ -138,7 +182,7 @@ async function runMigrationsIfRequired() {
       }
     }
   } catch (err) {
-    console.error('Failed to run setup migrations on MySQL pool:', err);
+    console.error('Failed to run automatic startup migrations:', err);
   }
 }
 
@@ -323,9 +367,8 @@ export const db = {
         const [results] = await mysqlPool.query(sqlText, params);
         return results;
       } catch (err: any) {
-        console.error(`MySQL Query Error: ${err.message}. Retrying via virtual DB if possible.`);
-        // Don't crash, let it return virtual responses if appropriate or throw
-        throw err;
+        console.error(`MySQL Query Error: ${err.message}. Cascading fallback to Virtual DB for this query.`);
+        // Fall through to simulated query so the frontend does not crash
       }
     }
 

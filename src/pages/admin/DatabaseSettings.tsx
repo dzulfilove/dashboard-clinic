@@ -27,6 +27,7 @@ export default function DatabaseSettings() {
   // Migration states
   const [migrating, setMigrating] = useState(false);
   const [migrationResult, setMigrationResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [cleanReset, setCleanReset] = useState(false);
 
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -64,7 +65,11 @@ export default function DatabaseSettings() {
   };
 
   const handleRunMigrations = async () => {
-    if (!window.confirm('Apakah Anda yakin ingin menjalankan migrasi tabel? Pastikan database baru Anda kosong.')) {
+    const confirmMessage = cleanReset 
+      ? 'PERINGATAN: Opsi reset bersih diaktifkan. Semua tabel Klinik Puri Medika lama di database Anda akan DIHAPUS dan dibuat ulang secara bersih. Apakah Anda yakin?'
+      : 'Apakah Anda yakin ingin menjalankan migrasi tabel? Pastikan database baru Anda kosong.';
+
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
@@ -72,7 +77,7 @@ export default function DatabaseSettings() {
     setMigrationResult(null);
 
     try {
-      const res = await api.post('/db/run-migrations');
+      const res = await api.post('/db/run-migrations', { cleanReset });
       setMigrationResult(res.data);
       // Refresh database status to see if it changed
       fetchDbStatus();
@@ -269,6 +274,23 @@ export default function DatabaseSettings() {
               <p className="text-xs text-slate-500 mt-1">
                 Jalankan migrasi DDL schema otomatis untuk membentuk semua tabel, indeks, relasi serta pre-seed catalog Klinik Puri Medika di VPS MySQL Anda yang aktif.
               </p>
+            </div>
+
+            <div className="bg-amber-50/60 border border-amber-150 rounded-xl p-4 text-xs">
+              <label className="flex items-start space-x-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={cleanReset}
+                  onChange={(e) => setCleanReset(e.target.checked)}
+                  className="mt-0.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                />
+                <div>
+                  <span className="font-bold text-slate-800">Aktifkan Reset Bersih (Clean Reset)</span>
+                  <p className="text-slate-500 mt-0.5 leading-relaxed">
+                    Centang opsi ini untuk menghapus otomatis semua tabel Klinik Puri Medika yang berkonflik jika Anda mengalami kegagalan migrasi "Foreign key constraint", atau jika Anda ingin membangun ulang database secara segar.
+                  </p>
+                </div>
+              </label>
             </div>
 
             <button

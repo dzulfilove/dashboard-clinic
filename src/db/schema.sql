@@ -1,16 +1,6 @@
 -- Blueprint Database Klinik Puri Medika --
 -- Database: klinik_puri_medika
 
-CREATE TABLE IF NOT EXISTS users (
-  id INT NOT NULL AUTO_INCREMENT,
-  nama VARCHAR(100) NOT NULL,
-  email VARCHAR(100) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  role ENUM('admin', 'lab', 'farmasi') NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE IF NOT EXISTS lab_parameter (
   id INT NOT NULL AUTO_INCREMENT,
   kategori VARCHAR(50) NOT NULL,
@@ -29,7 +19,6 @@ CREATE TABLE IF NOT EXISTS lab_data_bulanan (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (parameter_id) REFERENCES lab_parameter(id) ON DELETE CASCADE,
-  FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE KEY unique_param_bulan_tahun (parameter_id, bulan, tahun)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -42,7 +31,6 @@ CREATE TABLE IF NOT EXISTS lab_data_harian (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (parameter_id) REFERENCES lab_parameter(id) ON DELETE CASCADE,
-  FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE KEY unique_param_tanggal (parameter_id, tanggal)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -76,7 +64,6 @@ CREATE TABLE IF NOT EXISTS obat_konsumsi_bulanan (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (obat_id) REFERENCES obat_master(id) ON DELETE CASCADE,
-  FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE KEY unique_obat_bulan_tahun (obat_id, bulan, tahun)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -93,7 +80,6 @@ CREATE TABLE IF NOT EXISTS obat_konsumsi_harian (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   FOREIGN KEY (obat_id) REFERENCES obat_master(id) ON DELETE CASCADE,
-  FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE KEY unique_obat_tanggal (obat_id, tanggal)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -108,19 +94,6 @@ CREATE TABLE IF NOT EXISTS obat_forecasting (
   PRIMARY KEY (id),
   FOREIGN KEY (obat_id) REFERENCES obat_master(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Seed Default users (passwords are bcrypt hashes of: 'admin123', 'lab123', 'farmasi123')
-INSERT INTO users (nama, email, password_hash, role) VALUES
-('Administrator Puri Medika', 'admin@clinic.com', '$2a$10$iI0T7XF7vDbe.n89eWw6ZuoVb1AAnqJ8.8VzKxU1Hw6WzN48rQ44q', 'admin')
-ON DUPLICATE KEY UPDATE id=id;
-
-INSERT INTO users (nama, email, password_hash, role) VALUES
-('Petugas Laboratorium', 'lab@clinic.com', '$2a$10$o6mOnS4eHhB2Yf80W2Ie8OfKmsidb4.aZ3Q1zP8zPvx/1z.q8V8u2', 'lab')
-ON DUPLICATE KEY UPDATE id=id;
-
-INSERT INTO users (nama, email, password_hash, role) VALUES
-('Apoteker Farmasi', 'farmasi@clinic.com', '$2a$10$MscvHox6K3G4WjJjM.sEAu.KIn1nZt.Y5C0p2I9CDeF0p3sI4Gz2a', 'farmasi')
-ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Lab Parameters
 INSERT INTO lab_parameter (kategori, nama_parameter, is_active) VALUES

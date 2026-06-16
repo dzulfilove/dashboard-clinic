@@ -276,7 +276,7 @@ export default function InputKonsumsi() {
                     )}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 text-sm font-semibold">
+                <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
                   {filteredMedicines.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="text-center py-10 text-slate-400 font-medium">
@@ -291,71 +291,71 @@ export default function InputKonsumsi() {
 
                       return (
                         <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-3">
                             <div>
                               <span className="font-mono text-xxs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
                                 {m.kode_obat}
                               </span>
-                              <h4 className="font-semibold text-slate-900 mt-1.5 text-sm">{m.nama_obat}</h4>
-                              <p className="text-xxs text-slate-400 font-medium mt-1 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
+                              <h4 className="font-medium text-slate-900 mt-1 text-xs">{m.nama_obat}</h4>
+                              <p className="text-xxs text-slate-400 font-medium mt-0.5 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
                             </div>
                           </td>
 
                           {/* Stok Awal Input Cell */}
-                          <td className="px-5 py-4 text-center whitespace-nowrap">
+                          <td className="px-5 py-3 text-center whitespace-nowrap">
                             <input
                               id={`sawal-${m.id}`}
                               type="text"
                               inputMode="numeric"
                               value={inputs.stok_awal}
                               onChange={(e) => handleCellChange(m.id, 'stok_awal', e.target.value)}
-                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                               placeholder="0"
                             />
                           </td>
 
                           {/* Penerimaan Input Cell */}
-                          <td className="px-5 py-4 text-center whitespace-nowrap">
+                          <td className="px-5 py-3 text-center whitespace-nowrap">
                             <input
                               id={`terima-${m.id}`}
                               type="text"
                               inputMode="numeric"
                               value={inputs.penerimaan}
                               onChange={(e) => handleCellChange(m.id, 'penerimaan', e.target.value)}
-                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                               placeholder="0"
                             />
                           </td>
 
                           {/* Pemakaian Input Cell */}
-                          <td className="px-5 py-4 text-center whitespace-nowrap">
+                          <td className="px-5 py-3 text-center whitespace-nowrap">
                             <input
                               id={`pakai-${m.id}`}
                               type="text"
                               inputMode="numeric"
                               value={inputs.pemakaian}
                               onChange={(e) => handleCellChange(m.id, 'pemakaian', e.target.value)}
-                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                               placeholder="0"
                             />
                           </td>
 
                           {/* Retur / Hilang Input Cell */}
-                          <td className="px-5 py-4 text-center whitespace-nowrap">
+                          <td className="px-5 py-3 text-center whitespace-nowrap">
                             <input
                               id={`retur-${m.id}`}
                               type="text"
                               inputMode="numeric"
                               value={inputs.retur_hilang}
                               onChange={(e) => handleCellChange(m.id, 'retur_hilang', e.target.value)}
-                              className="w-20 text-center py-2 bg-amber-50/50 border border-amber-200 rounded-lg text-amber-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                              className="w-20 text-center py-1 bg-amber-50/50 border border-amber-200 rounded-lg text-amber-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/30"
                               placeholder="0"
                             />
                           </td>
 
                           {/* Dynamically Calulcated Sisa Stok Cell */}
-                          <td className="px-5 py-4 text-center whitespace-nowrap">
-                            <span className={`text-xs font-bold font-mono ${sisa < 10 ? 'text-rose-600' : 'text-slate-800'}`}>
+                          <td className="px-5 py-3 text-center whitespace-nowrap">
+                            <span className={`text-xs font-semibold font-mono ${sisa < 10 ? 'text-rose-600' : 'text-slate-800'}`}>
                               {sisa}
                             </span>
                           </td>

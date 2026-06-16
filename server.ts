@@ -11,7 +11,7 @@ import ExcelJS from 'exceljs';
 import { createServer as createViteServer } from 'vite';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
-import { db, initializeDatabase, readVirtualDb, writeVirtualDb } from './src/db/connection.js';
+import { db, initializeDatabase, readVirtualDb, writeVirtualDb, runMigrationScript } from './src/db/connection.js';
 
 const app = express();
 const PORT = 3000;
@@ -99,23 +99,9 @@ app.post('/api/db/run-migrations', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Fitur migrasi hanya dapat dilakukan pada VPS MySQL.' });
   }
   try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const schemaPath = path.join(process.cwd(), 'src', 'db', 'schema.sql');
-    if (fs.existsSync(schemaPath)) {
-      const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-      const queries = schemaSql
-        .split(';')
-        .map(q => q.trim())
-        .filter(q => q.length > 0 && !q.startsWith('--'));
-
-      for (const query of queries) {
-        await db.query(query);
-      }
-      res.json({ success: true, message: 'Migrasi schema database ke VPS MySQL berhasil!' });
-    } else {
-      res.status(404).json({ success: false, message: 'File schema.sql tidak ditemukan.' });
-    }
+    const { cleanReset } = req.body;
+    const result = await runMigrationScript({ cleanReset: !!cleanReset });
+    res.json(result);
   } catch (err: any) {
     res.status(500).json({ success: false, message: `Gagal menjalankan migrasi: ${err.message}` });
   }
@@ -1285,43 +1271,144 @@ app.get('/api/obat/alert', authenticateToken, async (req, res) => {
 /* ==================== 6. ADMINISTRATION ACCOUNTS ==================== */
 
 app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req, res) => {
+  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
+    return res.status(500).json({ 
+      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
+    });
+  }
   try {
-    const list = await db.query('SELECT id, nama, email, role, created_at FROM users');
-    res.json(list);
+    const url = BASEROW_TABLE_URL;
+    const response = await axios.get(url, {
+      headers: {
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
+        'Accept': 'application/json'
+      }
+    });
+    const rows = response.data.results || [];
+    const formattedUsers = rows.map((r: any) => {
+      let divStr = '';
+      if (r.Divisi) {
+        if (typeof r.Divisi === 'string') {
+          divStr = r.Divisi;
+        } else if (typeof r.Divisi === 'object') {
+          divStr = r.Divisi.value || r.Divisi.name || JSON.stringify(r.Divisi);
+        } else {
+          divStr = String(r.Divisi);
+        }
+      }
+      const div = divStr.toLowerCase();
+      let role = 'admin';
+      if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
+        role = 'admin';
+      } else if (div.includes('lab') || div.includes('laboratorium')) {
+        role = 'lab';
+      } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
+        role = 'farmasi';
+      }
+
+      return {
+        id: r.id,
+        nama: r['Nama Karyawan'] || 'Karyawan Puri Medika',
+        email: r.Email || '',
+        role: role,
+        divisi: divStr || 'IT',
+        created_at: r['Created At'] || new Date().toISOString()
+      };
+    });
+    res.json(formattedUsers);
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    console.error('Failed to fetch users from Baserow:', err.message);
+    res.status(500).json({ message: `Gagal mengambil data pengguna dari Baserow: ${err.message}` });
   }
 });
 
 app.post('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req, res) => {
-  const { nama, email, password, role } = req.body;
-  if (!nama || !email || !password || !role) {
+  const { nama, email, role } = req.body;
+  if (!nama || !email || !role) {
     return res.status(400).json({ message: 'Input pendaftaran akun tidak lengkap.' });
   }
+
+  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
+    return res.status(500).json({ 
+      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
+    });
+  }
+
   try {
-    const rounds = 10;
-    const password_hash = await bcrypt.hash(password, rounds);
-    await db.query(
-      'INSERT INTO users (nama, email, password_hash, role) VALUES (?, ?, ?, ?)',
-      [nama, email, password_hash, role]
-    );
-    res.json({ success: true, message: 'Akun petugas baru berhasil ditambahkan.' });
+    let divisiVal = 'IT';
+    if (role === 'lab') {
+      divisiVal = 'Laboratorium';
+    } else if (role === 'farmasi') {
+      divisiVal = 'Farmasi';
+    } else if (role === 'admin') {
+      divisiVal = 'IT';
+    }
+
+    const payload = {
+      'Nama Karyawan': nama,
+      'Email': email,
+      'Divisi': divisiVal,
+      'OTP 2': '',
+      'OTP 2 Expired': null
+    };
+
+    const postUrl = `${BASEROW_BASE_URL}/?user_field_names=true`;
+    await axios.post(postUrl, payload, {
+      headers: {
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.json({ success: true, message: 'Akun petugas baru berhasil didaftarkan langsung ke Baserow!' });
   } catch (err: any) {
-    res.status(500).json({ message: `Gagal mendaftarkan akun: ${err.message}` });
+    console.error('Failed to create user in Baserow:', err.response?.data || err.message);
+    res.status(500).json({ 
+      message: `Gagal mendaftarkan akun di Baserow: ${JSON.stringify(err.response?.data) || err.message}` 
+    });
   }
 });
 
 app.put('/api/admin/users/:id', authenticateToken, roleGuard(['admin']), async (req, res) => {
   const { id } = req.params;
   const { nama, email, role } = req.body;
+
+  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
+    return res.status(500).json({ 
+      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
+    });
+  }
+
   try {
-    await db.query(
-      'UPDATE users SET nama = ?, email = ?, role = ? WHERE id = ?',
-      [nama, email, role, Number(id)]
-    );
-    res.json({ success: true, message: 'Akun berhasil diperbarui.' });
+    let divisiVal = 'IT';
+    if (role === 'lab') {
+      divisiVal = 'Laboratorium';
+    } else if (role === 'farmasi') {
+      divisiVal = 'Farmasi';
+    } else if (role === 'admin') {
+      divisiVal = 'IT';
+    }
+
+    const payload = {
+      'Nama Karyawan': nama,
+      'Email': email,
+      'Divisi': divisiVal
+    };
+
+    const patchUrl = `${BASEROW_BASE_URL}/${id}/?user_field_names=true`;
+    await axios.patch(patchUrl, payload, {
+      headers: {
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    res.json({ success: true, message: 'Akun berhasil diperbarui langsung ke Baserow.' });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    console.error('Failed to update user in Baserow:', err.response?.data || err.message);
+    res.status(500).json({ 
+      message: `Gagal memperbarui akun di Baserow: ${JSON.stringify(err.response?.data) || err.message}` 
+    });
   }
 });
 
@@ -1330,27 +1417,31 @@ app.delete('/api/admin/users/:id', authenticateToken, roleGuard(['admin']), asyn
   if (Number(id) === req.user.id) {
     return res.status(400).json({ message: 'Anda tidak dapat menghapus akun Anda sendiri.' });
   }
+
+  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
+    return res.status(500).json({ 
+      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
+    });
+  }
+
   try {
-    await db.query('DELETE FROM users WHERE id = ?', [Number(id)]);
-    res.json({ success: true, message: 'User berhasil dihapus.' });
+    const deleteUrl = `${BASEROW_BASE_URL}/${id}/`;
+    await axios.delete(deleteUrl, {
+      headers: {
+        'Authorization': `Token ${BASEROW_API_TOKEN}`
+      }
+    });
+    res.json({ success: true, message: 'Akun petugas berhasil dihapus dari Baserow.' });
   } catch (err: any) {
-    res.status(500).json({ message: err.message });
+    console.error('Failed to delete user in Baserow:', err.response?.data || err.message);
+    res.status(500).json({ 
+      message: `Gagal menghapus akun di Baserow: ${JSON.stringify(err.response?.data) || err.message}` 
+    });
   }
 });
 
 app.post('/api/admin/reset-password', authenticateToken, roleGuard(['admin']), async (req, res) => {
-  const { userId, newPassword } = req.body;
-  if (!userId || !newPassword) {
-    return res.status(400).json({ message: 'User id dan password baru wajib diisi.' });
-  }
-  try {
-    const rounds = 10;
-    const password_hash = await bcrypt.hash(newPassword, rounds);
-    await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash, Number(userId)]);
-    res.json({ success: true, message: 'Password user berhasil di-reset.' });
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
+  res.json({ success: true, message: 'Otentikasi Puri Medika berbasis login OTP tanpa password. Tidak perlu mereset sandi.' });
 });
 
 
