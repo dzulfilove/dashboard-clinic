@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -63,15 +63,49 @@ interface OutpatientRecord {
   tanggal_pelayanan: string;
   tindakan: Tindakan[];
   created_at?: string;
+  triase?: string;
 }
 
 const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
+
+const getTriageStyle = (triase?: string) => {
+  const normalized = String(triase || 'hijau').toLowerCase();
+  switch (normalized) {
+    case 'merah':
+      return {
+        bg: 'bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100',
+        dotBg: 'bg-rose-500',
+        text: 'Merah / Gawat Darurat'
+      };
+    case 'kuning':
+      return {
+        bg: 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100',
+        dotBg: 'bg-amber-500',
+        text: 'Kuning / Darurat'
+      };
+    case 'hitam':
+      return {
+        bg: 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200',
+        dotBg: 'bg-slate-900',
+        text: 'Hitam / Meninggal'
+      };
+    case 'hijau':
+    default:
+      return {
+        bg: 'bg-emerald-50 border-emerald-250 text-emerald-700 hover:bg-emerald-100',
+        dotBg: 'bg-emerald-500',
+        text: 'Hijau / Non-Darurat'
+      };
+  }
+};
 
 export default function RawatJalan() {
   const [records, setRecords] = useState<OutpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [triageFilter, setTriageFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'statistik' | 'kunjungan' | 'input'>('statistik');
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -185,6 +219,7 @@ export default function RawatJalan() {
           no_rm: noRm,
           nama_pasien: namaPasien,
           tanggal_pelayanan: tanggalPelayanan,
+          triase: triase,
           tindakan: manualTindakan
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil diperbarui.`);
@@ -216,6 +251,7 @@ export default function RawatJalan() {
     setNoRm('');
     setNamaPasien('');
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
+    setTriase('hijau');
     setManualTindakan([
       {
         pelaksana: '',
@@ -241,6 +277,7 @@ export default function RawatJalan() {
     setNoRm(rec.no_rm);
     setNamaPasien(rec.nama_pasien);
     setTanggalPelayanan(rec.tanggal_pelayanan);
+    setTriase(rec.triase || 'hijau');
     
     // map tindakan
     setManualTindakan(rec.tindakan.map(t => ({
@@ -438,16 +475,54 @@ export default function RawatJalan() {
     }
   };
 
-  // Filtered lists for rendering search query
+  // Reset currentPage to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, triageFilter]);
+
+  // Filtered lists for rendering search query and triage
   const filteredRecords = (Array.isArray(records) ? records : []).filter(rec => {
     const q = searchQuery.toLowerCase();
-    return (
+    const matchesTriage = triageFilter === 'all' || String(rec.triase || 'hijau').toLowerCase() === triageFilter;
+    const matchesSearch = (
       rec.nama_pasien.toLowerCase().includes(q) ||
       rec.no_registrasi.toLowerCase().includes(q) ||
       rec.no_rm.toLowerCase().includes(q) ||
       rec.tindakan.some(t => t.tindakan_nama.toLowerCase().includes(q) || t.pelaksana.toLowerCase().includes(q))
     );
+    return matchesTriage && matchesSearch;
   });
+
+  // Calculate high-quality triage statistics for infographic
+  const triageStats = useMemo(() => {
+    let hijau = 0;
+    let kuning = 0;
+    let merah = 0;
+    let hitam = 0;
+    
+    (Array.isArray(records) ? records : []).forEach(r => {
+      const t = String(r.triase || 'hijau').toLowerCase();
+      if (t === 'hijau') hijau++;
+      else if (t === 'kuning') kuning++;
+      else if (t === 'merah') merah++;
+      else if (t === 'hitam') hitam++;
+    });
+    
+    return [
+      { name: 'Hijau', count: hijau, key: 'hijau', color: '#10b981', hoverColor: '#059669', desc: 'Non-Darurat' },
+      { name: 'Kuning', count: kuning, key: 'kuning', color: '#f59e0b', hoverColor: '#d97706', desc: 'Darurat' },
+      { name: 'Merah', count: merah, key: 'merah', color: '#ef4444', hoverColor: '#dc2626', desc: 'Gawat Darurat' },
+      { name: 'Hitam', count: hitam, key: 'hitam', color: '#1e293b', hoverColor: '#0f172a', desc: 'Meninggal' }
+    ];
+  }, [records]);
+
+  const itemsPerPage = 100;
+  const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+  
+  const paginatedRecords = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredRecords.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredRecords, currentPage]);
 
   // Calculate high-quality analytics summaries
   const safeRecords = Array.isArray(records) ? records : [];
@@ -739,6 +814,152 @@ export default function RawatJalan() {
           {/* TAB 2: DETAILED RECORDS GRID */}
           {activeTab === 'kunjungan' && (
             <div className="space-y-4">
+              {/* Infografis Kunjungan Per Triase */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150">
+                {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
+                <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {triageStats.map((item) => {
+                    const isActive = triageFilter === item.key;
+                    const percent = records.length > 0 ? Math.round((item.count / records.length) * 100) : 0;
+                    
+                    return (
+                      <button
+                        key={item.key}
+                        onClick={() => {
+                          setTriageFilter(isActive ? 'all' : item.key);
+                          setCurrentPage(1);
+                        }}
+                        className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
+                          isActive 
+                            ? 'bg-white border-teal-500 shadow-sm ring-2 ring-teal-500/10' 
+                            : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                        }`}
+                      >
+                        {/* Status tag/dot */}
+                        <div className="flex items-center justify-between">
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
+                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                            {percent}%
+                          </span>
+                        </div>
+                        
+                        {/* Value and Label */}
+                        <div className="mt-4">
+                          <h4 className="text-2xl font-black text-slate-800 font-mono tracking-tight">
+                            {item.count} <span className="text-xs font-semibold text-slate-400">Kasus</span>
+                          </h4>
+                          <p className="text-xs font-bold text-slate-700 mt-1 uppercase tracking-wide">
+                            Triase {item.name}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-0.5 font-medium leading-normal">
+                            {item.desc}
+                          </p>
+                        </div>
+
+                        {/* Interactive footer indicating click-to-filter */}
+                        <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
+                          <span className={`text-[9px] font-extrabold ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
+                            {isActive ? '✓ Aktif Memfilter' : 'Klik Untuk Filter'}
+                          </span>
+                          <ArrowRight className={`h-2.5 w-2.5 transition-all ${isActive ? 'text-teal-500 translate-x-1' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'}`} />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
+                <div className="bg-white border border-slate-200/90 p-4 rounded-2xl flex flex-col justify-between">
+                  <div className="text-left">
+                    <span className="text-slate-400 text-[9px] font-extrabold uppercase tracking-widest block">Distribusi Persentase</span>
+                    <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase</span>
+                  </div>
+                  
+                  {records.length === 0 ? (
+                    <div className="text-center py-6 text-slate-400 text-xxs font-medium">
+                      Belum ada data kunjungan
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-24 relative my-1">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={triageStats}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={22}
+                            outerRadius={34}
+                            paddingAngle={3}
+                            dataKey="count"
+                          >
+                            {triageStats.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                      
+                      {/* Inner counter */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-base font-black text-slate-800 font-mono tracking-tight leading-none">
+                          {records.length}
+                        </span>
+                        <span className="text-[7px] text-slate-400 font-extrabold uppercase tracking-wider mt-0.5">
+                          Total
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tiny horizontal legends */}
+                  <div className="grid grid-cols-4 gap-1 text-center">
+                    {triageStats.map((item) => (
+                      <div key={item.key} className="flex flex-col items-center">
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }}></span>
+                        <span className="text-[9px] font-black text-slate-705 mt-0.5 font-mono">
+                          {item.count}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
+                <span className="text-slate-450 text-[10px] font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
+                <button
+                  onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
+                  className={`px-3 py-1.5 rounded-xl text-xxs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                    triageFilter === 'all'
+                      ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
+                      : 'bg-white text-slate-600 border-slate-205 hover:bg-slate-100'
+                  }`}
+                >
+                  Semua ({records.length})
+                </button>
+                {triageStats.map(item => (
+                  <button
+                    key={item.key}
+                    onClick={() => { setTriageFilter(item.key); setCurrentPage(1); }}
+                    className={`px-3 py-1.5 rounded-xl text-xxs font-black uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1.5 ${
+                      triageFilter === item.key
+                        ? 'text-white border-transparent shadow-xs'
+                        : 'bg-white text-slate-655 border-slate-205 hover:bg-slate-100'
+                    }`}
+                    style={{
+                      backgroundColor: triageFilter === item.key ? item.color : undefined
+                    }}
+                  >
+                    <span 
+                      className="h-1.5 w-1.5 rounded-full" 
+                      style={{ backgroundColor: triageFilter === item.key ? '#ffffff' : item.color }}
+                    ></span>
+                    <span>{item.name} ({item.count})</span>
+                  </button>
+                ))}
+              </div>
+
               {/* Search utility and count banner */}
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div className="relative flex-1 max-w-md">
@@ -787,7 +1008,7 @@ export default function RawatJalan() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                        {filteredRecords.map((rec) => {
+                        {paginatedRecords.map((rec) => {
                           const isExpanded = expandedId === rec.id;
                           const totalCost = rec.tindakan.reduce((sum, t) => sum + t.subtotal, 0);
 
@@ -801,7 +1022,22 @@ export default function RawatJalan() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
-                                  <span className="font-extrabold text-slate-800 uppercase tracking-wide">{rec.nama_pasien}</span>
+                                  <div className="flex flex-col">
+                                    <span className="font-extrabold text-slate-800 uppercase tracking-wide">{rec.nama_pasien}</span>
+                                    {rec.triase && (
+                                      <div className="mt-1">
+                                        {(() => {
+                                          const ts = getTriageStyle(rec.triase);
+                                          return (
+                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-bold border ${ts.bg}`}>
+                                              <span className={`h-1 w-1 rounded-full ${ts.dotBg}`}></span>
+                                              <span>{ts.text.split(' / ')[0]}</span>
+                                            </span>
+                                          );
+                                        })()}
+                                      </div>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="px-6 py-4.5 font-medium text-slate-650">
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -921,6 +1157,54 @@ export default function RawatJalan() {
                       </tbody>
                     </table>
                   </div>
+                  
+                  {/* Pagination Controls */}
+                  {totalPages > 1 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-100 p-4 bg-slate-50/50 gap-4">
+                      <div className="text-xs text-slate-500 font-semibold pl-2">
+                        Menampilkan <span className="font-bold text-slate-800">{Math.min(filteredRecords.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(filteredRecords.length, currentPage * itemsPerPage)}</span> dari <span className="font-bold text-teal-700">{filteredRecords.length}</span> kunjungan {triageFilter !== 'all' ? `berdasarkan triase ${triageFilter}` : ''}
+                      </div>
+                      <div className="flex items-center space-x-1 pr-2">
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                          disabled={currentPage === 1}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        >
+                          Sebelumnya
+                        </button>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                          if (totalPages > 6 && Math.abs(page - currentPage) > 2 && page !== 1 && page !== totalPages) {
+                            if (page === 2 || page === totalPages - 1) {
+                              return <span key={page} className="text-slate-400 text-xs px-2 select-none">...</span>;
+                            }
+                            return null;
+                          }
+                          return (
+                            <button
+                              key={page}
+                              onClick={() => setCurrentPage(page)}
+                              className={`h-8 w-8 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                                currentPage === page
+                                  ? 'bg-teal-600 text-white shadow-xs'
+                                  : 'border border-slate-200 bg-white text-slate-650 hover:bg-slate-50'
+                              }`}
+                            >
+                              {page}
+                            </button>
+                          );
+                        })}
+
+                        <button
+                          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        >
+                          Selanjutnya
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
