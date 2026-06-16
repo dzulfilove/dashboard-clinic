@@ -21,13 +21,6 @@ export default function DatabaseSettings() {
   const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Connection tester variables
-  const [testHost, setTestHost] = useState('');
-  const [testUser, setTestUser] = useState('');
-  const [testPassword, setTestPassword] = useState('');
-  const [testDatabase, setTestDatabase] = useState('');
-  const [testPort, setTestPort] = useState('3306');
-
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
@@ -43,14 +36,6 @@ export default function DatabaseSettings() {
       const res = await api.get('/db/status');
       const status: DbStatus = res.data;
       setDbStatus(status);
-
-      // Pre-fill fields for connection testing
-      if (status) {
-        setTestHost(status.host || '');
-        setTestUser(status.user || '');
-        setTestDatabase(status.database || '');
-        setTestPort(String(status.port || 3306));
-      }
     } catch (err) {
       console.error(err);
       setFeedback('Gagal menghubungi status database.');
@@ -65,22 +50,11 @@ export default function DatabaseSettings() {
 
   const handleTestConnection = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!testHost || !testUser || !testDatabase) {
-      setTestResult({ success: false, message: 'Harap lengkapi isian Host, User, dan Nama Database.' });
-      return;
-    }
-
     setTesting(true);
     setTestResult(null);
 
     try {
-      const res = await api.post('/db/test-connection', {
-        host: testHost,
-        user: testUser,
-        password: testPassword,
-        database: testDatabase,
-        port: Number(testPort)
-      });
+      const res = await api.post('/db/test-connection');
       setTestResult(res.data);
     } catch (err: any) {
       setTestResult({ success: false, message: 'Koneksi gagal: ' + (err.response?.data?.message || err.message) });
@@ -206,110 +180,72 @@ export default function DatabaseSettings() {
         <div className="bg-white p-6 border border-slate-150 rounded-2xl shadow-sm lg:col-span-2 space-y-6">
           <div>
             <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100 pb-3">
-              Integrasi VPS MySQL Baru
+              Sistem Integrasi MySQL VPS
             </h3>
             <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-              Konfigurasikan kredensial VPS MySQL Anda untuk memindahkan data dari Database Virtual ke VPS permanen Anda.
+              Semua parameter koneksi ditarik secara otomatis dari environment variable (<strong className="font-mono">.env</strong>) demi keamanan dan skalabilitas sistem. Pelajari status keselarasan di bawah ini.
             </p>
           </div>
 
-          {/* Guide steps to configure VPS */}
-          <div className="bg-indigo-50/50 border border-indigo-150 rounded-xl p-4 text-xs leading-relaxed text-indigo-900">
-            <span className="font-bold block mb-1">Langkah Penyambungan VPS MySQL Mandiri:</span>
-            <ul className="list-decimal pl-4 space-y-1">
-              <li>Masukkan kredensial VPS MySQL Anda pada isian di bawah dan klik <strong>Uji Koneksi</strong>.</li>
-              <li>Untuk menjadikannya permanen, atur nilai variabel ini di file <strong className="font-mono">.env</strong> Anda:
-                <div className="bg-slate-900 text-slate-200 p-2.5 rounded-lg mt-1 font-mono text-xxs leading-relaxed">
-                  DB_HOST="your_vps_ip"<br />
-                  DB_USER="your_mysql_username"<br />
-                  DB_PASSWORD="your_mysql_password"<br />
-                  DB_DATABASE="klinik_puri_medika"<br />
-                  DB_PORT=3306
-                </div>
-              </li>
-              <li>Nyalakan ulang server, lalu klik tombol <strong>Jalankan Migrasi Database</strong> untuk membentuk database beserta isinya secara otomatis!</li>
-            </ul>
+          {/* Active Env Configuration Details Panel */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3.5">
+            <span className="text-xs font-bold text-slate-700 block border-b border-slate-100 pb-2">
+              Konfigurasi Terbaca dari .env:
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium">
+              <div>
+                <span className="text-slate-500 block">Host VPS / IP:</span>
+                <span className="text-slate-900 font-mono font-bold mt-0.5 block">
+                  {dbStatus?.host ? dbStatus.host : '(Belum terdefinisi)'}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block">Port:</span>
+                <span className="text-slate-900 font-mono font-bold mt-0.5 block">
+                  {dbStatus?.port || '3306'}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block">User Database:</span>
+                <span className="text-slate-900 font-mono font-bold mt-0.5 block">
+                  {dbStatus?.user ? dbStatus.user : '(Belum terdefinisi)'}
+                </span>
+              </div>
+              <div>
+                <span className="text-slate-500 block">Nama Database:</span>
+                <span className="text-slate-900 font-mono font-bold mt-0.5 block">
+                  {dbStatus?.database ? dbStatus.database : '(Belum terdefinisi)'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="pt-2 text-xxs text-slate-400 border-t border-slate-150 leading-relaxed">
+              * Keamanan Terjamin: Sandi database Anda diproses secara server-side dan tidak pernah dikirimkan atau dipaparkan ke sisi client/browser.
+            </div>
           </div>
 
-          {/* Database testing Form */}
-          <form onSubmit={handleTestConnection} className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div className="sm:col-span-8">
-              <label htmlFor="vh-host" className="block text-xxs font-extrabold uppercase text-slate-500 tracking-wider">Host VPS (IP / Domain)</label>
-              <input
-                id="vh-host"
-                type="text"
-                required
-                placeholder="ex: 103.111.222.12"
-                value={testHost}
-                onChange={(e) => setTestHost(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none"
-              />
+          {/* Database testing Controls */}
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-bold text-slate-800 text-sm">Validasi Sambungan VPS</h4>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Uji apakah socket server dapat terhubung ke target VPS MySQL Anda dengan aturan firewall dan kredensial saat ini.
+              </p>
             </div>
 
-            <div className="sm:col-span-4">
-              <label htmlFor="vh-port" className="block text-xxs font-extrabold uppercase text-slate-500 tracking-wider">Port</label>
-              <input
-                id="vh-port"
-                type="text"
-                required
-                placeholder="3306"
-                value={testPort}
-                onChange={(e) => setTestPort(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-6">
-              <label htmlFor="vh-user" className="block text-xxs font-extrabold uppercase text-slate-500 tracking-wider">User MySQL</label>
-              <input
-                id="vh-user"
-                type="text"
-                required
-                placeholder="ex: root"
-                value={testUser}
-                onChange={(e) => setTestUser(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-6">
-              <label htmlFor="vh-pass" className="block text-xxs font-extrabold uppercase text-slate-500 tracking-wider leading-relaxed">Password</label>
-              <input
-                id="vh-pass"
-                type="password"
-                placeholder="Kata sandi VPS MySQL"
-                value={testPassword}
-                onChange={(e) => setTestPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-12">
-              <label htmlFor="vh-db" className="block text-xxs font-extrabold uppercase text-slate-500 tracking-wider">Nama Database (Telah Dibuat Di VPS)</label>
-              <input
-                id="vh-db"
-                type="text"
-                required
-                placeholder="ex: klinik_puri_medika"
-                value={testDatabase}
-                onChange={(e) => setTestDatabase(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-12 flex justify-start pt-2">
+            <form onSubmit={handleTestConnection}>
               <button
                 id="test-connection-btn"
                 type="submit"
                 disabled={testing}
-                className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 px-5 rounded-xl shadow-xs transition-colors cursor-pointer"
                 style={{ minHeight: '44px' }}
               >
                 <Plug className="h-4 w-4" />
-                <span>{testing ? 'Menguji...' : 'Uji Koneksi VPS'}</span>
+                <span>{testing ? 'Menguji Sambungan...' : 'Uji Koneksi VPS'}</span>
               </button>
-            </div>
-          </form>
+            </form>
+          </div>
 
           {testResult && (
             <div id="test-connection-result" className={`p-4 rounded-xl border text-xs leading-relaxed font-semibold flex items-start space-x-2 ${
@@ -331,7 +267,7 @@ export default function DatabaseSettings() {
             <div>
               <h4 className="font-bold text-slate-800 text-sm">Pemicu Migrasi Skema Database</h4>
               <p className="text-xs text-slate-500 mt-1">
-                Jalankan migrasi DDL schema otomatis untuk membentuk tabel, indeks, relasi serta pre-seed catalog Klinik Puri Medika di VPS MySQL Anda yang aktif.
+                Jalankan migrasi DDL schema otomatis untuk membentuk semua tabel, indeks, relasi serta pre-seed catalog Klinik Puri Medika di VPS MySQL Anda yang aktif.
               </p>
             </div>
 

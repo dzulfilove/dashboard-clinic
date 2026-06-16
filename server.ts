@@ -58,7 +58,19 @@ app.get('/api/db/status', async (req, res) => {
 });
 
 app.post('/api/db/test-connection', async (req, res) => {
-  const { host, user, password, database, port } = req.body;
+  const host = process.env.DB_HOST;
+  const user = process.env.DB_USER;
+  const password = process.env.DB_PASSWORD;
+  const database = process.env.DB_DATABASE || process.env.DB_NAME;
+  const port = Number(process.env.DB_PORT || 3306);
+
+  if (!host || !user || !database) {
+    return res.json({ 
+      success: false, 
+      message: 'Koneksi gagal: Variabel environment MySQL (DB_HOST, DB_USER, DB_DATABASE) belum dikonfigurasi di file .env server.' 
+    });
+  }
+
   try {
     const mysql = await import('mysql2/promise');
     const connection = await mysql.default.createConnection({
@@ -66,14 +78,14 @@ app.post('/api/db/test-connection', async (req, res) => {
       user,
       password,
       database,
-      port: Number(port || 3306),
+      port,
       connectTimeout: 5000,
     });
     await connection.query('SELECT 1');
     await connection.end();
-    res.json({ success: true, message: 'Koneksi ke VPS MySQL berhasil!' });
+    res.json({ success: true, message: `Koneksi ke VPS MySQL (${host}:${port}) berhasil!` });
   } catch (err: any) {
-    res.json({ success: false, message: `Gagal menghubungkan: ${err.message}` });
+    res.json({ success: false, message: `Gagal menghubungkan ke VPS MySQL (${host}:${port}): ${err.message}` });
   }
 });
 

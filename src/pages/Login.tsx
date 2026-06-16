@@ -132,7 +132,7 @@ export default function Login() {
         >
           <div className="max-w-[200px]">
             <img 
-              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png 
+              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png "
               alt="Logo Klinik Puri Medika" 
               className="w-full h-auto object-contain"
               referrerPolicy="no-referrer"
