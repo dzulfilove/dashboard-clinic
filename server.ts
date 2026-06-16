@@ -673,7 +673,7 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
 });
 
 // Create new outpatient record with bulk tindakan actions
-app.post('/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
@@ -695,10 +695,10 @@ app.post('/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'peraw
     if (Array.isArray(tindakan) && tindakan.length > 0) {
       for (const t of tindakan) {
         // Upsert Master Tindakan
-        const [existingTindakan]: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
+        const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
         let tid;
-        if (existingTindakan.length > 0) {
-            tid = existingTindakan[0].id;
+        if (existingTindakanList && existingTindakanList.length > 0) {
+            tid = existingTindakanList[0].id;
         } else {
             const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan) VALUES (?)', [t.tindakan_nama]);
             tid = tResult.insertId;
@@ -713,6 +713,9 @@ app.post('/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'peraw
 
     res.json({ success: true, message: 'Data berhasil didaftarkan.', regId });
   } catch (err: any) {
+    if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate entry')) {
+      return res.status(400).json({ message: `No. Registrasi "${no_registrasi}" sudah terdaftar di database.` });
+    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -833,10 +836,10 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
     if (Array.isArray(tindakan) && tindakan.length > 0) {
       for (const t of tindakan) {
         // Upsert Master Tindakan
-        const [existingTindakan]: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
+        const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
         let tid;
-        if (existingTindakan.length > 0) {
-            tid = existingTindakan[0].id;
+        if (existingTindakanList && existingTindakanList.length > 0) {
+            tid = existingTindakanList[0].id;
         } else {
             const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan) VALUES (?)', [t.tindakan_nama]);
             tid = tResult.insertId;

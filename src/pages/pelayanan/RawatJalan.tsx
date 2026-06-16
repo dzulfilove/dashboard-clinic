@@ -106,6 +106,7 @@ export default function RawatJalan() {
   const [rawText, setRawText] = useState('');
   const [parsedData, setParsedData] = useState<any[]>([]);
   const [isParsed, setIsParsed] = useState(false);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
   // Load records
   const fetchRecords = async () => {
@@ -201,7 +202,7 @@ export default function RawatJalan() {
       
       resetManualForm();
       fetchRecords();
-      setActiveTab('records');
+      setActiveTab('kunjungan');
     } catch (err: any) {
       console.error(err);
       showFeedback('error', err.response?.data?.message || 'Gagal menyimpan pelayanan.');
@@ -232,6 +233,7 @@ export default function RawatJalan() {
     ]);
     setIsEditMode(false);
     setEditTargetId(null);
+    setIsManualModalOpen(false);
   };
 
   const handleEditClick = (rec: OutpatientRecord) => {
@@ -257,7 +259,7 @@ export default function RawatJalan() {
 
     setIsEditMode(true);
     setEditTargetId(rec.id);
-    setActiveTab('manual');
+    setIsManualModalOpen(true);
   };
 
   const handleDeleteRecord = async (id: number) => {
@@ -510,25 +512,39 @@ export default function RawatJalan() {
           </div>
         </div>
 
-        {/* Custom Tab selectors */}
-        <div className="flex items-center space-x-1.5 mt-4 md:mt-0 bg-slate-100 p-1 rounded-2xl self-start">
+        {/* Custom Tab selectors & Manual Input trigger */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 md:mt-0">
+          <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl self-start">
+            <button
+              onClick={() => setActiveTab('statistik')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'statistik' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            >
+              Statistik
+            </button>
+            <button
+              onClick={() => setActiveTab('kunjungan')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'kunjungan' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            >
+              Daftar Kunjungan
+            </button>
+            <button
+              onClick={() => setActiveTab('input')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'input' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            >
+              Input Data
+            </button>
+          </div>
+          
           <button
-            onClick={() => setActiveTab('statistik')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'statistik' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            onClick={() => {
+              resetManualForm();
+              setIsManualModalOpen(true);
+            }}
+            id="btn-registrasi-manual"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer"
           >
-            Statistik
-          </button>
-          <button
-            onClick={() => setActiveTab('kunjungan')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'kunjungan' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
-          >
-            Daftar Kunjungan
-          </button>
-          <button
-            onClick={() => setActiveTab('input')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'input' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
-          >
-            Input Data
+            <Plus className="h-4 w-4" />
+            <span>Registrasi Manual</span>
           </button>
         </div>
       </div>
@@ -923,11 +939,12 @@ export default function RawatJalan() {
 
                 <div className="space-y-3">
                   <textarea
-                    rows={12}
+                    rows={6}
                     placeholder={`NO\tNO. REGISTRASI\tNO. RM\tPASIEN\tPELAKSANA\tTINDAKAN NAMA\tTINDAKAN TANGGAL\tTINDAKAN JAM\tTINDAKAN (Rp)\tJUMLAH\tSUBTOTAL (Rp)\n1\tRJ07062026-00001\t002502\tMADE YULIANA\tDea Oktarika\tKONSULTASI DOKTER\t07-06-2026\t10:09:57\t35.000\t1\t35.000`}
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
-                    className="w-full p-4 bg-slate-900 border border-slate-800 text-teal-400 font-mono text-xxs leading-relaxed rounded-2xl focus:ring-2 focus:ring-teal-500/35 focus:outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 text-slate-700 font-mono leading-relaxed rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 focus:outline-none"
+                    style={{ fontSize: '12px', fontWeight: 'normal' }}
                     disabled={submitting}
                   />
 
@@ -1039,276 +1056,283 @@ export default function RawatJalan() {
             </div>
           )}
 
-          {/* TAB 4: MANUAL CRUD REGISTRATION & CORRECTION */}
-          {activeTab === 'input' && (
-            <div className="max-w-4xl mx-auto bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6">
-                <div>
-                  <h3 className="text-sm font-extrabold text-slate-800 font-display">
-                    {isEditMode ? 'Form Koreksi Pelayanan Rawat Jalan' : 'Form Registrasi Pelayanan Rawat Jalan'}
-                  </h3>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Input detail data kunjungan beserta rincian tarif tindakan</p>
-                </div>
-                {isEditMode && (
+          {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
+          {isManualModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-white w-full max-w-4xl rounded-3xl border border-slate-150 shadow-2xl overflow-hidden my-8 flex flex-col max-h-[90vh]"
+              >
+                {/* Modal Header */}
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/75">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800 font-display">
+                      {isEditMode ? 'Form Koreksi Pelayanan Rawat Jalan' : 'Form Registrasi Pelayanan Rawat Jalan'}
+                    </h3>
+                    <p className="text-[10px] text-slate-400 mt-0.5">Input detail data kunjungan beserta rincian tarif tindakan</p>
+                  </div>
                   <button
                     onClick={resetManualForm}
-                    className="text-xs font-bold text-rose-600 hover:text-rose-800"
+                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
                   >
-                    Batal Koreksi
+                    <X className="h-4 w-4" />
                   </button>
-                )}
-              </div>
-
-              <form onSubmit={handleManualSubmit} className="space-y-6">
-                {/* Section A: Demography */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">A. Identitas & Demutasi Kunjungan</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: RJ16062026-00001"
-                        value={noRegistrasi}
-                        onChange={(e) => setNoRegistrasi(e.target.value)}
-                        className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                        disabled={isEditMode}
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: 002502"
-                        value={noRm}
-                        onChange={(e) => setNoRm(e.target.value)}
-                        className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
-                      <input
-                        type="text"
-                        placeholder="Contoh: MADE YULIANA"
-                        value={namaPasien}
-                        onChange={(e) => setNamaPasien(e.target.value)}
-                        className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
-                      <input
-                        type="date"
-                        value={tanggalPelayanan}
-                        onChange={(e) => setTanggalPelayanan(e.target.value)}
-                        className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Triase</label>
-                      <select
-                        value={triase}
-                        onChange={(e) => setTriase(e.target.value)}
-                        className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                        required
-                      >
-                        <option value="hijau">Hijau</option>
-                        <option value="kuning">Kuning</option>
-                        <option value="hitam">Hitam</option>
-                        <option value="merah">Merah</option>
-                      </select>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Section B: Actions list */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">B. Daftar Tindakan Medikasi & Jasa Pelaksana</h4>
+                {/* Modal Form Scrollable Wrapper */}
+                <form onSubmit={handleManualSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+                  {/* Section A: Demography */}
+                  <div className="space-y-3">
+                    <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">A. Identitas & Demutasi Kunjungan</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: RJ16062026-00001"
+                          value={noRegistrasi}
+                          onChange={(e) => setNoRegistrasi(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          disabled={isEditMode}
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: 002502"
+                          value={noRm}
+                          onChange={(e) => setNoRm(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
+                        <input
+                          type="text"
+                          placeholder="Contoh: MADE YULIANA"
+                          value={namaPasien}
+                          onChange={(e) => setNamaPasien(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
+                        <input
+                          type="date"
+                          value={tanggalPelayanan}
+                          onChange={(e) => setTanggalPelayanan(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Triase</label>
+                        <select
+                          value={triase}
+                          onChange={(e) => setTriase(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        >
+                          <option value="hijau">Hijau</option>
+                          <option value="kuning">Kuning</option>
+                          <option value="hitam">Hitam</option>
+                          <option value="merah">Merah</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section B: Actions list */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">B. Daftar Tindakan Medikasi & Jasa Pelaksana</h4>
+                      <button
+                        type="button"
+                        onClick={addManualTindakanRow}
+                        className="inline-flex items-center space-x-1.5 text-xxs font-extrabold bg-teal-50 border border-teal-150 text-teal-700 px-2.5 py-1.5 rounded-lg hover:bg-teal-100 transition-all cursor-pointer"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        <span>Tambah Tindakan</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                      {manualTindakan.map((t, index) => (
+                        <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-200/80 relative space-y-3">
+                          {/* Remove button */}
+                          {manualTindakan.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => removeManualTindakanRow(index)}
+                              className="absolute top-3 right-3 text-rose-500 hover:text-rose-700 p-1 bg-white hover:bg-rose-50 border border-slate-200/50 rounded-lg transition-all"
+                              title="Hapus baris ini"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+
+                          <span className="text-[10px] text-teal-700 font-extrabold uppercase block tracking-wider">Tindakan #{index + 1}</span>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Nama Tindakan</label>
+                              <input
+                                type="text"
+                                placeholder="KONSULTASI DOKTER / INJEKSI"
+                                value={t.tindakan_nama}
+                                onChange={(e) => {
+                                  const updated = [...manualTindakan];
+                                  updated[index].tindakan_nama = e.target.value;
+                                  setManualTindakan(updated);
+                                }}
+                                className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
+                                required
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Petugas Pelaksana</label>
+                              <input
+                                type="text"
+                                placeholder="dr. Muhammad Jundi Nasrullah"
+                                value={t.pelaksana}
+                                onChange={(e) => {
+                                  const updated = [...manualTindakan];
+                                  updated[index].pelaksana = e.target.value;
+                                  setManualTindakan(updated);
+                                }}
+                                className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
+                                required
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Keterangan Tambahan</label>
+                              <input
+                                type="text"
+                                placeholder="Opsional"
+                                value={t.tindakan_keterangan}
+                                onChange={(e) => {
+                                  const updated = [...manualTindakan];
+                                  updated[index].tindakan_keterangan = e.target.value;
+                                  setManualTindakan(updated);
+                                }}
+                                className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Cost Matrix breakdowns */}
+                          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Alat (Rp)</label>
+                              <input
+                                type="number"
+                                value={t.tarif_tindakan}
+                                onChange={(e) => updateTarifFields(index, 'tarif_tindakan', Number(e.target.value))}
+                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
+                                min={0}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Sarana</label>
+                              <input
+                                type="number"
+                                value={t.tarif_sarana}
+                                onChange={(e) => updateTarifFields(index, 'tarif_sarana', Number(e.target.value))}
+                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
+                                min={0}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Pelayanan</label>
+                              <input
+                                type="number"
+                                value={t.tarif_pelayanan}
+                                onChange={(e) => updateTarifFields(index, 'tarif_pelayanan', Number(e.target.value))}
+                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
+                                min={0}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Medis</label>
+                              <input
+                                type="number"
+                                value={t.tarif_medis}
+                                onChange={(e) => updateTarifFields(index, 'tarif_medis', Number(e.target.value))}
+                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
+                                min={0}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Jumlah (Qty)</label>
+                              <input
+                                type="number"
+                                value={t.jumlah}
+                                onChange={(e) => updateTarifFields(index, 'jumlah', Number(e.target.value))}
+                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
+                                min={1}
+                                required
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[9px] font-bold text-slate-500 uppercase text-slate-400">Subtotal</label>
+                              <input
+                                type="text"
+                                value={`Rp ${t.subtotal.toLocaleString('id-ID')}`}
+                                className="mt-1 block w-full px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono font-black text-slate-700"
+                                disabled
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Submit button bar */}
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
                     <button
                       type="button"
-                      onClick={addManualTindakanRow}
-                      className="inline-flex items-center space-x-1.5 text-xxs font-extrabold bg-teal-50 border border-teal-150 text-teal-700 px-2.5 py-1.5 rounded-lg hover:bg-teal-100 transition-all cursor-pointer"
+                      onClick={resetManualForm}
+                      className="px-5 py-2.5 border border-slate-250 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
                     >
-                      <Plus className="h-3.5 w-3.5" />
-                      <span>Tambah Tindakan</span>
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs cursor-pointer"
+                      disabled={submitting}
+                    >
+                      {submitting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white" />
+                          <span>Sedang menyimpan...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4" />
+                          <span>{isEditMode ? 'Simpan Koreksi' : 'Daftarkan Pelayanan'}</span>
+                        </>
+                      )}
                     </button>
                   </div>
-
-                  <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
-                    {manualTindakan.map((t, index) => (
-                      <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-200/80 relative space-y-3">
-                        {/* Remove button */}
-                        {manualTindakan.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeManualTindakanRow(index)}
-                            className="absolute top-3 right-3 text-rose-500 hover:text-rose-700 p-1 bg-white hover:bg-rose-50 border border-slate-200/50 rounded-lg transition-all"
-                            title="Hapus baris ini"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        )}
-
-                        <span className="text-[10px] text-teal-700 font-extrabold uppercase block tracking-wider">Tindakan #{index + 1}</span>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Nama Tindakan</label>
-                            <input
-                              type="text"
-                              placeholder="KONSULTASI DOKTER / INJEKSI"
-                              value={t.tindakan_nama}
-                              onChange={(e) => {
-                                const updated = [...manualTindakan];
-                                updated[index].tindakan_nama = e.target.value;
-                                setManualTindakan(updated);
-                              }}
-                              className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Petugas Pelaksana</label>
-                            <input
-                              type="text"
-                              placeholder="dr. Muhammad Jundi Nasrullah"
-                              value={t.pelaksana}
-                              onChange={(e) => {
-                                const updated = [...manualTindakan];
-                                updated[index].pelaksana = e.target.value;
-                                setManualTindakan(updated);
-                              }}
-                              className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Keterangan Tambahan</label>
-                            <input
-                              type="text"
-                              placeholder="Opsional"
-                              value={t.tindakan_keterangan}
-                              onChange={(e) => {
-                                const updated = [...manualTindakan];
-                                updated[index].tindakan_keterangan = e.target.value;
-                                setManualTindakan(updated);
-                              }}
-                              className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Cost Matrix breakdowns */}
-                        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Alat (Rp)</label>
-                            <input
-                              type="number"
-                              value={t.tarif_tindakan}
-                              onChange={(e) => updateTarifFields(index, 'tarif_tindakan', Number(e.target.value))}
-                              className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                              min={0}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Sarana</label>
-                            <input
-                              type="number"
-                              value={t.tarif_sarana}
-                              onChange={(e) => updateTarifFields(index, 'tarif_sarana', Number(e.target.value))}
-                              className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                              min={0}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Pelayanan</label>
-                            <input
-                              type="number"
-                              value={t.tarif_pelayanan}
-                              onChange={(e) => updateTarifFields(index, 'tarif_pelayanan', Number(e.target.value))}
-                              className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                              min={0}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Medis</label>
-                            <input
-                              type="number"
-                              value={t.tarif_medis}
-                              onChange={(e) => updateTarifFields(index, 'tarif_medis', Number(e.target.value))}
-                              className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                              min={0}
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase">Jumlah (Qty)</label>
-                            <input
-                              type="number"
-                              value={t.jumlah}
-                              onChange={(e) => updateTarifFields(index, 'jumlah', Number(e.target.value))}
-                              className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                              min={1}
-                              required
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-[9px] font-bold text-slate-500 uppercase text-slate-400">Subtotal</label>
-                            <input
-                              type="text"
-                              value={`Rp ${t.subtotal.toLocaleString('id-ID')}`}
-                              className="mt-1 block w-full px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono font-black text-slate-700"
-                              disabled
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Submit button bar */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={resetManualForm}
-                    className="px-5 py-2.5 border border-slate-250 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all"
-                  >
-                    Reset Form
-                  </button>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-md cursor-pointer"
-                    disabled={submitting}
-                  >
-                    {submitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white" />
-                        <span>Sedang menyimpan...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="h-4 w-4" />
-                        <span>{isEditMode ? 'Simpan Koreksi' : 'Daftarkan Pelayanan'}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+                </form>
+              </motion.div>
             </div>
           )}
         </>
