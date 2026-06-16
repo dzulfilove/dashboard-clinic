@@ -38,7 +38,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
   if (!token) return res.status(401).json({ message: 'Akses ditolak. Token tidak ditemukan.' });
 
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) return res.status(403).json({ message: 'Token tidak valid.' });
+    if (err) return res.status(401).json({ message: 'Token tidak valid atau telah kedaluwarsa.' });
     req.user = user;
     next();
   });

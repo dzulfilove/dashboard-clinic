@@ -23,9 +23,14 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Session expired or unauthorized, trigger logout
-      useAuthStore.getState().logout();
+    if (error.response) {
+      const status = error.response.status;
+      const errMsg = error.response.data?.message || '';
+      
+      if (status === 401 || (status === 403 && errMsg.toLowerCase().includes('token'))) {
+        // Session expired, invalid, or unauthorized, trigger logout
+        useAuthStore.getState().logout();
+      }
     }
     return Promise.reject(error);
   }
