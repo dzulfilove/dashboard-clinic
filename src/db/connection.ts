@@ -39,6 +39,7 @@ function hasMySqlEnv(): boolean {
 // Initialize MySQL pool if available
 export async function initializeDatabase(): Promise<DbStatus> {
   const host = process.env.DB_HOST || '';
+  console.log('DB_HOST:', host);
   const user = process.env.DB_USER || '';
   const password = process.env.DB_PASSWORD || '';
   const database = process.env.DB_DATABASE || process.env.DB_NAME || '';
@@ -82,13 +83,19 @@ export async function initializeDatabase(): Promise<DbStatus> {
     dbStatusInfo.error = null;
     console.log(`Successfully connected to VPS MySQL at ${host}:${port}`);
 
-    // Automatically check and run initial tables creation
-    await runMigrationsIfRequired();
+    // Automatically initialize schema only if the connected database has absolutely 0 tables
+    const [tables]: any = await mysqlPool.query('SHOW TABLES');
+    if (!tables || tables.length === 0) {
+      console.log(`VPS MySQL di ${host}:${port} kosong (0 tabel). Menginisialisasi schema pertama kali secara aman...`);
+      await runMigrationScript({ cleanReset: false });
+    } else {
+      console.log(`VPS MySQL di ${host}:${port} siap pakai. Memiliki ${tables.length} tabel. Pembaruan skema berikutnya hanya via trigger tombol.`);
+    }
 
   } catch (err: any) {
     dbStatusInfo.isVirtual = true; // Safe fallback to virtual DB so app does not crash
     dbStatusInfo.status = 'OFFLINE';
-    dbStatusInfo.error = `Could not connect or migrate VPS MySQL: ${err.message}. Falling back to Virtual DB.`;
+    dbStatusInfo.error = `Could not connect VPS MySQL: ${err.message}. Falling back to Virtual DB.`;
     console.warn(dbStatusInfo.error);
     initVirtualDb();
   }
@@ -138,10 +145,19 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
     }
 
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-    const queries = schemaSql
+    const lines = schemaSql.split('\n');
+    const cleanLines = lines.map(line => {
+      const idx = line.indexOf('--');
+      if (idx !== -1) {
+        return line.substring(0, idx);
+      }
+      return line;
+    });
+    const cleanSql = cleanLines.join('\n');
+    const queries = cleanSql
       .split(';')
       .map(q => q.trim())
-      .filter(q => q.length > 0 && !q.startsWith('--'));
+      .filter(q => q.length > 0);
 
     for (const query of queries) {
       await connection.query(query);
@@ -216,6 +232,10 @@ interface VirtualDatabase {
   obat_forecasting: any[];
   pelayanan_rawat_jalan?: any[];
   pelayanan_rawat_jalan_tindakan?: any[];
+  pasien: any[];
+  master_tindakan?: any[];
+  registrasi_rawat_jalan?: any[];
+  tindakan_rawat_jalan?: any[];
 }
 
 function initVirtualDb() {
@@ -289,7 +309,43 @@ function initVirtualDb() {
     ],
     obat_konsumsi_bulanan: [],
     obat_konsumsi_harian: [],
-    obat_forecasting: []
+    obat_forecasting: [],
+    pasien: [
+      { no_rm: '002502', nama: 'MADE YULIANA' },
+      { no_rm: '002503', nama: 'JURIAH' },
+      { no_rm: '002123', nama: 'MUHAMMAD RIDHO PRAYOGA' },
+      { no_rm: '002505', nama: 'JIHAN' },
+      { no_rm: '001889', nama: 'MUBARIKA SEKARSARI YUSUF' },
+      { no_rm: '000611', nama: 'DELLA TRISYANASARI, Ny' }
+    ],
+    master_tindakan: [
+      { id: 1, nama_tindakan: 'INJEKSI (IM/IV/SC) (UMUM)', jenis: 'RALAN' },
+      { id: 2, nama_tindakan: 'KONSULTASI DOKTER UMUM', jenis: 'RALAN' },
+      { id: 3, nama_tindakan: 'TINDAKAN PEMASANGAN INFUS (IV LINE)', jenis: 'RALAN' },
+      { id: 4, nama_tindakan: 'INFUS BOOSTER EXTRA HEALTHY', jenis: 'RALAN' },
+      { id: 5, nama_tindakan: 'KONSULTASI + USG 4D', jenis: 'RALAN' },
+      { id: 6, nama_tindakan: 'KONSULTASI + USG 2D', jenis: 'RALAN' }
+    ],
+    registrasi_rawat_jalan: [
+      { id: 1, no_registrasi: 'RJ07062026-00001', pasien_no_rm: '002502', tanggal_pelayanan: '2026-06-07', triase: 'hijau' },
+      { id: 2, no_registrasi: 'RJ07062026-00002', pasien_no_rm: '002503', tanggal_pelayanan: '2026-06-07', triase: 'hijau' },
+      { id: 3, no_registrasi: 'RJ07062026-00003', pasien_no_rm: '002123', tanggal_pelayanan: '2026-06-07', triase: 'hijau' },
+      { id: 4, no_registrasi: 'RJ08062026-00001', pasien_no_rm: '002505', tanggal_pelayanan: '2026-06-08', triase: 'merah' },
+      { id: 5, no_registrasi: 'RJ08062026-00002', pasien_no_rm: '001889', tanggal_pelayanan: '2026-06-08', triase: 'kuning' },
+      { id: 6, no_registrasi: 'RJ08062026-00003', pasien_no_rm: '000611', tanggal_pelayanan: '2026-06-08', triase: 'hijau' }
+    ],
+    tindakan_rawat_jalan: [
+      { id: 1, registrasi_id: 1, tindakan_id: 1, pelaksana: 'Dea Oktarika, S.Keb.', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '10:09:57', tarif_tindakan: 18000, tarif_sarana: 12600, tarif_pelayanan: 5400, tarif_medis: 0, jumlah: 1, subtotal: 18000 },
+      { id: 2, registrasi_id: 1, tindakan_id: 2, pelaksana: 'dr. Muhammad Jundi Nasrullah', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '10:08:50', tarif_tindakan: 35000, tarif_sarana: 20000, tarif_pelayanan: 15000, tarif_medis: 0, jumlah: 1, subtotal: 35000 },
+      { id: 3, registrasi_id: 1, tindakan_id: 3, pelaksana: 'Rola Sintia Putri, Amd.Kep', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '10:09:11', tarif_tindakan: 35000, tarif_sarana: 21000, tarif_pelayanan: 14000, tarif_medis: 0, jumlah: 1, subtotal: 35000 },
+      { id: 4, registrasi_id: 2, tindakan_id: 4, pelaksana: 'Dea Oktarika, S.Keb.', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '11:58:33', tarif_tindakan: 175000, tarif_sarana: 161000, tarif_pelayanan: 14000, tarif_medis: 0, jumlah: 1, subtotal: 175000 },
+      { id: 5, registrasi_id: 3, tindakan_id: 1, pelaksana: 'Zulfakar Alfatih, A.Md.Kep.', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '19:37:11', tarif_tindakan: 18000, tarif_sarana: 12600, tarif_pelayanan: 5400, tarif_medis: 0, jumlah: 1, subtotal: 18000 },
+      { id: 6, registrasi_id: 3, tindakan_id: 2, pelaksana: 'dr. Taufik Hidayat', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '19:30:35', tarif_tindakan: 35000, tarif_sarana: 20000, tarif_pelayanan: 15000, tarif_medis: 0, jumlah: 1, subtotal: 35000 },
+      { id: 7, registrasi_id: 3, tindakan_id: 3, pelaksana: 'Olsa Niaroka, S.Tr.Keb.,Bd.', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '19:37:01', tarif_tindakan: 35000, tarif_sarana: 21000, tarif_pelayanan: 14000, tarif_medis: 0, jumlah: 1, subtotal: 35000 },
+      { id: 8, registrasi_id: 4, tindakan_id: 5, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:10:15', tarif_tindakan: 235000, tarif_sarana: 95000, tarif_pelayanan: 140000, tarif_medis: 0, jumlah: 1, subtotal: 235000 },
+      { id: 9, registrasi_id: 5, tindakan_id: 6, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:27:15', tarif_tindakan: 185000, tarif_sarana: 75000, tarif_pelayanan: 110000, tarif_medis: 0, jumlah: 1, subtotal: 185000 },
+      { id: 10, registrasi_id: 6, tindakan_id: 6, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:45:24', tarif_tindakan: 185000, tarif_sarana: 75000, tarif_pelayanan: 110000, tarif_medis: 0, jumlah: 1, subtotal: 185000 }
+    ]
   };
 
   // Seed daily lab data for 2025 and 2026 (for gorgeous trend charts!)
@@ -986,6 +1042,93 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     if (vdb.pelayanan_rawat_jalan_tindakan) {
       vdb.pelayanan_rawat_jalan_tindakan = vdb.pelayanan_rawat_jalan_tindakan.filter(x => x.rawat_jalan_id !== rjid);
     }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  // --- 8.5 PASIEN (VIRTUAL DB) ---
+  if (norm.startsWith('SELECT * FROM pasien')) {
+    if (!vdb.pasien) vdb.pasien = [];
+    return vdb.pasien;
+  }
+
+  if (norm.startsWith('INSERT INTO pasien')) {
+    // INSERT INTO pasien (no_rm, nama) VALUES (?, ?)
+    const [no_rm, nama] = params;
+    if (!vdb.pasien) vdb.pasien = [];
+    const exists = vdb.pasien.some(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
+    if (!exists) {
+      vdb.pasien.push({ no_rm: String(no_rm), nama: String(nama) });
+      writeVirtualDb(vdb);
+    }
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE pasien SET nama = ? WHERE no_rm = ?')) {
+    const [nama, no_rm] = params;
+    if (!vdb.pasien) vdb.pasien = [];
+    const idx = vdb.pasien.findIndex(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
+    if (idx !== -1) {
+      vdb.pasien[idx].nama = String(nama);
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('DELETE FROM pasien WHERE no_rm = ?')) {
+    const no_rm = params[0];
+    if (!vdb.pasien) vdb.pasien = [];
+    vdb.pasien = vdb.pasien.filter(p => String(p.no_rm).toLowerCase() !== String(no_rm).toLowerCase());
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  // --- 8.6 MASTER TINDAKAN (VIRTUAL DB) ---
+  if (norm.startsWith('SELECT * FROM master_tindakan')) {
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    return vdb.master_tindakan;
+  }
+
+  if (norm.startsWith('SELECT id FROM master_tindakan WHERE nama_tindakan = ?')) {
+    const term = String(params[0]).toLowerCase();
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    const item = vdb.master_tindakan.find(t => t.nama_tindakan.toLowerCase() === term);
+    return item ? [item] : [];
+  }
+
+  if (norm.startsWith('INSERT INTO master_tindakan')) {
+    // INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)
+    const nama_tindakan = params[0];
+    const jenis = params[1] || 'RALAN';
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    const exists = vdb.master_tindakan.some(t => t.nama_tindakan.toLowerCase() === String(nama_tindakan).toLowerCase());
+    if (!exists) {
+      const newId = vdb.master_tindakan.length > 0 ? Math.max(...vdb.master_tindakan.map(t => t.id)) + 1 : 1;
+      vdb.master_tindakan.push({ id: newId, nama_tindakan: String(nama_tindakan), jenis: String(jenis) });
+      writeVirtualDb(vdb);
+      return { insertId: newId, affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('UPDATE master_tindakan SET nama_tindakan = ?, jenis = ? WHERE id = ?')) {
+    const [nama, jenis, id] = params;
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    const idx = vdb.master_tindakan.findIndex(t => t.id === Number(id));
+    if (idx !== -1) {
+      vdb.master_tindakan[idx].nama_tindakan = String(nama);
+      vdb.master_tindakan[idx].jenis = String(jenis);
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('DELETE FROM master_tindakan WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    vdb.master_tindakan = vdb.master_tindakan.filter(t => t.id !== id);
     writeVirtualDb(vdb);
     return { affectedRows: 1 };
   }

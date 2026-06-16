@@ -174,12 +174,14 @@ CREATE TABLE IF NOT EXISTS registrasi_rawat_jalan (
   no_registrasi VARCHAR(50) NOT NULL UNIQUE,
   pasien_no_rm VARCHAR(20) NOT NULL,
   tanggal_pelayanan DATE NOT NULL,
+  triase VARCHAR(20) DEFAULT 'hijau',
   FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS master_tindakan (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  nama_tindakan VARCHAR(250) NOT NULL UNIQUE
+  nama_tindakan VARCHAR(250) NOT NULL UNIQUE,
+  jenis ENUM('RALAN', 'RANAP') NOT NULL DEFAULT 'RALAN'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tindakan_rawat_jalan (

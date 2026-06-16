@@ -56,6 +56,8 @@ export default function Sidebar() {
       icon: Activity,
       items: [
         { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat', 'analis'] },
+        { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin'] },
+        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin'] },
         { name: 'IGD', path: '#', icon: Activity, roles: ['admin', 'perawat', 'analis'], disabled: true },
         { name: 'Rawat Inap', path: '#', icon: Layers, roles: ['admin', 'perawat', 'analis'], disabled: true }
       ]

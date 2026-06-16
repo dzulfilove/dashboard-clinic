@@ -72,7 +72,7 @@ export default function RawatJalan() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'records' | 'import' | 'manual'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'statistik' | 'kunjungan' | 'input'>('statistik');
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -85,6 +85,7 @@ export default function RawatJalan() {
   const [noRm, setNoRm] = useState('');
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
+  const [triase, setTriase] = useState('hijau');
   const [manualTindakan, setManualTindakan] = useState<Tindakan[]>([
     {
       pelaksana: '',
@@ -110,7 +111,7 @@ export default function RawatJalan() {
   const fetchRecords = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/api/pelayanan/rawat-jalan');
+      const res = await api.get('/pelayanan/rawat-jalan');
       setRecords(res.data || []);
     } catch (err: any) {
       console.error('Gagal memuat rekap pelayanan', err);
@@ -179,7 +180,7 @@ export default function RawatJalan() {
     setSubmitting(true);
     try {
       if (isEditMode && editTargetId) {
-        await api.put(`/api/pelayanan/rawat-jalan/${editTargetId}`, {
+        await api.put(`/pelayanan/rawat-jalan/${editTargetId}`, {
           no_rm: noRm,
           nama_pasien: namaPasien,
           tanggal_pelayanan: tanggalPelayanan,
@@ -187,11 +188,12 @@ export default function RawatJalan() {
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil diperbarui.`);
       } else {
-        await api.post('/api/pelayanan/rawat-jalan', {
+        await api.post('/pelayanan/rawat-jalan', {
           no_registrasi: noRegistrasi,
           no_rm: noRm,
           nama_pasien: namaPasien,
           tanggal_pelayanan: tanggalPelayanan,
+          triase: triase,
           tindakan: manualTindakan
         });
         showFeedback('success', 'Data pendaftaran rawat jalan berhasil diregistrasi.');
@@ -261,7 +263,7 @@ export default function RawatJalan() {
   const handleDeleteRecord = async (id: number) => {
     if (!window.confirm('Apakah Anda yakin ingin menghapus kunjungan pasien rawat jalan ini secara permanen?')) return;
     try {
-      await api.delete(`/api/pelayanan/rawat-jalan/${id}`);
+      await api.delete(`/pelayanan/rawat-jalan/${id}`);
       showFeedback('success', 'Data kunjungan berhasil dihapus.');
       fetchRecords();
     } catch (err) {
@@ -411,7 +413,7 @@ export default function RawatJalan() {
 
     try {
       for (const p of parsedData) {
-        await api.post('/api/pelayanan/rawat-jalan', {
+        await api.post('/pelayanan/rawat-jalan', {
           no_registrasi: p.no_registrasi,
           no_rm: p.no_rm,
           nama_pasien: p.nama_pasien,
@@ -511,28 +513,22 @@ export default function RawatJalan() {
         {/* Custom Tab selectors */}
         <div className="flex items-center space-x-1.5 mt-4 md:mt-0 bg-slate-100 p-1 rounded-2xl self-start">
           <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'dashboard' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            onClick={() => setActiveTab('statistik')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'statistik' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
           >
-            Dashboard & Tren
+            Statistik
           </button>
           <button
-            onClick={() => setActiveTab('records')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'records' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            onClick={() => setActiveTab('kunjungan')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'kunjungan' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
           >
-            Daftar Pasien ({records.length})
+            Daftar Kunjungan
           </button>
           <button
-            onClick={() => setActiveTab('import')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'import' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+            onClick={() => setActiveTab('input')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'input' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
           >
-            Import Teks
-          </button>
-          <button
-            onClick={() => { resetManualForm(); setActiveTab('manual'); }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'manual' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
-          >
-            {isEditMode ? 'Edit Record' : 'Manual Input'}
+            Input Data
           </button>
         </div>
       </div>
@@ -565,7 +561,7 @@ export default function RawatJalan() {
       ) : (
         <>
           {/* TAB 1: DASHBOARD & STATS */}
-          {activeTab === 'dashboard' && (
+          {activeTab === 'statistik' && (
             <div className="space-y-6">
               {/* Core metrics bento boxes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -725,7 +721,7 @@ export default function RawatJalan() {
           )}
 
           {/* TAB 2: DETAILED RECORDS GRID */}
-          {activeTab === 'records' && (
+          {activeTab === 'kunjungan' && (
             <div className="space-y-4">
               {/* Search utility and count banner */}
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -915,7 +911,7 @@ export default function RawatJalan() {
           )}
 
           {/* TAB 3: PASTE TEXT BULK IMPORTER */}
-          {activeTab === 'import' && (
+          {activeTab === 'input' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
@@ -979,7 +975,23 @@ export default function RawatJalan() {
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
                               <span className="text-[10px] text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
                             </div>
-                            <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+                            <div className="flex items-center space-x-2">
+                                <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+                                <select 
+                                    className="text-[10px] font-bold border rounded-lg p-1 bg-white"
+                                    value={p.triase || 'hijau'}
+                                    onChange={(e) => {
+                                        const newData = [...parsedData];
+                                        newData[idx].triase = e.target.value;
+                                        setParsedData(newData);
+                                    }}
+                                >
+                                    <option value="hijau">Hijau</option>
+                                    <option value="kuning">Kuning</option>
+                                    <option value="hitam">Hitam</option>
+                                    <option value="merah">Merah</option>
+                                </select>
+                            </div>
                           </div>
 
                           {/* Action list summary */}
@@ -1028,7 +1040,7 @@ export default function RawatJalan() {
           )}
 
           {/* TAB 4: MANUAL CRUD REGISTRATION & CORRECTION */}
-          {activeTab === 'manual' && (
+          {activeTab === 'input' && (
             <div className="max-w-4xl mx-auto bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-6">
                 <div>
@@ -1098,6 +1110,20 @@ export default function RawatJalan() {
                         className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                         required
                       />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Triase</label>
+                      <select
+                        value={triase}
+                        onChange={(e) => setTriase(e.target.value)}
+                        className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                        required
+                      >
+                        <option value="hijau">Hijau</option>
+                        <option value="kuning">Kuning</option>
+                        <option value="hitam">Hitam</option>
+                        <option value="merah">Merah</option>
+                      </select>
                     </div>
                   </div>
                 </div>

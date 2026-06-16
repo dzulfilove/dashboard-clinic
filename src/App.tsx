@@ -19,6 +19,8 @@ import AbcAnalysis from './pages/farmasi/AbcAnalysis.js';
 import UsersManagement from './pages/admin/Users.js';
 import DatabaseSettings from './pages/admin/DatabaseSettings.js';
 import RawatJalan from './pages/pelayanan/RawatJalan.js';
+import MasterTindakan from './pages/pelayanan/MasterTindakan.js';
+import MasterPasien from './pages/pelayanan/MasterPasien.js';
 
 export default function App() {
   const { initialize } = useAuthStore();
@@ -60,6 +62,22 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
                             <RawatJalan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-tindakan" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <MasterTindakan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-pasien" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <MasterPasien />
                           </ProtectedRoute>
                         } 
                       />
