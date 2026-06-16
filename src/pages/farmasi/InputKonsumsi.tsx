@@ -265,14 +265,14 @@ export default function InputKonsumsi() {
               <table className="min-w-full divide-y divide-slate-100 text-left">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th scope="col" className="px-6 py-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">Kode & Nama Obat</th>
-                    <th scope="col" className="px-5 py-4 text-center text-xs font-extrabold uppercase tracking-widest text-slate-500 w-24">Stok Awal</th>
-                    <th scope="col" className="px-5 py-4 text-center text-xs font-extrabold uppercase tracking-widest text-slate-500 w-24">Penerimaan</th>
-                    <th scope="col" className="px-5 py-4 text-center text-xs font-extrabold uppercase tracking-widest text-slate-500 w-24">Pemakaian</th>
-                    <th scope="col" className="px-5 py-4 text-center text-xs font-extrabold uppercase tracking-widest text-slate-500 w-24">Retur / Hilang</th>
-                    <th scope="col" className="px-5 py-4 text-center text-xs font-extrabold uppercase tracking-widest text-slate-500 w-28">Sisa Stok</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode & Nama Obat</th>
+                    <th scope="col" className="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Stok Awal</th>
+                    <th scope="col" className="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Penerimaan</th>
+                    <th scope="col" className="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Pemakaian</th>
+                    <th scope="col" className="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Retur / Hilang</th>
+                    <th scope="col" className="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-28">Sisa Stok</th>
                     {(user?.role === 'admin' || user?.role === 'farmasi') && (
-                      <th scope="col" className="px-6 py-4 text-right text-xs font-extrabold uppercase tracking-widest text-slate-500 w-24">Simpan</th>
+                      <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Simpan</th>
                     )}
                   </tr>
                 </thead>
@@ -293,10 +293,10 @@ export default function InputKonsumsi() {
                         <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-6 py-4">
                             <div>
-                              <span className="font-mono text-xxs font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                              <span className="font-mono text-xxs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
                                 {m.kode_obat}
                               </span>
-                              <h4 className="font-bold text-slate-900 mt-1.5 text-sm">{m.nama_obat}</h4>
+                              <h4 className="font-semibold text-slate-900 mt-1.5 text-sm">{m.nama_obat}</h4>
                               <p className="text-xxs text-slate-400 font-medium mt-1 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
                             </div>
                           </td>
@@ -309,7 +309,7 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.stok_awal}
                               onChange={(e) => handleCellChange(m.id, 'stok_awal', e.target.value)}
-                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                               placeholder="0"
                             />
                           </td>
@@ -322,7 +322,7 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.penerimaan}
                               onChange={(e) => handleCellChange(m.id, 'penerimaan', e.target.value)}
-                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                               placeholder="0"
                             />
                           </td>
@@ -335,7 +335,7 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.pemakaian}
                               onChange={(e) => handleCellChange(m.id, 'pemakaian', e.target.value)}
-                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
                               placeholder="0"
                             />
                           </td>
@@ -348,14 +348,14 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.retur_hilang}
                               onChange={(e) => handleCellChange(m.id, 'retur_hilang', e.target.value)}
-                              className="w-20 text-center py-2 bg-amber-50/50 border border-amber-200 rounded-lg text-amber-900 font-mono text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                              className="w-20 text-center py-2 bg-amber-50/50 border border-amber-200 rounded-lg text-amber-900 font-mono text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-500/30"
                               placeholder="0"
                             />
                           </td>
 
                           {/* Dynamically Calulcated Sisa Stok Cell */}
                           <td className="px-5 py-4 text-center whitespace-nowrap">
-                            <span className={`text-base font-extrabold font-mono ${sisa < 10 ? 'text-rose-600' : 'text-slate-900'}`}>
+                            <span className={`text-xs font-bold font-mono ${sisa < 10 ? 'text-rose-600' : 'text-slate-800'}`}>
                               {sisa}
                             </span>
                           </td>
