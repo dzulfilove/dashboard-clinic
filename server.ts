@@ -11,7 +11,11 @@ import { db, initializeDatabase, readVirtualDb, writeVirtualDb } from './src/db/
 
 const app = express();
 const PORT = 3000;
-const JWT_SECRET = process.env.JWT_SECRET || 'klinik_puri_medika_secret_key_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'klinik_puri_medika_fallback_secure_key_2026';
+
+const BASEROW_API_TOKEN = process.env.BASEROW_API_TOKEN;
+const BASEROW_TABLE_URL = process.env.BASEROW_TABLE_URL;
+const BASEROW_BASE_URL = process.env.BASEROW_BASE_URL;
 
 // Middelewares
 app.use(cors());
@@ -108,9 +112,14 @@ app.post('/api/db/run-migrations', async (req, res) => {
 async function sendOTPEmail(toEmail: string, otpCode: string, name: string): Promise<{ sent: boolean; messageUrl?: string; error?: string }> {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT || 587);
-  const user = process.env.SMTP_USER || 'purimedikadev@gmail.com';
-  const pass = process.env.SMTP_PASS || 'szgi dyfu gchg dueh';
-  const from = process.env.SMTP_FROM || '"Klinik Puri Medika" <purimedikadev@gmail.com>';
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const from = process.env.SMTP_FROM || '"Klinik Puri Medika" <no-reply@purimedika.com>';
+
+  if (!user || !pass) {
+    console.warn('SMTP_USER atau SMTP_PASS tidak terdefinisi di file .env. Mengirimkan OTP simulasi ke konsol.');
+    return { sent: true, messageUrl: 'Simulated Console Log Delivery' };
+  }
 
   try {
     let transporter;
@@ -127,7 +136,7 @@ async function sendOTPEmail(toEmail: string, otpCode: string, name: string): Pro
       });
     } else {
       // Use Gmail SMTP service with the provided credentials
-      console.log('Using Gmail SMTP delivery via purimedikadev@gmail.com');
+      console.log(`Using Gmail SMTP delivery via ${user}`);
       transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -140,12 +149,12 @@ async function sendOTPEmail(toEmail: string, otpCode: string, name: string): Pro
     const mailOptions = {
       from,
       to: toEmail,
-      subject: `[Klinik Puri Medika] Kode OTP 2 Keamanan Login Anda`,
+      subject: `[Klinik Puri Medika] Kode OTP Keamanan Login Anda`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
           <div style="text-align: center; border-bottom: 2px solid #0d9488; padding-bottom: 15px; margin-bottom: 20px;">
             <h1 style="color: #0f766e; margin: 0; font-size: 24px;">Klinik Puri Medika</h1>
-            <p style="color: #64748b; margin: 5px 0 0 0; font-size: 14px;">Otentikasi Dua Faktor Keamanan Sistem</p>
+            <p style="color: #64748b; margin: 5px 0 0 0; font-size: 14px;">Otentikasi Keamanan Sistem</p>
           </div>
           <p style="font-size: 16px; color: #1e293b; margin-bottom: 10px;">Halo <strong>${name}</strong>,</p>
           <p style="font-size: 14px; color: #475569; line-height: 1.6;">Kami telah menerima permintaan kode akses masuk untuk Akun Anda. Silakan masukkan kode OTP di bawah ini untuk memverifikasi identitas Anda dan masuk ke sistem:</p>
@@ -176,12 +185,18 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     return res.status(400).json({ message: 'Email wajib diisi.' });
   }
 
+  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
+    return res.status(500).json({ 
+      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable (silakan definisikan BASEROW_API_TOKEN, BASEROW_TABLE_URL, dan BASEROW_BASE_URL).'
+    });
+  }
+
   try {
     // Fetch all rows from Baserow table 936
-    const url = 'https://baserow.purimedikabdl.com/api/database/rows/table/936/?user_field_names=true';
+    const url = BASEROW_TABLE_URL;
     const response = await axios.get(url, {
       headers: {
-        'Authorization': 'Token mkOgOkWWte0XIoXwuXqw06LwtzhnBiG2',
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
         'Accept': 'application/json'
       }
     });
@@ -202,13 +217,13 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
     // Update Baserow row matching userRow.id
-    const patchUrl = `https://baserow.purimedikabdl.com/api/database/rows/table/936/${userRow.id}/?user_field_names=true`;
+    const patchUrl = `${BASEROW_BASE_URL}/${userRow.id}/?user_field_names=true`;
     await axios.patch(patchUrl, {
       'OTP 2': otp,
       'OTP 2 Expired': expiry
     }, {
       headers: {
-        'Authorization': 'Token mkOgOkWWte0XIoXwuXqw06LwtzhnBiG2',
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
         'Content-Type': 'application/json'
       }
     });
@@ -219,8 +234,8 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     res.json({
       success: true,
       message: emailRes.messageUrl 
-        ? `Kode OTP 2 berhasil diperbarui di Baserow & dikirimkan ke email simulasi.`
-        : `Kode OTP 2 berhasil dikirim ke email: ${email}`,
+        ? `Kode OTP berhasil diperbarui di Baserow & dikirimkan ke email simulasi.`
+        : `Kode OTP berhasil dikirim ke email: ${email}`,
       debugOtp: otp, // still included for easy fallback testing/verification
       emailPreviewUrl: emailRes.messageUrl || null
     });
@@ -239,12 +254,18 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
     return res.status(400).json({ message: 'Email dan Kode OTP wajib diisi.' });
   }
 
+  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
+    return res.status(500).json({ 
+      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable (silakan definisikan BASEROW_API_TOKEN, BASEROW_TABLE_URL, dan BASEROW_BASE_URL).'
+    });
+  }
+
   try {
     // Fetch all rows from Baserow table 936
-    const url = 'https://baserow.purimedikabdl.com/api/database/rows/table/936/?user_field_names=true';
+    const url = BASEROW_TABLE_URL;
     const response = await axios.get(url, {
       headers: {
-        'Authorization': 'Token mkOgOkWWte0XIoXwuXqw06LwtzhnBiG2',
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
         'Accept': 'application/json'
       }
     });
@@ -270,11 +291,9 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
       }
     }
 
-    // Provision or track user in our local sql/virtual database
-    const localUsers = await db.query('SELECT * FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-    
-    let localUserId: number;
-    let localUserName = userRow['Nama Karyawan'] || 'Karyawan Puri Medika';
+    // Use ID, Name, and Role entirely determined from the active Baserow row
+    const localUserId = Number(userRow.id || 100 + Math.floor(Math.random() * 100));
+    const localUserName = userRow['Nama Karyawan'] || 'Karyawan Puri Medika';
     let localUserRole = 'admin'; // default role
 
     // Determine role by mapping row's Divisi field robustly
@@ -297,28 +316,6 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
       localUserRole = 'farmasi';
     }
 
-    if (localUsers.length === 0) {
-      // Create user record locally
-      const hash = await bcrypt.hash('otp_secured_account_purimedika', 10);
-      const insertResult = await db.query(
-        'INSERT INTO users (nama, email, password_hash, role) VALUES (?, ?, ?, ?)',
-        [localUserName, email.toLowerCase().trim(), hash, localUserRole]
-      );
-      
-      const freshlyCreated = await db.query('SELECT id FROM users WHERE email = ?', [email.toLowerCase().trim()]);
-      localUserId = freshlyCreated[0]?.id || 100 + Math.floor(Math.random() * 100);
-    } else {
-      localUserId = localUsers[0].id;
-      localUserName = localUsers[0].nama;
-      localUserRole = localUsers[0].role;
-      
-      // Update role and name to keep synced with Baserow (using the compliant simulation/SQL query)
-      await db.query(
-        'UPDATE users SET nama = ?, email = ?, role = ? WHERE id = ?',
-        [localUserName, email.toLowerCase().trim(), localUserRole, Number(localUserId)]
-      );
-    }
-
     // Sign JWT
     const token = jwt.sign(
       { id: localUserId, nama: localUserName, email: email.toLowerCase().trim(), role: localUserRole },
@@ -327,13 +324,13 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
     );
 
     // Optional: clear OTP in Baserow to make it single-use
-    const patchUrl = `https://baserow.purimedikabdl.com/api/database/rows/table/936/${userRow.id}/?user_field_names=true`;
+    const patchUrl = `${BASEROW_BASE_URL}/${userRow.id}/?user_field_names=true`;
     await axios.patch(patchUrl, {
       'OTP 2': '',
       'OTP 2 Expired': null
     }, {
       headers: {
-        'Authorization': 'Token mkOgOkWWte0XIoXwuXqw06LwtzhnBiG2',
+        'Authorization': `Token ${BASEROW_API_TOKEN}`,
         'Content-Type': 'application/json'
       }
     }).catch((e: any) => console.warn('Failed to clean OTP 2 in Baserow:', e.message));
@@ -361,11 +358,14 @@ app.post('/api/auth/login', async (req: any, res: any) => {
 
 app.get('/api/auth/me', authenticateToken, async (req: any, res: any) => {
   try {
-    const users = await db.query('SELECT id, nama, email, role, created_at FROM users WHERE id = ?', [req.user.id]);
-    if (users.length === 0) {
-      return res.status(404).json({ message: 'User tidak ditemukan.' });
-    }
-    res.json(users[0]);
+    // Return parameters straight from the token context (Baserow source)
+    res.json({
+      id: req.user.id,
+      nama: req.user.nama,
+      email: req.user.email,
+      role: req.user.role,
+      created_at: new Date().toISOString()
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

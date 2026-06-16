@@ -130,9 +130,9 @@ export default function Login() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="flex justify-center"
         >
-          <div className="bg-white p-4.5 rounded-3xl shadow-xl border border-slate-200/50 max-w-[280px]">
+          <div className="max-w-[200px]">
             <img 
-              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png" 
+              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png 
               alt="Logo Klinik Puri Medika" 
               className="w-full h-auto object-contain"
               referrerPolicy="no-referrer"
@@ -154,7 +154,7 @@ export default function Login() {
           transition={{ delay: 0.22, duration: 0.4 }}
           className="mt-2 text-center text-sm text-slate-500 font-medium"
         >
-          Otentikasi Aman OTP Baserow (Kolom OTP 2)
+          Otentikasi Aman OTP Baserow (Kolom OTP)
         </motion.p>
       </div>
 
@@ -237,7 +237,7 @@ export default function Login() {
                     className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-teal-600/30 rounded-xl shadow-lg shadow-teal-700/10 text-sm font-bold text-white bg-teal-700 hover:bg-teal-850 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:opacity-50 transition-all cursor-pointer"
                     style={{ minHeight: '44px' }}
                   >
-                    <span>{loading ? 'Menghubungkan...' : 'Kirim Kode OTP 2'}</span>
+                    <span>{loading ? 'Menghubungkan...' : 'Kirim Kode OTP'}</span>
                     {!loading && <ArrowRight className="h-4 w-4" />}
                   </motion.button>
                 </div>
@@ -256,10 +256,10 @@ export default function Login() {
 
                 <div>
                   <label htmlFor="otp" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 ml-0.5">
-                    Masukkan Kode OTP 2
+                    Masukkan Kode OTP
                   </label>
                   <p className="text-xs text-slate-500 mb-3 font-medium leading-relaxed">
-                    Silakan salin kode OTP 6-Digit yang dikirimkan ke email <span className="text-teal-700 font-bold font-mono">{email}</span> (juga tercatat di kolom <strong>OTP 2</strong> pada database Baserow Anda).
+                    Silakan salin kode OTP 6-Digit yang dikirimkan ke email <span className="text-teal-700 font-bold font-mono">{email}</span> (juga tercatat di kolom <strong>OTP</strong> pada database Baserow Anda).
                   </p>
                   <div className="relative rounded-xl shadow-sm group">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
