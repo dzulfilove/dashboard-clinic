@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Informasi Klinik Puri Medika",
+  "description": "Sistem informasi fullstack dengan modul pemeriksaan laboratorium, monitoring konsumsi obat farmasi, analisis ABC, dan peramalan (forecasting) Moving Average.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

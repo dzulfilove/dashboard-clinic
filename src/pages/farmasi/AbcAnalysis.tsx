@@ -1,0 +1,302 @@
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '../../store/authStore.js';
+import { 
+  Layers, 
+  Calendar, 
+  RefreshCw, 
+  DollarSign, 
+  AlertTriangle,
+  Award,
+  BookOpen,
+  PieChart,
+  ArrowRight
+} from 'lucide-react';
+import api from '../../services/api.js';
+import { AbcItem, AbcResult } from '../../types.js';
+
+export default function AbcAnalysis() {
+  const { user } = useAuthStore();
+  const [loading, setLoading] = useState(true);
+  const [abcData, setAbcData] = useState<AbcItem[]>([]);
+  const [totalInvestasi, setTotalInvestasi] = useState(0);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  // Date selectors (defaulting to current month/year target)
+  const d = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(d.getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(2026); // Default seed year
+
+  const months = [
+    { value: 1, name: 'Januari' },
+    { value: 2, name: 'Februari' },
+    { value: 3, name: 'Maret' },
+    { value: 4, name: 'April' },
+    { value: 5, name: 'Mei' },
+    { value: 6, name: 'Juni' },
+    { value: 7, name: 'Juli' },
+    { value: 8, name: 'Agustus' },
+    { value: 9, name: 'September' },
+    { value: 10, name: 'Oktober' },
+    { value: 11, name: 'November' },
+    { value: 12, name: 'Desember' }
+  ];
+
+  const years = [2024, 2025, 2026, 2027];
+
+  const loadAbcAnalysis = async () => {
+    try {
+      setLoading(true);
+      setFeedback(null);
+      const res = await api.get(`/obat/abc?bulan=${selectedMonth}&tahun=${selectedYear}`);
+      
+      if (res.data && res.data.items) {
+        setAbcData(res.data.items);
+        setTotalInvestasi(res.data.total_investasi);
+      } else {
+        setAbcData([]);
+        setTotalInvestasi(0);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setFeedback('Gagal mendownload data analisis ABC.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAbcAnalysis();
+  }, [selectedMonth, selectedYear]);
+
+  // Counting classes
+  const classA = abcData.filter(item => item.klasifikasi === 'A');
+  const classB = abcData.filter(item => item.klasifikasi === 'B');
+  const classC = abcData.filter(item => item.klasifikasi === 'C');
+
+  const classASpend = classA.reduce((sum, item) => sum + item.total_nilai, 0);
+  const classBSpend = classB.reduce((sum, item) => sum + item.total_nilai, 0);
+  const classCSpend = classC.reduce((sum, item) => sum + item.total_nilai, 0);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <Layers className="h-6 w-6 text-indigo-600" />
+            <span>Analisis Klasifikasi Inventori ABC (Drug Spend)</span>
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Ukur efisiensi anggaran pengeluaran obat Klinik Puri Medika berdasarkan Pareto Value-Driven Indexing.
+          </p>
+        </div>
+
+        {/* Month Year Selector */}
+        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-xs">
+          <Calendar className="h-5 w-5 text-indigo-600 flex-shrink-0" />
+          <select 
+            id="abc-month-select"
+            value={selectedMonth} 
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            className="text-sm font-semibold bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+            style={{ minHeight: '44px' }}
+          >
+            {months.map(m => (
+              <option key={m.value} value={m.value}>{m.name}</option>
+            ))}
+          </select>
+          <span className="text-slate-300">|</span>
+          <select 
+            id="abc-year-select"
+            value={selectedYear} 
+            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            className="text-sm font-semibold bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+            style={{ minHeight: '44px' }}
+          >
+            {years.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {feedback && (
+        <div id="abc-error-alert" className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold">
+          <AlertTriangle className="h-5 w-5 text-rose-600" />
+          <span>{feedback}</span>
+        </div>
+      )}
+
+      {/* Methodological Explanation card */}
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-3 text-xs leading-relaxed text-slate-600">
+        <BookOpen className="h-5 w-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <span className="font-bold text-slate-800 block mb-1">Panduan Pengendalian Stok Metode ABC:</span>
+          <p className="mt-0.5">
+            Metode ini mengelompokkan logistik obat berdasarkan pemakaian modal kumulatif:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 pt-1 border-t border-slate-200">
+            <div>
+              <span className="font-extrabold text-emerald-700 block">Kelompok A (Kritis - 80% Nilai)</span>
+              <p className="mt-0.5 text-slate-500">Mewakili sekitar 10-20% item fisik tetapi mengambil 80% total porsi biaya. Memerlukan audit stok harian ketat dan pengawasan dari Apoteker.</p>
+            </div>
+            <div>
+              <span className="font-extrabold text-amber-700 block">Kelompok B (Moderat - 15% Nilai)</span>
+              <p className="mt-0.5 text-slate-500">Mewakili sekitar 20-30% item dengan porsi nilai 15% dari anggaran. Memiliki kontrol pengamanan moderat (stok berkala bulanan).</p>
+            </div>
+            <div>
+              <span className="font-extrabold text-slate-700 block">Kelompok C (Rendah - 5% Nilai)</span>
+              <p className="mt-0.5 text-slate-500">Mewakili porsi besar item fisik (50%+) tetapi hanya mewakili 5% dari pengeluaran modal. Kendali longgar (order bulk/tahunan).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="bg-white rounded-2xl border border-slate-250 p-24 text-center">
+          <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin mx-auto mb-3" />
+          <span>Meganalisis pengeluaran obat pasca Pareto...</span>
+        </div>
+      ) : abcData.length === 0 ? (
+        <div className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150">
+          <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-2" />
+          <p className="font-bold">Tidak ada jurnal log konsumsi.</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Harap pastikan petugas telah mengisikan volume konsumsi obat bulanan untuk periode {months.find(m => m.value === selectedMonth)?.name} {selectedYear} di Modul Farmasi.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          
+          {/* Investment value split overview */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            
+            {/* KPI: Total drug spend */}
+            <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 shadow-md">
+              <span className="text-xxs font-extrabold text-slate-400 uppercase tracking-wider block">Nilai Total Pengeluaran Obat</span>
+              <h3 className="text-2xl font-black font-mono block mt-1">
+                Rp {totalInvestasi.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
+              </h3>
+              <p className="text-xxs text-amber-400 font-medium mt-1 font-mono">Untuk seluruh obat yang digunakan</p>
+            </div>
+
+            {/* Class A summary */}
+            <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs relative overflow-hidden">
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok A (80% Nilai Kumulatif)</span>
+              <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-1">
+                {classA.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
+              </h3>
+              <p className="text-xxs font-bold text-slate-500 mt-1">
+                Anggaran: Rp {classASpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classASpend/totalInvestasi)*100) : 0}%)
+              </p>
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
+            </div>
+
+            {/* Class B summary */}
+            <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs relative overflow-hidden">
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok B (15% Nilai Kumulatif)</span>
+              <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-1">
+                {classB.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
+              </h3>
+              <p className="text-xxs font-bold text-slate-500 mt-1">
+                Anggaran: Rp {classBSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classBSpend/totalInvestasi)*100) : 0}%)
+              </p>
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-amber-500"></div>
+            </div>
+
+            {/* Class C summary */}
+            <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs relative overflow-hidden">
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok C (5% Nilai Kumulatif)</span>
+              <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-1">
+                {classC.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
+              </h3>
+              <p className="text-xxs font-bold text-slate-500 mt-1">
+                Anggaran: Rp {classCSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classCSpend/totalInvestasi)*100) : 0}%)
+              </p>
+              <div className="absolute right-0 top-0 bottom-0 w-1 bg-slate-400"></div>
+            </div>
+
+          </div>
+
+          {/* Pareto Ranked Items List */}
+          <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hiddenUnderflow">
+            <div className="bg-slate-50 px-6 py-4.5 border-b border-slate-150">
+              <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
+                Tabel Urutan Nilai Konsumsi (Pareto Decending)
+              </h3>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-100 text-left">
+                <thead className="bg-slate-50/50">
+                  <tr>
+                    <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Rank</th>
+                    <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Kode & Nama Obat</th>
+                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-slate-400">Pemakaian</th>
+                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-slate-400">Harga Satuan</th>
+                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-slate-400">Total Nilai (Spend)</th>
+                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-slate-400">Kontribusi</th>
+                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-widest text-slate-400">Kumulatif %</th>
+                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-widest text-slate-400">Kelompok</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700 text-sm font-semibold">
+                  {abcData.map((item, index) => (
+                    <tr key={item.obat_id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-400">
+                        #{index + 1}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <span className="font-mono text-xxs font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
+                            {item.kode_obat}
+                          </span>
+                          <h4 className="font-bold text-slate-900 mt-1.5 text-sm">{item.nama_obat}</h4>
+                          <p className="text-xxs text-slate-400 font-medium mt-1 uppercase">{item.golongan}</p>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-bold text-slate-800">
+                        {item.pemakaian.toLocaleString('id-ID')}
+                      </td>
+
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono text-slate-500">
+                        Rp {item.harga_satuan.toLocaleString('id-ID')}
+                      </td>
+
+                      {/* Spend calculation */}
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-extrabold text-slate-900">
+                        Rp {item.total_nilai.toLocaleString('id-ID')}
+                      </td>
+
+                      {/* Contribution % */}
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono text-xs text-slate-500">
+                        {item.kontribusi_persen}%
+                      </td>
+
+                      {/* Cumulative % */}
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono text-xs font-bold text-slate-700">
+                        {item.kumulatif_persen}%
+                      </td>
+
+                      {/* ABC class representation tag */}
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                        <span className={`inline-flex items-center justify-center h-8 w-8 text-sm font-black rounded-lg ${
+                          item.klasifikasi === 'A' ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-300' :
+                          item.klasifikasi === 'B' ? 'bg-amber-100 text-amber-800 border border-amber-250' :
+                          'bg-slate-100 text-slate-500 border border-slate-200'
+                        }`}>
+                          {item.klasifikasi}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

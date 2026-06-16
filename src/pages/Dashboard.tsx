@@ -1,0 +1,361 @@
+import { useState, useEffect } from 'react';
+import { useAuthStore } from '../store/authStore.js';
+import { 
+  TrendingUp, 
+  FlaskConical, 
+  Pill, 
+  User, 
+  AlertTriangle, 
+  Database, 
+  ArrowRight, 
+  Activity,
+  CheckCircle,
+  FileSpreadsheet
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import api from '../services/api.js';
+import { DbStatus, ForecastResult, LabData, ObatMaster, User as UserType } from '../types.js';
+
+export default function Dashboard() {
+  const { user } = useAuthStore();
+  const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
+  const [medForecast, setMedForecast] = useState<ForecastResult[]>([]);
+  const [labEntries, setLabEntries] = useState<LabData[]>([]);
+  const [medicines, setMedicines] = useState<ObatMaster[]>([]);
+  const [userAccounts, setUserAccounts] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Month-Year defaults
+  const d = new Date();
+  const currentMonth = d.getMonth() + 1;
+  const currentYear = d.getFullYear() === 2026 ? 2026 : 2026; // Match the seed year (2026)
+
+  useEffect(() => {
+    async function fetchDashboardStats() {
+      try {
+        setLoading(true);
+        // Fire parallel calls
+        const [dbRes, forecastRes, labRes, medRes] = await Promise.all([
+          api.get('/db/status'),
+          api.get(`/obat/forecast?bulan=${currentMonth}&tahun=${currentYear}`),
+          api.get(`/lab/data?bulan=${currentMonth}&tahun=${currentYear}`),
+          api.get('/obat/master')
+        ]);
+
+        setDbStatus(dbRes.data);
+        setMedForecast(forecastRes.data);
+        setLabEntries(labRes.data);
+        setMedicines(medRes.data);
+
+        // Fetch users if admin
+        if (user && user.role === 'admin') {
+          const uRes = await api.get('/admin/users');
+          setUserAccounts(uRes.data);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard statistics', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardStats();
+  }, [user]);
+
+  // Calculations
+  const criticalItems = medForecast.filter(item => item.status_stok === 'Kritis (Perlu Order)');
+  const totalLabExaminations = labEntries.reduce((sum, item) => sum + item.jumlah, 0);
+
+  // Framer Motion animation sets
+  const containerVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.55,
+        ease: [0.16, 1, 0.3, 1],
+        staggerChildren: 0.08
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.45, ease: 'easeOut' }
+    }
+  };
+
+  return (
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8 font-sans"
+    >
+      {/* Welcome Banner */}
+      <motion.div 
+        variants={itemVariants}
+        id="welcome-banner" 
+        className="bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/60 shadow-[0_4px_24px_rgba(15,23,42,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight font-display">
+            Selamat Datang, {user?.nama}!
+          </h1>
+          <p className="text-slate-550 mt-1 text-sm font-medium">
+            Anda login sebagai <span className="font-semibold text-teal-600 capitalize">{user?.role}</span>. Kelola rekam data klinik Puri Medika terpadu di bawah ini.
+          </p>
+        </div>
+
+        {/* Database Diagnostic health */}
+        <div className="flex items-center space-x-3 bg-white/55 border border-slate-200/50 px-4 py-2.5 rounded-xl text-slate-800 shadow-sm">
+          <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-emerald-500 animate-pulse' : 'text-amber-500 animate-pulse'}`} />
+          <div>
+            <div className="text-xs font-bold flex items-center gap-1.5">
+              <span>Database Sync</span>
+              <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+            </div>
+            <p className="text-xxs text-slate-500 font-mono">
+              {dbStatus?.status === 'ONLINE' ? 'VPS MySQL Terkoneksi' : 'Menggunakan Mode Virtual'}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Main KPI Grid */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* KPI 1 - Lab Volume */}
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.2 }}
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+              <FlaskConical className="h-6 w-6" />
+            </div>
+            <span className="text-xs font-mono font-bold bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+              Bulan Ini
+            </span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-display">{loading ? '...' : totalLabExaminations}</h3>
+            <p className="text-xs font-semibold text-slate-500 mt-1">Total Pemeriksaan Laboratorium</p>
+          </div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+        </motion.div>
+
+        {/* KPI 2 - Medications Catalog */}
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.2 }}
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-3 bg-indigo-50 text-indigo-700 rounded-xl group-hover:scale-105 transition-transform">
+              <Pill className="h-6 w-6" />
+            </div>
+            <span className="text-xs font-mono font-bold bg-indigo-100/80 text-indigo-800 px-2.5 py-0.5 rounded-full">
+              Katalog
+            </span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-display">{loading ? '...' : medicines.length}</h3>
+            <p className="text-xs font-semibold text-slate-500 mt-1">Item Obat Aktif</p>
+          </div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-indigo-600"></div>
+        </motion.div>
+
+        {/* KPI 3 - Low Stock Pharmacy alerts */}
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.2 }}
+          className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 border shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'border-rose-300 ring-2 ring-rose-500/5' : 'border-white/60'}`}
+        >
+          <div className="flex items-center justify-between">
+            <div className={`p-3 rounded-xl group-hover:scale-105 transition-transform ${criticalItems.length > 0 ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
+              <AlertTriangle className="h-6 w-6" />
+            </div>
+            <span className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded-full ${criticalItems.length > 0 ? 'bg-rose-100 text-rose-800 animate-pulse' : 'bg-emerald-100 text-emerald-800'}`}>
+              {criticalItems.length > 0 ? 'Kritis' : 'Normal'}
+            </span>
+          </div>
+          <div className="mt-4">
+            <h3 className={`text-2xl font-extrabold tracking-tight font-display ${criticalItems.length > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+              {loading ? '...' : criticalItems.length}
+            </h3>
+            <p className="text-xs font-semibold text-slate-500 mt-1">Obat Dibawah Reorder Point</p>
+          </div>
+          <div className={`absolute bottom-0 inset-x-0 h-1 ${criticalItems.length > 0 ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
+        </motion.div>
+
+        {/* KPI 4 - Staff / Accounts */}
+        <motion.div 
+          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.2 }}
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+        >
+          <div className="flex items-center justify-between">
+            <div className="p-3 bg-slate-50 text-slate-700 rounded-xl group-hover:scale-105 transition-transform">
+              <User className="h-6 w-6" />
+            </div>
+            <span className="text-xs font-mono font-bold bg-slate-100/80 text-slate-800 px-2.5 py-0.5 rounded-full">
+              Petugas
+            </span>
+          </div>
+          <div className="mt-4">
+            <h3 className="text-2xl font-extrabold text-slate-900 tracking-tight font-display">
+              {loading ? '...' : (user?.role === 'admin' ? userAccounts.length : 'Aktif')}
+            </h3>
+            <p className="text-xs font-semibold text-slate-500 mt-1">Akun Akses Terdaftarkan</p>
+          </div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-600"></div>
+        </motion.div>
+      </motion.div>
+
+      {/* Critical Stock Notification and Actions block */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left: Critical Stock Alerts */}
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-5 w-5 text-rose-600" />
+              <h2 className="text-lg font-bold text-slate-900 font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
+            </div>
+            {criticalItems.length > 0 && (
+              <span className="bg-rose-50 text-rose-800 text-xs font-bold px-2.5 py-1 rounded-lg border border-rose-100/55 font-mono animate-pulse">
+                Butuh Order Darurat
+              </span>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="py-12 text-center text-slate-400 text-sm">Menghitung inventory farmasi...</div>
+          ) : criticalItems.length === 0 ? (
+            <div className="bg-emerald-50/40 backdrop-blur-sm border border-emerald-100/60 rounded-xl p-6 text-center text-emerald-800">
+              <CheckCircle className="h-10 w-10 text-emerald-600 mx-auto mb-2" />
+              <p className="font-extrabold text-sm">Semua stok obat aman!</p>
+              <p className="text-xs text-emerald-650 mt-1 font-medium animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+              {criticalItems.map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-3.5 bg-rose-50/30 backdrop-blur-sm border border-rose-100/50 rounded-xl hover:bg-rose-50/70 transition-colors">
+                  <div>
+                    <span className="text-xs font-mono font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
+                      {item.kode_obat}
+                    </span>
+                    <h4 className="font-bold text-slate-900 mt-1.5 text-sm">{item.nama_obat}</h4>
+                    <div className="flex items-center space-x-3 text-xxs text-slate-500 mt-1 font-medium">
+                      <span>Proyeksi Kebutuhan (3 bln): <strong className="text-slate-800">{item.proyeksi_kebutuhan}</strong></span>
+                      <span>•</span>
+                      <span>Lead Time: <strong className="text-slate-800">{item.lead_time_hari} Hari</strong></span>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-xxs text-slate-500 font-bold">Stok Saat Ini / Reorder Point</p>
+                    <p className="text-base font-extrabold text-rose-600 mt-0.5 font-mono">
+                      {item.current_stock} <span className="text-xs font-medium text-slate-400">/ {item.reorder_qty}</span>
+                    </p>
+                    <span className="text-xxs inline-block bg-white text-rose-750 px-1.5 py-0.5 rounded border border-rose-100 mt-1 font-bold">
+                      Defisit: {item.reorder_qty - item.current_stock}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-4 border-t border-slate-100 pt-4 flex justify-end">
+            <Link 
+              to="/farmasi/forecast" 
+              className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-1"
+            >
+              <span>Lihat Detail Peramalan</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Right: Quick Action Menu Shortcuts */}
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 flex flex-col justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2 font-display">
+              <Activity className="h-5 w-5 text-teal-600" />
+              <span>Akses Cepat Modul</span>
+            </h2>
+            
+            <div className="space-y-3">
+              {/* Shortcut 1: Input Lab */}
+              {(user?.role === 'admin' || user?.role === 'lab') && (
+                <Link 
+                  to="/lab/input" 
+                  className="flex items-center justify-between p-3.5 bg-teal-50/40 backdrop-blur-sm border border-teal-150/40 rounded-xl hover:bg-teal-50/80 hover:border-teal-300/60 transition-all text-left group"
+                >
+                  <div>
+                    <h4 className="font-bold text-teal-900 text-sm">Input Laboratorium</h4>
+                    <p className="text-xxs text-teal-600 mt-1 font-medium">Submit jumlah pemeriksaan bulanan klinis</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-teal-600 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+
+              {/* Shortcut 2: Input Farmasi */}
+              {(user?.role === 'admin' || user?.role === 'farmasi') && (
+                <Link 
+                  to="/farmasi/input" 
+                  className="flex items-center justify-between p-3.5 bg-indigo-50/40 backdrop-blur-sm border border-indigo-150/40 rounded-xl hover:bg-indigo-50/80 hover:border-indigo-300/60 transition-all text-left group"
+                >
+                  <div>
+                    <h4 className="font-bold text-indigo-900 text-sm">Konsumsi Obat</h4>
+                    <p className="text-xxs text-indigo-600 mt-1 font-medium">Input log penerimaan & pemakaian obat</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-indigo-600 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+
+              {/* Shortcut 3: ABC Analysis */}
+              {(user?.role === 'admin' || user?.role === 'farmasi') && (
+                <Link 
+                  to="/farmasi/abc" 
+                  className="flex items-center justify-between p-3.5 bg-slate-50/50 backdrop-blur-sm border border-slate-200/50 rounded-xl hover:bg-slate-100 hover:border-slate-350 transition-all text-left group"
+                >
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm">Analisis ABC (Spend)</h4>
+                    <p className="text-xxs text-slate-500 mt-1 font-medium">Klasifikasi nilai kontribusi biaya obat</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-slate-600 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+
+              {/* Shortcut 4: User Accounts */}
+              {user?.role === 'admin' && (
+                <Link 
+                  to="/admin/users" 
+                  className="flex items-center justify-between p-3.5 bg-slate-100/45 backdrop-blur-sm border border-slate-200/50 rounded-xl hover:bg-slate-100 hover:border-slate-300/80 transition-all text-left group"
+                >
+                  <div>
+                    <h4 className="font-bold text-slate-800 text-sm">Kelola Petugas</h4>
+                    <p className="text-xxs text-slate-500 mt-1 font-medium">Tambah akun & ubah hak akses role</p>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-slate-600 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 pt-4 border-t border-slate-100/50 text-center">
+            <span className="text-xxs text-slate-400 font-mono tracking-wider">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
