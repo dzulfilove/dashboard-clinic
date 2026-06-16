@@ -102,7 +102,7 @@ async function runMigrationsIfRequired() {
     const [tables]: any = await mysqlPool.query('SHOW TABLES');
     const tableList = tables.map((t: any) => Object.values(t)[0]);
 
-    if (!tableList.includes('users') || !tableList.includes('lab_parameter') || !tableList.includes('obat_master')) {
+    if (!tableList.includes('users') || !tableList.includes('lab_parameter') || !tableList.includes('obat_master') || !tableList.includes('lab_data_harian') || !tableList.includes('obat_konsumsi_harian')) {
       console.log('Tables do not exist. Running SQL schema setup for VPS MySQL...');
       const schemaPath = path.join(process.cwd(), 'src', 'db', 'schema.sql');
       if (fs.existsSync(schemaPath)) {
@@ -122,6 +122,20 @@ async function runMigrationsIfRequired() {
         }
         console.log('VPS MySQL migration script executed successfully.');
       }
+    } else {
+      // Tables exist, check if columns need to be added
+      try {
+        const [cols]: any = await mysqlPool.query("SHOW COLUMNS FROM obat_master LIKE 'safety_stock'");
+        if (cols.length === 0) {
+          console.log('Adding columns safety_stock, stok_minimum, reorder_point to existing obat_master MySQL table...');
+          await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN safety_stock INT DEFAULT 0 AFTER lead_time_hari");
+          await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN stok_minimum INT DEFAULT 0 AFTER safety_stock");
+          await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN reorder_point INT DEFAULT 0 AFTER stok_minimum");
+          console.log('Columns added successfully.');
+        }
+      } catch (colErr: any) {
+        console.error('Failed checking columns on existing obat_master:', colErr.message);
+      }
     }
   } catch (err) {
     console.error('Failed to run setup migrations on MySQL pool:', err);
@@ -134,8 +148,10 @@ interface VirtualDatabase {
   users: any[];
   lab_parameter: any[];
   lab_data_bulanan: any[];
+  lab_data_harian?: any[];
   obat_master: any[];
   obat_konsumsi_bulanan: any[];
+  obat_konsumsi_harian?: any[];
   obat_forecasting: any[];
 }
 
@@ -195,45 +211,49 @@ function initVirtualDb() {
       { id: 12, kategori: 'URINALISIS', nama_parameter: 'Urin Lengkap', is_active: 1 }
     ],
     lab_data_bulanan: [],
+    lab_data_harian: [],
     obat_master: [
-      { id: 1, kode_obat: 'OBT-PAR1', nama_obat: 'Paracetamol 500mg', golongan: 'Tablet Bebas', satuan: 'Tablet', kemasan: 'DUS / 10 Strips', harga_satuan: 250, lead_time_hari: 2, is_active: 1 },
-      { id: 2, kode_obat: 'OBT-AMO2', nama_obat: 'Amoxicillin 500mg', golongan: 'Antibiotik Keras', satuan: 'Kaplet', kemasan: 'DUS / 10 strips', harga_satuan: 600, lead_time_hari: 3, is_active: 1 },
-      { id: 3, kode_obat: 'OBT-MET3', nama_obat: 'Metformin 500mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 350, lead_time_hari: 2, is_active: 1 },
-      { id: 4, kode_obat: 'OBT-AML4', nama_obat: 'Amlodipine 5mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 400, lead_time_hari: 2, is_active: 1 },
-      { id: 5, kode_obat: 'OBT-CFX5', nama_obat: 'Cefadroxil 500mg', golongan: 'Antibiotik Keras', satuan: 'Kapsul', kemasan: 'DUS / 10 strips', harga_satuan: 1200, lead_time_hari: 4, is_active: 1 },
-      { id: 6, kode_obat: 'OBT-OMP9', nama_obat: 'Omeprazole 20mg', golongan: 'Obat Keras', satuan: 'Kapsul', kemasan: 'DUS / 3 strips', harga_satuan: 500, lead_time_hari: 2, is_active: 1 },
-      { id: 7, kode_obat: 'OBT-CTC10', nama_obat: 'Cetirizine 10mg', golongan: 'Obat Bebas Terbatas', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 300, lead_time_hari: 2, is_active: 1 },
-      { id: 8, kode_obat: 'OBT-IBP11', nama_obat: 'Ibuprofen 400mg', golongan: 'Obat Bebas Terbatas', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 450, lead_time_hari: 2, is_active: 1 },
-      { id: 9, kode_obat: 'OBT-MFS12', nama_obat: 'Mefenamic Acid 500mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 500, lead_time_hari: 2, is_active: 1 },
-      { id: 10, kode_obat: 'OBT-SIM14', nama_obat: 'Simvastatin 20mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 700, lead_time_hari: 2, is_active: 1 }
+      { id: 1, kode_obat: 'OBT-PAR1', nama_obat: 'Paracetamol 500mg', golongan: 'Tablet Bebas', satuan: 'Tablet', kemasan: 'DUS / 10 Strips', harga_satuan: 250, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 2, kode_obat: 'OBT-AMO2', nama_obat: 'Amoxicillin 500mg', golongan: 'Antibiotik Keras', satuan: 'Kaplet', kemasan: 'DUS / 10 strips', harga_satuan: 600, lead_time_hari: 3, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 3, kode_obat: 'OBT-MET3', nama_obat: 'Metformin 500mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 350, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 4, kode_obat: 'OBT-AML4', nama_obat: 'Amlodipine 5mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 400, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 5, kode_obat: 'OBT-CFX5', nama_obat: 'Cefadroxil 500mg', golongan: 'Antibiotik Keras', satuan: 'Kapsul', kemasan: 'DUS / 10 strips', harga_satuan: 1200, lead_time_hari: 4, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 6, kode_obat: 'OBT-OMP9', nama_obat: 'Omeprazole 20mg', golongan: 'Obat Keras', satuan: 'Kapsul', kemasan: 'DUS / 3 strips', harga_satuan: 500, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 7, kode_obat: 'OBT-CTC10', nama_obat: 'Cetirizine 10mg', golongan: 'Obat Bebas Terbatas', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 300, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 8, kode_obat: 'OBT-IBP11', nama_obat: 'Ibuprofen 400mg', golongan: 'Obat Bebas Terbatas', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 450, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 9, kode_obat: 'OBT-MFS12', nama_obat: 'Mefenamic Acid 500mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 500, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 },
+      { id: 10, kode_obat: 'OBT-SIM14', nama_obat: 'Simvastatin 20mg', golongan: 'Obat Keras', satuan: 'Tablet', kemasan: 'DUS / 10 strips', harga_satuan: 700, lead_time_hari: 2, is_active: 1, safety_stock: 0, stok_minimum: 0, reorder_point: 0 }
     ],
     obat_konsumsi_bulanan: [],
+    obat_konsumsi_harian: [],
     obat_forecasting: []
   };
 
-  // Seed some lab data for 2025 and 2026 (for gorgeous trend charts!)
+  // Seed daily lab data for 2025 and 2026 (for gorgeous trend charts!)
   const params = defaultDb.lab_parameter;
-  const currentYear = 2026;
   const pastYears = [2025, 2026];
 
   for (const year of pastYears) {
     const maxMonth = year === 2026 ? 6 : 12; // first half of 2026
     for (let month = 1; month <= maxMonth; month++) {
-      for (const param of params) {
-        // Randomized examination volumes based on the parameter type
-        let baseCount = 50;
-        if (param.kategori === 'HEMATOLOGI') baseCount = 120;
-        if (param.kategori === 'KIMIA DARAH') baseCount = 80;
-        const seedValue = Math.floor(baseCount + Math.sin(month + param.id) * 30 + Math.random() * 15);
-        defaultDb.lab_data_bulanan.push({
-          id: defaultDb.lab_data_bulanan.length + 1,
-          parameter_id: param.id,
-          bulan: month,
-          tahun: year,
-          jumlah: seedValue,
-          input_by: 2,
-          created_at: new Date(year, month - 1, 15).toISOString()
-        });
+      // Seed data for 4 audit checkpoints in each month (days: 5, 12, 18, 25)
+      const seedDays = [5, 12, 18, 25];
+      for (const day of seedDays) {
+        const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        for (const param of params) {
+          let baseCount = 12;
+          if (param.kategori === 'HEMATOLOGI') baseCount = 30;
+          if (param.kategori === 'KIMIA DARAH') baseCount = 20;
+          const seedValue = Math.floor(baseCount + Math.sin(month + day + param.id) * 8 + Math.random() * 4);
+          defaultDb.lab_data_harian!.push({
+            id: defaultDb.lab_data_harian!.length + 1,
+            parameter_id: param.id,
+            tanggal: dateStr,
+            jumlah: seedValue,
+            input_by: 2,
+            created_at: new Date(year, month - 1, day).toISOString()
+          });
+        }
       }
     }
   }
@@ -263,6 +283,7 @@ function initVirtualDb() {
           stok_awal: startStock,
           penerimaan: received,
           pemakaian: consumed,
+          retur_hilang: 0,
           sisa_stok: sisa,
           input_by: 3,
           created_at: new Date(year, month - 1, 20).toISOString()
@@ -385,13 +406,47 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
 
   // 4. LAB PARAMETER
   if (norm.startsWith('SELECT * FROM lab_parameter WHERE is_active = 1') || norm.startsWith('SELECT * FROM lab_parameter')) {
-    return vdb.lab_parameter.filter(p => p.is_active === 1);
+    let list = vdb.lab_parameter;
+    if (norm.includes('WHERE is_active = 1')) {
+      list = list.filter(p => p.is_active === 1);
+    }
+    return list.sort((a, b) => {
+      const catComp = (a.kategori || '').localeCompare(b.kategori || '');
+      if (catComp !== 0) return catComp;
+      return (a.nama_parameter || '').localeCompare(b.nama_parameter || '');
+    });
   }
 
-  // 5. GET LAB DATA BULANAN / FILTER
-  if (norm.startsWith('SELECT d.*, p.nama_parameter, p.kategori FROM lab_data_bulanan d JOIN lab_parameter p ON d.parameter_id = p.id')) {
-    // Apply filters from manual query params or just return all with JOIN
-    let res = vdb.lab_data_bulanan.map(d => {
+  if (norm.startsWith('INSERT INTO lab_parameter')) {
+    const [kategori, nama, active] = params;
+    const newP = {
+      id: vdb.lab_parameter.length > 0 ? Math.max(...vdb.lab_parameter.map(p => p.id)) + 1 : 1,
+      kategori: String(kategori).toUpperCase().trim(),
+      nama_parameter: String(nama).trim(),
+      is_active: active !== undefined ? Number(active) : 1
+    };
+    vdb.lab_parameter.push(newP);
+    writeVirtualDb(vdb);
+    return { insertId: newP.id };
+  }
+
+  if (norm.startsWith('UPDATE lab_parameter SET')) {
+    // Format: kategori = ?, nama_parameter = ?, is_active = ? WHERE id = ?
+    const [kategori, nama, active, id] = params;
+    const idx = vdb.lab_parameter.findIndex(p => p.id === Number(id));
+    if (idx !== -1) {
+      vdb.lab_parameter[idx].kategori = String(kategori).toUpperCase().trim();
+      vdb.lab_parameter[idx].nama_parameter = String(nama).trim();
+      vdb.lab_parameter[idx].is_active = Number(active);
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  // 5. GET LAB DATA HARIAN / FILTER / MONTHLY AGGREGATE
+  if (norm.startsWith('SELECT d.*, p.nama_parameter, p.kategori FROM lab_data_harian d JOIN lab_parameter p ON d.parameter_id = p.id')) {
+    let res = (vdb.lab_data_harian || []).map(d => {
       const p = vdb.lab_parameter.find(lp => lp.id === d.parameter_id);
       return {
         ...d,
@@ -400,32 +455,65 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       };
     });
 
-    // Simple manual parsing of filters
-    if (norm.includes('d.bulan = ?') && norm.includes('d.tahun = ?')) {
-      const [b, t] = params;
-      res = res.filter(x => x.bulan === Number(b) && x.tahun === Number(t));
+    if (norm.includes('d.tanggal = ?')) {
+      const t = params[0];
+      res = res.filter(x => x.tanggal === t);
     }
     return res;
   }
 
-  // 6. INSERT/UPDATE LAB DATA
-  if (norm.includes('INSERT INTO lab_data_bulanan') && norm.includes('ON DUPLICATE KEY UPDATE')) {
-    // Format: (parameter_id, bulan, tahun, jumlah, input_by)
-    const [pid, b, t, val, uid] = params;
-    const existingIdx = vdb.lab_data_bulanan.findIndex(
-      x => x.parameter_id === Number(pid) && x.bulan === Number(b) && x.tahun === Number(t)
+  if (norm.includes('SELECT SUM(d.jumlah) as jumlah, d.parameter_id, p.nama_parameter, p.kategori FROM lab_data_harian d')) {
+    // This is the monthly breakdown query
+    // MONTH(d.tanggal) = ? AND YEAR(d.tanggal) = ?
+    const [b, t] = params;
+    
+    // Filter by month & year
+    const filtered = (vdb.lab_data_harian || []).filter(d => {
+      const dateObj = new Date(d.tanggal);
+      const m = dateObj.getMonth() + 1;
+      const y = dateObj.getFullYear();
+      return m === Number(b) && y === Number(t);
+    });
+
+    // Group by parameter_id
+    const groups: { [key: number]: any } = {};
+    filtered.forEach(d => {
+      const p = vdb.lab_parameter.find(lp => lp.id === d.parameter_id);
+      if (!p) return;
+      if (!groups[d.parameter_id]) {
+        groups[d.parameter_id] = {
+          jumlah: 0,
+          parameter_id: d.parameter_id,
+          nama_parameter: p.nama_parameter,
+          kategori: p.kategori
+        };
+      }
+      groups[d.parameter_id].jumlah += d.jumlah;
+    });
+
+    return Object.values(groups);
+  }
+
+  // 6. INSERT/UPDATE LAB DATA HARIAN
+  if (norm.includes('INSERT INTO lab_data_harian') && norm.includes('ON DUPLICATE KEY UPDATE')) {
+    // Format: (parameter_id, tanggal, jumlah, input_by)
+    const [pid, tString, val, uid] = params;
+    if (!vdb.lab_data_harian) {
+      vdb.lab_data_harian = [];
+    }
+    const existingIdx = vdb.lab_data_harian.findIndex(
+      x => x.parameter_id === Number(pid) && x.tanggal === String(tString)
     );
 
     if (existingIdx !== -1) {
-      vdb.lab_data_bulanan[existingIdx].jumlah = Number(val);
-      vdb.lab_data_bulanan[existingIdx].input_by = Number(uid);
-      vdb.lab_data_bulanan[existingIdx].created_at = new Date().toISOString();
+      vdb.lab_data_harian[existingIdx].jumlah = Number(val);
+      vdb.lab_data_harian[existingIdx].input_by = Number(uid);
+      vdb.lab_data_harian[existingIdx].created_at = new Date().toISOString();
     } else {
-      vdb.lab_data_bulanan.push({
-        id: vdb.lab_data_bulanan.length > 0 ? Math.max(...vdb.lab_data_bulanan.map(x => x.id)) + 1 : 1,
+      vdb.lab_data_harian.push({
+        id: vdb.lab_data_harian.length > 0 ? Math.max(...vdb.lab_data_harian.map(x => x.id)) + 1 : 1,
         parameter_id: Number(pid),
-        bulan: Number(b),
-        tahun: Number(t),
+        tanggal: String(tString),
         jumlah: Number(val),
         input_by: Number(uid),
         created_at: new Date().toISOString()
@@ -435,24 +523,45 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return { affectedRows: 1 };
   }
 
-  // 7. LAB TREN
-  if (norm.includes('SELECT d.bulan, d.tahun, SUM(d.jumlah) as total, p.kategori')) {
-    // Generate laboratory category trend charts
-    // Group monthly lab data totals by category and month
-    const list = vdb.lab_data_bulanan.map(d => {
-      const p = vdb.lab_parameter.find(lp => lp.id === d.parameter_id);
-      return { ...d, kategori: p ? p.kategori : 'KATEGORI' };
+  // 7. LAB REKAP AND TREN HARIAN
+  if (norm.includes('SELECT p.kategori, SUM(d.jumlah) as total FROM lab_data_harian d')) {
+    // Rekap harian
+    const [b, t] = params;
+    const filtered = (vdb.lab_data_harian || []).filter(d => {
+      const dateObj = new Date(d.tanggal);
+      const m = dateObj.getMonth() + 1;
+      const y = dateObj.getFullYear();
+      return m === Number(b) && y === Number(t);
     });
 
+    const groups: { [key: string]: number } = {};
+    filtered.forEach(d => {
+      const p = vdb.lab_parameter.find(lp => lp.id === d.parameter_id);
+      if (!p) return;
+      groups[p.kategori] = (groups[p.kategori] || 0) + d.jumlah;
+    });
+
+    return Object.entries(groups).map(([kategori, total]) => ({ kategori, total }));
+  }
+
+  if (norm.includes('SELECT MONTH(d.tanggal) as bulan, YEAR(d.tanggal) as tahun, SUM(d.jumlah) as total, p.kategori FROM lab_data_harian d')) {
     const groups: { [key: string]: { bulan: number; tahun: number; total: number; kategori: string } } = {};
-    for (const d of list) {
-      const key = `${d.tahun}-${d.bulan}-${d.kategori}`;
+    
+    (vdb.lab_data_harian || []).forEach(d => {
+      const p = vdb.lab_parameter.find(lp => lp.id === d.parameter_id);
+      if (!p) return;
+      const dateObj = new Date(d.tanggal);
+      const m = dateObj.getMonth() + 1;
+      const y = dateObj.getFullYear();
+      const key = `${y}-${m}-${p.kategori}`;
+      
       if (!groups[key]) {
-        groups[key] = { bulan: d.bulan, tahun: d.tahun, total: 0, kategori: d.kategori || '' };
+        groups[key] = { bulan: m, tahun: y, total: 0, kategori: p.kategori };
       }
       groups[key].total += d.jumlah;
-    }
-    return Object.values(groups).sort((a,b) => (a.tahun * 12 + a.bulan) - (b.tahun * 12 + b.bulan));
+    });
+
+    return Object.values(groups).sort((a, b) => (a.tahun * 12 + a.bulan) - (b.tahun * 12 + b.bulan));
   }
 
   // 8. OBAT MASTER
@@ -466,46 +575,91 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return res;
   }
   if (norm.startsWith('INSERT INTO obat_master')) {
-    const [kode, nama, gol, sat, kemas, harga, lt] = params;
+    let kode, nama, gol, sat, kemas, harga, lt, ss = 0, smin = 0, rp = 0;
+    if (params.length >= 10) {
+      [kode, nama, gol, sat, kemas, harga, lt, ss, smin, rp] = params;
+    } else {
+      [kode, nama, gol, sat, kemas, harga, lt] = params;
+    }
+
     const newObat = {
       id: vdb.obat_master.length > 0 ? Math.max(...vdb.obat_master.map(o => o.id)) + 1 : 1,
       kode_obat: kode,
       nama_obat: nama,
-      golongan: gol,
-      satuan: sat,
-      kemasan: kemas,
-      harga_satuan: Number(harga),
+      golongan: gol || 'Obat Bebas',
+      satuan: sat || 'Tablet',
+      kemasan: kemas || 'Box',
+      harga_satuan: Number(harga || 0),
       lead_time_hari: Number(lt || 2),
+      safety_stock: Number(ss || 0),
+      stok_minimum: Number(smin || 0),
+      reorder_point: Number(rp || 0),
       is_active: 1
     };
-    vdb.obat_master.push(newObat);
-    writeVirtualDb(vdb);
-    return { insertId: newObat.id };
-  }
-  if (norm.startsWith('UPDATE obat_master SET')) {
-    // Format: kode_obat = ?, nama_obat = ?, golongan = ?, satuan = ?, kemasan = ?, harga_satuan = ?, lead_time_hari = ?, is_active = ? WHERE id = ?
-    const [kode, nama, gol, sat, kemas, harga, lt, active, id] = params;
-    const idx = vdb.obat_master.findIndex(o => o.id === Number(id));
-    if (idx !== -1) {
-      vdb.obat_master[idx] = {
-        ...vdb.obat_master[idx],
-        kode_obat: kode,
-        nama_obat: nama,
-        golongan: gol,
-        satuan: sat,
-        kemasan: kemas,
-        harga_satuan: Number(harga),
-        lead_time_hari: Number(lt),
-        is_active: Number(active)
+
+    const exIdx = vdb.obat_master.findIndex(o => String(o.kode_obat).toLowerCase() === String(kode).toLowerCase());
+    if (exIdx !== -1) {
+      vdb.obat_master[exIdx] = {
+        ...vdb.obat_master[exIdx],
+        ...newObat,
+        id: vdb.obat_master[exIdx].id,
+        is_active: 1
       };
       writeVirtualDb(vdb);
-      return { affectedRows: 1 };
+      return { insertId: vdb.obat_master[exIdx].id, affectedRows: 1 };
+    } else {
+      vdb.obat_master.push(newObat);
+      writeVirtualDb(vdb);
+      return { insertId: newObat.id, affectedRows: 1 };
+    }
+  }
+  if (norm.startsWith('UPDATE obat_master SET')) {
+    let idx = -1;
+    if (params.length >= 11) {
+      const [kode, nama, gol, sat, kemas, harga, lt, ss, smin, rp, active, id] = params;
+      idx = vdb.obat_master.findIndex(o => o.id === Number(id));
+      if (idx !== -1) {
+        vdb.obat_master[idx] = {
+          ...vdb.obat_master[idx],
+          kode_obat: kode,
+          nama_obat: nama,
+          golongan: gol,
+          satuan: sat,
+          kemasan: kemas,
+          harga_satuan: Number(harga),
+          lead_time_hari: Number(lt),
+          safety_stock: Number(ss),
+          stok_minimum: Number(smin),
+          reorder_point: Number(rp),
+          is_active: Number(active)
+        };
+        writeVirtualDb(vdb);
+        return { affectedRows: 1 };
+      }
+    } else {
+      const [kode, nama, gol, sat, kemas, harga, lt, active, id] = params;
+      idx = vdb.obat_master.findIndex(o => o.id === Number(id));
+      if (idx !== -1) {
+        vdb.obat_master[idx] = {
+          ...vdb.obat_master[idx],
+          kode_obat: kode,
+          nama_obat: nama,
+          golongan: gol,
+          satuan: sat,
+          kemasan: kemas,
+          harga_satuan: Number(harga),
+          lead_time_hari: Number(lt),
+          is_active: Number(active)
+        };
+        writeVirtualDb(vdb);
+        return { affectedRows: 1 };
+      }
     }
     return { affectedRows: 0 };
   }
 
   // 9. PHARMACY CONSUMPTION
-  if (norm.startsWith('SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_bulanan c JOIN obat_master o ON c.obat_id = o.id')) {
+  if (norm.startsWith('SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_bolanan c JOIN obat_master o ON c.obat_id = o.id') || norm.startsWith('SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_bulanan c JOIN obat_master o ON c.obat_id = o.id')) {
     let res = vdb.obat_konsumsi_bulanan.map(c => {
       const o = vdb.obat_master.find(m => m.id === c.obat_id);
       return {
@@ -525,9 +679,90 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return res;
   }
 
+  // 9.5 PHARMACY CONSUMPTION DAILY
+  if (norm.startsWith('SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_harian c JOIN obat_master o ON c.obat_id = o.id')) {
+    if (!vdb.obat_konsumsi_harian) vdb.obat_konsumsi_harian = [];
+    let res = vdb.obat_konsumsi_harian.map(c => {
+      const o = vdb.obat_master.find(m => m.id === c.obat_id);
+      return {
+        ...c,
+        nama_obat: o ? o.nama_obat : 'Nama Obat',
+        kode_obat: o ? o.kode_obat : 'KODE',
+        harga_satuan: o ? Number(o.harga_satuan) : 0,
+        lead_time_hari: o ? Number(o.lead_time_hari) : 2,
+        golongan: o ? o.golongan : 'Golongan'
+      };
+    });
+
+    if (norm.includes('c.tanggal = ?')) {
+      const [t] = params;
+      res = res.filter(x => x.tanggal === String(t));
+    }
+    return res;
+  }
+
+  if (norm.includes('INSERT INTO obat_konsumsi_harian') && norm.includes('ON DUPLICATE KEY UPDATE')) {
+    // Format: (obat_id, tanggal, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) (8 params)
+    const [oid, tVal, sawal, terima, pakai, retur, sisa, uid] = params;
+    if (!vdb.obat_konsumsi_harian) vdb.obat_konsumsi_harian = [];
+    
+    const existingIdx = vdb.obat_konsumsi_harian.findIndex(
+      x => x.obat_id === Number(oid) && x.tanggal === String(tVal)
+    );
+
+    if (existingIdx !== -1) {
+      vdb.obat_konsumsi_harian[existingIdx].stok_awal = Number(sawal);
+      vdb.obat_konsumsi_harian[existingIdx].penerimaan = Number(terima);
+      vdb.obat_konsumsi_harian[existingIdx].pemakaian = Number(pakai);
+      vdb.obat_konsumsi_harian[existingIdx].retur_hilang = Number(retur);
+      vdb.obat_konsumsi_harian[existingIdx].sisa_stok = Number(sisa);
+      vdb.obat_konsumsi_harian[existingIdx].input_by = Number(uid);
+      vdb.obat_konsumsi_harian[existingIdx].created_at = new Date().toISOString();
+    } else {
+      vdb.obat_konsumsi_harian.push({
+        id: vdb.obat_konsumsi_harian.length > 0 ? Math.max(...vdb.obat_konsumsi_harian.map(x => x.id)) + 1 : 1,
+        obat_id: Number(oid),
+        tanggal: String(tVal),
+        stok_awal: Number(sawal),
+        penerimaan: Number(terima),
+        pemakaian: Number(pakai),
+        retur_hilang: Number(retur),
+        sisa_stok: Number(sisa),
+        input_by: Number(uid),
+        created_at: new Date().toISOString()
+      });
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.includes('FROM obat_konsumsi_harian') && norm.includes('MONTH(tanggal) = ?') && norm.includes('YEAR(tanggal) = ?')) {
+    const [oid, b, t] = params;
+    if (!vdb.obat_konsumsi_harian) vdb.obat_konsumsi_harian = [];
+
+    const filtered = vdb.obat_konsumsi_harian.filter(x => {
+      const matchesObat = x.obat_id === Number(oid);
+      const dObj = new Date(x.tanggal);
+      const m = dObj.getMonth() + 1;
+      const y = dObj.getFullYear();
+      return matchesObat && m === Number(b) && y === Number(t);
+    });
+
+    // Sort by tanggal ASC
+    filtered.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+    return filtered;
+  }
+
   if (norm.includes('INSERT INTO obat_konsumsi_bulanan') && norm.includes('ON DUPLICATE KEY UPDATE')) {
-    // Format: (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, sisa_stok, input_by)
-    const [oid, b, t, sawal, terima, pakai, sisa, uid] = params;
+    // Format: (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) (9 params)
+    // or fallback Format: (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, sisa_stok, input_by) (8 params)
+    let oid, b, t, sawal, terima, pakai, retur = 0, sisa, uid;
+    if (params.length >= 9) {
+      [oid, b, t, sawal, terima, pakai, retur, sisa, uid] = params;
+    } else {
+      [oid, b, t, sawal, terima, pakai, sisa, uid] = params;
+    }
+
     const existingIdx = vdb.obat_konsumsi_bulanan.findIndex(
       x => x.obat_id === Number(oid) && x.bulan === Number(b) && x.tahun === Number(t)
     );
@@ -536,6 +771,7 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       vdb.obat_konsumsi_bulanan[existingIdx].stok_awal = Number(sawal);
       vdb.obat_konsumsi_bulanan[existingIdx].penerimaan = Number(terima);
       vdb.obat_konsumsi_bulanan[existingIdx].pemakaian = Number(pakai);
+      vdb.obat_konsumsi_bulanan[existingIdx].retur_hilang = Number(retur);
       vdb.obat_konsumsi_bulanan[existingIdx].sisa_stok = Number(sisa);
       vdb.obat_konsumsi_bulanan[existingIdx].input_by = Number(uid);
       vdb.obat_konsumsi_bulanan[existingIdx].created_at = new Date().toISOString();
@@ -548,6 +784,7 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         stok_awal: Number(sawal),
         penerimaan: Number(terima),
         pemakaian: Number(pakai),
+        retur_hilang: Number(retur),
         sisa_stok: Number(sisa),
         input_by: Number(uid),
         created_at: new Date().toISOString()
@@ -555,6 +792,18 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     }
     writeVirtualDb(vdb);
     return { affectedRows: 1 };
+  }
+
+  // Forecast/ABC generic select from obat_konsumsi_bulanan
+  if (norm.includes('FROM obat_konsumsi_bulanan') && norm.includes('pemakaian') && !norm.includes('JOIN')) {
+    return vdb.obat_konsumsi_bulanan.map(c => ({
+      obat_id: c.obat_id,
+      bulan: c.bulan,
+      tahun: c.tahun,
+      pemakaian: c.pemakaian,
+      retur_hilang: c.retur_hilang || 0,
+      sisa_stok: c.sisa_stok
+    }));
   }
 
   // Fallback defaults for unrecognized queries

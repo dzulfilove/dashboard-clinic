@@ -379,49 +379,137 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
 /* ==================== 3. LABORATORY ENDPOINTS ==================== */
 
 app.get('/api/lab/parameter', authenticateToken, async (req, res) => {
+  const all = req.query.all === 'true';
   try {
-    const params = await db.query('SELECT * FROM lab_parameter WHERE is_active = 1');
+    const sql = all 
+      ? 'SELECT * FROM lab_parameter'
+      : 'SELECT * FROM lab_parameter WHERE is_active = 1';
+    const params = await db.query(sql);
     res.json(params);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Get monthly lab numbers. Query filtering is simulated/handled by our db utility
-app.get('/api/lab/data', authenticateToken, async (req, res) => {
-  const { bulan, tahun } = req.query;
+// Admin/Lab: Create parameter
+app.post('/api/lab/parameter', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+  const { kategori, nama_parameter } = req.body;
+  if (!kategori || !nama_parameter) {
+    return res.status(400).json({ message: 'Kategori dan nama parameter wajib diisi.' });
+  }
   try {
-    const rows = await db.query(
-      'SELECT d.*, p.nama_parameter, p.kategori FROM lab_data_bulanan d JOIN lab_parameter p ON d.parameter_id = p.id WHERE d.bulan = ? AND d.tahun = ?',
-      [Number(bulan), Number(tahun)]
+    const result = await db.query(
+      'INSERT INTO lab_parameter (kategori, nama_parameter, is_active) VALUES (?, ?, 1)',
+      [String(kategori).toUpperCase().trim(), String(nama_parameter).trim()]
     );
-    res.json(rows);
+    res.json({ success: true, message: 'Parameter berhasil ditambahkan.', id: result.insertId });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Save or Update bulk monthly values
+// Admin/Lab: Update parameter
+app.put('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+  const { id } = req.params;
+  const { kategori, nama_parameter, is_active } = req.body;
+  if (!kategori || !nama_parameter) {
+    return res.status(400).json({ message: 'Kategori dan nama parameter wajib diisi.' });
+  }
+  try {
+    await db.query(
+      'UPDATE lab_parameter SET kategori = ?, nama_parameter = ?, is_active = ? WHERE id = ?',
+      [String(kategori).toUpperCase().trim(), String(nama_parameter).trim(), is_active !== undefined ? Number(is_active) : 1, Number(id)]
+    );
+    res.json({ success: true, message: 'Parameter berhasil diperbarui.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin/Lab: Delete/Deactivate parameter
+app.delete('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('UPDATE lab_parameter SET is_active = 0 WHERE id = ?', [Number(id)]);
+    res.json({ success: true, message: 'Parameter berhasil dinonaktifkan.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get daily or monthly aggregated lab volumes or a custom month range
+app.get('/api/lab/data', authenticateToken, async (req, res) => {
+  const { tanggal, bulan, tahun, start_bulan, start_tahun, end_bulan, end_tahun } = req.query;
+  try {
+    if (tanggal) {
+      // Get daily entries
+      const rows = await db.query(
+        'SELECT d.*, p.nama_parameter, p.kategori FROM lab_data_harian d JOIN lab_parameter p ON d.parameter_id = p.id WHERE d.tanggal = ?',
+        [String(tanggal)]
+      );
+      res.json(rows);
+    } else if (start_bulan && start_tahun && end_bulan && end_tahun) {
+      // Get monthly aggregated values across custom range
+      const startDay = '01';
+      const lastDay = new Date(Number(end_tahun), Number(end_bulan), 0).getDate();
+      const startDate = `${start_tahun}-${String(start_bulan).padStart(2, '0')}-${startDay}`;
+      const endDate = `${end_tahun}-${String(end_bulan).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+      const rows = await db.query(
+        'SELECT SUM(d.jumlah) as jumlah, d.parameter_id, p.nama_parameter, p.kategori FROM lab_data_harian d JOIN lab_parameter p ON d.parameter_id = p.id WHERE d.tanggal BETWEEN ? AND ? GROUP BY d.parameter_id, p.nama_parameter, p.kategori',
+        [startDate, endDate]
+      );
+      // Map to quantities interface
+      const formatted = rows.map((r: any) => ({
+        parameter_id: r.parameter_id,
+        jumlah: Number(r.jumlah || 0),
+        nama_parameter: r.nama_parameter,
+        kategori: r.kategori
+      }));
+      res.json(formatted);
+    } else if (bulan && tahun) {
+      // Get monthly aggregated values for a single month
+      const rows = await db.query(
+        'SELECT SUM(d.jumlah) as jumlah, d.parameter_id, p.nama_parameter, p.kategori FROM lab_data_harian d JOIN lab_parameter p ON d.parameter_id = p.id WHERE MONTH(d.tanggal) = ? AND YEAR(d.tanggal) = ? GROUP BY d.parameter_id, p.nama_parameter, p.kategori',
+        [Number(bulan), Number(tahun)]
+      );
+      // Map to quantities interface
+      const formatted = rows.map((r: any) => ({
+        parameter_id: r.parameter_id,
+        jumlah: Number(r.jumlah || 0),
+        nama_parameter: r.nama_parameter,
+        kategori: r.kategori
+      }));
+      res.json(formatted);
+    } else {
+      res.json([]);
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Save or Update bulk daily parameters
 app.post('/api/lab/data', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
-  const { bulan, tahun, data } = req.body; // data: [{ parameter_id, jumlah }]
-  if (!bulan || !tahun || !Array.isArray(data)) {
-    return res.status(400).json({ message: 'Data bulan, tahun, dan parameter pemeriksaan tidak lengkap.' });
+  const { tanggal, data } = req.body; // data: [{ parameter_id, jumlah }]
+  if (!tanggal || !Array.isArray(data)) {
+    return res.status(400).json({ message: 'Data tanggal dan parameter pemeriksaan tidak lengkap.' });
   }
 
   try {
     for (const item of data) {
       await db.query(
-        'INSERT INTO lab_data_bulanan (parameter_id, bulan, tahun, jumlah, input_by) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE jumlah = VALUES(jumlah), input_by = VALUES(input_by)',
-        [Number(item.parameter_id), Number(bulan), Number(tahun), Number(item.jumlah || 0), req.user.id]
+        'INSERT INTO lab_data_harian (parameter_id, tanggal, jumlah, input_by) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE jumlah = VALUES(jumlah), input_by = VALUES(input_by)',
+        [Number(item.parameter_id), String(tanggal), Number(item.jumlah || 0), req.user.id]
       );
     }
-    res.json({ success: true, message: 'Data laboratorium berhasil disimpan.' });
+    res.json({ success: true, message: 'Data harian laboratorium berhasil disimpan.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// Edit single lab record
+// Edit single daily lab record
 app.put('/api/lab/data/:id', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
   const { id } = req.params;
   const { jumlah } = req.body;
@@ -429,17 +517,17 @@ app.put('/api/lab/data/:id', authenticateToken, roleGuard(['admin', 'lab']), asy
     const status = db.getDiagnosticStatus();
     if (status.isVirtual) {
       const vdb = readVirtualDb();
-      const idx = vdb.lab_data_bulanan.findIndex(x => x.id === Number(id));
+      const idx = (vdb.lab_data_harian || []).findIndex(x => x.id === Number(id));
       if (idx !== -1) {
-        vdb.lab_data_bulanan[idx].jumlah = Number(jumlah);
-        vdb.lab_data_bulanan[idx].input_by = req.user.id;
+        vdb.lab_data_harian![idx].jumlah = Number(jumlah);
+        vdb.lab_data_harian![idx].input_by = req.user.id;
         writeVirtualDb(vdb);
         return res.json({ success: true, message: 'Data berhasil diperbarui.' });
       }
       return res.status(404).json({ message: 'Data tidak ditemukan.' });
     }
 
-    await db.query('UPDATE lab_data_bulanan SET jumlah = ?, input_by = ? WHERE id = ?', [Number(jumlah), req.user.id, Number(id)]);
+    await db.query('UPDATE lab_data_harian SET jumlah = ?, input_by = ? WHERE id = ?', [Number(jumlah), req.user.id, Number(id)]);
     res.json({ success: true, message: 'Data berhasil diperbarui.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -451,9 +539,9 @@ app.get('/api/lab/rekap', authenticateToken, async (req, res) => {
   try {
     const queryStr = `
       SELECT p.kategori, SUM(d.jumlah) as total
-      FROM lab_data_bulanan d
+      FROM lab_data_harian d
       JOIN lab_parameter p ON d.parameter_id = p.id
-      WHERE d.bulan = ? AND d.tahun = ?
+      WHERE MONTH(d.tanggal) = ? AND YEAR(d.tanggal) = ?
       GROUP BY p.kategori
     `;
     const rows = await db.query(queryStr, [Number(bulan), Number(tahun)]);
@@ -467,10 +555,38 @@ app.get('/api/lab/rekap', authenticateToken, async (req, res) => {
 app.get('/api/lab/tren', authenticateToken, async (req, res) => {
   try {
     const rows = await db.query(
-      `SELECT d.bulan, d.tahun, SUM(d.jumlah) as total, p.kategori
-       FROM lab_data_bulanan d
+      `SELECT MONTH(d.tanggal) as bulan, YEAR(d.tanggal) as tahun, SUM(d.jumlah) as total, p.kategori
+       FROM lab_data_harian d
        JOIN lab_parameter p ON d.parameter_id = p.id
-       GROUP BY d.tahun, d.bulan, p.kategori`
+       GROUP BY YEAR(d.tanggal), MONTH(d.tanggal), p.kategori`
+    );
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Granular daily parameter trends to track data entry progress per exam type
+app.get('/api/lab/parameter-harian', authenticateToken, async (req, res) => {
+  const { start_bulan, start_tahun, end_bulan, end_tahun } = req.query;
+  try {
+    const sB = Number(start_bulan || 1);
+    const sT = Number(start_tahun || 2026);
+    const eB = Number(end_bulan || 12);
+    const eT = Number(end_tahun || 2026);
+
+    const startDay = '01';
+    const lastDay = new Date(eT, eB, 0).getDate();
+    const startDate = `${sT}-${String(sB).padStart(2, '0')}-${startDay}`;
+    const endDate = `${eT}-${String(eB).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+    const rows = await db.query(
+      `SELECT d.tanggal, d.jumlah, d.parameter_id, p.nama_parameter, p.kategori
+       FROM lab_data_harian d
+       JOIN lab_parameter p ON d.parameter_id = p.id
+       WHERE d.tanggal BETWEEN ? AND ?
+       ORDER BY d.tanggal ASC`,
+      [startDate, endDate]
     );
     res.json(rows);
   } catch (err: any) {
@@ -499,14 +615,25 @@ app.get('/api/obat/master', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/obat/master', authenticateToken, roleGuard(['admin', 'farmasi']), async (req, res) => {
-  const { kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari } = req.body;
-  if (!kode_obat || !nama_obat || !harga_satuan) {
-    return res.status(400).json({ message: 'Kode obat, nama obat, dan harga satuan wajib diisi.' });
+  const { kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, safety_stock, stok_minimum, reorder_point } = req.body;
+  if (!kode_obat || !nama_obat) {
+    return res.status(400).json({ message: 'Kode obat dan nama obat wajib diisi.' });
   }
   try {
     const result = await db.query(
-      'INSERT INTO obat_master (kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
-      [kode_obat, nama_obat, golongan || '', satuan || '', kemasan || '', Number(harga_satuan), Number(lead_time_hari || 2)]
+      'INSERT INTO obat_master (kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, safety_stock, stok_minimum, reorder_point, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)',
+      [
+        kode_obat, 
+        nama_obat, 
+        golongan || 'Obat Bebas', 
+        satuan || '', 
+        kemasan || '', 
+        Number(harga_satuan || 0), 
+        Number(lead_time_hari || 2),
+        Number(safety_stock || 0),
+        Number(stok_minimum || 0),
+        Number(reorder_point || 0)
+      ]
     );
     res.json({ success: true, message: 'Obat berhasil ditambahkan.', id: result.insertId });
   } catch (err: any) {
@@ -516,7 +643,7 @@ app.post('/api/obat/master', authenticateToken, roleGuard(['admin', 'farmasi']),
 
 app.put('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farmasi']), async (req, res) => {
   const { id } = req.params;
-  const { kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, is_active } = req.body;
+  const { kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, safety_stock, stok_minimum, reorder_point, is_active } = req.body;
   
   try {
     const status = db.getDiagnosticStatus();
@@ -528,11 +655,14 @@ app.put('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farmasi'
           ...vdb.obat_master[idx],
           kode_obat,
           nama_obat,
-          golongan,
+          golongan: golongan || 'Obat Bebas',
           satuan,
           kemasan,
-          harga_satuan: Number(harga_satuan),
-          lead_time_hari: Number(lead_time_hari),
+          harga_satuan: Number(harga_satuan || 0),
+          lead_time_hari: Number(lead_time_hari || 2),
+          safety_stock: Number(safety_stock || 0),
+          stok_minimum: Number(stok_minimum || 0),
+          reorder_point: Number(reorder_point || 0),
           is_active: Number(is_active)
         };
         writeVirtualDb(vdb);
@@ -542,12 +672,281 @@ app.put('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farmasi'
     }
 
     await db.query(
-      'UPDATE obat_master SET kode_obat = ?, nama_obat = ?, golongan = ?, satuan = ?, kemasan = ?, harga_satuan = ?, lead_time_hari = ?, is_active = ? WHERE id = ?',
-      [kode_obat, nama_obat, golongan, satuan, kemasan, Number(harga_satuan), Number(lead_time_hari), Number(is_active), Number(id)]
+      'UPDATE obat_master SET kode_obat = ?, nama_obat = ?, golongan = ?, satuan = ?, kemasan = ?, harga_satuan = ?, lead_time_hari = ?, safety_stock = ?, stok_minimum = ?, reorder_point = ?, is_active = ? WHERE id = ?',
+      [
+        kode_obat, 
+        nama_obat, 
+        golongan || 'Obat Bebas', 
+        satuan, 
+        kemasan, 
+        Number(harga_satuan || 0), 
+        Number(lead_time_hari || 2), 
+        Number(safety_stock || 0), 
+        Number(stok_minimum || 0), 
+        Number(reorder_point || 0), 
+        Number(is_active), 
+        Number(id)
+      ]
     );
     res.json({ success: true, message: 'Data obat berhasil diperbarui.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Import master data obat from Excel
+app.post('/api/obat/import', authenticateToken, roleGuard(['admin', 'farmasi']), async (req, res) => {
+  const { fileBase64 } = req.body;
+  if (!fileBase64) {
+    return res.status(400).json({ message: 'File excel tidak ditemukan.' });
+  }
+
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const buffer = Buffer.from(fileBase64, 'base64');
+    await workbook.xlsx.load(buffer);
+    
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) {
+      return res.status(400).json({ message: 'Worksheet kosong atau tidak valid.' });
+    }
+
+    // Find the header row (scan first 10 rows)
+    let headerRowIndex = 1;
+    for (let r = 1; r <= 10; r++) {
+      const row = worksheet.getRow(r);
+      let hasKode = false;
+      let hasNama = false;
+      row.eachCell((cell) => {
+        const val = String(cell.value || '').toLowerCase();
+        if (val.includes('kode')) hasKode = true;
+        if (val.includes('nama')) hasNama = true;
+      });
+      if (hasKode && hasNama) {
+        headerRowIndex = r;
+        break;
+      }
+    }
+
+    const headers = worksheet.getRow(headerRowIndex);
+    const colMap: { [key: string]: number } = {};
+    headers.eachCell((cell, colNumber) => {
+      const val = String(cell.value || '').toLowerCase();
+      if (val.includes('kode')) colMap['kode'] = colNumber;
+      else if (val.includes('nama')) colMap['nama'] = colNumber;
+      else if (val.includes('satuan')) colMap['satuan'] = colNumber;
+      else if (val.includes('kemasan')) colMap['kemasan'] = colNumber;
+      else if (val.includes('harga')) colMap['harga'] = colNumber;
+      else if (val.includes('safety') || val.includes('stok aman')) colMap['safety'] = colNumber;
+      else if (val.includes('lead')) colMap['lead'] = colNumber;
+      else if (val.includes('minimum') || val.includes('stok min')) colMap['minimum'] = colNumber;
+      else if (val.includes('reorder') || val.includes('rop') || val.includes('point')) colMap['reorder'] = colNumber;
+    });
+
+    if (!colMap['kode'] || !colMap['nama']) {
+      return res.status(400).json({ 
+        message: 'Format salah. Kolom "Kode Obat" dan "Nama Obat" wajib ada di excel template.' 
+      });
+    }
+
+    let successCount = 0;
+    
+    // Iterate over rows to perform upsert
+    for (let r = headerRowIndex + 1; r <= worksheet.rowCount; r++) {
+      const row = worksheet.getRow(r);
+      
+      const kodeRaw = row.getCell(colMap['kode']).value;
+      const namaRaw = row.getCell(colMap['nama']).value;
+      
+      if (!kodeRaw || !namaRaw) continue; // skip row
+
+      // extract code and name safely
+      const kode_obat = String(kodeRaw).trim();
+      const nama_obat = String(namaRaw).trim();
+      if (!kode_obat || !nama_obat) continue;
+
+      const satuan = colMap['satuan'] ? String(row.getCell(colMap['satuan']).value || 'PCS').trim() : 'PCS';
+      const kemasan = colMap['kemasan'] ? String(row.getCell(colMap['kemasan']).value || 'Box').trim() : 'Box';
+      
+      // Harga Satuan parsing
+      let hargaRaw = colMap['harga'] ? row.getCell(colMap['harga']).value : 0;
+      if (hargaRaw && typeof hargaRaw === 'object') {
+        hargaRaw = (hargaRaw as any).result !== undefined ? (hargaRaw as any).result : (hargaRaw as any).value;
+      }
+      let harga_satuan = 0;
+      if (hargaRaw !== null && hargaRaw !== undefined) {
+        if (typeof hargaRaw === 'number') {
+          harga_satuan = hargaRaw;
+        } else {
+          const cleanStr = String(hargaRaw).replace(/[^\d.]/g, '');
+          harga_satuan = parseFloat(cleanStr) || 0;
+        }
+      }
+
+      // Lead time
+      let ltRaw = colMap['lead'] ? row.getCell(colMap['lead']).value : 2;
+      if (ltRaw && typeof ltRaw === 'object') {
+        ltRaw = (ltRaw as any).result !== undefined ? (ltRaw as any).result : (ltRaw as any).value;
+      }
+      const lead_time_hari = parseInt(String(ltRaw)) || 2;
+
+      // Safety stock
+      let ssRaw = colMap['safety'] ? row.getCell(colMap['safety']).value : 0;
+      if (ssRaw && typeof ssRaw === 'object') {
+        ssRaw = (ssRaw as any).result !== undefined ? (ssRaw as any).result : (ssRaw as any).value;
+      }
+      const safety_stock = parseInt(String(ssRaw)) || 0;
+
+      // Minimum stock
+      let minRaw = colMap['minimum'] ? row.getCell(colMap['minimum']).value : 0;
+      if (minRaw && typeof minRaw === 'object') {
+        minRaw = (minRaw as any).result !== undefined ? (minRaw as any).result : (minRaw as any).value;
+      }
+      const stok_minimum = parseInt(String(minRaw)) || 0;
+
+      // Reorder point
+      let rpRaw = colMap['reorder'] ? row.getCell(colMap['reorder']).value : 0;
+      if (rpRaw && typeof rpRaw === 'object') {
+        rpRaw = (rpRaw as any).result !== undefined ? (rpRaw as any).result : (rpRaw as any).value;
+      }
+      const reorder_point = parseInt(String(rpRaw)) || 0;
+
+      // Execute Upsert
+      await db.query(
+        `INSERT INTO obat_master (kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, safety_stock, stok_minimum, reorder_point, is_active)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+         ON DUPLICATE KEY UPDATE
+           nama_obat = VALUES(nama_obat),
+           golongan = VALUES(golongan),
+           satuan = VALUES(satuan),
+           kemasan = VALUES(kemasan),
+           harga_satuan = VALUES(harga_satuan),
+           lead_time_hari = VALUES(lead_time_hari),
+           safety_stock = VALUES(safety_stock),
+           stok_minimum = VALUES(stok_minimum),
+           reorder_point = VALUES(reorder_point),
+           is_active = 1`,
+        [
+          kode_obat,
+          nama_obat,
+          'Obat Bebas',
+          satuan,
+          kemasan,
+          harga_satuan,
+          lead_time_hari,
+          safety_stock,
+          stok_minimum,
+          reorder_point
+        ]
+      );
+      successCount++;
+    }
+
+    res.json({
+      success: true,
+      message: `Berhasil mengimpor/memperbarui ${successCount} data master obat dari file excel.`
+    });
+
+  } catch (err: any) {
+    console.error('Import error:', err);
+    res.status(500).json({ message: `Gagal memproses import excel: ${err.message}` });
+  }
+});
+
+// Bulk import master data obat (integrated with virtual or real DB)
+app.post('/api/obat/import-bulk', authenticateToken, roleGuard(['admin', 'farmasi']), async (req, res) => {
+  const { items } = req.body;
+  if (!items || !Array.isArray(items)) {
+    return res.status(400).json({ message: 'Input "items" harus berupa array data obat.' });
+  }
+
+  try {
+    let successCount = 0;
+    const status = db.getDiagnosticStatus();
+
+    for (const item of items) {
+      const kode_obat = String(item.kode_obat || '').trim();
+      const nama_obat = String(item.nama_obat || '').trim();
+      if (!kode_obat || !nama_obat) continue;
+
+      const golongan = String(item.golongan || 'Obat Bebas').trim();
+      const satuan = String(item.satuan || 'PCS').trim();
+      const kemasan = String(item.kemasan || 'Box').trim();
+      const harga_satuan = Number(item.harga_satuan || 0);
+      const lead_time_hari = Number(item.lead_time_hari || 2);
+      const safety_stock = Number(item.safety_stock || 0);
+      const stok_minimum = Number(item.stok_minimum || 0);
+      const reorder_point = Number(item.reorder_point || 0);
+
+      if (status.status === 'VIRTUAL') {
+        const vdb = readVirtualDb();
+        const newObat = {
+          id: vdb.obat_master.length > 0 ? Math.max(...vdb.obat_master.map((o: any) => o.id)) + 1 : 1,
+          kode_obat,
+          nama_obat,
+          golongan,
+          satuan,
+          kemasan,
+          harga_satuan,
+          lead_time_hari,
+          safety_stock,
+          stok_minimum,
+          reorder_point,
+          is_active: 1
+        };
+
+        const exIdx = vdb.obat_master.findIndex((o: any) => String(o.kode_obat).toLowerCase() === kode_obat.toLowerCase());
+        if (exIdx !== -1) {
+          vdb.obat_master[exIdx] = {
+            ...vdb.obat_master[exIdx],
+            ...newObat,
+            id: vdb.obat_master[exIdx].id,
+            is_active: 1
+          };
+        } else {
+          vdb.obat_master.push(newObat);
+        }
+        writeVirtualDb(vdb);
+      } else {
+        await db.query(
+          `INSERT INTO obat_master (kode_obat, nama_obat, golongan, satuan, kemasan, harga_satuan, lead_time_hari, safety_stock, stok_minimum, reorder_point, is_active)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+           ON DUPLICATE KEY UPDATE
+             nama_obat = VALUES(nama_obat),
+             golongan = VALUES(golongan),
+             satuan = VALUES(satuan),
+             kemasan = VALUES(kemasan),
+             harga_satuan = VALUES(harga_satuan),
+             lead_time_hari = VALUES(lead_time_hari),
+             safety_stock = VALUES(safety_stock),
+             stok_minimum = VALUES(stok_minimum),
+             reorder_point = VALUES(reorder_point),
+             is_active = 1`,
+          [
+            kode_obat,
+            nama_obat,
+            golongan,
+            satuan,
+            kemasan,
+            harga_satuan,
+            lead_time_hari,
+            safety_stock,
+            stok_minimum,
+            reorder_point
+          ]
+        );
+      }
+      successCount++;
+    }
+
+    res.json({
+      success: true,
+      message: `Berhasil mengimpor/memperbarui ${successCount} data master obat.`
+    });
+
+  } catch (err: any) {
+    console.error('Import bulk error:', err);
+    res.status(500).json({ message: `Gagal memproses bulk import: ${err.message}` });
   }
 });
 
@@ -574,32 +973,79 @@ app.delete('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farma
 });
 
 app.get('/api/obat/konsumsi', authenticateToken, async (req, res) => {
-  const { bulan, tahun } = req.query;
+  const { tanggal, bulan, tahun } = req.query;
   try {
-    const rows = await db.query(
-      'SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_bulanan c JOIN obat_master o ON c.obat_id = o.id WHERE c.bulan = ? AND c.tahun = ?',
-      [Number(bulan), Number(tahun)]
-    );
-    res.json(rows);
+    if (tanggal) {
+      const rows = await db.query(
+        'SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_harian c JOIN obat_master o ON c.obat_id = o.id WHERE c.tanggal = ?',
+        [String(tanggal)]
+      );
+      res.json(rows);
+    } else if (bulan && tahun) {
+      const rows = await db.query(
+        'SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_bulanan c JOIN obat_master o ON c.obat_id = o.id WHERE c.bulan = ? AND c.tahun = ?',
+        [Number(bulan), Number(tahun)]
+      );
+      res.json(rows);
+    } else {
+      res.status(450).json({ message: 'Parameter tanggal atau bulan/tahun wajib diisi.' });
+    }
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
 
 app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']), async (req: any, res) => {
-  const { bulan, tahun, obat_id, stok_awal, penerimaan, pemakaian } = req.body;
-  if (!bulan || !tahun || !obat_id) {
-    return res.status(400).json({ message: 'Informasi obat, bulan, dan tahun harus lengkap.' });
+  const { tanggal, obat_id, stok_awal, penerimaan, pemakaian, retur_hilang } = req.body;
+  if (!tanggal || !obat_id) {
+    return res.status(400).json({ message: 'Informasi obat dan tanggal harus lengkap.' });
   }
 
-  const sisa_stok = Number(stok_awal || 0) + Number(penerimaan || 0) - Number(pemakaian || 0);
+  const sisa_stok = Number(stok_awal || 0) + Number(penerimaan || 0) - Number(pemakaian || 0) - Number(retur_hilang || 0);
 
   try {
+    // 1. Insert/Update Harian
     await db.query(
-      'INSERT INTO obat_konsumsi_bulanan (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
-      [Number(obat_id), Number(bulan), Number(tahun), Number(stok_awal || 0), Number(penerimaan || 0), Number(pemakaian || 0), sisa_stok, req.user.id]
+      'INSERT INTO obat_konsumsi_harian (obat_id, tanggal, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
+      [Number(obat_id), String(tanggal), Number(stok_awal || 0), Number(penerimaan || 0), Number(pemakaian || 0), Number(retur_hilang || 0), sisa_stok, req.user.id]
     );
-    res.json({ success: true, message: 'Laporan konsumsi obat berhasil disimpan.', sisa_stok });
+
+    // 2. Extract bulan & tahun from tanggal
+    const dateObj = new Date(tanggal);
+    const bulan = dateObj.getMonth() + 1;
+    const tahun = dateObj.getFullYear();
+
+    // 3. Recalculate monthly values from harian
+    const harianRows = await db.query(
+      'SELECT * FROM obat_konsumsi_harian WHERE obat_id = ? AND MONTH(tanggal) = ? AND YEAR(tanggal) = ? ORDER BY tanggal ASC',
+      [Number(obat_id), bulan, tahun]
+    );
+
+    if (harianRows.length > 0) {
+      const firstRow = harianRows[0];
+      const lastRow = harianRows[harianRows.length - 1];
+
+      const monthly_stok_awal = firstRow.stok_awal;
+      let monthly_penerimaan = 0;
+      let monthly_pemakaian = 0;
+      let monthly_retur_hilang = 0;
+
+      harianRows.forEach((row: any) => {
+        monthly_penerimaan += row.penerimaan;
+        monthly_pemakaian += row.pemakaian;
+        monthly_retur_hilang += row.retur_hilang;
+      });
+
+      const monthly_sisa_stok = lastRow.sisa_stok;
+
+      // 4. Update the monthly aggregated table
+      await db.query(
+        'INSERT INTO obat_konsumsi_bulanan (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
+        [Number(obat_id), bulan, tahun, monthly_stok_awal, monthly_penerimaan, monthly_pemakaian, monthly_retur_hilang, monthly_sisa_stok, req.user.id]
+      );
+    }
+
+    res.json({ success: true, message: 'Laporan harian konsumsi obat berhasil disimpan.', sisa_stok });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -896,12 +1342,33 @@ app.post('/api/admin/reset-password', authenticateToken, roleGuard(['admin']), a
 
 // Export Laboratory records to spreadsheet
 app.get('/api/lab/export', authenticateToken, roleGuard(['admin']), async (req, res) => {
-  const { bulan, tahun } = req.query;
+  const { bulan, tahun, start_bulan, start_tahun, end_bulan, end_tahun } = req.query;
   try {
-    const rows = await db.query(
-      'SELECT d.*, p.nama_parameter, p.kategori, u.nama as input_by_user FROM lab_data_bulanan d JOIN lab_parameter p ON d.parameter_id = p.id LEFT JOIN users u ON d.input_by = u.id WHERE d.bulan = ? AND d.tahun = ?',
-      [Number(bulan), Number(tahun)]
-    );
+    let rows;
+    if (start_bulan && start_tahun && end_bulan && end_tahun) {
+      const startDay = '01';
+      const lastDay = new Date(Number(end_tahun), Number(end_bulan), 0).getDate();
+      const startDate = `${start_tahun}-${String(start_bulan).padStart(2, '0')}-${startDay}`;
+      const endDate = `${end_tahun}-${String(end_bulan).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+      rows = await db.query(
+        `SELECT SUM(d.jumlah) as jumlah, d.parameter_id, p.nama_parameter, p.kategori, MAX(d.created_at) as created_at
+         FROM lab_data_harian d 
+         JOIN lab_parameter p ON d.parameter_id = p.id 
+         WHERE d.tanggal BETWEEN ? AND ? 
+         GROUP BY d.parameter_id, p.nama_parameter, p.kategori`,
+        [startDate, endDate]
+      );
+    } else {
+      rows = await db.query(
+        `SELECT SUM(d.jumlah) as jumlah, d.parameter_id, p.nama_parameter, p.kategori, MAX(d.created_at) as created_at
+         FROM lab_data_harian d 
+         JOIN lab_parameter p ON d.parameter_id = p.id 
+         WHERE MONTH(d.tanggal) = ? AND YEAR(d.tanggal) = ? 
+         GROUP BY d.parameter_id, p.nama_parameter, p.kategori`,
+        [Number(bulan), Number(tahun)]
+      );
+    }
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Laporan Lab');
@@ -910,9 +1377,8 @@ app.get('/api/lab/export', authenticateToken, roleGuard(['admin']), async (req, 
       { header: 'No', key: 'no', width: 8 },
       { header: 'Kategori', key: 'kategori', width: 25 },
       { header: 'Parameter Pemeriksaan', key: 'parameter', width: 35 },
-      { header: 'Jumlah Pemeriksaan', key: 'jumlah', width: 20 },
-      { header: 'Input Oleh', key: 'petugas', width: 25 },
-      { header: 'Tanggal Submit', key: 'tanggal', width: 25 }
+      { header: 'Jumlah Pemeriksaan (Total)', key: 'jumlah', width: 25 },
+      { header: 'Last Update', key: 'tanggal', width: 25 }
     ];
 
     // Style Headers
@@ -924,8 +1390,7 @@ app.get('/api/lab/export', authenticateToken, roleGuard(['admin']), async (req, 
         no: idx + 1,
         kategori: r.kategori,
         parameter: r.nama_parameter,
-        jumlah: r.jumlah,
-        petugas: r.input_by_user || 'Sistem',
+        jumlah: Number(r.jumlah || 0),
         tanggal: r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID') : '-'
       });
     });
@@ -960,6 +1425,7 @@ app.get('/api/obat/export', authenticateToken, roleGuard(['admin']), async (req,
       { header: 'Stok Awal', key: 'stok_awal', width: 12 },
       { header: 'Penerimaan', key: 'penerimaan', width: 12 },
       { header: 'Pemakaian', key: 'pemakaian', width: 12 },
+      { header: 'Retur/Hilang', key: 'retur_hilang', width: 14 },
       { header: 'Sisa Stok', key: 'sisa_stok', width: 12 },
       { header: 'Harga Satuan', key: 'harga', width: 18 },
       { header: 'Total Nilai (Rp)', key: 'total_nilai', width: 20 },
@@ -978,6 +1444,7 @@ app.get('/api/obat/export', authenticateToken, roleGuard(['admin']), async (req,
         stok_awal: r.stok_awal,
         penerimaan: r.penerimaan,
         pemakaian: r.pemakaian,
+        retur_hilang: r.retur_hilang || 0,
         sisa_stok: r.sisa_stok,
         harga: r.harga_satuan,
         total_nilai: r.pemakaian * r.harga_satuan,

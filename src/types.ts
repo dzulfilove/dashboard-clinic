@@ -44,6 +44,9 @@ export interface ObatMaster {
   kemasan: string;
   harga_satuan: number;
   lead_time_hari: number;
+  safety_stock?: number;
+  stok_minimum?: number;
+  reorder_point?: number;
   is_active: number;
 }
 
@@ -55,6 +58,7 @@ export interface ObatKonsumsi {
   stok_awal: number;
   penerimaan: number;
   pemakaian: number;
+  retur_hilang?: number;
   sisa_stok: number;
   input_by?: number;
   nama_obat?: string;

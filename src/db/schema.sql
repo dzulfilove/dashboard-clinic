@@ -33,15 +33,31 @@ CREATE TABLE IF NOT EXISTS lab_data_bulanan (
   UNIQUE KEY unique_param_bulan_tahun (parameter_id, bulan, tahun)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS lab_data_harian (
+  id INT NOT NULL AUTO_INCREMENT,
+  parameter_id INT NOT NULL,
+  tanggal DATE NOT NULL,
+  jumlah INT NOT NULL DEFAULT 0,
+  input_by INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (parameter_id) REFERENCES lab_parameter(id) ON DELETE CASCADE,
+  FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_param_tanggal (parameter_id, tanggal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS obat_master (
   id INT NOT NULL AUTO_INCREMENT,
   kode_obat VARCHAR(20) NOT NULL UNIQUE,
   nama_obat VARCHAR(200) NOT NULL,
-  golongan VARCHAR(50) NOT NULL,
+  golongan VARCHAR(50) DEFAULT 'Obat Bebas',
   satuan VARCHAR(20) NOT NULL,
   kemasan VARCHAR(50) NOT NULL,
-  harga_satuan DECIMAL(12,2) NOT NULL,
+  harga_satuan DECIMAL(12,2) DEFAULT 0.00,
   lead_time_hari INT DEFAULT 2,
+  safety_stock INT DEFAULT 0,
+  stok_minimum INT DEFAULT 0,
+  reorder_point INT DEFAULT 0,
   is_active TINYINT(1) DEFAULT 1,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -54,6 +70,7 @@ CREATE TABLE IF NOT EXISTS obat_konsumsi_bulanan (
   stok_awal INT NOT NULL DEFAULT 0,
   penerimaan INT NOT NULL DEFAULT 0,
   pemakaian INT NOT NULL DEFAULT 0,
+  retur_hilang INT NOT NULL DEFAULT 0,
   sisa_stok INT NOT NULL,
   input_by INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -61,6 +78,23 @@ CREATE TABLE IF NOT EXISTS obat_konsumsi_bulanan (
   FOREIGN KEY (obat_id) REFERENCES obat_master(id) ON DELETE CASCADE,
   FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
   UNIQUE KEY unique_obat_bulan_tahun (obat_id, bulan, tahun)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS obat_konsumsi_harian (
+  id INT NOT NULL AUTO_INCREMENT,
+  obat_id INT NOT NULL,
+  tanggal DATE NOT NULL,
+  stok_awal INT NOT NULL DEFAULT 0,
+  penerimaan INT NOT NULL DEFAULT 0,
+  pemakaian INT NOT NULL DEFAULT 0,
+  retur_hilang INT NOT NULL DEFAULT 0,
+  sisa_stok INT NOT NULL,
+  input_by INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (obat_id) REFERENCES obat_master(id) ON DELETE CASCADE,
+  FOREIGN KEY (input_by) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_obat_tanggal (obat_id, tanggal)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS obat_forecasting (

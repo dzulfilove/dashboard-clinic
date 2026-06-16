@@ -130,9 +130,13 @@ export default function Login() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="flex justify-center"
         >
-          <div className="flex items-center space-x-3 bg-teal-800/90 backdrop-blur-md text-white px-5 py-2.5 rounded-2xl shadow-lg border border-teal-600/30">
-            <Activity className="h-7 w-7 text-teal-300 animate-pulse stroke-[2.5]" />
-            <span className="font-extrabold text-xl tracking-tight font-display">Klinik Puri Medika</span>
+          <div className="bg-white p-4.5 rounded-3xl shadow-xl border border-slate-200/50 max-w-[280px]">
+            <img 
+              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png" 
+              alt="Logo Klinik Puri Medika" 
+              className="w-full h-auto object-contain"
+              referrerPolicy="no-referrer"
+            />
           </div>
         </motion.div>
         
