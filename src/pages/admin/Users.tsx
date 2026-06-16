@@ -32,7 +32,7 @@ export default function UsersManagement() {
   const [nama, setNama] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'admin' | 'lab' | 'farmasi'>('lab');
+  const [role, setRole] = useState<'admin' | 'perawat' | 'analis' | 'farmasi' | 'lab'>('analis');
 
   // Reset password states
   const [resetUserId, setResetUserId] = useState<number | null>(null);
@@ -62,7 +62,7 @@ export default function UsersManagement() {
     setNama('');
     setEmail('');
     setPassword('');
-    setRole('lab');
+    setRole('analis');
     setIsFormOpen(true);
     setFeedback(null);
   };
@@ -248,9 +248,10 @@ export default function UsersManagement() {
                 className="mt-1.5 block w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-teal-500/35 cursor-pointer"
                 style={{ minHeight: '44px' }}
               >
-                <option value="lab">Petugas Lab (Modul Laboratorium)</option>
-                <option value="farmasi">Apoteker (Modul Farmasi)</option>
-                <option value="admin">Sistem Admin (Semua Modul)</option>
+                <option value="analis">Analis Lab (Akses Laboratorium)</option>
+                <option value="perawat">Perawat (Akses Laboratorium)</option>
+                <option value="farmasi">Petugas Farmasi (Akses Farmasi)</option>
+                <option value="admin">Sistem Admin (Semua Akses / Full Access)</option>
               </select>
             </div>
 
@@ -375,7 +376,8 @@ export default function UsersManagement() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-extrabold border uppercase tracking-wider rounded-lg ${
                         u.role === 'admin' ? 'bg-indigo-50 border-indigo-150 text-indigo-700' :
-                        u.role === 'lab' ? 'bg-emerald-50 border-emerald-150 text-emerald-700' :
+                        u.role === 'perawat' ? 'bg-sky-50 border-sky-150 text-sky-700' :
+                        u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 border-emerald-150 text-emerald-700' :
                         'bg-amber-50 border-amber-150 text-amber-700'
                       }`}>
                         {u.role === 'admin' ? <Shield className="h-3 w-3" /> : <UserCheck className="h-3 w-3" />}

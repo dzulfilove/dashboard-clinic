@@ -10,6 +10,7 @@ import ProtectedRoute from './components/ProtectedRoute.js';
 import Login from './pages/Login.js';
 import Dashboard from './pages/Dashboard.js';
 import InputPemeriksaan from './pages/lab/InputPemeriksaan.js';
+import MasterPemeriksaan from './pages/lab/MasterPemeriksaan.js';
 import DashboardLab from './pages/lab/DashboardLab.js';
 import MasterObat from './pages/farmasi/MasterObat.js';
 import InputKonsumsi from './pages/farmasi/InputKonsumsi.js';
@@ -17,6 +18,7 @@ import Forecasting from './pages/farmasi/Forecasting.js';
 import AbcAnalysis from './pages/farmasi/AbcAnalysis.js';
 import UsersManagement from './pages/admin/Users.js';
 import DatabaseSettings from './pages/admin/DatabaseSettings.js';
+import RawatJalan from './pages/pelayanan/RawatJalan.js';
 
 export default function App() {
   const { initialize } = useAuthStore();
@@ -54,17 +56,35 @@ export default function App() {
 
                       {/* LABORATORY MODUL ROUTES */}
                       <Route 
+                        path="/pelayanan/rawat-jalan" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
+                            <RawatJalan />
+                          </ProtectedRoute>
+                        } 
+                      />
+
+                      {/* LABORATORY MODUL ROUTES */}
+                      <Route 
                         path="/lab/input" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'lab']}>
+                          <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
                             <InputPemeriksaan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/lab/master" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
+                            <MasterPemeriksaan />
                           </ProtectedRoute>
                         } 
                       />
                       <Route 
                         path="/lab/dashboard" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'lab']}>
+                          <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
                             <DashboardLab />
                           </ProtectedRoute>
                         } 

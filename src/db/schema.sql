@@ -131,3 +131,71 @@ INSERT INTO obat_master (kode_obat, nama_obat, golongan, satuan, kemasan, harga_
 ('OBT-SIM14', 'Simvastatin 20mg', 'Obat Keras', 'Tablet', 'DUS / 10 strips', 700.00, 2, 1),
 ('OBT-VCG15', 'Vitamin C 500mg', 'Vitamin', 'Tablet', 'DUS / 10 strips', 200.00, 1, 1)
 ON DUPLICATE KEY UPDATE id=id;
+
+-- Pelayanan Rawat Jalan (Old)
+CREATE TABLE IF NOT EXISTS pelayanan_rawat_jalan (
+  id INT NOT NULL AUTO_INCREMENT,
+  no_registrasi VARCHAR(50) NOT NULL UNIQUE,
+  no_rm VARCHAR(20) NOT NULL,
+  nama_pasien VARCHAR(150) NOT NULL,
+  tanggal_pelayanan DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Pelayanan Rawat Jalan Tindakan (Old)
+CREATE TABLE IF NOT EXISTS pelayanan_rawat_jalan_tindakan (
+  id INT NOT NULL AUTO_INCREMENT,
+  rawat_jalan_id INT NOT NULL,
+  pelaksana VARCHAR(150) NOT NULL,
+  tindakan_nama VARCHAR(250) NOT NULL,
+  tindakan_keterangan TEXT,
+  tindakan_tanggal DATE NOT NULL,
+  tindakan_jam TIME NOT NULL,
+  tarif_tindakan DECIMAL(12,2) DEFAULT 0.00,
+  tarif_sarana DECIMAL(12,2) DEFAULT 0.00,
+  tarif_pelayanan DECIMAL(12,2) DEFAULT 0.00,
+  tarif_medis DECIMAL(12,2) DEFAULT 0.00,
+  jumlah INT NOT NULL DEFAULT 1,
+  subtotal DECIMAL(12,2) DEFAULT 0.00,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (rawat_jalan_id) REFERENCES pelayanan_rawat_jalan(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Normalized Tables (New)
+CREATE TABLE IF NOT EXISTS pasien (
+  no_rm VARCHAR(20) NOT NULL PRIMARY KEY,
+  nama VARCHAR(150) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS registrasi_rawat_jalan (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  no_registrasi VARCHAR(50) NOT NULL UNIQUE,
+  pasien_no_rm VARCHAR(20) NOT NULL,
+  tanggal_pelayanan DATE NOT NULL,
+  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS master_tindakan (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nama_tindakan VARCHAR(250) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tindakan_rawat_jalan (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  registrasi_id INT NOT NULL,
+  tindakan_id INT NOT NULL,
+  pelaksana VARCHAR(150),
+  tindakan_keterangan TEXT,
+  tindakan_tanggal DATE,
+  tindakan_jam TIME,
+  tarif_tindakan DECIMAL(12,2),
+  tarif_sarana DECIMAL(12,2),
+  tarif_pelayanan DECIMAL(12,2),
+  tarif_medis DECIMAL(12,2),
+  jumlah INT,
+  subtotal DECIMAL(12,2),
+  FOREIGN KEY (registrasi_id) REFERENCES registrasi_rawat_jalan(id) ON DELETE CASCADE,
+  FOREIGN KEY (tindakan_id) REFERENCES master_tindakan(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

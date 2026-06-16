@@ -38,15 +38,26 @@ export default function Sidebar() {
       title: 'Dashboard Terpadu',
       path: '/',
       icon: Home,
-      roles: ['admin', 'lab', 'farmasi']
+      roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
     },
     {
       isGroup: true,
       title: 'Laboratorium',
       icon: FlaskConical,
       items: [
-        { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'lab'] },
-        { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'lab'] }
+        { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'lab', 'perawat', 'analis'] },
+        { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'lab', 'perawat', 'analis'] },
+        { name: 'Master Pemeriksaan', path: '/lab/master', icon: Layers, roles: ['admin', 'lab', 'perawat', 'analis'] }
+      ]
+    },
+    {
+      isGroup: true,
+      title: 'Pelayanan Klinik',
+      icon: Activity,
+      items: [
+        { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat', 'analis'] },
+        { name: 'IGD', path: '#', icon: Activity, roles: ['admin', 'perawat', 'analis'], disabled: true },
+        { name: 'Rawat Inap', path: '#', icon: Layers, roles: ['admin', 'perawat', 'analis'], disabled: true }
       ]
     },
     {
@@ -54,10 +65,11 @@ export default function Sidebar() {
       title: 'Farmasi & Apotek',
       icon: Pill,
       items: [
-        { name: 'Master Data Obat', path: '/farmasi/master', icon: Package, roles: ['admin', 'farmasi'] },
         { name: 'Konsumsi Harian', path: '/farmasi/input', icon: Pill, roles: ['admin', 'farmasi'] },
         { name: 'Peramalan (Forecast)', path: '/farmasi/forecast', icon: TrendingUp, roles: ['admin', 'farmasi'] },
-        { name: 'Analisis ABC Spend', path: '/farmasi/abc', icon: Layers, roles: ['admin', 'farmasi'] }
+        { name: 'Analisis ABC Spend', path: '/farmasi/abc', icon: Layers, roles: ['admin', 'farmasi'] },
+        { name: 'Master Data Obat', path: '/farmasi/master', icon: Package, roles: ['admin', 'farmasi'] },
+
       ]
     },
     {
@@ -278,6 +290,21 @@ export default function Sidebar() {
                       >
                         {item.items && item.items.map((subItem: any, subIdx: number) => {
                           const SubIcon = subItem.icon;
+                          if (subItem.disabled) {
+                            return (
+                              <div
+                                key={subIdx}
+                                className="relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-500/80 cursor-not-allowed mt-1 bg-slate-900/10 hover:bg-slate-900/20 transition-all font-display"
+                                style={{ minHeight: '38px' }}
+                              >
+                                <div className="flex items-center space-x-3">
+                                  <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-650" />
+                                  <span className="truncate">{subItem.name}</span>
+                                </div>
+                                <span className="text-[8px] leading-none bg-slate-900 text-teal-400/80 border border-teal-500/10 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">Segera</span>
+                              </div>
+                            );
+                          }
                           const isSubActive = location.pathname === subItem.path;
                           return (
                             <NavLink

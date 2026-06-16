@@ -298,24 +298,52 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
     const localUserName = userRow['Nama Karyawan'] || 'Karyawan Puri Medika';
     let localUserRole = 'admin'; // default role
 
-    // Determine role by mapping row's Divisi field robustly
-    let divStr = '';
-    if (userRow.Divisi) {
-      if (typeof userRow.Divisi === 'string') {
-        divStr = userRow.Divisi;
-      } else if (typeof userRow.Divisi === 'object') {
-        divStr = userRow.Divisi.value || userRow.Divisi.name || JSON.stringify(userRow.Divisi);
+    // Determine role by mapping row's 'Peran' column first, and falling back to Divisi if empty
+    let rolesStr = '';
+    if (userRow.Peran) {
+      if (typeof userRow.Peran === 'string') {
+        rolesStr = userRow.Peran;
+      } else if (typeof userRow.Peran === 'object') {
+        rolesStr = userRow.Peran.value || userRow.Peran.name || JSON.stringify(userRow.Peran);
       } else {
-        divStr = String(userRow.Divisi);
+        rolesStr = String(userRow.Peran);
       }
     }
-    const div = divStr.toLowerCase();
-    if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
-      localUserRole = 'admin';
-    } else if (div.includes('lab') || div.includes('laboratorium')) {
-      localUserRole = 'lab';
-    } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
-      localUserRole = 'farmasi';
+
+    rolesStr = rolesStr.trim().toLowerCase();
+
+    if (rolesStr) {
+      if (rolesStr.includes('admin')) {
+        localUserRole = 'admin';
+      } else if (rolesStr.includes('perawat')) {
+        localUserRole = 'perawat';
+      } else if (rolesStr.includes('analis') || rolesStr.includes('analyst')) {
+        localUserRole = 'analis';
+      } else if (rolesStr.includes('farmasi') || rolesStr.includes('apotek') || rolesStr.includes('apoteker')) {
+        localUserRole = 'farmasi';
+      } else {
+        localUserRole = rolesStr;
+      }
+    } else {
+      // Determine role by mapping row's Divisi field robustly
+      let divStr = '';
+      if (userRow.Divisi) {
+        if (typeof userRow.Divisi === 'string') {
+          divStr = userRow.Divisi;
+        } else if (typeof userRow.Divisi === 'object') {
+          divStr = userRow.Divisi.value || userRow.Divisi.name || JSON.stringify(userRow.Divisi);
+        } else {
+          divStr = String(userRow.Divisi);
+        }
+      }
+      const div = divStr.toLowerCase();
+      if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
+        localUserRole = 'admin';
+      } else if (div.includes('lab') || div.includes('laboratorium') || div.includes('analis') || div.includes('perawat')) {
+        localUserRole = 'analis';
+      } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
+        localUserRole = 'farmasi';
+      }
     }
 
     // Sign JWT
@@ -394,7 +422,7 @@ app.get('/api/lab/parameter', authenticateToken, async (req, res) => {
 });
 
 // Admin/Lab: Create parameter
-app.post('/api/lab/parameter', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+app.post('/api/lab/parameter', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { kategori, nama_parameter } = req.body;
   if (!kategori || !nama_parameter) {
     return res.status(400).json({ message: 'Kategori dan nama parameter wajib diisi.' });
@@ -411,7 +439,7 @@ app.post('/api/lab/parameter', authenticateToken, roleGuard(['admin', 'lab']), a
 });
 
 // Admin/Lab: Update parameter
-app.put('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+app.put('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
   const { kategori, nama_parameter, is_active } = req.body;
   if (!kategori || !nama_parameter) {
@@ -429,7 +457,7 @@ app.put('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab'])
 });
 
 // Admin/Lab: Delete/Deactivate parameter
-app.delete('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+app.delete('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
   try {
     await db.query('UPDATE lab_parameter SET is_active = 0 WHERE id = ?', [Number(id)]);
@@ -492,7 +520,7 @@ app.get('/api/lab/data', authenticateToken, async (req, res) => {
 });
 
 // Save or Update bulk daily parameters
-app.post('/api/lab/data', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+app.post('/api/lab/data', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { tanggal, data } = req.body; // data: [{ parameter_id, jumlah }]
   if (!tanggal || !Array.isArray(data)) {
     return res.status(400).json({ message: 'Data tanggal dan parameter pemeriksaan tidak lengkap.' });
@@ -512,7 +540,7 @@ app.post('/api/lab/data', authenticateToken, roleGuard(['admin', 'lab']), async 
 });
 
 // Edit single daily lab record
-app.put('/api/lab/data/:id', authenticateToken, roleGuard(['admin', 'lab']), async (req: any, res) => {
+app.put('/api/lab/data/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
   const { jumlah } = req.body;
   try {
@@ -591,6 +619,147 @@ app.get('/api/lab/parameter-harian', authenticateToken, async (req, res) => {
       [startDate, endDate]
     );
     res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+/* ==================== 3.5. OUTPATIENT (RAWAT JALAN) ENDPOINTS ==================== */
+
+// Get all outpatient visits with detailed actions
+app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
+  try {
+    const patients = await db.query('SELECT * FROM pelayanan_rawat_jalan');
+    const actions = await db.query('SELECT * FROM pelayanan_rawat_jalan_tindakan');
+
+    // Group tindakan by rawat_jalan_id
+    const groupedActions = (actions || []).reduce((acc: any, act: any) => {
+      const rId = act.rawat_jalan_id;
+      if (!acc[rId]) acc[rId] = [];
+      acc[rId].push({
+        ...act,
+        tarif_tindakan: Number(act.tarif_tindakan || 0),
+        tarif_sarana: Number(act.tarif_sarana || 0),
+        tarif_pelayanan: Number(act.tarif_pelayanan || 0),
+        tarif_medis: Number(act.tarif_medis || 0),
+        jumlah: Number(act.jumlah || 1),
+        subtotal: Number(act.subtotal || 0)
+      });
+      return acc;
+    }, {});
+
+    // Attach tindakan to corresponding patient
+    const formatted = (patients || []).map((p: any) => ({
+      ...p,
+      tindakan: groupedActions[p.id] || []
+    }));
+
+    res.json(formatted);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Create new outpatient record with bulk tindakan actions
+app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, tindakan } = req.body;
+  
+  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
+    return res.status(400).json({ message: 'No. Registrasi, No. RM, Nama Pasien, dan Tanggal Pelayanan wajib diisi.' });
+  }
+
+  try {
+    // Insert patient main record
+    const parentResult = await db.query(
+      'INSERT INTO pelayanan_rawat_jalan (no_registrasi, no_rm, nama_pasien, tanggal_pelayanan) VALUES (?, ?, ?, ?)',
+      [no_registrasi, no_rm, nama_pasien, tanggal_pelayanan]
+    );
+    const rawatJalanId = parentResult.insertId;
+
+    // Insert each tindakan if provided
+    if (Array.isArray(tindakan) && tindakan.length > 0) {
+      for (const t of tindakan) {
+        await db.query(
+          'INSERT INTO pelayanan_rawat_jalan_tindakan (rawat_jalan_id, pelaksana, tindakan_nama, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            rawatJalanId,
+            t.pelaksana || '',
+            t.tindakan_nama || '',
+            t.tindakan_keterangan || '',
+            t.tindakan_tanggal || tanggal_pelayanan,
+            t.tindakan_jam || '00:00:00',
+            Number(t.tarif_tindakan || 0),
+            Number(t.tarif_sarana || 0),
+            Number(t.tarif_pelayanan || 0),
+            Number(t.tarif_medis || 0),
+            Number(t.jumlah || 1),
+            Number(t.subtotal || 0)
+          ]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Data kunjungan pelayanan rawat jalan berhasil didaftarkan.', rawatJalanId });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update outpatient patient details & actions
+app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+  const { id } = req.params;
+  const { no_rm, nama_pasien, tanggal_pelayanan, tindakan } = req.body;
+
+  if (!no_rm || !nama_pasien || !tanggal_pelayanan) {
+    return res.status(400).json({ message: 'No. RM, Nama Pasien, dan Tanggal Pelayanan wajib diisi.' });
+  }
+
+  try {
+    // Update parent record
+    await db.query(
+      'UPDATE pelayanan_rawat_jalan SET no_rm = ?, nama_pasien = ?, tanggal_pelayanan = ? WHERE id = ?',
+      [no_rm, nama_pasien, tanggal_pelayanan, Number(id)]
+    );
+
+    // Re-create child tindakan records to ensure clean relational master-detail status
+    await db.query('DELETE FROM pelayanan_rawat_jalan_tindakan WHERE rawat_jalan_id = ?', [Number(id)]);
+
+    if (Array.isArray(tindakan) && tindakan.length > 0) {
+      for (const t of tindakan) {
+        await db.query(
+          'INSERT INTO pelayanan_rawat_jalan_tindakan (rawat_jalan_id, pelaksana, tindakan_nama, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            Number(id),
+            t.pelaksana || '',
+            t.tindakan_nama || '',
+            t.tindakan_keterangan || '',
+            t.tindakan_tanggal || tanggal_pelayanan,
+            t.tindakan_jam || '00:00:00',
+            Number(t.tarif_tindakan || 0),
+            Number(t.tarif_sarana || 0),
+            Number(t.tarif_pelayanan || 0),
+            Number(t.tarif_medis || 0),
+            Number(t.jumlah || 1),
+            Number(t.subtotal || 0)
+          ]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Data kunjungan pelayanan rawat jalan berhasil diperbarui.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete outpatient visit
+app.delete('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    // Both real MySQL (via foreign key rule count) and Virtual DB will delete related tindakan elements
+    await db.query('DELETE FROM pelayanan_rawat_jalan WHERE id = ?', [Number(id)]);
+    res.json({ success: true, message: 'Data kunjungan pelayanan rawat jalan berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -693,6 +862,98 @@ app.put('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farmasi'
     res.json({ success: true, message: 'Data obat berhasil diperbarui.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Download template Excel (.xlsx) for master obat
+app.get('/api/obat/template-excel', authenticateToken, async (req, res) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Template Master Obat');
+    
+    // Add headers
+    worksheet.columns = [
+      { header: 'Kode Obat', key: 'kode', width: 15 },
+      { header: 'Nama Obat', key: 'nama', width: 30 },
+      { header: 'Satuan', key: 'satuan', width: 15 },
+      { header: 'Kemasan', key: 'kemasan', width: 25 },
+      { header: 'Harga Satuan', key: 'harga', width: 15 },
+      { header: 'Lead Time', key: 'lead_time', width: 15 },
+      { header: 'Safety Stock', key: 'safety_stock', width: 15 },
+      { header: 'Stok Minimum', key: 'stok_minimum', width: 15 },
+      { header: 'Reorder Point', key: 'reorder_point', width: 15 }
+    ];
+
+    // Style the header row
+    worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFF' } };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '4F46E5' } // matching indigo-600 color
+    };
+
+    // Add some sample data
+    worksheet.addRow({
+      kode: 'OBT-001',
+      nama: 'Paracetamol 500mg',
+      satuan: 'Tablet',
+      kemasan: 'DUS / 10 Strips',
+      harga: 250,
+      lead_time: 2,
+      safety_stock: 100,
+      stok_minimum: 150,
+      reorder_point: 200
+    });
+    
+    worksheet.addRow({
+      kode: 'OBT-002',
+      nama: 'Amoxicillin 500mg',
+      satuan: 'Kaplet',
+      kemasan: 'DUS / 10 Strips',
+      harga: 600,
+      lead_time: 3,
+      safety_stock: 200,
+      stok_minimum: 300,
+      reorder_point: 400
+    });
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename=template_master_obat.xlsx'
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err: any) {
+    console.error('Failed to generate excel template:', err);
+    res.status(500).json({ message: 'Gagal menghasilkan template excel.' });
+  }
+});
+
+// Download template CSV (.csv) for master obat
+app.get('/api/obat/template-csv', authenticateToken, async (req, res) => {
+  try {
+    const headers = ['Kode Obat', 'Nama Obat', 'Satuan', 'Kemasan', 'Harga Satuan', 'Lead Time', 'Safety Stock', 'Stok Minimum', 'Reorder Point'];
+    const rows = [
+      ['OBT-001', 'Paracetamol 500mg', 'Tablet', 'DUS / 10 Strips', '250', '2', '100', '150', '200'],
+      ['OBT-002', 'Amoxicillin 500mg', 'Kaplet', 'DUS / 10 Strips', '600', '3', '200', '300', '400']
+    ];
+
+    const csvContent = "\uFEFF" + [
+      headers.join(','),
+      ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv;charset=utf-8;');
+    res.setHeader('Content-Disposition', 'attachment; filename=template_master_obat.csv');
+    res.status(200).send(csvContent);
+  } catch (err: any) {
+    console.error('Failed to generate csv template:', err);
+    res.status(500).json({ message: 'Gagal menghasilkan template csv.' });
   }
 });
 
@@ -1286,6 +1547,18 @@ app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req,
     });
     const rows = response.data.results || [];
     const formattedUsers = rows.map((r: any) => {
+      let peranStr = '';
+      if (r.Peran) {
+        if (typeof r.Peran === 'string') {
+          peranStr = r.Peran;
+        } else if (typeof r.Peran === 'object') {
+          peranStr = r.Peran.value || r.Peran.name || JSON.stringify(r.Peran);
+        } else {
+          peranStr = String(r.Peran);
+        }
+      }
+      peranStr = peranStr.trim().toLowerCase();
+
       let divStr = '';
       if (r.Divisi) {
         if (typeof r.Divisi === 'string') {
@@ -1296,14 +1569,29 @@ app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req,
           divStr = String(r.Divisi);
         }
       }
-      const div = divStr.toLowerCase();
+
       let role = 'admin';
-      if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
-        role = 'admin';
-      } else if (div.includes('lab') || div.includes('laboratorium')) {
-        role = 'lab';
-      } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
-        role = 'farmasi';
+      if (peranStr) {
+        if (peranStr.includes('admin')) {
+          role = 'admin';
+        } else if (peranStr.includes('perawat')) {
+          role = 'perawat';
+        } else if (peranStr.includes('analis') || peranStr.includes('analyst')) {
+          role = 'analis';
+        } else if (peranStr.includes('farmasi') || peranStr.includes('apotek') || peranStr.includes('apoteker')) {
+          role = 'farmasi';
+        } else {
+          role = peranStr;
+        }
+      } else {
+        const div = divStr.toLowerCase();
+        if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
+          role = 'admin';
+        } else if (div.includes('lab') || div.includes('laboratorium') || div.includes('analis') || div.includes('perawat')) {
+          role = 'analis';
+        } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
+          role = 'farmasi';
+        }
       }
 
       return {
@@ -1336,18 +1624,26 @@ app.post('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req
 
   try {
     let divisiVal = 'IT';
-    if (role === 'lab') {
+    let peranVal = 'admin';
+    if (role === 'lab' || role === 'analis') {
       divisiVal = 'Laboratorium';
+      peranVal = 'analis';
+    } else if (role === 'perawat') {
+      divisiVal = 'Laboratorium';
+      peranVal = 'perawat';
     } else if (role === 'farmasi') {
       divisiVal = 'Farmasi';
+      peranVal = 'farmasi';
     } else if (role === 'admin') {
       divisiVal = 'IT';
+      peranVal = 'admin';
     }
 
     const payload = {
       'Nama Karyawan': nama,
       'Email': email,
       'Divisi': divisiVal,
+      'Peran': peranVal,
       'OTP 2': '',
       'OTP 2 Expired': null
     };
@@ -1381,18 +1677,26 @@ app.put('/api/admin/users/:id', authenticateToken, roleGuard(['admin']), async (
 
   try {
     let divisiVal = 'IT';
-    if (role === 'lab') {
+    let peranVal = 'admin';
+    if (role === 'lab' || role === 'analis') {
       divisiVal = 'Laboratorium';
+      peranVal = 'analis';
+    } else if (role === 'perawat') {
+      divisiVal = 'Laboratorium';
+      peranVal = 'perawat';
     } else if (role === 'farmasi') {
       divisiVal = 'Farmasi';
+      peranVal = 'farmasi';
     } else if (role === 'admin') {
       divisiVal = 'IT';
+      peranVal = 'admin';
     }
 
     const payload = {
       'Nama Karyawan': nama,
       'Email': email,
-      'Divisi': divisiVal
+      'Divisi': divisiVal,
+      'Peran': peranVal
     };
 
     const patchUrl = `${BASEROW_BASE_URL}/${id}/?user_field_names=true`;
@@ -1448,7 +1752,7 @@ app.post('/api/admin/reset-password', authenticateToken, roleGuard(['admin']), a
 /* ==================== 7. EXCEL REPORT EXPORTS ==================== */
 
 // Export Laboratory records to spreadsheet
-app.get('/api/lab/export', authenticateToken, roleGuard(['admin']), async (req, res) => {
+app.get('/api/lab/export', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req, res) => {
   const { bulan, tahun, start_bulan, start_tahun, end_bulan, end_tahun } = req.query;
   try {
     let rows;

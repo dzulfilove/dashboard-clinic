@@ -482,27 +482,49 @@ export default function MasterObat() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-800 text-xs">Import Data Master Obat (.xlsx)</span>
-                  <p className="text-[10px] text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
+                  <p className="text-[10px] text-slate-500 mt-1 max-w-lg mx-auto leading-relaxed">
                     Silakan drop file Excel (.xlsx) atau klik tombol di bawah. Kolom yang diimpor: 
                     <span className="text-indigo-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Kemasan | Harga Satuan | Safety Stock | Lead Time | Stok Minimum | Reorder Point</span>
                   </p>
                 </div>
-                
-                <label className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-xs transition-all cursor-pointer text-xs min-h-[36px] mt-1 hover:shadow-md">
-                  <span>{importing ? 'Mengimpor Data...' : 'Pilih File Excel (.xlsx)'}</span>
-                  <input 
-                    id="excel-file-uploader"
-                    type="file" 
-                    accept=".xlsx" 
-                    className="hidden" 
-                    disabled={importing}
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleFileUpload(e.target.files[0]);
+
+                <div className="flex flex-col sm:flex-row items-center gap-2 mt-1">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const response = await api.get('/obat/template-excel', { responseType: 'blob' });
+                        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = 'template_master_obat.xlsx';
+                        link.click();
+                      } catch (err) {
+                        alert('Gagal mengunduh template Excel. Silakan coba lagi.');
+                        console.error('Failed to download template excel', err);
                       }
                     }}
-                  />
-                </label>
+                    className="inline-flex items-center gap-1 text-[10px] text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 cursor-pointer transition-all"
+                  >
+                    📥 Unduh/Download Template Excel (.xlsx)
+                  </button>
+
+                  <label className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-[10px] min-h-[32px] hover:shadow-md">
+                    <span>{importing ? 'Mengimpor Data...' : 'Pilih File Excel (.xlsx)'}</span>
+                    <input 
+                      id="excel-file-uploader"
+                      type="file" 
+                      accept=".xlsx" 
+                      className="hidden" 
+                      disabled={importing}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
           )}
@@ -521,7 +543,7 @@ export default function MasterObat() {
             >
               <div className="flex flex-col items-center justify-center space-y-2">
                 <div className="p-2.5 bg-white rounded-full shadow-xs border border-slate-200 flex items-center justify-center">
-                  <RefreshCw className={`h-5 w-5 text-teal-600 ${importing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-5 w-5 text-teal-650 ${importing ? 'animate-spin' : ''}`} />
                 </div>
                 <div>
                   <span className="font-bold text-slate-800 text-xs">Import Data Master Obat (.csv)</span>
@@ -530,22 +552,44 @@ export default function MasterObat() {
                     <span className="text-teal-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Kemasan | Harga Satuan | Safety Stock | Lead Time | Stok Minimum | Reorder Point</span>
                   </p>
                 </div>
-                
-                <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-xs transition-all cursor-pointer text-xs min-h-[36px] mt-1 hover:shadow-md">
-                  <span>{importing ? 'Mengimpor Data...' : 'Pilih File CSV (.csv)'}</span>
-                  <input 
-                    id="csv-file-uploader"
-                    type="file" 
-                    accept=".csv" 
-                    className="hidden" 
-                    disabled={importing}
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        handleFileUpload(e.target.files[0]);
+
+                <div className="flex flex-col sm:flex-row items-center gap-2 mt-1">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const response = await api.get('/obat/template-csv', { responseType: 'blob' });
+                        const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = 'template_master_obat.csv';
+                        link.click();
+                      } catch (err) {
+                        alert('Gagal mengunduh template CSV. Silakan coba lagi.');
+                        console.error('Failed to download template csv', err);
                       }
                     }}
-                  />
-                </label>
+                    className="inline-flex items-center gap-1 text-[10px] text-teal-700 hover:text-teal-900 font-bold bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 cursor-pointer transition-all"
+                  >
+                    📥 Unduh/Download Template CSV (.csv)
+                  </button>
+
+                  <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-[10px] min-h-[32px] hover:shadow-md">
+                    <span>{importing ? 'Mengimpor Data...' : 'Pilih File CSV (.csv)'}</span>
+                    <input 
+                      id="csv-file-uploader"
+                      type="file" 
+                      accept=".csv" 
+                      className="hidden" 
+                      disabled={importing}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          handleFileUpload(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
           )}

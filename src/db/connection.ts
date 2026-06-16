@@ -111,6 +111,12 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
     if (options.cleanReset) {
       console.log('Clean reset: Menghapus tabel lama yang berkonflik...');
       const drops = [
+        'DROP TABLE IF EXISTS tindakan_rawat_jalan',
+        'DROP TABLE IF EXISTS master_tindakan',
+        'DROP TABLE IF EXISTS registrasi_rawat_jalan',
+        'DROP TABLE IF EXISTS pasien',
+        'DROP TABLE IF EXISTS pelayanan_rawat_jalan_tindakan',
+        'DROP TABLE IF EXISTS pelayanan_rawat_jalan',
         'DROP TABLE IF EXISTS obat_forecasting',
         'DROP TABLE IF EXISTS obat_konsumsi_harian',
         'DROP TABLE IF EXISTS obat_konsumsi_bulanan',
@@ -163,8 +169,19 @@ async function runMigrationsIfRequired() {
     const [tables]: any = await mysqlPool.query('SHOW TABLES');
     const tableList = tables.map((t: any) => Object.values(t)[0]);
 
-    if (!tableList.includes('lab_parameter') || !tableList.includes('obat_master') || !tableList.includes('lab_data_harian') || !tableList.includes('obat_konsumsi_harian')) {
-      console.log('Tables do not exist. Automatically running safe migrator on startup...');
+    if (
+      !tableList.includes('lab_parameter') || 
+      !tableList.includes('obat_master') || 
+      !tableList.includes('lab_data_harian') || 
+      !tableList.includes('obat_konsumsi_harian') ||
+      !tableList.includes('pelayanan_rawat_jalan') ||
+      !tableList.includes('pelayanan_rawat_jalan_tindakan') ||
+      !tableList.includes('pasien') ||
+      !tableList.includes('registrasi_rawat_jalan') ||
+      !tableList.includes('master_tindakan') ||
+      !tableList.includes('tindakan_rawat_jalan')
+    ) {
+      console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
     } else {
       // Tables exist, check if columns need to be added
@@ -197,6 +214,8 @@ interface VirtualDatabase {
   obat_konsumsi_bulanan: any[];
   obat_konsumsi_harian?: any[];
   obat_forecasting: any[];
+  pelayanan_rawat_jalan?: any[];
+  pelayanan_rawat_jalan_tindakan?: any[];
 }
 
 function initVirtualDb() {
@@ -335,6 +354,29 @@ function initVirtualDb() {
       }
     }
   }
+
+  // Seed Outpatient Care & Procedures (Rawat Jalan & Tindakan)
+  defaultDb.pelayanan_rawat_jalan = [
+    { id: 1, no_registrasi: 'RJ07062026-00001', no_rm: '002502', nama_pasien: 'MADE YULIANA', tanggal_pelayanan: '2026-06-07', created_at: new Date('2026-06-07T10:00:00Z').toISOString() },
+    { id: 2, no_registrasi: 'RJ07062026-00002', no_rm: '002503', nama_pasien: 'JURIAH', tanggal_pelayanan: '2026-06-07', created_at: new Date('2026-06-07T11:50:00Z').toISOString() },
+    { id: 3, no_registrasi: 'RJ07062026-00003', no_rm: '002123', nama_pasien: 'MUHAMMAD RIDHO PRAYOGA', tanggal_pelayanan: '2026-06-07', created_at: new Date('2026-06-07T19:25:00Z').toISOString() },
+    { id: 4, no_registrasi: 'RJ08062026-00001', no_rm: '002505', nama_pasien: 'JIHAN', tanggal_pelayanan: '2026-06-08', created_at: new Date('2026-06-08T15:00:00Z').toISOString() },
+    { id: 5, no_registrasi: 'RJ08062026-00002', no_rm: '001889', nama_pasien: 'MUBARIKA SEKARSARI YUSUF', tanggal_pelayanan: '2026-06-08', created_at: new Date('2026-06-08T15:20:00Z').toISOString() },
+    { id: 6, no_registrasi: 'RJ08062026-00003', no_rm: '000611', nama_pasien: 'DELLA TRISYANASARI, Ny', tanggal_pelayanan: '2026-06-08', created_at: new Date('2026-06-08T15:40:00Z').toISOString() }
+  ];
+
+  defaultDb.pelayanan_rawat_jalan_tindakan = [
+    { id: 1, rawat_jalan_id: 1, pelaksana: 'Dea Oktarika, S.Keb.', tindakan_nama: 'INJEKSI (IM/IV/SC) (UMUM)', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '10:09:57', tarif_tindakan: 18000, tarif_sarana: 12600, tarif_pelayanan: 5400, tarif_medis: 0, jumlah: 1, subtotal: 18000, created_at: new Date('2026-06-07T10:09:57Z').toISOString() },
+    { id: 2, rawat_jalan_id: 1, pelaksana: 'dr. Muhammad Jundi Nasrullah', tindakan_nama: 'KONSULTASI DOKTER UMUM', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '10:08:50', tarif_tindakan: 35000, tarif_sarana: 20000, tarif_pelayanan: 15000, tarif_medis: 0, jumlah: 1, subtotal: 35000, created_at: new Date('2026-06-07T10:08:50Z').toISOString() },
+    { id: 3, rawat_jalan_id: 1, pelaksana: 'Rola Sintia Putri, Amd.Kep', tindakan_nama: 'TINDAKAN PEMASANGAN INFUS (IV LINE)', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '10:09:11', tarif_tindakan: 35000, tarif_sarana: 21000, tarif_pelayanan: 14000, tarif_medis: 0, jumlah: 1, subtotal: 35000, created_at: new Date('2026-06-07T10:09:11Z').toISOString() },
+    { id: 4, rawat_jalan_id: 2, pelaksana: 'Dea Oktarika, S.Keb.', tindakan_nama: 'INFUS BOOSTER EXTRA HEALTHY', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '11:58:33', tarif_tindakan: 175000, tarif_sarana: 161000, tarif_pelayanan: 14000, tarif_medis: 0, jumlah: 1, subtotal: 175000, created_at: new Date('2026-06-07T11:58:33Z').toISOString() },
+    { id: 5, rawat_jalan_id: 3, pelaksana: 'Zulfakar Alfatih, A.Md.Kep.', tindakan_nama: 'INJEKSI (IM/IV/SC) (UMUM)', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '19:37:11', tarif_tindakan: 18000, tarif_sarana: 12600, tarif_pelayanan: 5400, tarif_medis: 0, jumlah: 1, subtotal: 18000, created_at: new Date('2026-06-07T19:37:11Z').toISOString() },
+    { id: 6, rawat_jalan_id: 3, pelaksana: 'dr. Taufik Hidayat', tindakan_nama: 'KONSULTASI DOKTER UMUM', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '19:30:35', tarif_tindakan: 35000, tarif_sarana: 20000, tarif_pelayanan: 15000, tarif_medis: 0, jumlah: 1, subtotal: 35000, created_at: new Date('2026-06-07T19:30:35Z').toISOString() },
+    { id: 7, rawat_jalan_id: 3, pelaksana: 'Olsa Niaroka, S.Tr.Keb.,Bd.', tindakan_nama: 'TINDAKAN PEMASANGAN INFUS (IV LINE)', tindakan_keterangan: '', tindakan_tanggal: '2026-06-07', tindakan_jam: '19:37:01', tarif_tindakan: 35000, tarif_sarana: 21000, tarif_pelayanan: 14000, tarif_medis: 0, jumlah: 1, subtotal: 35000, created_at: new Date('2026-06-07T19:37:01Z').toISOString() },
+    { id: 8, rawat_jalan_id: 4, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_nama: 'KONSULTASI + USG 4D', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:10:15', tarif_tindakan: 235000, tarif_sarana: 95000, tarif_pelayanan: 140000, tarif_medis: 0, jumlah: 1, subtotal: 235000, created_at: new Date('2026-06-08T15:10:15Z').toISOString() },
+    { id: 9, rawat_jalan_id: 5, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_nama: 'KONSULTASI + USG 2D', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:27:15', tarif_tindakan: 185000, tarif_sarana: 75000, tarif_pelayanan: 110000, tarif_medis: 0, jumlah: 1, subtotal: 185000, created_at: new Date('2026-06-08T15:27:15Z').toISOString() },
+    { id: 10, rawat_jalan_id: 6, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_nama: 'KONSULTASI + USG 2D', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:45:24', tarif_tindakan: 185000, tarif_sarana: 75000, tarif_pelayanan: 110000, tarif_medis: 0, jumlah: 1, subtotal: 185000, created_at: new Date('2026-06-08T15:45:24Z').toISOString() }
+  ];
 
   fs.writeFileSync(VIRTUAL_DB_FILE, JSON.stringify(defaultDb, null, 2), 'utf8');
 }
@@ -847,6 +889,105 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       retur_hilang: c.retur_hilang || 0,
       sisa_stok: c.sisa_stok
     }));
+  }
+
+  // --- 8. PELAYANAN RAWAT JALAN ---
+  if (norm.startsWith('SELECT * FROM pelayanan_rawat_jalan')) {
+    const list = vdb.pelayanan_rawat_jalan || [];
+    return [...list].sort((a,b) => {
+      const cmpDate = new Date(b.tanggal_pelayanan).getTime() - new Date(a.tanggal_pelayanan).getTime();
+      if (cmpDate !== 0) return cmpDate;
+      return b.id - a.id;
+    });
+  }
+
+  if (norm.startsWith('SELECT * FROM pelayanan_rawat_jalan_tindakan WHERE rawat_jalan_id = ?')) {
+    const rjid = Number(params[0]);
+    const list = vdb.pelayanan_rawat_jalan_tindakan || [];
+    return list.filter(t => t.rawat_jalan_id === rjid);
+  }
+
+  if (norm.startsWith('SELECT * FROM pelayanan_rawat_jalan_tindakan')) {
+    return vdb.pelayanan_rawat_jalan_tindakan || [];
+  }
+
+  if (norm.startsWith('INSERT INTO pelayanan_rawat_jalan')) {
+    const [no_reg, no_rm, nama, tgl] = params;
+    const list = vdb.pelayanan_rawat_jalan || [];
+    const newId = list.length > 0 ? Math.max(...list.map(x => x.id)) + 1 : 1;
+    const record = {
+      id: newId,
+      no_registrasi: no_reg,
+      no_rm: no_rm,
+      nama_pasien: nama,
+      tanggal_pelayanan: tgl,
+      created_at: new Date().toISOString()
+    };
+    if (!vdb.pelayanan_rawat_jalan) vdb.pelayanan_rawat_jalan = [];
+    vdb.pelayanan_rawat_jalan.push(record);
+    writeVirtualDb(vdb);
+    return { insertId: newId };
+  }
+
+  if (norm.startsWith('INSERT INTO pelayanan_rawat_jalan_tindakan')) {
+    const [rjid, pelaksana, t_nama, t_ket, t_tgl, t_jam, t_tarif, t_sarana, t_pel, t_medis, qty, sub] = params;
+    const list = vdb.pelayanan_rawat_jalan_tindakan || [];
+    const newId = list.length > 0 ? Math.max(...list.map(x => x.id)) + 1 : 1;
+    const action = {
+      id: newId,
+      rawat_jalan_id: Number(rjid),
+      pelaksana: pelaksana,
+      tindakan_nama: t_nama,
+      tindakan_keterangan: t_ket || '',
+      tindakan_tanggal: t_tgl,
+      tindakan_jam: t_jam,
+      tarif_tindakan: Number(t_tarif || 0),
+      tarif_sarana: Number(t_sarana || 0),
+      tarif_pelayanan: Number(t_pel || 0),
+      tarif_medis: Number(t_medis || 0),
+      jumlah: Number(qty || 1),
+      subtotal: Number(sub || 0),
+      created_at: new Date().toISOString()
+    };
+    if (!vdb.pelayanan_rawat_jalan_tindakan) vdb.pelayanan_rawat_jalan_tindakan = [];
+    vdb.pelayanan_rawat_jalan_tindakan.push(action);
+    writeVirtualDb(vdb);
+    return { insertId: newId };
+  }
+
+  if (norm.startsWith('UPDATE pelayanan_rawat_jalan SET no_rm = ?, nama_pasien = ?, tanggal_pelayanan = ? WHERE id = ?')) {
+    const [no_rm, nama, tgl, id] = params;
+    const list = vdb.pelayanan_rawat_jalan || [];
+    const idx = list.findIndex(x => x.id === Number(id));
+    if (idx !== -1) {
+      list[idx].no_rm = no_rm;
+      list[idx].nama_pasien = nama;
+      list[idx].tanggal_pelayanan = tgl;
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('DELETE FROM pelayanan_rawat_jalan WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (vdb.pelayanan_rawat_jalan) {
+      vdb.pelayanan_rawat_jalan = vdb.pelayanan_rawat_jalan.filter(x => x.id !== id);
+    }
+    if (vdb.pelayanan_rawat_jalan_tindakan) {
+      vdb.pelayanan_rawat_jalan_tindakan = vdb.pelayanan_rawat_jalan_tindakan.filter(x => x.rawat_jalan_id !== id);
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('DELETE FROM pelayanan_rawat_jalan_tindakan WHERE rawat_jalan_id = ?')) {
+    const rjid = Number(params[0]);
+    if (vdb.pelayanan_rawat_jalan_tindakan) {
+      vdb.pelayanan_rawat_jalan_tindakan = vdb.pelayanan_rawat_jalan_tindakan.filter(x => x.rawat_jalan_id !== rjid);
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
   }
 
   // Fallback defaults for unrecognized queries
