@@ -115,6 +115,7 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
         'DROP TABLE IF EXISTS tindakan_rawat_jalan',
         'DROP TABLE IF EXISTS master_tindakan',
         'DROP TABLE IF EXISTS registrasi_rawat_jalan',
+        'DROP TABLE IF EXISTS master_icd10',
         'DROP TABLE IF EXISTS pasien',
         'DROP TABLE IF EXISTS pelayanan_rawat_jalan_tindakan',
         'DROP TABLE IF EXISTS pelayanan_rawat_jalan',
@@ -157,6 +158,12 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
       await connection.query(query);
     }
 
+    // Seeding ICD-10 diagnostic codes after table creations
+    console.log('Migrating: Seeding 100 common ICD-10 diagnostic codes...');
+    for (const item of COMMON_ICD10) {
+      await connection.query('INSERT IGNORE INTO master_icd10 (kode_icd, deskripsi) VALUES (?, ?)', [item.kode_icd, item.deskripsi]);
+    }
+
     // 4. Re-enable foreign key checks at the end of execution
     await connection.query('SET FOREIGN_KEY_CHECKS = 1');
 
@@ -189,7 +196,8 @@ async function runMigrationsIfRequired() {
       !tableList.includes('pasien') ||
       !tableList.includes('registrasi_rawat_jalan') ||
       !tableList.includes('master_tindakan') ||
-      !tableList.includes('tindakan_rawat_jalan')
+      !tableList.includes('tindakan_rawat_jalan') ||
+      !tableList.includes('master_icd10')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -222,6 +230,20 @@ async function runMigrationsIfRequired() {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);
       }
     }
+
+    // Seed master_icd10 if it has 0 rows on VPS MySQL
+    try {
+      const [icdRows]: any = await mysqlPool.query('SELECT COUNT(*) as count FROM master_icd10');
+      if (icdRows && icdRows[0] && icdRows[0].count === 0) {
+        console.log('Seeding 100 common ICD-10 diagnostic codes to VPS MySQL...');
+        for (const item of COMMON_ICD10) {
+          await mysqlPool.query('INSERT IGNORE INTO master_icd10 (kode_icd, deskripsi) VALUES (?, ?)', [item.kode_icd, item.deskripsi]);
+        }
+        console.log('Successfully seeded master_icd10 on VPS MySQL.');
+      }
+    } catch (dbSeedErr: any) {
+      console.warn('Could not seed master_icd10:', dbSeedErr.message);
+    }
   } catch (err) {
     console.error('Failed to run automatic startup migrations:', err);
   }
@@ -229,6 +251,109 @@ async function runMigrationsIfRequired() {
 
 // Virtual DB Implementation
 // Simple schema state stored in src/db/virtual_db.json
+export const COMMON_ICD10 = [
+  { kode_icd: 'A09', deskripsi: 'Diare dan gastroenteritis' },
+  { kode_icd: 'J00', deskripsi: 'Nasofaringitis akut (common cold)' },
+  { kode_icd: 'J06.9', deskripsi: 'Infeksi saluran pernapasan akut, tidak spesifik' },
+  { kode_icd: 'J02.9', deskripsi: 'Faringitis akut, tidak spesifik' },
+  { kode_icd: 'I10', deskripsi: 'Hipertensi esensial primer' },
+  { kode_icd: 'E11.9', deskripsi: 'Diabetes melitus tipe 2 tanpa komplikasi' },
+  { kode_icd: 'K29.7', deskripsi: 'Gastritis, tidak spesifik' },
+  { kode_icd: 'K30', deskripsi: 'Dispepsia' },
+  { kode_icd: 'L23.9', deskripsi: 'Dermatitis kontak alergi, tidak spesifik' },
+  { kode_icd: 'L20.9', deskripsi: 'Dermatitis atopik' },
+  { kode_icd: 'M54.5', deskripsi: 'Nyeri punggung bawah' },
+  { kode_icd: 'M79.1', deskripsi: 'Mialgia' },
+  { kode_icd: 'R50.9', deskripsi: 'Demam, tidak spesifik' },
+  { kode_icd: 'R51', deskripsi: 'Sakit kepala' },
+  { kode_icd: 'A04.9', deskripsi: 'Infeksi saluran cerna bakteri, tidak spesifik' },
+  { kode_icd: 'B35.1', deskripsi: 'Tinea unguium (infeksi jamur kuku)' },
+  { kode_icd: 'H10.9', deskripsi: 'Konjungtivitis, tidak spesifik' },
+  { kode_icd: 'J45.9', deskripsi: 'Asma, tidak spesifik' },
+  { kode_icd: 'K76.0', deskripsi: 'Perlemakan hati' },
+  { kode_icd: 'N39.0', deskripsi: 'Infeksi saluran kemih, lokasi tidak spesifik' },
+  { kode_icd: 'E78.5', deskripsi: 'Hiperlipidemia, tidak spesifik' },
+  { kode_icd: 'F41.1', deskripsi: 'Gangguan cemas menyeluruh' },
+  { kode_icd: 'G43.9', deskripsi: 'Migrain, tidak spesifik' },
+  { kode_icd: 'H66.9', deskripsi: 'Otitis media, tidak spesifik' },
+  { kode_icd: 'L70.0', deskripsi: 'Akne vulgaris' },
+  { kode_icd: 'M17.9', deskripsi: 'Gonartrosis (osteoartritis lutut)' },
+  { kode_icd: 'R05', deskripsi: 'Batuk' },
+  { kode_icd: 'R06.0', deskripsi: 'Dispnea (sesak napas)' },
+  { kode_icd: 'R07.4', deskripsi: 'Nyeri dada, tidak spesifik' },
+  { kode_icd: 'R10.4', deskripsi: 'Nyeri abdomen, tidak spesifik' },
+  { kode_icd: 'R11', deskripsi: 'Mual dan muntah' },
+  { kode_icd: 'A01.0', deskripsi: 'Demam tifoid' },
+  { kode_icd: 'B01.9', deskripsi: 'Varisela (cacar air)' },
+  { kode_icd: 'H60.9', deskripsi: 'Otitis eksterna, tidak spesifik' },
+  { kode_icd: 'K21.9', deskripsi: 'Penyakit refluks gastroesofagus tanpa esofagitis' },
+  { kode_icd: 'L05.0', deskripsi: 'Kista pilonidal' },
+  { kode_icd: 'M25.5', deskripsi: 'Nyeri sendi' },
+  { kode_icd: 'R63.4', deskripsi: 'Penurunan berat badan yang tidak normal' },
+  { kode_icd: 'Z00.0', deskripsi: 'Pemeriksaan kesehatan umum' },
+  { kode_icd: 'Z01.0', deskripsi: 'Pemeriksaan mata' },
+  { kode_icd: 'A06.0', deskripsi: 'Disentri amuba' },
+  { kode_icd: 'B37.0', deskripsi: 'Kandidiasis mulut' },
+  { kode_icd: 'D64.9', deskripsi: 'Anemia, tidak spesifik' },
+  { kode_icd: 'I83.9', deskripsi: 'Varises vena pada tungkai' },
+  { kode_icd: 'J20.9', deskripsi: 'Bronkitis akut, tidak spesifik' },
+  { kode_icd: 'K70.3', deskripsi: 'Sirosis hati alkoholik' },
+  { kode_icd: 'L29.9', deskripsi: 'Pruritus, tidak spesifik' },
+  { kode_icd: 'N94.6', deskripsi: 'Dismenore' },
+  { kode_icd: 'R42', deskripsi: 'Vertigo' },
+  { kode_icd: 'R53', deskripsi: 'Malaise dan kelelahan' },
+  { kode_icd: 'A03.9', deskripsi: 'Shigellosis, tidak spesifik' },
+  { kode_icd: 'B35.0', deskripsi: 'Tinea barbae dan tinea capitis' },
+  { kode_icd: 'E03.9', deskripsi: 'Hipotiroidisme, tidak spesifik' },
+  { kode_icd: 'G40.9', deskripsi: 'Epilepsi, tidak spesifik' },
+  { kode_icd: 'I20.9', deskripsi: 'Angina pektoris, tidak spesifik' },
+  { kode_icd: 'J30.4', deskripsi: 'Rinitis alergi, tidak spesifik' },
+  { kode_icd: 'K80.2', deskripsi: 'Kalkulus empedu' },
+  { kode_icd: 'L03.9', deskripsi: 'Selulitis, tidak spesifik' },
+  { kode_icd: 'N10', deskripsi: 'Pielonefritis akut' },
+  { kode_icd: 'R04.0', deskripsi: 'Epistaksis (mimisan)' },
+  { kode_icd: 'A08.4', deskripsi: 'Infeksi virus usus' },
+  { kode_icd: 'B02.9', deskripsi: 'Herpes zoster tanpa komplikasi' },
+  { kode_icd: 'D50.9', deskripsi: 'Anemia defisiensi besi' },
+  { kode_icd: 'E14.9', deskripsi: 'Diabetes melitus, tidak spesifik' },
+  { kode_icd: 'G56.0', deskripsi: 'Sindrom karpal tunel' },
+  { kode_icd: 'I48', deskripsi: 'Fibrilasi atrium dan flutter' },
+  { kode_icd: 'J32.9', deskripsi: 'Sinusitis kronis, tidak spesifik' },
+  { kode_icd: 'K52.9', deskripsi: 'Gastroenteritis non-infeksi' },
+  { kode_icd: 'L60.0', deskripsi: 'Ingrown nail (cantengan)' },
+  { kode_icd: 'N40', deskripsi: 'Hiperplasia prostat' },
+  { kode_icd: 'R21', deskripsi: 'Ruam kulit' },
+  { kode_icd: 'A27.9', deskripsi: 'Leptospirosis, tidak spesifik' },
+  { kode_icd: 'B86', deskripsi: 'Skabies (kudis)' },
+  { kode_icd: 'E05.9', deskripsi: 'Hipertiroidisme, tidak spesifik' },
+  { kode_icd: 'G93.4', deskripsi: 'Ensefalopati, tidak spesifik' },
+  { kode_icd: 'I50.9', deskripsi: 'Gagal jantung, tidak spesifik' },
+  { kode_icd: 'J44.9', deskripsi: 'Penyakit paru obstruktif kronis, tidak spesifik' },
+  { kode_icd: 'K92.0', deskripsi: 'Hematemesis (muntah darah)' },
+  { kode_icd: 'L72.0', deskripsi: 'Kista epidermal' },
+  { kode_icd: 'N60.0', deskripsi: 'Displasia payudara jinak' },
+  { kode_icd: 'R56.0', deskripsi: 'Kejang demam' },
+  { kode_icd: 'A46', deskripsi: 'Erisipelas' },
+  { kode_icd: 'B37.9', deskripsi: 'Kandidiasis, tidak spesifik' },
+  { kode_icd: 'D23.9', deskripsi: 'Neoplasma jinak kulit' },
+  { kode_icd: 'E16.2', deskripsi: 'Hipoglikemia, tidak spesifik' },
+  { kode_icd: 'G47.0', deskripsi: 'Insomnia' },
+  { kode_icd: 'I63.9', deskripsi: 'Infark serebral, tidak spesifik' },
+  { kode_icd: 'J01.9', deskripsi: 'Sinusitis akut, tidak spesifik' },
+  { kode_icd: 'K35.8', deskripsi: 'Apendisitis akut' },
+  { kode_icd: 'L30.9', deskripsi: 'Dermatitis, tidak spesifik' },
+  { kode_icd: 'N80.9', deskripsi: 'Endometriosis, tidak spesifik' },
+  { kode_icd: 'R60.9', deskripsi: 'Edema, tidak spesifik' },
+  { kode_icd: 'A09.0', deskripsi: 'Diare infeksius' },
+  { kode_icd: 'B08.4', deskripsi: 'Penyakit tangan, kaki, dan mulut' },
+  { kode_icd: 'E78.0', deskripsi: 'Hiperkolesterolemia murni' },
+  { kode_icd: 'H91.9', deskripsi: 'Gangguan pendengaran' },
+  { kode_icd: 'I95.9', deskripsi: 'Hipotensi, tidak spesifik' },
+  { kode_icd: 'J40', deskripsi: 'Bronkitis' },
+  { kode_icd: 'K59.0', deskripsi: 'Konstipasi' },
+  { kode_icd: 'K25.9', deskripsi: 'Ulkus lambung' }
+];
+
 interface VirtualDatabase {
   users: any[];
   lab_parameter: any[];
@@ -244,6 +369,7 @@ interface VirtualDatabase {
   master_tindakan?: any[];
   registrasi_rawat_jalan?: any[];
   tindakan_rawat_jalan?: any[];
+  master_icd10?: any[];
 }
 
 function initVirtualDb() {
@@ -258,6 +384,7 @@ function initVirtualDb() {
 
   // Populate Seed Data
   const defaultDb: VirtualDatabase = {
+    master_icd10: COMMON_ICD10.map((item, idx) => ({ id: idx + 1, ...item })),
     users: [
       {
         id: 1,
@@ -450,7 +577,12 @@ export function readVirtualDb(): VirtualDatabase {
   if (!fs.existsSync(VIRTUAL_DB_FILE)) {
     initVirtualDb();
   }
-  return JSON.parse(fs.readFileSync(VIRTUAL_DB_FILE, 'utf8'));
+  const data: VirtualDatabase = JSON.parse(fs.readFileSync(VIRTUAL_DB_FILE, 'utf8'));
+  if (!data.master_icd10 || data.master_icd10.length < 50) {
+    data.master_icd10 = COMMON_ICD10.map((item, idx) => ({ id: idx + 1, ...item }));
+    fs.writeFileSync(VIRTUAL_DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+  }
+  return data;
 }
 
 // Write database contents
@@ -1288,6 +1420,39 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     vdb.master_tindakan = vdb.master_tindakan.filter(t => t.id !== id);
     writeVirtualDb(vdb);
     return { affectedRows: 1 };
+  }
+
+  // --- ICD-10 MASTER SIMULATION ---
+  if (norm.startsWith('SELECT * FROM master_icd10')) {
+    if (!vdb.master_icd10) vdb.master_icd10 = [];
+    return vdb.master_icd10;
+  }
+
+  if (norm.startsWith('INSERT INTO master_icd10') || norm.startsWith('INSERT IGNORE INTO master_icd10')) {
+    const kode_icd = params[0];
+    const deskripsi = params[1];
+    if (!vdb.master_icd10) vdb.master_icd10 = [];
+    const exists = vdb.master_icd10.some(item => item.kode_icd.toLowerCase() === String(kode_icd).toLowerCase());
+    if (!exists) {
+      const newId = vdb.master_icd10.length > 0 ? Math.max(...vdb.master_icd10.map(item => item.id)) + 1 : 1;
+      vdb.master_icd10.push({ id: newId, kode_icd: String(kode_icd).toUpperCase(), deskripsi: String(deskripsi) });
+      writeVirtualDb(vdb);
+      return { insertId: newId, affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('UPDATE master_icd10 SET')) {
+    const [kode_icd, deskripsi, id] = params;
+    if (!vdb.master_icd10) vdb.master_icd10 = [];
+    const idx = vdb.master_icd10.findIndex(item => item.id === Number(id));
+    if (idx !== -1) {
+      vdb.master_icd10[idx].kode_icd = String(kode_icd).toUpperCase();
+      vdb.master_icd10[idx].deskripsi = String(deskripsi);
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
   }
 
   // Fallback defaults for unrecognized queries

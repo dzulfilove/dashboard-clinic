@@ -19,7 +19,7 @@ export default function MasterICD10() {
     setLoading(true);
     try {
       const res = await api.get('/pelayanan/icd10');
-      setData(res.data);
+      setData(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error(err);
     } finally {
