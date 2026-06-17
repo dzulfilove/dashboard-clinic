@@ -1031,53 +1031,97 @@ export default function DashboardLab() {
                       </div>
 
                       {/* Display metric cards */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                         {/* Metric 1: Kuantitas Uji */}
                         <motion.div 
-                          whileHover={{ y: -2, scale: 1.01 }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                         >
-                          <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal">Kuantitas Uji</span>
-                          <h4 className="text-base font-semibold text-slate-900 font-display mt-1">{activeParam.total}</h4>
-                          <span className="text-[9px] text-slate-450 block mt-0.5">pemeriksaan</span>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
+                          <div className="flex items-center justify-between">
+                            <div className="p-3 bg-slate-100 text-slate-700 rounded-xl group-hover:scale-105 transition-transform">
+                              <FlaskConical className="h-5 w-5" />
+                            </div>
+                            <span className="text-[9px] font-mono font-medium bg-slate-100/80 text-slate-700 px-2 py-0.5 rounded-full">
+                              Volume
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                              {activeParam.total} <span className="text-xs font-normal text-slate-450">Uji</span>
+                            </h3>
+                            <p className="text-xxs font-normal text-slate-500 mt-1">Volume Kuantitas Uji</p>
+                          </div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-400"></div>
                         </motion.div>
 
                         {/* Metric 2: Rata-rata/Hari */}
                         <motion.div 
-                          whileHover={{ y: -2, scale: 1.01 }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                         >
-                          <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal">Rata-rata/Hari</span>
-                          <h4 className="text-base font-semibold text-slate-800 font-display mt-1">{dailyAvg}</h4>
-                          <span className="text-[9px] text-slate-450 block mt-0.5">uji/hari</span>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
+                          <div className="flex items-center justify-between">
+                            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                              <Activity className="h-5 w-5" />
+                            </div>
+                            <span className="text-[9px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2 py-0.5 rounded-full">
+                              Harian
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                              {dailyAvg} <span className="text-xs font-normal text-slate-450">Uji/hr</span>
+                            </h3>
+                            <p className="text-xxs font-normal text-slate-500 mt-1">Rerata Frekuensi Uji</p>
+                          </div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
                         </motion.div>
 
                         {/* Metric 3: Puncak Tertinggi */}
                         <motion.div 
-                          whileHover={{ y: -2, scale: 1.01 }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                         >
-                          <span className="text-[9px] uppercase tracking-wider text-teal-600 block font-normal">Puncak Tertinggi</span>
-                          <h4 className="text-base font-semibold text-teal-600 font-display mt-1">{activeParam.maxCount}</h4>
-                          <span className="text-[9px] text-slate-400 block mt-0.5 truncate">tgl {activeParam.maxDate}</span>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-500"></div>
+                          <div className="flex items-center justify-between">
+                            <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+                              <TrendingUp className="h-5 w-5" />
+                            </div>
+                            <span className="text-[9px] font-mono font-medium bg-emerald-100/80 text-emerald-800 px-2 py-0.5 rounded-full">
+                              Puncak
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                              {activeParam.maxCount} <span className="text-xs font-normal text-slate-450">Uji</span>
+                            </h3>
+                            <p className="text-xxs font-normal text-slate-500 mt-1 truncate">Maksimum tgl {activeParam.maxDate}</p>
+                          </div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
                         </motion.div>
 
                         {/* Metric 4: Konsistensi Data */}
                         <motion.div 
-                          whileHover={{ y: -2, scale: 1.01 }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-teal-200/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                         >
-                          <span className="text-[9px] uppercase tracking-wider text-teal-755 block font-normal">Konsistensi</span>
-                          <h4 className="text-base font-semibold text-teal-700 font-display mt-1">{coveragePct}%</h4>
-                          <span className="text-[9px] text-slate-450 block mt-0.5 truncate">{activeParam.activeDays}/{totalDays} hari terisi</span>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                          <div className="flex items-center justify-between">
+                            <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
+                              <Calendar className="h-5 w-5" />
+                            </div>
+                            <span className="text-[9px] font-mono font-medium bg-amber-100/80 text-amber-800 px-2 py-0.5 rounded-full">
+                              Rasio
+                            </span>
+                          </div>
+                          <div className="mt-4">
+                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                              {coveragePct}%
+                            </h3>
+                            <p className="text-xxs font-normal text-slate-500 mt-1 truncate">{activeParam.activeDays}/{totalDays} Hari Terisi</p>
+                          </div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
                         </motion.div>
                       </div>
                     </div>

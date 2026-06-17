@@ -21,6 +21,7 @@ import DatabaseSettings from './pages/admin/DatabaseSettings.js';
 import RawatJalan from './pages/pelayanan/RawatJalan.js';
 import MasterTindakan from './pages/pelayanan/MasterTindakan.js';
 import MasterPasien from './pages/pelayanan/MasterPasien.js';
+import MasterICD10 from './pages/pelayanan/MasterICD10.js';
 
 export default function App() {
   const { initialize } = useAuthStore();
@@ -78,6 +79,14 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={['admin']}>
                             <MasterPasien />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-icd10" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <MasterICD10 />
                           </ProtectedRoute>
                         } 
                       />

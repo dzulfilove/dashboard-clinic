@@ -204,8 +204,22 @@ async function runMigrationsIfRequired() {
           await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN reorder_point INT DEFAULT 0 AFTER stok_minimum");
           console.log('Columns added successfully.');
         }
+
+        const [ralanCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_rawat_jalan LIKE 'unit'");
+        if (ralanCols.length === 0) {
+          console.log('Adding column unit to existing registrasi_rawat_jalan MySQL table...');
+          await mysqlPool.query("ALTER TABLE registrasi_rawat_jalan ADD COLUMN unit VARCHAR(50) NOT NULL DEFAULT 'Poli Umum' AFTER triase");
+          console.log('Column unit added successfully.');
+        }
+
+        const [icdCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_rawat_jalan LIKE 'icd_kode'");
+        if (icdCols.length === 0) {
+          console.log('Adding column icd_kode to existing registrasi_rawat_jalan MySQL table...');
+          await mysqlPool.query("ALTER TABLE registrasi_rawat_jalan ADD COLUMN icd_kode VARCHAR(20) AFTER unit");
+          console.log('Column icd_kode added successfully.');
+        }
       } catch (colErr: any) {
-        console.error('Failed checking columns on existing obat_master:', colErr.message);
+        console.error('Failed checking columns on existing tables in Connection:', colErr.message);
       }
     }
   } catch (err) {
@@ -1075,7 +1089,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   // --- 8.5.2 REGISTRASI RAWAT JALAN & TINDAKAN RAWAT JALAN SIMULATION ---
-  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase FROM registrasi_rawat_jalan r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase FROM registrasi_rawat_jalan r JOIN pasien p ON r.pasien_no_rm = p.no_rm') ||
+      norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit FROM registrasi_rawat_jalan r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
     if (!vdb.registrasi_rawat_jalan) vdb.registrasi_rawat_jalan = [];
     if (!vdb.pasien) vdb.pasien = [];
     return vdb.registrasi_rawat_jalan.map((r: any) => {
@@ -1086,7 +1101,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         no_rm: r.pasien_no_rm,
         nama_pasien: p ? p.nama : 'Pasien',
         tanggal_pelayanan: r.tanggal_pelayanan,
-        triase: r.triase || 'hijau'
+        triase: r.triase || 'hijau',
+        unit: r.unit || 'Poli Umum'
       };
     }).sort((a, b) => b.id - a.id);
   }
@@ -1114,7 +1130,12 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('INSERT INTO registrasi_rawat_jalan')) {
-    const [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase] = params;
+    let no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit;
+    if (params.length === 5) {
+      [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit] = params;
+    } else {
+      [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase] = params;
+    }
     if (!vdb.registrasi_rawat_jalan) vdb.registrasi_rawat_jalan = [];
     const newId = vdb.registrasi_rawat_jalan.length > 0 ? Math.max(...vdb.registrasi_rawat_jalan.map(x => x.id)) + 1 : 1;
     const record = {
@@ -1122,7 +1143,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       no_registrasi,
       pasien_no_rm,
       tanggal_pelayanan,
-      triase: triase || 'hijau'
+      triase: triase || 'hijau',
+      unit: unit || 'Poli Umum'
     };
     vdb.registrasi_rawat_jalan.push(record);
     writeVirtualDb(vdb);
@@ -1156,14 +1178,22 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return { insertId: newId, affectedRows: 1 };
   }
 
-  if (norm.startsWith('UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ? WHERE id = ?')) {
-    const [pasien_no_rm, tanggal_pelayanan, triase, id] = params;
+  if (norm.startsWith('UPDATE registrasi_rawat_jalan SET')) {
+    let pasien_no_rm, tanggal_pelayanan, triase, unit, id;
+    if (params.length === 5) {
+      [pasien_no_rm, tanggal_pelayanan, triase, unit, id] = params;
+    } else {
+      [pasien_no_rm, tanggal_pelayanan, triase, id] = params;
+    }
     if (!vdb.registrasi_rawat_jalan) vdb.registrasi_rawat_jalan = [];
     const idx = vdb.registrasi_rawat_jalan.findIndex(r => r.id === Number(id));
     if (idx !== -1) {
       vdb.registrasi_rawat_jalan[idx].pasien_no_rm = pasien_no_rm;
       vdb.registrasi_rawat_jalan[idx].tanggal_pelayanan = tanggal_pelayanan;
       vdb.registrasi_rawat_jalan[idx].triase = triase || 'hijau';
+      if (unit !== undefined) {
+        vdb.registrasi_rawat_jalan[idx].unit = unit;
+      }
       writeVirtualDb(vdb);
       return { affectedRows: 1 };
     }

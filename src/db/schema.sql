@@ -169,13 +169,22 @@ CREATE TABLE IF NOT EXISTS pasien (
   nama VARCHAR(150) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS master_icd10 (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  kode_icd VARCHAR(20) NOT NULL UNIQUE,
+  deskripsi VARCHAR(250) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS registrasi_rawat_jalan (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   no_registrasi VARCHAR(50) NOT NULL UNIQUE,
   pasien_no_rm VARCHAR(20) NOT NULL,
   tanggal_pelayanan DATE NOT NULL,
   triase VARCHAR(20) DEFAULT 'hijau',
-  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm)
+  unit VARCHAR(50) NOT NULL DEFAULT 'Poli Umum',
+  icd_kode VARCHAR(20),
+  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm),
+  FOREIGN KEY (icd_kode) REFERENCES master_icd10(kode_icd)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS master_tindakan (

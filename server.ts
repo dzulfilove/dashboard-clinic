@@ -629,19 +629,25 @@ app.get('/api/lab/parameter-harian', authenticateToken, async (req, res) => {
 
 // Get all outpatient visits with detailed actions
 app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
+
   try {
     const regs = await db.query(`
-      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit, r.icd_kode
       FROM registrasi_rawat_jalan r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
-    `);
+      WHERE r.tanggal_pelayanan BETWEEN ? AND ?
+    `, [start, end]);
     
     const actions = await db.query(`
       SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
              t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal
       FROM tindakan_rawat_jalan t
       JOIN master_tindakan m ON t.tindakan_id = m.id
-    `);
+      WHERE t.tindakan_tanggal BETWEEN ? AND ?
+    `, [start, end]);
 
     // Group tindakan by registrasi_id
     const groupedActions = (actions || []).reduce((acc: any, act: any) => {
@@ -674,10 +680,10 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
 
 // Create new outpatient record with bulk tindakan actions
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, tindakan } = req.body;
   
-  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
-    return res.status(400).json({ message: 'Data wajib diisi.' });
+  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
+    return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
   }
 
   try {
@@ -686,8 +692,8 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
     
     // 2. Insert Registrasi
     const regResult = await db.query(
-      'INSERT INTO registrasi_rawat_jalan (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase) VALUES (?, ?, ?, ?)',
-      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau']
+      'INSERT INTO registrasi_rawat_jalan (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit) VALUES (?, ?, ?, ?, ?)',
+      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum']
     );
     const regId = regResult.insertId;
 
@@ -814,10 +820,10 @@ app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async 
 // Update outpatient patient details & actions
 app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
-  const { no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, unit, tindakan } = req.body;
 
-  if (!no_rm || !nama_pasien || !tanggal_pelayanan) {
-    return res.status(400).json({ message: 'Data wajib diisi.' });
+  if (!no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
+    return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
   }
 
   try {
@@ -826,8 +832,8 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
     
     // 2. Update Registrasi
     await db.query(
-      'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ? WHERE id = ?',
-      [no_rm, tanggal_pelayanan, triase || 'hijau', Number(id)]
+      'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', Number(id)]
     );
 
     // 3. Re-create child tindakan records to ensure clean relational master-detail status
@@ -865,6 +871,38 @@ app.delete('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admi
     // Both real MySQL (via foreign key rule count) and Virtual DB will delete related tindakan elements
     await db.query('DELETE FROM registrasi_rawat_jalan WHERE id = ?', [Number(id)]);
     res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- ICD-10 Master Data ---
+app.get('/api/pelayanan/icd10', authenticateToken, async (req, res) => {
+  try {
+    const data = await db.query('SELECT * FROM master_icd10');
+    res.json(data);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/pelayanan/icd10', authenticateToken, roleGuard(['admin']), async (req, res) => {
+  const { kode_icd, deskripsi } = req.body;
+  if (!kode_icd || !deskripsi) return res.status(400).json({ message: 'Kode dan Deskripsi wajib diisi.' });
+  try {
+    await db.query('INSERT INTO master_icd10 (kode_icd, deskripsi) VALUES (?, ?)', [kode_icd, deskripsi]);
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put('/api/pelayanan/icd10/:id', authenticateToken, roleGuard(['admin']), async (req, res) => {
+  const { kode_icd, deskripsi } = req.body;
+  const { id } = req.params;
+  try {
+    await db.query('UPDATE master_icd10 SET kode_icd = ?, deskripsi = ? WHERE id = ?', [kode_icd, deskripsi, id]);
+    res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

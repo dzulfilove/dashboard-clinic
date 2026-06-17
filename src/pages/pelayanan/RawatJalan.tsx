@@ -39,6 +39,7 @@ import {
   Cell
 } from 'recharts';
 import api from '../../services/api.js';
+import { ICD10 } from '../../types.js';
 
 interface Tindakan {
   id?: number;
@@ -120,6 +121,14 @@ export default function RawatJalan() {
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
+  const [unit, setUnit] = useState('Poli Umum');
+  const [unitFilter, setUnitFilter] = useState('all');
+  const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
+  const [icdList, setIcdList] = useState<ICD10[]>([]);
+  const [icdKode, setIcdKode] = useState('');
+  const [bulkUnit, setBulkUnit] = useState('');
   const [manualTindakan, setManualTindakan] = useState<Tindakan[]>([
     {
       pelaksana: '',
@@ -143,10 +152,10 @@ export default function RawatJalan() {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
   // Load records
-  const fetchRecords = async () => {
+  const fetchRecords = async (start = startDate, end = endDate) => {
     setLoading(true);
     try {
-      const res = await api.get('/pelayanan/rawat-jalan');
+      const res = await api.get('/pelayanan/rawat-jalan', { params: { startDate: start, endDate: end } });
       setRecords(res.data || []);
     } catch (err: any) {
       console.error('Gagal memuat rekap pelayanan', err);
@@ -157,8 +166,17 @@ export default function RawatJalan() {
   };
 
   useEffect(() => {
-    fetchRecords();
-  }, []);
+    const fetchIcd = async () => {
+      try {
+        const res = await api.get('/pelayanan/icd10');
+        setIcdList(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchIcd();
+    fetchRecords(startDate, endDate);
+  }, [startDate, endDate]);
 
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
@@ -207,8 +225,8 @@ export default function RawatJalan() {
   // Manual CRUD Save
   const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!noRegistrasi || !noRm || !namaPasien || !tanggalPelayanan) {
-      showFeedback('error', 'Mohon isi semua data demografi pasien.');
+    if (!noRegistrasi || !noRm || !namaPasien || !tanggalPelayanan || !unit) {
+      showFeedback('error', 'Mohon isi semua data demografi pasien, termasuk unit pelayanan.');
       return;
     }
 
@@ -220,6 +238,8 @@ export default function RawatJalan() {
           nama_pasien: namaPasien,
           tanggal_pelayanan: tanggalPelayanan,
           triase: triase,
+          unit: unit,
+          icd_kode: icdKode,
           tindakan: manualTindakan
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil diperbarui.`);
@@ -230,6 +250,8 @@ export default function RawatJalan() {
           nama_pasien: namaPasien,
           tanggal_pelayanan: tanggalPelayanan,
           triase: triase,
+          unit: unit,
+          icd_kode: icdKode,
           tindakan: manualTindakan
         });
         showFeedback('success', 'Data pendaftaran rawat jalan berhasil diregistrasi.');
@@ -252,6 +274,8 @@ export default function RawatJalan() {
     setNamaPasien('');
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
     setTriase('hijau');
+    setUnit('Poli Umum');
+    setIcdKode('');
     setManualTindakan([
       {
         pelaksana: '',
@@ -272,15 +296,16 @@ export default function RawatJalan() {
     setIsManualModalOpen(false);
   };
 
-  const handleEditClick = (rec: OutpatientRecord) => {
+  const handleEditClick = (rec: any) => {
     setNoRegistrasi(rec.no_registrasi);
     setNoRm(rec.no_rm);
     setNamaPasien(rec.nama_pasien);
     setTanggalPelayanan(rec.tanggal_pelayanan);
     setTriase(rec.triase || 'hijau');
+    setUnit(rec.unit || 'Poli Umum');
     
     // map tindakan
-    setManualTindakan(rec.tindakan.map(t => ({
+    setManualTindakan(rec.tindakan.map((t: any) => ({
       pelaksana: t.pelaksana,
       tindakan_nama: t.tindakan_nama,
       tindakan_keterangan: t.tindakan_keterangan || '',
@@ -447,6 +472,10 @@ export default function RawatJalan() {
 
   const handleBulkInsert = async () => {
     if (parsedData.length === 0) return;
+    if (!bulkUnit) {
+      showFeedback('error', 'Silakan pilih unit pelayanan terlebih dahulu sebelum menyimpan.');
+      return;
+    }
     setSubmitting(true);
     let successCount = 0;
 
@@ -457,6 +486,8 @@ export default function RawatJalan() {
           no_rm: p.no_rm,
           nama_pasien: p.nama_pasien,
           tanggal_pelayanan: p.tanggal_pelayanan,
+          triase: p.triase || 'hijau',
+          unit: bulkUnit,
           tindakan: p.tindakan
         });
         successCount++;
@@ -478,19 +509,21 @@ export default function RawatJalan() {
   // Reset currentPage to 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, triageFilter]);
+  }, [searchQuery, triageFilter, unitFilter, procedureFilter, startDate, endDate]);
 
   // Filtered lists for rendering search query and triage
   const filteredRecords = (Array.isArray(records) ? records : []).filter(rec => {
     const q = searchQuery.toLowerCase();
     const matchesTriage = triageFilter === 'all' || String(rec.triase || 'hijau').toLowerCase() === triageFilter;
+    const matchesUnit = unitFilter === 'all' || (rec.unit || 'Poli Umum') === unitFilter;
+    const matchesProcedure = !procedureFilter || rec.tindakan.some(t => t.tindakan_nama === procedureFilter);
     const matchesSearch = (
       rec.nama_pasien.toLowerCase().includes(q) ||
       rec.no_registrasi.toLowerCase().includes(q) ||
       rec.no_rm.toLowerCase().includes(q) ||
-      rec.tindakan.some(t => t.tindakan_nama.toLowerCase().includes(q) || t.pelaksana.toLowerCase().includes(q))
+      rec.tindakan.some((t: any) => t.tindakan_nama.toLowerCase().includes(q) || t.pelaksana.toLowerCase().includes(q))
     );
-    return matchesTriage && matchesSearch;
+    return matchesTriage && matchesUnit && matchesProcedure && matchesSearch;
   });
 
   // Calculate high-quality triage statistics for infographic
@@ -557,11 +590,16 @@ export default function RawatJalan() {
     }
   });
 
-  // Top 5 treatments
+  // Top 5 treatments for chart
   const chartTreatmentData = Object.entries(procedureMap)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
+
+  // All treatments for display
+  const allTreatmentData = Object.entries(procedureMap)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
 
   // Daily Trend Charts Data
   const chartTrendData = Object.entries(dateMap)
@@ -655,59 +693,102 @@ export default function RawatJalan() {
           {activeTab === 'statistik' && (
             <div className="space-y-6">
               {/* Core metrics bento boxes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 1 */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Kunjungan Pasien</span>
-                    <h3 className="text-xl font-semibold text-slate-800 font-display tracking-tight mt-1">
-                      {totalVisits} <span className="text-xs font-normal text-slate-400">Kasus</span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                {/* 1. Kunjungan Pasien */}
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <Users className="h-6 w-6" />
+                    </div>
+                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                      Kunjungan
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                      {totalVisits} <span className="text-xs font-normal text-slate-450">Kasus</span>
                     </h3>
+                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
                   </div>
-                  <div className="h-12 w-12 bg-slate-900/5 text-slate-700 rounded-2xl flex items-center justify-center shadow-xs">
-                    <Users className="h-5.5 w-5.5" />
-                  </div>
-                </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                </motion.div>
 
-                {/* 2 */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Tindakan Medis</span>
-                    <h3 className="text-xl font-semibold text-slate-800 font-display tracking-tight mt-1">
-                      {totalProcedures} <span className="text-xs font-normal text-slate-400">Kali</span>
+                {/* 2. Tindakan Medis */}
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <ClipboardList className="h-6 w-6" />
+                    </div>
+                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                      Tindakan
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                      {totalProcedures} <span className="text-xs font-normal text-slate-450">Tindakan</span>
                     </h3>
+                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Tindakan Medis Dilakukan</p>
                   </div>
-                  <div className="h-12 w-12 bg-slate-900/5 text-slate-700 rounded-2xl flex items-center justify-center shadow-xs">
-                    <ClipboardList className="h-5.5 w-5.5" />
-                  </div>
-                </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                </motion.div>
 
-                {/* 3 */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Pendapatan Pelayanan</span>
-                    <h3 className="text-xl font-semibold text-slate-800 font-display tracking-tight mt-1.5">
+                {/* 3. Pendapatan Pelayanan */}
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <DollarSign className="h-6 w-6" />
+                    </div>
+                    <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full">
+                      Omset
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display leading-tight">
                       Rp {totalIncome.toLocaleString('id-ID')}
                     </h3>
+                    <p className="text-xxs font-normal text-slate-500 mt-1">Akumulasi Tarif Semua Tindakan</p>
                   </div>
-                  <div className="h-12 w-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center shadow-xs">
-                    <DollarSign className="h-5.5 w-5.5" />
-                  </div>
-                </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
+                </motion.div>
 
-                {/* 4 */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
-                  <div>
-                    <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Pratika Teraktif</span>
-                    <h3 className="text-sm font-extrabold text-slate-850 truncate max-w-[12rem] mt-2.5">
+                {/* 4. Pratik Teraktif */}
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <TrendingUp className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
+                      Aktif
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-lg font-semibold text-slate-900 tracking-tight font-display truncate leading-tight uppercase">
                       {topPerformer}
                     </h3>
-                    <span className="text-xxs text-slate-400 font-medium">Melayani {topPerformerCount} prosedur</span>
+                    <p className="text-xxs font-mono text-amber-600 font-bold mt-1">
+                      {topPerformerCount} Prosedur
+                    </p>
                   </div>
-                  <div className="h-12 w-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center shadow-xs">
-                    <CheckCircle className="h-5.5 w-5.5" />
-                  </div>
-                </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+                </motion.div>
+                
               </div>
 
               {/* Graphical trends */}
@@ -776,7 +857,11 @@ export default function RawatJalan() {
                   {/* Legends */}
                   <div className="space-y-1.5 max-h-[120px] overflow-y-auto">
                     {chartTreatmentData.map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-[11px] font-medium text-slate-650">
+                      <div 
+                        key={idx} 
+                        className={`flex items-center justify-between text-[11px] font-medium text-slate-650 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
+                        onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
+                      >
                         <div className="flex items-center space-x-2 truncate max-w-[12rem]">
                           <span className="h-2 w-2 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
                           <span className="truncate">{item.name}</span>
@@ -784,6 +869,23 @@ export default function RawatJalan() {
                         <span className="font-bold text-slate-800">{item.count} tindakan</span>
                       </div>
                     ))}
+                  </div>
+                  
+                  {/* Additional Procedures Filter Section */}
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <h4 className="text-xs font-bold text-slate-700 mb-2">Semua Tindakan:</h4>
+                    <div className="max-h-[200px] overflow-y-auto space-y-1">
+                      {allTreatmentData.map((item, idx) => (
+                         <div 
+                           key={idx} 
+                           className={`p-2 rounded-lg cursor-pointer text-xs flex justify-between items-center ${procedureFilter === item.name ? 'bg-teal-100 text-teal-900' : 'hover:bg-slate-100'}`}
+                           onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
+                         >
+                           <span className="truncate">{item.name}</span>
+                           <span className="font-bold">{item.count}</span>
+                         </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -962,11 +1064,11 @@ export default function RawatJalan() {
 
               {/* Search utility and count banner */}
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="relative flex-1 max-w-md">
+                <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Cari nama pasien, No Reg, tindakan, pelaksana..."
+                    placeholder="Cari..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 placeholder-slate-405 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
@@ -979,6 +1081,39 @@ export default function RawatJalan() {
                       <X className="h-3.5 w-3.5" />
                     </button>
                   )}
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={unitFilter}
+                    onChange={(e) => setUnitFilter(e.target.value)}
+                    className="pl-4 pr-8 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                  >
+                    <option value="all">Semua Unit</option>
+                    <option value="Poli Umum">Poli Umum</option>
+                    <option value="Poli Gigi">Poli Gigi</option>
+                    <option value="Poli KIA (Ibu & Anak)">Poli KIA (Ibu & Anak)</option>
+                    <option value="Poli Anak">Poli Anak</option>
+                    <option value="Poli Spesialis">Poli Spesialis</option>
+                    <option value="IGD (Gawat Darurat)">IGD (Gawat Darurat)</option>
+                    <option value="Unit Penunjang">Unit Penunjang</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                  />
+                  <span className="text-slate-400">-</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                  />
                 </div>
 
                 <div className="text-slate-500 text-xs font-semibold">
@@ -1001,6 +1136,7 @@ export default function RawatJalan() {
                         <tr className="bg-slate-50/75 border-b border-slate-150 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
+                          <th className="px-6 py-4.5">Unit Pelayanan</th>
                           <th className="px-6 py-4.5">Tanggal Kunjungan</th>
                           <th className="px-6 py-4.5 text-center">Jumlah Tindakan</th>
                           <th className="px-6 py-4.5 text-right">Subtotal Biaya</th>
@@ -1038,6 +1174,11 @@ export default function RawatJalan() {
                                       </div>
                                     )}
                                   </div>
+                                </td>
+                                <td className="px-6 py-4.5">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                    {rec.unit || 'Poli Umum'}
+                                  </span>
                                 </td>
                                 <td className="px-6 py-4.5 font-normal text-slate-650">
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -1083,7 +1224,7 @@ export default function RawatJalan() {
                               {/* Accordion inner tindakan rows */}
                               {isExpanded && (
                                 <tr className="bg-slate-50/70">
-                                  <td colSpan={6} className="px-6 py-4.5 border-t border-b border-slate-150">
+                                  <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-150">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                                         <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
@@ -1308,11 +1449,29 @@ export default function RawatJalan() {
                       ))}
                     </div>
 
-                    {/* Submit bulk save button */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center space-x-3">
+                    <div className="pt-4 border-t border-slate-100">
+                      <div className="mb-4">
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan (Wajib Pilih)</label>
+                        <select
+                          value={bulkUnit}
+                          onChange={(e) => setBulkUnit(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        >
+                          <option value="" disabled>-- Pilih Unit --</option>
+                          <option value="Poli Umum">Poli Umum</option>
+                          <option value="Poli Gigi">Poli Gigi</option>
+                          <option value="Poli KIA (Ibu & Anak)">Poli KIA (Ibu & Anak)</option>
+                          <option value="Poli Anak">Poli Anak</option>
+                          <option value="Poli Spesialis">Poli Spesialis</option>
+                          <option value="IGD (Gawat Darurat)">IGD (Gawat Darurat)</option>
+                          <option value="Unit Penunjang">Unit Penunjang</option>
+                        </select>
+                      </div>
+
                       <button
                         onClick={handleBulkInsert}
-                        className="flex-1 inline-flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md shadow-teal-700/10 cursor-pointer"
+                        className="flex-1 inline-flex items-center justify-center w-full space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md shadow-teal-700/10 cursor-pointer"
                         disabled={submitting}
                       >
                         {submitting ? (
@@ -1430,6 +1589,36 @@ export default function RawatJalan() {
                           <option value="kuning">Kuning</option>
                           <option value="hitam">Hitam</option>
                           <option value="merah">Merah</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan</label>
+                        <select
+                          value={unit}
+                          onChange={(e) => setUnit(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        >
+                          <option value="" disabled>-- Pilih Unit --</option>
+                          <option value="Poli Umum">Poli Umum</option>
+                          <option value="Poli Gigi">Poli Gigi</option>
+                          <option value="Poli KIA (Ibu & Anak)">Poli KIA (Ibu & Anak)</option>
+                          <option value="Poli Anak">Poli Anak</option>
+                          <option value="Poli Spesialis">Poli Spesialis</option>
+                          <option value="IGD (Gawat Darurat)">IGD (Gawat Darurat)</option>
+                          <option value="Unit Penunjang">Unit Penunjang</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Diagnosis (ICD-10)</label>
+                        <select
+                          value={icdKode}
+                          onChange={(e) => setIcdKode(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        >
+                          <option value="">-- Pilih Diagnosis --</option>
+                          {icdList.map(icd => <option key={icd.id} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>)}
                         </select>
                       </div>
                     </div>

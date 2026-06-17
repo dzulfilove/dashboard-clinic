@@ -25,7 +25,32 @@ export default function MasterPasien() {
   
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<Pasien | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isVisitDetailModalOpen, setIsVisitDetailModalOpen] = useState(false);
+  const [selectedPasien, setSelectedPasien] = useState<Pasien | null>(null);
+  const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
+  const [visits, setVisits] = useState<any[]>([]);
+
+  const fetchVisitsForPatient = async (no_rm: string) => {
+    try {
+      const res = await api.get('/pelayanan/rawat-jalan');
+      setVisits(res.data.filter((v: any) => v.no_rm === no_rm));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleOpenDetailModal = (item: Pasien) => {
+    setSelectedPasien(item);
+    fetchVisitsForPatient(item.no_rm);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleOpenVisitDetail = (visit: any) => {
+    setSelectedVisit(visit);
+    setIsVisitDetailModalOpen(true);
+  };
+
   const [formData, setFormData] = useState({
     no_rm: '',
     nama: ''
@@ -201,6 +226,14 @@ export default function MasterPasien() {
                     <td className="py-3 px-5 text-right">
                       <div className="inline-flex items-center gap-1.5">
                         <button
+                          onClick={() => handleOpenDetailModal(p)}
+                          title="Lihat Detail Pasien"
+                          className="p-1 px-2.5 hover:bg-teal-50 hover:text-teal-700 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
+                        >
+                          <Check className="h-3 w-3" />
+                          <span>Detail</span>
+                        </button>
+                        <button
                           onClick={() => handleOpenEditModal(p)}
                           id={`edit-pasien-${p.no_rm}`}
                           title="Ubah Profil Pasien"
@@ -227,6 +260,134 @@ export default function MasterPasien() {
           </div>
         )}
       </div>
+
+      {/* Detail modal dialog */}
+      {isDetailModalOpen && selectedPasien && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h3 className="font-extrabold text-slate-900 text-base">
+                Detail Pasien: {selectedPasien.nama}
+              </h3>
+              <button 
+                onClick={() => setIsDetailModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">No Rekam Medis</p>
+                  <p className="font-mono font-semibold text-slate-800">{selectedPasien.no_rm}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Nama Pasien</p>
+                  <p className="font-semibold text-slate-800">{selectedPasien.nama}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <h4 className="text-xs font-bold text-slate-700 mb-3">Riwayat Kunjungan</h4>
+                {visits.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic">Belum ada riwayat kunjungan.</p>
+                ) : (
+                  <div className="overflow-y-auto max-h-60 border border-slate-100 rounded-lg">
+                    <table className="w-full text-xs">
+                      <thead className="bg-slate-50">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-semibold text-slate-500">Tanggal</th>
+                          <th className="px-3 py-2 text-left font-semibold text-slate-500">No Reg</th>
+                          <th className="px-3 py-2 text-left font-semibold text-slate-500">Unit</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {visits.map((v: any) => (
+                          <tr key={v.id} onClick={() => handleOpenVisitDetail(v)} className="hover:bg-slate-50 cursor-pointer">
+                            <td className="px-3 py-2">{v.tanggal_pelayanan}</td>
+                            <td className="px-3 py-2 font-mono">{v.no_registrasi}</td>
+                            <td className="px-3 py-2">{v.unit}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Visit detail modal dialog */}
+      {isVisitDetailModalOpen && selectedVisit && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h3 className="font-extrabold text-slate-900 text-base">
+                Detail Kunjungan: {selectedVisit.no_registrasi}
+              </h3>
+              <button 
+                onClick={() => setIsVisitDetailModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
+              >
+                <X className="h-4.5 w-4.5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Tanggal</p>
+                  <p className="font-semibold text-slate-800">{selectedVisit.tanggal_pelayanan}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Unit</p>
+                  <p className="font-semibold text-slate-800">{selectedVisit.unit}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Triase</p>
+                  <p className="font-semibold text-slate-800 capitalize">{selectedVisit.triase || 'Hijau'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Diagnosis (ICD-10)</p>
+                  <p className="font-semibold text-slate-800">{selectedVisit.icd_kode || '-'}</p>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <h4 className="text-xs font-bold text-slate-700 mb-3">Tindakan Dilakukan</h4>
+                {(!selectedVisit.tindakan || selectedVisit.tindakan.length === 0) ? (
+                  <p className="text-xs text-slate-500 italic">Tidak ada tindakan tercatat.</p>
+                ) : (
+                  <div className="overflow-y-auto max-h-60 border border-slate-100 rounded-lg">
+                    <table className="w-full text-xs">
+                      <thead className="bg-slate-50">
+                        <tr>
+                          <th className="px-3 py-2 text-left font-semibold text-slate-500">Tindakan</th>
+                          <th className="px-3 py-2 text-left font-semibold text-slate-500">Pelaksana</th>
+                          <th className="px-3 py-2 text-right font-semibold text-slate-500">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {selectedVisit.tindakan.map((t: any, idx: number) => (
+                          <tr key={idx}>
+                            <td className="px-3 py-2">{t.tindakan_nama}</td>
+                            <td className="px-3 py-2">{t.pelaksana}</td>
+                            <td className="px-3 py-2 text-right">Rp {t.subtotal?.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action modal dialog */}
       {isModalOpen && (

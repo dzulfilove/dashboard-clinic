@@ -96,3 +96,9 @@ export interface AbcResult {
   items: AbcItem[];
   total_investasi: number;
 }
+
+export interface ICD10 {
+  id: number;
+  kode_icd: string;
+  deskripsi: string;
+}
