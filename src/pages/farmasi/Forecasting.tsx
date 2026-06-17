@@ -78,18 +78,18 @@ export default function Forecasting() {
       {/* Upper header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-indigo-600" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-teal-600" />
             <span>Sistem Peramalan Logistik Farmasi (Forecasting)</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Proyeksi kebutuhan obat berbasis algoritma <strong>Moving Average (3 Bulan)</strong> dan penentuan Tingkat Reorder Point (ROP).
           </p>
         </div>
 
         {/* Proyektif period selector */}
         <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-xs">
-          <Calendar className="h-5 w-5 text-indigo-600 flex-shrink-0" />
+          <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
           <span className="text-xs font-semibold text-slate-500">Proyeksi Target:</span>
           <select 
             id="proj-month-select"
@@ -126,7 +126,7 @@ export default function Forecasting() {
 
       {/* Forecasting Explanation Banner */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-600">
-        <Info className="h-5 w-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+        <Info className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
         <div>
           <span className="font-bold text-slate-800 block mb-1">Cara Kerja Algoritma Peramalan & ROP:</span>
           <p className="mt-0.5">
@@ -136,14 +136,14 @@ export default function Forecasting() {
             2. <strong>Safety Stock (Stok Pengaman)</strong> dihitung untuk mengatasi fluktuasi suplai: <strong className="text-slate-700 font-mono">[Proyeksi Kebutuhan × (Lead Time Pengiriman / 30 Hari) × 1.5]</strong>.
           </p>
           <p className="mt-1">
-            3. <strong>Reorder Quantity (ROP)</strong> adalah titik pemesanan kembali: <strong className="text-indigo-700 font-mono">[Proyeksi Kebutuhan + Safety Stock]</strong>. Jika Stok Saat Ini di bawah ROP, maka ditandai <strong className="text-rose-600 uppercase">Kritis</strong>.
+            3. <strong>Reorder Quantity (ROP)</strong> adalah titik pemesanan kembali: <strong className="text-teal-700 font-mono">[Proyeksi Kebutuhan + Safety Stock]</strong>. Jika Stok Saat Ini di bawah ROP, maka ditandai <strong className="text-rose-600 uppercase">Kritis</strong>.
           </p>
         </div>
       </div>
 
       {loading ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
-          <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin mx-auto mb-3" />
+          <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
           <span>Mengkalkulasi moving average dan safety stocks...</span>
         </div>
       ) : (
@@ -164,7 +164,7 @@ export default function Forecasting() {
             </div>
 
             <div className="p-4 bg-white border border-slate-150 rounded-xl shadow-xs flex items-center space-x-3">
-              <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg">
+              <div className="p-2.5 bg-teal-50 text-teal-600 rounded-lg">
                 <CheckCircle className="h-5 w-5" />
               </div>
               <div>
@@ -195,7 +195,7 @@ export default function Forecasting() {
                     <tr key={f.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="px-6 py-3 whitespace-nowrap">
                         <div>
-                          <span className="font-mono text-xxs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                          <span className="font-mono text-xxs font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
                             {f.kode_obat}
                           </span>
                           <h4 className="font-medium text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
@@ -214,8 +214,8 @@ export default function Forecasting() {
                       </td>
 
                       {/* Reorder limit */}
-                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-medium text-indigo-700 bg-indigo-50/30">
-                        {f.reorder_qty} <span className="text-xxs font-normal text-indigo-400">unit</span>
+                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-medium text-teal-700 bg-teal-50/30">
+                        {f.reorder_qty} <span className="text-xxs font-normal text-teal-400">unit</span>
                       </td>
 
                       {/* Current stock from latest month remaining */}

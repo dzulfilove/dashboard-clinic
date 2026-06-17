@@ -576,19 +576,19 @@ export default function RawatJalan() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200">
-        <div className="flex items-center space-x-3.5">
-          <div className="bg-teal-600 text-white p-2.5 rounded-2xl shadow-md flex items-center justify-center">
-            <FileCheck className="h-6.5 w-6.5" />
-          </div>
-          <div>
-            <span className="text-[10px] text-teal-600 font-extrabold tracking-widest uppercase">Pelayanan Klinik</span>
-            <h1 className="text-2xl font-bold font-display text-slate-900 tracking-tight mt-0.5">Rawat Jalan (Outpatient Services)</h1>
-          </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <FileCheck className="h-5 w-5 text-teal-600" />
+            <span>Rawat Jalan (Outpatient Services)</span>
+          </h1>
+          <p className="text-slate-500 text-xs mt-1">
+            Pencatatan log kunjungan medis, rincian tindakan, pengisian triase, dan rekapitulasi pelayanan rawat jalan.
+          </p>
         </div>
 
         {/* Custom Tab selectors & Manual Input trigger */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 md:mt-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl self-start">
             <button
               onClick={() => setActiveTab('statistik')}
@@ -660,11 +660,11 @@ export default function RawatJalan() {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
                   <div>
                     <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Kunjungan Pasien</span>
-                    <h3 className="text-3xl font-black text-slate-800 font-display tracking-tight mt-1">
-                      {totalVisits} <span className="text-xs font-semibold text-slate-400">Kasus</span>
+                    <h3 className="text-xl font-semibold text-slate-800 font-display tracking-tight mt-1">
+                      {totalVisits} <span className="text-xs font-normal text-slate-400">Kasus</span>
                     </h3>
                   </div>
-                  <div className="h-12 w-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center shadow-xs">
+                  <div className="h-12 w-12 bg-slate-900/5 text-slate-700 rounded-2xl flex items-center justify-center shadow-xs">
                     <Users className="h-5.5 w-5.5" />
                   </div>
                 </div>
@@ -673,11 +673,11 @@ export default function RawatJalan() {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
                   <div>
                     <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Tindakan Medis</span>
-                    <h3 className="text-3xl font-black text-slate-800 font-display tracking-tight mt-1">
-                      {totalProcedures} <span className="text-xs font-semibold text-slate-400">Kali</span>
+                    <h3 className="text-xl font-semibold text-slate-800 font-display tracking-tight mt-1">
+                      {totalProcedures} <span className="text-xs font-normal text-slate-400">Kali</span>
                     </h3>
                   </div>
-                  <div className="h-12 w-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-xs">
+                  <div className="h-12 w-12 bg-slate-900/5 text-slate-700 rounded-2xl flex items-center justify-center shadow-xs">
                     <ClipboardList className="h-5.5 w-5.5" />
                   </div>
                 </div>
@@ -686,7 +686,7 @@ export default function RawatJalan() {
                 <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-between">
                   <div>
                     <span className="text-slate-400 text-[11px] font-extrabold tracking-wider uppercase">Pendapatan Pelayanan</span>
-                    <h3 className="text-2xl font-black text-slate-800 font-display tracking-tight mt-1.5">
+                    <h3 className="text-xl font-semibold text-slate-800 font-display tracking-tight mt-1.5">
                       Rp {totalIncome.toLocaleString('id-ID')}
                     </h3>
                   </div>
@@ -704,7 +704,7 @@ export default function RawatJalan() {
                     </h3>
                     <span className="text-xxs text-slate-400 font-medium">Melayani {topPerformerCount} prosedur</span>
                   </div>
-                  <div className="h-12 w-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center shadow-xs">
+                  <div className="h-12 w-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center shadow-xs">
                     <CheckCircle className="h-5.5 w-5.5" />
                   </div>
                 </div>
@@ -845,8 +845,8 @@ export default function RawatJalan() {
                         
                         {/* Value and Label */}
                         <div className="mt-4">
-                          <h4 className="text-2xl font-black text-slate-800 font-mono tracking-tight">
-                            {item.count} <span className="text-xs font-semibold text-slate-400">Kasus</span>
+                          <h4 className="text-lg font-semibold text-slate-800 font-mono tracking-tight">
+                            {item.count} <span className="text-xs font-normal text-slate-400">Kasus</span>
                           </h4>
                           <p className="text-xs font-bold text-slate-700 mt-1 uppercase tracking-wide">
                             Triase {item.name}
@@ -930,7 +930,7 @@ export default function RawatJalan() {
                 <span className="text-slate-450 text-[10px] font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
-                  className={`px-3 py-1.5 rounded-xl text-xxs font-black uppercase tracking-wider border transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
                     triageFilter === 'all'
                       ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
                       : 'bg-white text-slate-600 border-slate-205 hover:bg-slate-100'
@@ -942,7 +942,7 @@ export default function RawatJalan() {
                   <button
                     key={item.key}
                     onClick={() => { setTriageFilter(item.key); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-xl text-xxs font-black uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1.5 ${
                       triageFilter === item.key
                         ? 'text-white border-transparent shadow-xs'
                         : 'bg-white text-slate-655 border-slate-205 hover:bg-slate-100'
@@ -998,7 +998,7 @@ export default function RawatJalan() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50/75 border-b border-slate-150 text-[10.5px] text-slate-500 font-extrabold tracking-wider uppercase">
+                        <tr className="bg-slate-50/75 border-b border-slate-150 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Tanggal Kunjungan</th>
@@ -1017,19 +1017,19 @@ export default function RawatJalan() {
                               <tr className="hover:bg-slate-50/30 transition-all">
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
-                                    <span className="font-bold text-slate-900 font-mono text-[11.5px]">{rec.no_registrasi}</span>
+                                    <span className="font-medium text-slate-900 font-mono text-[11.5px]">{rec.no_registrasi}</span>
                                     <span className="text-slate-400 font-mono text-[10px] mt-0.5">RM: #{rec.no_rm}</span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
-                                    <span className="font-extrabold text-slate-800 uppercase tracking-wide">{rec.nama_pasien}</span>
+                                    <span className="font-semibold text-slate-800 uppercase tracking-wide">{rec.nama_pasien}</span>
                                     {rec.triase && (
                                       <div className="mt-1">
                                         {(() => {
                                           const ts = getTriageStyle(rec.triase);
                                           return (
-                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-bold border ${ts.bg}`}>
+                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${ts.bg}`}>
                                               <span className={`h-1 w-1 rounded-full ${ts.dotBg}`}></span>
                                               <span>{ts.text.split(' / ')[0]}</span>
                                             </span>
@@ -1039,15 +1039,15 @@ export default function RawatJalan() {
                                     )}
                                   </div>
                                 </td>
-                                <td className="px-6 py-4.5 font-medium text-slate-650">
+                                <td className="px-6 py-4.5 font-normal text-slate-650">
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </td>
                                 <td className="px-6 py-4.5 text-center">
-                                  <span className="inline-flex items-center px-2.5 py-1 text-xxs font-extrabold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
+                                  <span className="inline-flex items-center px-2.5 py-1 text-xxs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
                                     {rec.tindakan.length} Tindakan
                                   </span>
                                 </td>
-                                <td className="px-6 py-4.5 text-right font-black text-slate-900 font-mono">
+                                <td className="px-6 py-4.5 text-right font-semibold text-slate-900 font-mono">
                                   Rp {totalCost.toLocaleString('id-ID')}
                                 </td>
                                 <td className="px-6 py-4.5">

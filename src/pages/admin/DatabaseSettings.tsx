@@ -92,11 +92,11 @@ export default function DatabaseSettings() {
     <div className="space-y-6">
       {/* Upper header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Database className="h-6 w-6 text-teal-600" />
+        <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+          <Database className="h-5 w-5 text-teal-600" />
           <span>Pengaturan & Diagnostik Sinkronisasi Database VPS</span>
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
+        <p className="text-slate-500 text-xs mt-1">
           Konfigurasikan integrasi MySQL VPS eksternal, validasi status socket server, dan jalankan migrasi schema otomatis.
         </p>
       </div>

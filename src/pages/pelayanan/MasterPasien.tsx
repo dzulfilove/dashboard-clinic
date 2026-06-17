@@ -117,24 +117,24 @@ export default function MasterPasien() {
   );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="space-y-6">
       {/* Upper header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Users2 className="h-6 w-6 text-teal-600" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Users2 className="h-5 w-5 text-teal-600" />
             <span>Master Data Pasien</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Riwayat pendaftaran Rekam Medis (no_rm) pasien Klinik Puri Medika.
           </p>
         </div>
         <button
           onClick={handleOpenAddModal}
           id="btn-add-pasien"
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-extrabold text-sm rounded-xl shadow-sm"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium text-xs rounded-lg shadow-sm"
         >
-          <UserPlus className="h-4 w-4" />
+          <UserPlus className="h-3 w-3" />
           <span>Daftarkan Pasien Baru</span>
         </button>
       </div>
@@ -184,18 +184,18 @@ export default function MasterPasien() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-slate-100">
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase">Nomor Rekam Medis (RM)</th>
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase">Nama Lengkap Pasien</th>
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase text-right">Aksi Kelola</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nomor Rekam Medis (RM)</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Lengkap Pasien</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider text-right">Aksi Kelola</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filteredData.map((p) => (
                   <tr key={p.no_rm} className="hover:bg-slate-50/50 transition">
-                    <td className="py-3 px-5 text-xs font-black text-slate-900 font-mono">
+                    <td className="py-3 px-5 text-xs text-slate-800 font-mono">
                       {p.no_rm}
                     </td>
-                    <td className="py-3 px-5 text-sm font-extrabold text-slate-800">
+                    <td className="py-3 px-5 text-xs text-slate-800">
                       {p.nama}
                     </td>
                     <td className="py-3 px-5 text-right">
@@ -204,7 +204,7 @@ export default function MasterPasien() {
                           onClick={() => handleOpenEditModal(p)}
                           id={`edit-pasien-${p.no_rm}`}
                           title="Ubah Profil Pasien"
-                          className="p-1 px-2.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-450 transition text-xs font-bold inline-flex items-center gap-1"
+                          className="p-1 px-2.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
                         >
                           <Edit2 className="h-3 w-3" />
                           <span>Ubah</span>
@@ -213,7 +213,7 @@ export default function MasterPasien() {
                           onClick={() => handleDelete(p.no_rm)}
                           id={`delete-pasien-${p.no_rm}`}
                           title="Hapus Safely"
-                          className="p-1 px-2.5 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-slate-450 transition text-xs font-bold inline-flex items-center gap-1"
+                          className="p-1 px-2.5 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
                         >
                           <Trash2 className="h-3 w-3" />
                           <span>Hapus</span>

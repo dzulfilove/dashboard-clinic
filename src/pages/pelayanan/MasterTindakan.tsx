@@ -117,25 +117,25 @@ export default function MasterTindakan() {
   );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="space-y-6">
       {/* Upper header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Activity className="h-6 w-6 text-teal-600" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Activity className="h-5 w-5 text-teal-600" />
             <span>Master Data Tindakan Klinik</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Kelola katalog tindakan/pelayanan medis rawat jalan (RALAN) dan rawat inap (RANAP) Klinik Puri Medika.
           </p>
         </div>
         <button
           onClick={handleOpenAddModal}
           id="btn-add-tindakan"
-          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-extrabold text-sm rounded-xl shadow-sm"
+          className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium text-xs rounded-lg shadow-sm"
         >
-          <Plus className="h-4 w-4" />
-          <span>Tambah Tindakan Baru</span>
+          <Plus className="h-3 w-3" />
+          <span>Tambah</span>
         </button>
       </div>
 
@@ -184,28 +184,28 @@ export default function MasterTindakan() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/70 border-b border-slate-100">
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase">ID Kode</th>
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase">Nama Layanan Tindakan Medis</th>
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase">Klasifikasi Jenis</th>
-                  <th className="py-3.5 px-5 text-xxs font-extrabold text-slate-500 tracking-wider uppercase text-right">Aksi Kelola</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">ID Kode</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Layanan Tindakan Medis</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Klasifikasi Jenis</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider text-right">Aksi Kelola</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filteredData.map((t) => (
                   <tr key={t.id} className="hover:bg-slate-50/50 transition">
-                    <td className="py-3 px-5 text-xs font-bold text-slate-400 font-mono">
+                    <td className="py-3 px-5 text-xs text-slate-600 font-mono">
                       #{String(t.id).padStart(4, '0')}
                     </td>
-                    <td className="py-3 px-5 text-sm font-extrabold text-slate-800">
+                    <td className="py-3 px-5 text-xs text-slate-800">
                       {t.nama_tindakan}
                     </td>
                     <td className="py-3 px-5">
-                      <span className={`inline-flex items-center px-2.5 py-1 text-xxs font-black tracking-wide rounded-full ${
+                      <span className={`inline-flex items-center px-2.5 py-1 text-xs font-normal tracking-wide rounded-full ${
                         t.jenis === 'RALAN' 
-                          ? 'bg-indigo-50 text-indigo-700 border border-indigo-150' 
+                          ? 'bg-teal-50 text-teal-700 border border-teal-150' 
                           : 'bg-emerald-50 text-emerald-700 border border-emerald-150'
                       }`}>
-                        {t.jenis === 'RALAN' ? 'RAWAT JALAN' : 'RAWAT INAP'}
+                        {t.jenis === 'RALAN' ? 'Rawat Jalan' : 'Rawat Inap'}
                       </span>
                     </td>
                     <td className="py-3 px-5 text-right">
@@ -214,7 +214,7 @@ export default function MasterTindakan() {
                           onClick={() => handleOpenEditModal(t)}
                           id={`edit-tindakan-${t.id}`}
                           title="Perbarui Metadata"
-                          className="p-1 px-2.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-450 transition text-xs font-bold inline-flex items-center gap-1"
+                          className="p-1 px-2.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
                         >
                           <Edit2 className="h-3 w-3" />
                           <span>Ubah</span>
@@ -223,7 +223,7 @@ export default function MasterTindakan() {
                           onClick={() => handleDelete(t.id)}
                           id={`delete-tindakan-${t.id}`}
                           title="Hapus Permanen"
-                          className="p-1 px-2.5 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-slate-450 transition text-xs font-bold inline-flex items-center gap-1"
+                          className="p-1 px-2.5 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
                         >
                           <Trash2 className="h-3 w-3" />
                           <span>Hapus</span>

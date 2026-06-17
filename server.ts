@@ -994,7 +994,7 @@ app.get('/api/obat/template-excel', authenticateToken, async (req, res) => {
     worksheet.getRow(1).fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: '4F46E5' } // matching indigo-600 color
+      fgColor: { argb: '0D9488' } // matching teal-600 color
     };
 
     // Add some sample data

@@ -150,11 +150,11 @@ export default function UsersManagement() {
       {/* Header controls layout */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="h-6 w-6 text-teal-600" />
+          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+            <Users className="h-5 w-5 text-teal-600" />
             <span>Manajemen Akun Hak Akses Petugas</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Pengelolaan sirkulasi akun pelaksana laboratorium, apoteker farmasi, serta kredensial administrator.
           </p>
         </div>
@@ -375,7 +375,7 @@ export default function UsersManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-extrabold border uppercase tracking-wider rounded-lg ${
-                        u.role === 'admin' ? 'bg-indigo-50 border-indigo-150 text-indigo-700' :
+                        u.role === 'admin' ? 'bg-teal-50 border-teal-150 text-teal-700' :
                         u.role === 'perawat' ? 'bg-sky-50 border-sky-150 text-sky-700' :
                         u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 border-emerald-150 text-emerald-700' :
                         'bg-amber-50 border-amber-150 text-amber-700'

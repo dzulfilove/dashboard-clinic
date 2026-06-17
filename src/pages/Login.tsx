@@ -119,7 +119,7 @@ export default function Login() {
     <div id="login-container" className="relative min-h-screen bg-slate-50/50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       {/* Dynamic Background Glass Blows */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '12s' }} />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '12s' }} />
       <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-sky-400/15 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
@@ -144,7 +144,7 @@ export default function Login() {
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.4 }}
-          className="mt-6 text-center text-3xl font-extrabold text-slate-900 tracking-tight font-display"
+          className="mt-6 text-center text-2xl font-semibold text-slate-900 tracking-tight"
         >
           Sistem Informasi Klinik
         </motion.h2>

@@ -396,8 +396,8 @@ export default function MasterObat() {
       {/* Header controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Package className="h-5 w-5 text-indigo-600" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Package className="h-5 w-5 text-teal-600" />
             <span>Master Data Katalog Obat</span>
           </h1>
           <p className="text-slate-500 text-xs mt-1">
@@ -410,7 +410,7 @@ export default function MasterObat() {
           <button
             id="add-obat-btn"
             onClick={handleOpenAddForm}
-            className="flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm transition-all cursor-pointer text-xs"
+            className="flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm transition-all cursor-pointer text-xs"
             style={{ minHeight: '38px' }}
           >
             <Plus className="h-4 w-4" />
@@ -437,7 +437,7 @@ export default function MasterObat() {
               type="button"
               onClick={() => { setImportTab('excel'); setFeedback(null); }}
               className={`pb-2 text-xs font-bold transition-all border-b-2 px-1 cursor-pointer ${
-                importTab === 'excel' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'
+                importTab === 'excel' ? 'border-teal-600 text-teal-600' : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               Excel (.xlsx)
@@ -447,7 +447,7 @@ export default function MasterObat() {
               type="button"
               onClick={() => { setImportTab('csv'); setFeedback(null); }}
               className={`pb-2 text-xs font-bold transition-all border-b-2 px-1 cursor-pointer ${
-                importTab === 'csv' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'
+                importTab === 'csv' ? 'border-teal-600 text-teal-600' : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               CSV (.csv)
@@ -457,7 +457,7 @@ export default function MasterObat() {
               type="button"
               onClick={() => { setImportTab('paste'); setFeedback(null); }}
               className={`pb-2 text-xs font-bold transition-all border-b-2 px-1 cursor-pointer ${
-                importTab === 'paste' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'
+                importTab === 'paste' ? 'border-teal-600 text-teal-600' : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               Paste Data (Kopi-Tempel)
@@ -469,7 +469,7 @@ export default function MasterObat() {
               id="drug-import-dropzone"
               className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
                 hoverDrag 
-                  ? 'border-indigo-500 bg-indigo-50/50 text-indigo-700' 
+                  ? 'border-teal-500 bg-teal-50/50 text-teal-700' 
                   : 'border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100/50'
               }`}
               onDragOver={handleDragOver}
@@ -478,13 +478,13 @@ export default function MasterObat() {
             >
               <div className="flex flex-col items-center justify-center space-y-2">
                 <div className="p-2.5 bg-white rounded-full shadow-xs border border-slate-200 flex items-center justify-center">
-                  <RefreshCw className={`h-5 w-5 text-indigo-600 ${importing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-5 w-5 text-teal-600 ${importing ? 'animate-spin' : ''}`} />
                 </div>
                 <div>
                   <span className="font-bold text-slate-800 text-xs">Import Data Master Obat (.xlsx)</span>
-                  <p className="text-[10px] text-slate-500 mt-1 max-w-lg mx-auto leading-relaxed">
+                  <p className="text-[10px] text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
                     Silakan drop file Excel (.xlsx) atau klik tombol di bawah. Kolom yang diimpor: 
-                    <span className="text-indigo-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Kemasan | Harga Satuan | Safety Stock | Lead Time | Stok Minimum | Reorder Point</span>
+                    <span className="text-teal-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Kemasan | Harga Satuan | Safety Stock | Lead Time | Stok Minimum | Reorder Point</span>
                   </p>
                 </div>
 
@@ -504,12 +504,12 @@ export default function MasterObat() {
                         console.error('Failed to download template excel', err);
                       }
                     }}
-                    className="inline-flex items-center gap-1 text-[10px] text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 cursor-pointer transition-all"
+                    className="inline-flex items-center gap-1 text-[10px] text-teal-600 hover:text-teal-800 font-bold bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 cursor-pointer transition-all"
                   >
                     📥 Unduh/Download Template Excel (.xlsx)
                   </button>
 
-                  <label className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-[10px] min-h-[32px] hover:shadow-md">
+                  <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-[10px] min-h-[32px] hover:shadow-md">
                     <span>{importing ? 'Mengimpor Data...' : 'Pilih File Excel (.xlsx)'}</span>
                     <input 
                       id="excel-file-uploader"
@@ -534,7 +534,7 @@ export default function MasterObat() {
               id="drug-import-csv-dropzone"
               className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
                 hoverDrag 
-                  ? 'border-indigo-500 bg-indigo-50/50 text-indigo-700' 
+                  ? 'border-teal-500 bg-teal-50/50 text-teal-700' 
                   : 'border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100/50'
               }`}
               onDragOver={handleDragOver}
@@ -599,7 +599,7 @@ export default function MasterObat() {
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Tempel Data Excel / Spreadsheet</label>
                 <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
-                  Buka file excel Anda, salin baris data (termasuk baris paling atas untuk nama kolom/header), lalu tempelkan (Ctrl+V) langsung ke kotak di bawah ini. Kolom wajib: <span className="font-semibold text-indigo-600">Kode Obat</span> dan <span className="font-semibold text-indigo-600">Nama Obat</span>.
+                  Buka file excel Anda, salin baris data (termasuk baris paling atas untuk nama kolom/header), lalu tempelkan (Ctrl+V) langsung ke kotak di bawah ini. Kolom wajib: <span className="font-semibold text-teal-600">Kode Obat</span> dan <span className="font-semibold text-teal-600">Nama Obat</span>.
                 </p>
                 <textarea
                   id="paste-textarea"
@@ -607,7 +607,7 @@ export default function MasterObat() {
                   value={pastedText}
                   onChange={(e) => setPastedText(e.target.value)}
                   placeholder="Contoh format:&#10;Kode Obat&#9;Nama Obat&#9;Satuan&#9;Kemasan&#9;Harga Satuan&#10;OBT-PAR1&#9;Paracetamol 500mg&#9;Tablet&#9;DUS / 10 Strips&#9;250.00&#10;OBT-AM02&#9;Amoxicillin 500mg&#9;Kaplet&#9;DUS / 10 strips&#9;600.00"
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-1 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
               <button
@@ -615,7 +615,7 @@ export default function MasterObat() {
                 type="button"
                 disabled={importing}
                 onClick={handlePasteSubmit}
-                className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-xs transition-colors text-xs cursor-pointer disabled:opacity-50 min-h-[36px]"
+                className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-xs transition-colors text-xs cursor-pointer disabled:opacity-50 min-h-[36px]"
               >
                 {importing ? 'Mengimpor Data...' : 'Import Data Tempel'}
               </button>
@@ -628,7 +628,7 @@ export default function MasterObat() {
       {isFormOpen && (
         <div className="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4 text-xs">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h2 className="text-xs font-extrabold text-indigo-400">
+            <h2 className="text-xs font-extrabold text-teal-450">
               {editId ? `Ubah Data Obat: ${kodeObat}` : 'Tambah Katalog Obat Baru'}
             </h2>
             <button 
@@ -650,7 +650,7 @@ export default function MasterObat() {
                 required
                 value={kodeObat}
                 onChange={(e) => setKodeObat(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-indigo-500/35"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white font-mono text-xs focus:ring-2 focus:ring-teal-500/35"
               />
             </div>
 
@@ -663,7 +663,7 @@ export default function MasterObat() {
                 placeholder="ex: Paracetamol 500mg"
                 value={namaObat}
                 onChange={(e) => setNamaObat(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
               />
             </div>
 
@@ -675,7 +675,7 @@ export default function MasterObat() {
                 placeholder="ex: Obat Keras, Tablet Bebas, Vitamin"
                 value={golongan}
                 onChange={(e) => setGolongan(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
               />
             </div>
 
@@ -687,7 +687,7 @@ export default function MasterObat() {
                 placeholder="ex: Tablet, Kapsul, Botol, Pcs"
                 value={satuan}
                 onChange={(e) => setSatuan(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
               />
             </div>
 
@@ -699,7 +699,7 @@ export default function MasterObat() {
                 placeholder="ex: DUS / 10 Strips"
                 value={kemasan}
                 onChange={(e) => setKemasan(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
               />
             </div>
 
@@ -717,7 +717,7 @@ export default function MasterObat() {
                   placeholder="0.00"
                   value={hargaSatuan}
                   onChange={(e) => setHargaSatuan(e.target.value)}
-                  className="pl-9 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35 font-mono"
+                  className="pl-9 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
                 />
               </div>
             </div>
@@ -731,7 +731,7 @@ export default function MasterObat() {
                 required
                 value={leadTime}
                 onChange={(e) => setLeadTime(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35 font-mono"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
               />
             </div>
 
@@ -744,7 +744,7 @@ export default function MasterObat() {
                 required
                 value={safetyStock}
                 onChange={(e) => setSafetyStock(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35 font-mono"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
               />
             </div>
 
@@ -757,7 +757,7 @@ export default function MasterObat() {
                 required
                 value={stokMinimum}
                 onChange={(e) => setStokMinimum(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35 font-mono"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
               />
             </div>
 
@@ -770,7 +770,7 @@ export default function MasterObat() {
                 required
                 value={reorderPoint}
                 onChange={(e) => setReorderPoint(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35 font-mono"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
               />
             </div>
 
@@ -780,7 +780,7 @@ export default function MasterObat() {
                 id="status"
                 value={isActive}
                 onChange={(e) => setIsActive(Number(e.target.value))}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-indigo-500/35 cursor-pointer"
+                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 cursor-pointer"
                 style={{ minHeight: '38px' }}
               >
                 <option value={1}>Aktif (Bisa Diorder)</option>
@@ -801,7 +801,7 @@ export default function MasterObat() {
               <button
                 id="submit-obat-btn"
                 type="submit"
-                className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl transition-colors cursor-pointer text-xs"
+                className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-bold py-2 px-4 rounded-xl transition-colors cursor-pointer text-xs"
                 style={{ minHeight: '36px' }}
               >
                 <Save className="h-4 w-4" />
@@ -824,7 +824,7 @@ export default function MasterObat() {
             placeholder="Cari berdasarkan nama/kode..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 text-xs font-medium animate-none"
+            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-medium animate-none"
           />
         </div>
 
@@ -869,7 +869,7 @@ export default function MasterObat() {
               {loading ? (
                 <tr>
                   <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
-                    <RefreshCw className="h-5 w-5 text-indigo-600 animate-spin mx-auto mb-2" />
+                    <RefreshCw className="h-5 w-5 text-teal-600 animate-spin mx-auto mb-2" />
                     <span>Sinkronisasi katalog...</span>
                   </td>
                 </tr>
@@ -894,7 +894,7 @@ export default function MasterObat() {
                       </div>
                     </td>
                     <td className="px-6 py-3.5 whitespace-nowrap">
-                      <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md border border-indigo-100 uppercase tracking-wide font-bold">
+                      <span className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md border border-teal-100 uppercase tracking-wide font-bold">
                         {m.golongan}
                       </span>
                     </td>
@@ -929,7 +929,7 @@ export default function MasterObat() {
                           <button
                             id={`edit-obat-${m.id}`}
                             onClick={() => handleOpenEditForm(m)}
-                            className="p-1 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-indigo-600 font-bold text-xs flex items-center space-x-1"
+                            className="p-1 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-teal-600 font-bold text-xs flex items-center space-x-1"
                             title="Edit obat"
                             style={{ minHeight: '28px' }}
                           >

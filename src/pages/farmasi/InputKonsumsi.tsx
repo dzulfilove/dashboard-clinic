@@ -201,18 +201,18 @@ export default function InputKonsumsi() {
       {/* Navigation Headers and controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Pill className="h-6 w-6 text-indigo-600" />
+          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+            <Pill className="h-5 w-5 text-teal-600" />
             <span>Form Pengisian Konsumsi Obat Harian</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Input lembar log harian arus obat berupa stok awal, penerimaan kargo suplai, serta pemakaian klinis hari ini.
           </p>
         </div>
 
         {/* Date Selector */}
         <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-xs">
-          <Calendar className="h-5 w-5 text-indigo-600 flex-shrink-0" />
+          <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
           <input
             type="date"
             id="input-tanggal-cons"
@@ -236,7 +236,7 @@ export default function InputKonsumsi() {
             placeholder="Cari obat berdasarkan nama, kode, atau golongan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 text-xs font-semibold"
+            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-semibold"
           />
         </div>
         <div className="text-xxs font-medium text-slate-400">
@@ -255,7 +255,7 @@ export default function InputKonsumsi() {
 
       {loading ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
-          <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin mx-auto mb-3" />
+          <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
           <span>Sinkronisasi jurnal konsumsi logistik...</span>
         </div>
       ) : (
@@ -293,7 +293,7 @@ export default function InputKonsumsi() {
                         <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-6 py-3">
                             <div>
-                              <span className="font-mono text-xxs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                              <span className="font-mono text-xxs font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
                                 {m.kode_obat}
                               </span>
                               <h4 className="font-medium text-slate-900 mt-1 text-xs">{m.nama_obat}</h4>
@@ -309,7 +309,7 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.stok_awal}
                               onChange={(e) => handleCellChange(m.id, 'stok_awal', e.target.value)}
-                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                               placeholder="0"
                             />
                           </td>
@@ -322,7 +322,7 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.penerimaan}
                               onChange={(e) => handleCellChange(m.id, 'penerimaan', e.target.value)}
-                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                               placeholder="0"
                             />
                           </td>
@@ -335,7 +335,7 @@ export default function InputKonsumsi() {
                               inputMode="numeric"
                               value={inputs.pemakaian}
                               onChange={(e) => handleCellChange(m.id, 'pemakaian', e.target.value)}
-                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                              className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                               placeholder="0"
                             />
                           </td>
@@ -367,7 +367,7 @@ export default function InputKonsumsi() {
                                 id={`save-row-${m.id}`}
                                 onClick={() => handleSaveRow(m.id)}
                                 disabled={isSaving}
-                                className="p-2 bg-indigo-50 hover:bg-indigo-600 border border-indigo-250 text-indigo-700 hover:text-white rounded-xl transition-all cursor-pointer flex items-center justify-center mx-auto"
+                                className="p-2 bg-teal-50 hover:bg-teal-600 border border-teal-250 text-teal-700 hover:text-white rounded-xl transition-all cursor-pointer flex items-center justify-center mx-auto"
                                 title="Simpan baris obat ini"
                                 style={{ minHeight: '44px', minWidth: '44px' }}
                               >
@@ -388,7 +388,7 @@ export default function InputKonsumsi() {
           {(user?.role === 'admin' || user?.role === 'farmasi') && (
             <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center space-x-3">
-                <div className="p-3 bg-indigo-600 text-white rounded-xl">
+                <div className="p-3 bg-teal-600 text-white rounded-xl">
                   <Calculator className="h-6 w-6" />
                 </div>
                 <div>
@@ -400,7 +400,7 @@ export default function InputKonsumsi() {
               <button
                 id="save-all-cons-btn"
                 onClick={handleSaveAll}
-                className="flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-550 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-colors cursor-pointer"
+                className="flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-550 text-white font-bold py-3 px-6 rounded-xl shadow-md transition-colors cursor-pointer"
                 style={{ minHeight: '44px' }}
               >
                 <Save className="h-5 w-5" />

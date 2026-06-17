@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   TrendingUp, 
@@ -36,6 +37,29 @@ import {
 } from 'recharts';
 import api from '../../services/api.js';
 import { LabData } from '../../types.js';
+
+// Framer Motion animation sets identical to Dashboard
+const containerVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.55,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.08
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' }
+  }
+};
 
 export default function DashboardLab() {
   const { user } = useAuthStore();
@@ -285,16 +309,21 @@ export default function DashboardLab() {
   };
 
   return (
-    <div className="space-y-4 font-sans text-xs">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 font-sans text-xs"
+    >
       
       {/* 1. Header controls (High Density, Poppins) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div>
-          <h1 className="text-base font-semibold text-slate-800 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-teal-650" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-teal-600" />
             <span>Dashboard Tren &amp; Analisis Laboratorium</span>
           </h1>
-          <p className="text-slate-500 text-xxs mt-0.5 font-normal">
+          <p className="text-slate-500 text-xs mt-1">
             Visualisasi aktivitas klinis, fluktuasi kategori pemeriksaan, dan kapasitas Klinik Puri Medika.
           </p>
         </div>
@@ -423,69 +452,99 @@ export default function DashboardLab() {
 
       {/* ===================== VIEW 1: GENERAL KLINIK OVERVIEW COMPARISONS ===================== */}
       {subTab === 'overview' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           
           {/* Lab Overall KPIs Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* KPI: Total examinations */}
-            <div className="bg-white p-3.5 border border-slate-150 rounded-xl shadow-xs flex items-center space-x-3 text-xs">
-              <div className="p-2.5 bg-teal-50 rounded-lg text-teal-750">
-                <FlaskConical className="h-4.5 w-4.5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-normal text-slate-400 uppercase tracking-wider block">Total Pengujian Rentang Terpilih</span>
-                <span className="text-sm font-semibold text-slate-900 font-mono block mt-0.5">
-                  {loading ? '...' : totalExams} <span className="font-sans text-[10px] font-normal text-slate-400">Pasien/Pemeriksaan</span>
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                  <FlaskConical className="h-6 w-6" />
+                </div>
+                <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                  Volume Total
                 </span>
               </div>
-            </div>
+              <div className="mt-4">
+                <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                  {loading ? '...' : totalExams}
+                </h3>
+                <p className="text-xxs font-normal text-slate-500 mt-1">Total Pengujian Rentang Terpilih</p>
+              </div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+            </motion.div>
 
             {/* KPI: Highest category or parameter */}
-            <div className="bg-white p-3.5 border border-slate-150 rounded-xl shadow-xs flex items-center space-x-3 text-xs">
-              <div className="p-2.5 bg-indigo-50 rounded-lg text-indigo-700">
-                <Award className="h-4.5 w-4.5 text-indigo-650" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-normal text-slate-400 uppercase tracking-wider flex items-center gap-0.5">
-                  <span>Parameter Puncak (Peak)</span>
-                  <ArrowUp className="h-2.5 w-2.5 text-emerald-500 inline" />
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+                  <Award className="h-6 w-6 text-emerald-600" />
+                </div>
+                <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                  <span>Puncak</span>
+                  <ArrowUp className="h-2.5 w-2.5 text-emerald-600 inline" />
                 </span>
+              </div>
+              <div className="mt-4">
                 {loading ? (
-                  <span className="text-xxs font-normal text-slate-400 block mt-0.5">...</span>
+                  <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">...</h3>
                 ) : peakParameter ? (
-                  <div className="truncate mt-0.5">
-                    <span className="text-xxs font-normal text-slate-600 block truncate leading-tight">{peakParameter.nama_parameter}</span>
-                    <span className="text-[10px] font-mono text-emerald-600 font-medium block">{peakParameter.jumlah} Pengujian</span>
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display truncate leading-tight">
+                      {peakParameter.nama_parameter}
+                    </h3>
+                    <p className="text-xxs font-mono text-emerald-600 font-bold mt-1">{peakParameter.jumlah} Uji</p>
                   </div>
                 ) : (
-                  <span className="text-xxs font-normal text-slate-400 block mt-0.5">Belum ada data</span>
+                  <h3 className="text-sm font-semibold text-slate-400 tracking-tight font-display mt-1">Belum ada data</h3>
                 )}
+                <p className="text-xxs font-normal text-slate-500 mt-1">Parameter Volume Tertinggi</p>
               </div>
-            </div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
+            </motion.div>
 
             {/* KPI: Lowest Parameter count */}
-            <div className="bg-white p-3.5 border border-slate-150 rounded-xl shadow-xs flex items-center space-x-3 text-xs">
-              <div className="p-2.5 bg-amber-50 rounded-lg text-amber-700">
-                <Award className="h-4.5 w-4.5 text-amber-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] font-normal text-slate-400 uppercase tracking-wider flex items-center gap-0.5">
-                  <span>Volume Terendah (Low)</span>
-                  <ArrowDown className="h-2.5 w-2.5 text-rose-500 inline" />
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+            >
+              <div className="flex items-center justify-between">
+                <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
+                  <Award className="h-6 w-6 text-amber-600" />
+                </div>
+                <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                  <span>Terendah</span>
+                  <ArrowDown className="h-2.5 w-2.5 text-amber-600 inline" />
                 </span>
+              </div>
+              <div className="mt-4">
                 {loading ? (
-                  <span className="text-xxs font-normal text-slate-400 block mt-0.5">...</span>
+                  <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">...</h3>
                 ) : lowParameter ? (
-                  <div className="truncate mt-0.5">
-                    <span className="text-xxs font-normal text-slate-600 block truncate leading-tight">{lowParameter.nama_parameter}</span>
-                    <span className="text-[10px] font-mono text-rose-500 font-medium block">{lowParameter.jumlah} Pengujian</span>
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display truncate leading-tight">
+                      {lowParameter.nama_parameter}
+                    </h3>
+                    <p className="text-xxs font-mono text-amber-600 font-bold mt-1">{lowParameter.jumlah} Uji</p>
                   </div>
                 ) : (
-                  <span className="text-xxs font-normal text-slate-400 block mt-0.5">Belum ada data</span>
+                  <h3 className="text-sm font-semibold text-slate-400 tracking-tight font-display mt-1">Belum ada data</h3>
                 )}
+                <p className="text-xxs font-normal text-slate-500 mt-1">Parameter Volume Terendah</p>
               </div>
-            </div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+            </motion.div>
 
           </div>
 
@@ -626,7 +685,7 @@ export default function DashboardLab() {
 
       {/* ===================== VIEW 2: DASHBOARD MASING-MASING KATEGORI ===================== */}
       {subTab === 'category' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           
           {/* Interactive Category Selector bar */}
           <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center gap-1.5">
@@ -655,52 +714,88 @@ export default function DashboardLab() {
               <span>Belum ada data kategori lab yang terdaftar pada sistem.</span>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               
               {/* Category-Specific KPIs layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                 
                 {/* Metric 1 */}
-                <div className="bg-white p-3 border border-slate-200 rounded-xl shadow-xs">
-                  <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal">Total Pengujian Kategori</span>
-                  <h4 className="text-sm font-medium text-slate-850 font-mono mt-0.5 uppercase">
-                    {categoryTotal} <span className="text-[10px] text-slate-400 font-normal">uji</span>
-                  </h4>
-                  <div className="text-[9px] text-slate-400 font-normal mt-1">
-                    Pada kategori {activeCategory}
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <Layers className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-850 px-2.5 py-0.5 rounded-full">
+                      Kategori
+                    </span>
                   </div>
-                </div>
+                  <div className="mt-4">
+                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                      {categoryTotal} <span className="text-[10px] text-slate-400 font-normal">Uji</span>
+                    </h3>
+                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Pengujian Kategori</p>
+                  </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                </motion.div>
 
                 {/* Metric 2 */}
-                <div className="bg-white p-3 border border-slate-200 rounded-xl shadow-xs">
-                  <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal">Rasio Penetrasi Lab</span>
-                  <h4 className="text-sm font-medium text-teal-605 font-mono mt-0.5">
-                    {categoryContributionPercent}% <span className="text-[10px] font-normal text-slate-400">total</span>
-                  </h4>
-                  <div className="text-[9px] text-slate-400 font-normal mt-1">
-                    Kontribusi terhadap klinik
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <TrendingUp className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full">
+                      Rasio
+                    </span>
                   </div>
-                </div>
+                  <div className="mt-4">
+                    <h3 className="text-xl font-semibold text-teal-650 tracking-tight font-display">
+                      {categoryContributionPercent}%
+                    </h3>
+                    <p className="text-xxs font-normal text-slate-500 mt-1">Rasio Penetrasi Lab</p>
+                  </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
+                </motion.div>
 
                 {/* Metric 3 */}
-                <div className="bg-white p-3 border border-slate-200 rounded-xl shadow-xs sm:col-span-2">
-                  <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal flex items-center gap-1">
-                    <ArrowUpRight className="h-3.5 w-3.5 text-emerald-500" />
-                    <span>Pemeriksaan Teraktif ({activeCategory})</span>
-                  </span>
-                  {categoryPeakParam ? (
-                    <div>
-                      <h4 className="text-xs font-normal text-slate-700 mt-0.5 leading-snug truncate">
-                        {categoryPeakParam.nama_parameter}
-                      </h4>
-                      <span className="text-[10px] font-mono text-emerald-600 font-medium block">
-                        {categoryPeakParam.jumlah} uji kali ini
-                      </span>
+                <motion.div 
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                  transition={{ duration: 0.2 }}
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all sm:col-span-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="p-3 bg-sky-50 text-sky-700 rounded-xl group-hover:scale-105 transition-transform">
+                      <ArrowUpRight className="h-5 w-5" />
                     </div>
-                  ) : (
-                    <span className="text-xxs text-slate-400 italic mt-0.5 block">Tidak ada volume</span>
-                  )}
-                </div>
+                    <span className="text-[10px] font-mono font-medium bg-sky-100/80 text-sky-850 px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                      <span>Teraktif</span>
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    {categoryPeakParam ? (
+                      <div>
+                        <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display truncate">
+                          {categoryPeakParam.nama_parameter}
+                        </h3>
+                        <p className="text-xxs font-mono text-sky-655 font-bold mt-1">
+                          {categoryPeakParam.jumlah} Uji Kali Ini
+                        </p>
+                      </div>
+                    ) : (
+                      <h3 className="text-sm font-semibold text-slate-400 tracking-tight font-display mt-1">Tidak ada volume</h3>
+                    )}
+                    <p className="text-xxs font-normal text-slate-500 mt-1">Pemeriksaan Teraktif ({activeCategory})</p>
+                  </div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-sky-500"></div>
+                </motion.div>
 
               </div>
 
@@ -797,7 +892,7 @@ export default function DashboardLab() {
 
       {/* ===================== VIEW 3: GRANULAR TELEMETRY PROGRESS BY PARAMETER ===================== */}
       {subTab === 'progress' && (
-        <div id="view-parameter-progress" className="space-y-4">
+        <div id="view-parameter-progress" className="space-y-6">
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
             <h2 className="text-xs font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="h-4 w-4 text-teal-600 animate-pulse" />
@@ -914,7 +1009,7 @@ export default function DashboardLab() {
                 const dailyAvg = (activeParam.total / totalDays).toFixed(1);
 
                 return (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     
                     {/* Active Param Header & Stats Grid */}
                     <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
@@ -936,27 +1031,54 @@ export default function DashboardLab() {
                       </div>
 
                       {/* Display metric cards */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                          <span className="text-[10px] text-slate-400 block uppercase font-medium">Kuantitas Uji</span>
-                          <span className="text-xs font-bold text-slate-800 font-mono mt-1 block">{activeParam.total}</span>
-                          <span className="text-[9px] text-slate-400 block mt-0.5">pemeriksaan</span>
-                        </div>
-                        <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                          <span className="text-[10px] text-slate-400 block uppercase font-medium">Rata-rata/Hari</span>
-                          <span className="text-xs font-bold text-slate-805 font-mono mt-1 block">{dailyAvg}</span>
-                          <span className="text-[9px] text-slate-400 block mt-0.5">pemeriksaan/hari</span>
-                        </div>
-                        <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl">
-                          <span className="text-[10px] text-slate-400 block uppercase font-medium">Puncak Tertinggi</span>
-                          <span className="text-xs font-bold text-teal-600 font-mono mt-1 block">{activeParam.maxCount}</span>
-                          <span className="text-[9px] text-slate-400 block mt-0.5">uji tgl {activeParam.maxDate}</span>
-                        </div>
-                        <div className="p-3 bg-indigo-50/20 border border-indigo-100 rounded-xl">
-                          <span className="text-[10px] text-indigo-700 block uppercase font-medium">Konsistensi Data</span>
-                          <span className="text-xs font-bold text-indigo-600 font-mono mt-1 block">{coveragePct}%</span>
-                          <span className="text-[9px] text-indigo-400 block mt-0.5">{activeParam.activeDays} dari {totalDays} hari terisi</span>
-                        </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {/* Metric 1: Kuantitas Uji */}
+                        <motion.div 
+                          whileHover={{ y: -2, scale: 1.01 }}
+                          transition={{ duration: 0.2 }}
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm relative overflow-hidden group transition-all"
+                        >
+                          <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal">Kuantitas Uji</span>
+                          <h4 className="text-base font-semibold text-slate-900 font-display mt-1">{activeParam.total}</h4>
+                          <span className="text-[9px] text-slate-450 block mt-0.5">pemeriksaan</span>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
+                        </motion.div>
+
+                        {/* Metric 2: Rata-rata/Hari */}
+                        <motion.div 
+                          whileHover={{ y: -2, scale: 1.01 }}
+                          transition={{ duration: 0.2 }}
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm relative overflow-hidden group transition-all"
+                        >
+                          <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-normal">Rata-rata/Hari</span>
+                          <h4 className="text-base font-semibold text-slate-800 font-display mt-1">{dailyAvg}</h4>
+                          <span className="text-[9px] text-slate-450 block mt-0.5">uji/hari</span>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
+                        </motion.div>
+
+                        {/* Metric 3: Puncak Tertinggi */}
+                        <motion.div 
+                          whileHover={{ y: -2, scale: 1.01 }}
+                          transition={{ duration: 0.2 }}
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-200/60 shadow-sm relative overflow-hidden group transition-all"
+                        >
+                          <span className="text-[9px] uppercase tracking-wider text-teal-600 block font-normal">Puncak Tertinggi</span>
+                          <h4 className="text-base font-semibold text-teal-600 font-display mt-1">{activeParam.maxCount}</h4>
+                          <span className="text-[9px] text-slate-400 block mt-0.5 truncate">tgl {activeParam.maxDate}</span>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-500"></div>
+                        </motion.div>
+
+                        {/* Metric 4: Konsistensi Data */}
+                        <motion.div 
+                          whileHover={{ y: -2, scale: 1.01 }}
+                          transition={{ duration: 0.2 }}
+                          className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-teal-200/60 shadow-sm relative overflow-hidden group transition-all"
+                        >
+                          <span className="text-[9px] uppercase tracking-wider text-teal-755 block font-normal">Konsistensi</span>
+                          <h4 className="text-base font-semibold text-teal-700 font-display mt-1">{coveragePct}%</h4>
+                          <span className="text-[9px] text-slate-450 block mt-0.5 truncate">{activeParam.activeDays}/{totalDays} hari terisi</span>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                        </motion.div>
                       </div>
                     </div>
 
@@ -1074,6 +1196,6 @@ export default function DashboardLab() {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 }

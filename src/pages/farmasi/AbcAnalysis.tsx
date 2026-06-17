@@ -82,18 +82,18 @@ export default function AbcAnalysis() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Layers className="h-6 w-6 text-indigo-600" />
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Layers className="h-5 w-5 text-teal-600" />
             <span>Analisis Klasifikasi Inventori ABC (Drug Spend)</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs mt-1">
             Ukur efisiensi anggaran pengeluaran obat Klinik Puri Medika berdasarkan Pareto Value-Driven Indexing.
           </p>
         </div>
 
         {/* Month Year Selector */}
         <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-xs">
-          <Calendar className="h-5 w-5 text-indigo-600 flex-shrink-0" />
+          <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
           <select 
             id="abc-month-select"
             value={selectedMonth} 
@@ -129,7 +129,7 @@ export default function AbcAnalysis() {
 
       {/* Methodological Explanation card */}
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-3 text-xs leading-relaxed text-slate-600">
-        <BookOpen className="h-5 w-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+        <BookOpen className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
         <div>
           <span className="font-bold text-slate-800 block mb-1">Panduan Pengendalian Stok Metode ABC:</span>
           <p className="mt-0.5">
@@ -154,7 +154,7 @@ export default function AbcAnalysis() {
 
       {loading ? (
         <div className="bg-white rounded-2xl border border-slate-250 p-24 text-center">
-          <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin mx-auto mb-3" />
+          <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
           <span>Meganalisis pengeluaran obat pasca Pareto...</span>
         </div>
       ) : abcData.length === 0 ? (
@@ -248,7 +248,7 @@ export default function AbcAnalysis() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <span className="font-mono text-xxs font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">
+                          <span className="font-mono text-xxs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">
                             {item.kode_obat}
                           </span>
                           <h4 className="font-bold text-slate-900 mt-1.5 text-sm">{item.nama_obat}</h4>

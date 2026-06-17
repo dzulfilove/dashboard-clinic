@@ -44,7 +44,7 @@ export default function App() {
               <div className="relative min-h-screen bg-slate-50/50 flex flex-col md:flex-row font-sans overflow-hidden">
                 {/* Glowing ambient background spots for glass backdrop blur effect */}
                 <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-300/10 rounded-full blur-[130px] pointer-events-none" />
-                <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-indigo-300/10 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-teal-300/10 rounded-full blur-[120px] pointer-events-none" />
                 
                 {/* Sidebar Navigation */}
                 <Sidebar />

@@ -145,11 +145,11 @@ export default function InputPemeriksaan() {
       {/* Upper Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h1 className="text-base font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <FlaskConical className="h-5 w-5 text-teal-600" />
             <span>Entri Rekapitulasi Uji Laboratorium</span>
           </h1>
-          <p className="text-slate-500 mt-0.5 text-xxs font-normal">
+          <p className="text-slate-500 text-xs mt-1">
             Halaman pencatatan kuantitas harian pemeriksaan sampel klinik Puri Medika per tanggal pelayanan.
           </p>
         </div>

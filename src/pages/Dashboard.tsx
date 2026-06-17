@@ -104,7 +104,7 @@ export default function Dashboard() {
         className="bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/60 shadow-[0_4px_24px_rgba(15,23,42,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
             Selamat Datang, {user?.nama}!
           </h1>
           <p className="text-slate-500 mt-1 text-xs font-normal">
@@ -157,10 +157,10 @@ export default function Dashboard() {
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
-            <div className="p-3 bg-indigo-50 text-indigo-700 rounded-xl group-hover:scale-105 transition-transform">
+            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
               <Pill className="h-6 w-6" />
             </div>
-            <span className="text-[10px] font-mono font-medium bg-indigo-100/80 text-indigo-800 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
               Katalog
             </span>
           </div>
@@ -168,7 +168,7 @@ export default function Dashboard() {
             <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">{loading ? '...' : medicines.length}</h3>
             <p className="text-xxs font-normal text-slate-500 mt-1">Item Obat Aktif</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-indigo-600"></div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
         </motion.div>
 
         {/* KPI 3 - Low Stock Pharmacy alerts */}
@@ -276,7 +276,7 @@ export default function Dashboard() {
           <div className="mt-4 border-t border-slate-100 pt-4 flex justify-end">
             <Link 
               to="/farmasi/forecast" 
-              className="text-xxs font-medium text-indigo-600 hover:text-indigo-800 flex items-center space-x-1"
+              className="text-xxs font-medium text-teal-600 hover:text-teal-800 flex items-center space-x-1"
             >
               <span>Lihat Detail Peramalan</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -311,13 +311,13 @@ export default function Dashboard() {
               {(user?.role === 'admin' || user?.role === 'farmasi') && (
                 <Link 
                   to="/farmasi/input" 
-                  className="flex items-center justify-between p-3.5 bg-indigo-50/40 backdrop-blur-sm border border-indigo-150/40 rounded-xl hover:bg-indigo-50/80 hover:border-indigo-300/60 transition-all text-left group"
+                  className="flex items-center justify-between p-3.5 bg-teal-50/40 backdrop-blur-sm border border-teal-150/40 rounded-xl hover:bg-teal-50/80 hover:border-teal-300/60 transition-all text-left group"
                 >
                   <div>
-                    <h4 className="font-semibold text-indigo-900 text-xs">Konsumsi Obat</h4>
-                    <p className="text-xxs text-indigo-600 mt-1 font-normal">Input log penerimaan & pemakaian obat</p>
+                    <h4 className="font-semibold text-teal-900 text-xs">Konsumsi Obat</h4>
+                    <p className="text-xxs text-teal-600 mt-1 font-normal">Input log penerimaan & pemakaian obat</p>
                   </div>
-                  <ArrowRight className="h-4.5 w-4.5 text-indigo-600 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="h-4.5 w-4.5 text-teal-600 group-hover:translate-x-1 transition-transform" />
                 </Link>
               )}
 
