@@ -9965,5 +9965,507 @@
       "subtotal": 185000,
       "created_at": "2026-06-08T15:45:24.000Z"
     }
+  ],
+  "master_icd10": [
+    {
+      "id": 1,
+      "kode_icd": "A09",
+      "deskripsi": "Diare dan gastroenteritis"
+    },
+    {
+      "id": 2,
+      "kode_icd": "J00",
+      "deskripsi": "Nasofaringitis akut (common cold)"
+    },
+    {
+      "id": 3,
+      "kode_icd": "J06.9",
+      "deskripsi": "Infeksi saluran pernapasan akut, tidak spesifik"
+    },
+    {
+      "id": 4,
+      "kode_icd": "J02.9",
+      "deskripsi": "Faringitis akut, tidak spesifik"
+    },
+    {
+      "id": 5,
+      "kode_icd": "I10",
+      "deskripsi": "Hipertensi esensial primer"
+    },
+    {
+      "id": 6,
+      "kode_icd": "E11.9",
+      "deskripsi": "Diabetes melitus tipe 2 tanpa komplikasi"
+    },
+    {
+      "id": 7,
+      "kode_icd": "K29.7",
+      "deskripsi": "Gastritis, tidak spesifik"
+    },
+    {
+      "id": 8,
+      "kode_icd": "K30",
+      "deskripsi": "Dispepsia"
+    },
+    {
+      "id": 9,
+      "kode_icd": "L23.9",
+      "deskripsi": "Dermatitis kontak alergi, tidak spesifik"
+    },
+    {
+      "id": 10,
+      "kode_icd": "L20.9",
+      "deskripsi": "Dermatitis atopik"
+    },
+    {
+      "id": 11,
+      "kode_icd": "M54.5",
+      "deskripsi": "Nyeri punggung bawah"
+    },
+    {
+      "id": 12,
+      "kode_icd": "M79.1",
+      "deskripsi": "Mialgia"
+    },
+    {
+      "id": 13,
+      "kode_icd": "R50.9",
+      "deskripsi": "Demam, tidak spesifik"
+    },
+    {
+      "id": 14,
+      "kode_icd": "R51",
+      "deskripsi": "Sakit kepala"
+    },
+    {
+      "id": 15,
+      "kode_icd": "A04.9",
+      "deskripsi": "Infeksi saluran cerna bakteri, tidak spesifik"
+    },
+    {
+      "id": 16,
+      "kode_icd": "B35.1",
+      "deskripsi": "Tinea unguium (infeksi jamur kuku)"
+    },
+    {
+      "id": 17,
+      "kode_icd": "H10.9",
+      "deskripsi": "Konjungtivitis, tidak spesifik"
+    },
+    {
+      "id": 18,
+      "kode_icd": "J45.9",
+      "deskripsi": "Asma, tidak spesifik"
+    },
+    {
+      "id": 19,
+      "kode_icd": "K76.0",
+      "deskripsi": "Perlemakan hati"
+    },
+    {
+      "id": 20,
+      "kode_icd": "N39.0",
+      "deskripsi": "Infeksi saluran kemih, lokasi tidak spesifik"
+    },
+    {
+      "id": 21,
+      "kode_icd": "E78.5",
+      "deskripsi": "Hiperlipidemia, tidak spesifik"
+    },
+    {
+      "id": 22,
+      "kode_icd": "F41.1",
+      "deskripsi": "Gangguan cemas menyeluruh"
+    },
+    {
+      "id": 23,
+      "kode_icd": "G43.9",
+      "deskripsi": "Migrain, tidak spesifik"
+    },
+    {
+      "id": 24,
+      "kode_icd": "H66.9",
+      "deskripsi": "Otitis media, tidak spesifik"
+    },
+    {
+      "id": 25,
+      "kode_icd": "L70.0",
+      "deskripsi": "Akne vulgaris"
+    },
+    {
+      "id": 26,
+      "kode_icd": "M17.9",
+      "deskripsi": "Gonartrosis (osteoartritis lutut)"
+    },
+    {
+      "id": 27,
+      "kode_icd": "R05",
+      "deskripsi": "Batuk"
+    },
+    {
+      "id": 28,
+      "kode_icd": "R06.0",
+      "deskripsi": "Dispnea (sesak napas)"
+    },
+    {
+      "id": 29,
+      "kode_icd": "R07.4",
+      "deskripsi": "Nyeri dada, tidak spesifik"
+    },
+    {
+      "id": 30,
+      "kode_icd": "R10.4",
+      "deskripsi": "Nyeri abdomen, tidak spesifik"
+    },
+    {
+      "id": 31,
+      "kode_icd": "R11",
+      "deskripsi": "Mual dan muntah"
+    },
+    {
+      "id": 32,
+      "kode_icd": "A01.0",
+      "deskripsi": "Demam tifoid"
+    },
+    {
+      "id": 33,
+      "kode_icd": "B01.9",
+      "deskripsi": "Varisela (cacar air)"
+    },
+    {
+      "id": 34,
+      "kode_icd": "H60.9",
+      "deskripsi": "Otitis eksterna, tidak spesifik"
+    },
+    {
+      "id": 35,
+      "kode_icd": "K21.9",
+      "deskripsi": "Penyakit refluks gastroesofagus tanpa esofagitis"
+    },
+    {
+      "id": 36,
+      "kode_icd": "L05.0",
+      "deskripsi": "Kista pilonidal"
+    },
+    {
+      "id": 37,
+      "kode_icd": "M25.5",
+      "deskripsi": "Nyeri sendi"
+    },
+    {
+      "id": 38,
+      "kode_icd": "R63.4",
+      "deskripsi": "Penurunan berat badan yang tidak normal"
+    },
+    {
+      "id": 39,
+      "kode_icd": "Z00.0",
+      "deskripsi": "Pemeriksaan kesehatan umum"
+    },
+    {
+      "id": 40,
+      "kode_icd": "Z01.0",
+      "deskripsi": "Pemeriksaan mata"
+    },
+    {
+      "id": 41,
+      "kode_icd": "A06.0",
+      "deskripsi": "Disentri amuba"
+    },
+    {
+      "id": 42,
+      "kode_icd": "B37.0",
+      "deskripsi": "Kandidiasis mulut"
+    },
+    {
+      "id": 43,
+      "kode_icd": "D64.9",
+      "deskripsi": "Anemia, tidak spesifik"
+    },
+    {
+      "id": 44,
+      "kode_icd": "I83.9",
+      "deskripsi": "Varises vena pada tungkai"
+    },
+    {
+      "id": 45,
+      "kode_icd": "J20.9",
+      "deskripsi": "Bronkitis akut, tidak spesifik"
+    },
+    {
+      "id": 46,
+      "kode_icd": "K70.3",
+      "deskripsi": "Sirosis hati alkoholik"
+    },
+    {
+      "id": 47,
+      "kode_icd": "L29.9",
+      "deskripsi": "Pruritus, tidak spesifik"
+    },
+    {
+      "id": 48,
+      "kode_icd": "N94.6",
+      "deskripsi": "Dismenore"
+    },
+    {
+      "id": 49,
+      "kode_icd": "R42",
+      "deskripsi": "Vertigo"
+    },
+    {
+      "id": 50,
+      "kode_icd": "R53",
+      "deskripsi": "Malaise dan kelelahan"
+    },
+    {
+      "id": 51,
+      "kode_icd": "A03.9",
+      "deskripsi": "Shigellosis, tidak spesifik"
+    },
+    {
+      "id": 52,
+      "kode_icd": "B35.0",
+      "deskripsi": "Tinea barbae dan tinea capitis"
+    },
+    {
+      "id": 53,
+      "kode_icd": "E03.9",
+      "deskripsi": "Hipotiroidisme, tidak spesifik"
+    },
+    {
+      "id": 54,
+      "kode_icd": "G40.9",
+      "deskripsi": "Epilepsi, tidak spesifik"
+    },
+    {
+      "id": 55,
+      "kode_icd": "I20.9",
+      "deskripsi": "Angina pektoris, tidak spesifik"
+    },
+    {
+      "id": 56,
+      "kode_icd": "J30.4",
+      "deskripsi": "Rinitis alergi, tidak spesifik"
+    },
+    {
+      "id": 57,
+      "kode_icd": "K80.2",
+      "deskripsi": "Kalkulus empedu"
+    },
+    {
+      "id": 58,
+      "kode_icd": "L03.9",
+      "deskripsi": "Selulitis, tidak spesifik"
+    },
+    {
+      "id": 59,
+      "kode_icd": "N10",
+      "deskripsi": "Pielonefritis akut"
+    },
+    {
+      "id": 60,
+      "kode_icd": "R04.0",
+      "deskripsi": "Epistaksis (mimisan)"
+    },
+    {
+      "id": 61,
+      "kode_icd": "A08.4",
+      "deskripsi": "Infeksi virus usus"
+    },
+    {
+      "id": 62,
+      "kode_icd": "B02.9",
+      "deskripsi": "Herpes zoster tanpa komplikasi"
+    },
+    {
+      "id": 63,
+      "kode_icd": "D50.9",
+      "deskripsi": "Anemia defisiensi besi"
+    },
+    {
+      "id": 64,
+      "kode_icd": "E14.9",
+      "deskripsi": "Diabetes melitus, tidak spesifik"
+    },
+    {
+      "id": 65,
+      "kode_icd": "G56.0",
+      "deskripsi": "Sindrom karpal tunel"
+    },
+    {
+      "id": 66,
+      "kode_icd": "I48",
+      "deskripsi": "Fibrilasi atrium dan flutter"
+    },
+    {
+      "id": 67,
+      "kode_icd": "J32.9",
+      "deskripsi": "Sinusitis kronis, tidak spesifik"
+    },
+    {
+      "id": 68,
+      "kode_icd": "K52.9",
+      "deskripsi": "Gastroenteritis non-infeksi"
+    },
+    {
+      "id": 69,
+      "kode_icd": "L60.0",
+      "deskripsi": "Ingrown nail (cantengan)"
+    },
+    {
+      "id": 70,
+      "kode_icd": "N40",
+      "deskripsi": "Hiperplasia prostat"
+    },
+    {
+      "id": 71,
+      "kode_icd": "R21",
+      "deskripsi": "Ruam kulit"
+    },
+    {
+      "id": 72,
+      "kode_icd": "A27.9",
+      "deskripsi": "Leptospirosis, tidak spesifik"
+    },
+    {
+      "id": 73,
+      "kode_icd": "B86",
+      "deskripsi": "Skabies (kudis)"
+    },
+    {
+      "id": 74,
+      "kode_icd": "E05.9",
+      "deskripsi": "Hipertiroidisme, tidak spesifik"
+    },
+    {
+      "id": 75,
+      "kode_icd": "G93.4",
+      "deskripsi": "Ensefalopati, tidak spesifik"
+    },
+    {
+      "id": 76,
+      "kode_icd": "I50.9",
+      "deskripsi": "Gagal jantung, tidak spesifik"
+    },
+    {
+      "id": 77,
+      "kode_icd": "J44.9",
+      "deskripsi": "Penyakit paru obstruktif kronis, tidak spesifik"
+    },
+    {
+      "id": 78,
+      "kode_icd": "K92.0",
+      "deskripsi": "Hematemesis (muntah darah)"
+    },
+    {
+      "id": 79,
+      "kode_icd": "L72.0",
+      "deskripsi": "Kista epidermal"
+    },
+    {
+      "id": 80,
+      "kode_icd": "N60.0",
+      "deskripsi": "Displasia payudara jinak"
+    },
+    {
+      "id": 81,
+      "kode_icd": "R56.0",
+      "deskripsi": "Kejang demam"
+    },
+    {
+      "id": 82,
+      "kode_icd": "A46",
+      "deskripsi": "Erisipelas"
+    },
+    {
+      "id": 83,
+      "kode_icd": "B37.9",
+      "deskripsi": "Kandidiasis, tidak spesifik"
+    },
+    {
+      "id": 84,
+      "kode_icd": "D23.9",
+      "deskripsi": "Neoplasma jinak kulit"
+    },
+    {
+      "id": 85,
+      "kode_icd": "E16.2",
+      "deskripsi": "Hipoglikemia, tidak spesifik"
+    },
+    {
+      "id": 86,
+      "kode_icd": "G47.0",
+      "deskripsi": "Insomnia"
+    },
+    {
+      "id": 87,
+      "kode_icd": "I63.9",
+      "deskripsi": "Infark serebral, tidak spesifik"
+    },
+    {
+      "id": 88,
+      "kode_icd": "J01.9",
+      "deskripsi": "Sinusitis akut, tidak spesifik"
+    },
+    {
+      "id": 89,
+      "kode_icd": "K35.8",
+      "deskripsi": "Apendisitis akut"
+    },
+    {
+      "id": 90,
+      "kode_icd": "L30.9",
+      "deskripsi": "Dermatitis, tidak spesifik"
+    },
+    {
+      "id": 91,
+      "kode_icd": "N80.9",
+      "deskripsi": "Endometriosis, tidak spesifik"
+    },
+    {
+      "id": 92,
+      "kode_icd": "R60.9",
+      "deskripsi": "Edema, tidak spesifik"
+    },
+    {
+      "id": 93,
+      "kode_icd": "A09.0",
+      "deskripsi": "Diare infeksius"
+    },
+    {
+      "id": 94,
+      "kode_icd": "B08.4",
+      "deskripsi": "Penyakit tangan, kaki, dan mulut"
+    },
+    {
+      "id": 95,
+      "kode_icd": "E78.0",
+      "deskripsi": "Hiperkolesterolemia murni"
+    },
+    {
+      "id": 96,
+      "kode_icd": "H91.9",
+      "deskripsi": "Gangguan pendengaran"
+    },
+    {
+      "id": 97,
+      "kode_icd": "I95.9",
+      "deskripsi": "Hipotensi, tidak spesifik"
+    },
+    {
+      "id": 98,
+      "kode_icd": "J40",
+      "deskripsi": "Bronkitis"
+    },
+    {
+      "id": 99,
+      "kode_icd": "K59.0",
+      "deskripsi": "Konstipasi"
+    },
+    {
+      "id": 100,
+      "kode_icd": "K25.9",
+      "deskripsi": "Ulkus lambung"
+    }
   ]
 }
