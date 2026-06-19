@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   TrendingUp, 
@@ -128,15 +129,21 @@ export default function Forecasting() {
       <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-600">
         <Info className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
         <div>
-          <span className="font-bold text-slate-800 block mb-1">Cara Kerja Algoritma Peramalan & ROP:</span>
+          <span className="font-bold text-slate-800 block mb-1">Rumus Perhitungan Peramalan Logistik & Kebutuhan Order:</span>
           <p className="mt-0.5">
-            1. <strong>Proyeksi Kebutuhan</strong> dihitung berdasarkan rata-rata pemakaian obat pada 3 bulan sebelumnya: <strong className="text-slate-700 font-mono">[{getPrevMonthLabel(1)}, {getPrevMonthLabel(2)}, {getPrevMonthLabel(3)}]</strong>.
+            1. <strong>Rata-rata Pemakaian</strong> dihitung dari pemakaian 3 bulan sebelumnya: <strong className="text-slate-700 font-mono">Pemakaian 3 Bulan ÷ 3</strong>.
           </p>
           <p className="mt-1">
-            2. <strong>Safety Stock (Stok Pengaman)</strong> dihitung untuk mengatasi fluktuasi suplai: <strong className="text-slate-700 font-mono">[Proyeksi Kebutuhan × (Lead Time Pengiriman / 30 Hari) × 1.5]</strong>.
+            2. <strong>Safety Stock (Stok Pengaman)</strong> dihitung untuk mencegah kekosongan obat: <strong className="text-slate-700 font-mono">Rata-rata Pemakaian × 2</strong>.
           </p>
           <p className="mt-1">
-            3. <strong>Reorder Quantity (ROP)</strong> adalah titik pemesanan kembali: <strong className="text-teal-700 font-mono">[Proyeksi Kebutuhan + Safety Stock]</strong>. Jika Stok Saat Ini di bawah ROP, maka ditandai <strong className="text-rose-600 uppercase">Kritis</strong>.
+            3. <strong>Forecast Bulan 1-3</strong> diasumsikan bernilai konstan: <strong className="text-slate-700 font-mono">Rata-rata Pemakaian</strong>.
+          </p>
+          <p className="mt-1">
+            4. <strong>Total Kebutuhan</strong> diproyeksikan untuk periode ke depan: <strong className="text-slate-700 font-mono">Forecast Bulan 1 + Forecast Bulan 2 + Forecast Bulan 3</strong>.
+          </p>
+          <p className="mt-1">
+            5. <strong>Qty Order (Rencana Order)</strong> adalah kuantiti obat yang perlu dipesan kembali: <strong className="text-teal-700 font-mono">Total Kebutuhan + Safety Stock − Stok Akhir</strong>.
           </p>
         </div>
       </div>
@@ -151,29 +158,37 @@ export default function Forecasting() {
           
           {/* Quick Stats overview panel */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className={`p-4 rounded-xl border flex items-center space-x-3 bg-white shadow-xs ${criticalItemsCount > 0 ? 'border-rose-150' : 'border-slate-150'}`}>
-              <div className={`p-2.5 rounded-lg ${criticalItemsCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                <AlertTriangle className="h-5 w-5" />
+            <motion.div 
+               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.2 }}
+               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm ${criticalItemsCount > 0 ? 'border-rose-150/60' : 'border-slate-150/60'}`}
+            >
+              <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                <AlertTriangle className="h-6 w-6" />
               </div>
-              <div>
-                <span className="text-xxs uppercase tracking-wider text-slate-400 block font-bold">Kekurangan Stok Terdeteksi</span>
-                <span className={`text-base font-black font-mono block mt-0.5 ${criticalItemsCount > 0 ? 'text-rose-600' : 'text-slate-800'}`}>
-                  {criticalItemsCount} item obat di bawah ROP
+              <div className="flex-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Kekurangan Stok Terdeteksi</span>
+                <span className={`text-sm font-black font-display block mt-1 ${criticalItemsCount > 0 ? 'text-rose-700' : 'text-slate-800'}`}>
+                  {criticalItemsCount} item obat perlu pemesanan kembali (Qty Order &gt; 0)
                 </span>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="p-4 bg-white border border-slate-150 rounded-xl shadow-xs flex items-center space-x-3">
-              <div className="p-2.5 bg-teal-50 text-teal-600 rounded-lg">
-                <CheckCircle className="h-5 w-5" />
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="p-5 bg-white/70 backdrop-blur-md border border-slate-150/60 rounded-3xl shadow-sm flex items-center space-x-4"
+            >
+              <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl">
+                <CheckCircle className="h-6 w-6" />
               </div>
-              <div>
-                <span className="text-xxs uppercase tracking-wider text-slate-400 block font-bold">Total Obat Diproyeksikan</span>
-                <span className="text-base font-black font-mono text-slate-800 block mt-0.5">
+              <div className="flex-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Total Obat Diproyeksikan</span>
+                <span className="text-sm font-black font-display text-slate-800 block mt-1">
                   {forecasts.length} item aktif
                 </span>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Forecasting data table */}
@@ -183,54 +198,77 @@ export default function Forecasting() {
                 <thead className="bg-slate-50">
                   <tr>
                     <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode & Nama Obat</th>
-                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Proyeksi Demand (Suku 3 Bln)</th>
-                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
-                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Reorder Point (ROP)</th>
-                    <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Stok Saat Ini (Lokal)</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Pemakaian 3 Bln</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Forecast Bln 1-3</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Total Kebutuhan</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Stok Akhir</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 bg-teal-50/50">Qty Order</th>
                     <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
                   {forecasts.map((f) => (
                     <tr key={f.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-3 whitespace-nowrap">
+                      <td className="px-6 py-3.5">
                         <div>
-                          <span className="font-mono text-xxs font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                          <span className="font-mono text-[9px] font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
                             {f.kode_obat}
                           </span>
-                          <h4 className="font-medium text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
-                          <p className="text-xxs text-slate-400 mt-0.5 font-medium">Lead Time Supplier: {f.lead_time_hari} Hari</p>
+                          <h4 className="font-bold text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
                         </div>
                       </td>
 
-                      {/* Moving average demand */}
-                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-normal text-slate-700">
-                        {f.proyeksi_kebutuhan} <span className="text-xxs font-normal text-slate-400">unit/bln</span>
+                      {/* Pemakaian 3 Bln */}
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700">
+                        {f.pemakaian_3_bulan ?? 0} <span className="text-xxs font-normal text-slate-400">unit</span>
+                      </td>
+
+                      {/* Rata-rata */}
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700 bg-slate-50/30 font-medium">
+                        {f.rata_rata ?? 0} <span className="text-xxs font-normal text-slate-400">unit</span>
                       </td>
 
                       {/* Safety stock */}
-                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono text-slate-500">
-                        {f.safety_stock} <span className="text-xxs font-normal text-slate-300">unit</span>
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600 font-medium">
+                        {f.safety_stock ?? 0} <span className="text-xxs font-normal text-slate-300">unit</span>
                       </td>
 
-                      {/* Reorder limit */}
-                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-medium text-teal-700 bg-teal-50/30">
-                        {f.reorder_qty} <span className="text-xxs font-normal text-teal-400">unit</span>
+                      {/* Forecast Bulan 1-3 */}
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600">
+                        <span className="inline-flex items-center space-x-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                          <span className="font-bold text-slate-850">{f.forecast_bulan_1 ?? 0}</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="font-bold text-slate-850">{f.forecast_bulan_2 ?? 0}</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="font-bold text-slate-850">{f.forecast_bulan_3 ?? 0}</span>
+                        </span>
                       </td>
 
-                      {/* Current stock from latest month remaining */}
-                      <td className="px-6 py-3 text-center whitespace-nowrap font-mono font-normal text-slate-600">
-                        {f.current_stock} <span className="text-xxs font-normal text-slate-350">unit</span>
+                      {/* Total Kebutuhan */}
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-slate-900 bg-slate-55/20">
+                        {f.total_kebutuhan ?? 0} <span className="text-xxs font-normal text-slate-400">unit</span>
                       </td>
 
-                      {/* ROP status tag */}
-                      <td className="px-6 py-3 text-right whitespace-nowrap">
+                      {/* Stok Akhir */}
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-medium text-purple-700 bg-purple-50/10">
+                        {f.stok_akhir ?? f.current_stock ?? 0} <span className="text-xxs font-normal text-purple-400">unit</span>
+                      </td>
+
+                      {/* Qty Order */}
+                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-teal-800 bg-teal-50/60 border-x border-teal-100">
+                        {f.qty_order ?? 0} <span className="text-xxs font-normal text-teal-400">unit</span>
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-6 py-3.5 text-right whitespace-nowrap">
                         <span className={`inline-flex items-center space-x-1 text-xxs font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                          f.status_stok === 'Kritis (Perlu Order)'
+                          (f.qty_order ?? 0) > 0
                             ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-150'
                             : 'bg-emerald-100 text-emerald-800 border border-emerald-150'
                         }`}>
-                          {f.status_stok === 'Kritis (Perlu Order)' ? 'Kritis' : 'Aman'}
+                          {(f.qty_order ?? 0) > 0 ? 'Perlu Order' : 'Aman'}
                         </span>
                       </td>
                     </tr>

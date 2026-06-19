@@ -70,7 +70,7 @@ export default function MasterObat() {
     const colMap: { [key: string]: number } = {};
     headers.forEach((h, idx) => {
       if (h.includes('kode')) colMap['kode'] = idx;
-      else if (h.includes('nama')) colMap['nama'] = idx;
+      else if (h.includes('nama') || h.includes('oba')) colMap['nama'] = idx;
       else if (h.includes('satuan')) colMap['satuan'] = idx;
       else if (h.includes('kemasan')) colMap['kemasan'] = idx;
       else if (h.includes('harga')) colMap['harga'] = idx;
@@ -81,7 +81,7 @@ export default function MasterObat() {
     });
 
     if (colMap['kode'] === undefined || colMap['nama'] === undefined) {
-      throw new Error('Format salah. Baris pertama wajib berisi judul kolom (header) seperti "Kode Obat" dan "Nama Obat".');
+      throw new Error('Format salah. Baris pertama wajib berisi judul kolom (header) seperti "Kode Obat" dan "Nama Obat" atau "Nama Oba".');
     }
 
     const items: any[] = [];
@@ -278,7 +278,7 @@ export default function MasterObat() {
     try {
       setLoading(true);
       const res = await api.get('/obat/master');
-      setMedicines(res.data);
+      setMedicines(Array.isArray(res.data) ? res.data : []);
     } catch (err: any) {
       console.error('Failed to load medicines list', err);
       setFeedback({ type: 'error', msg: 'Gagal mendownload data master obat dari server.' });
@@ -292,7 +292,7 @@ export default function MasterObat() {
   }, []);
 
   // Filter medicines
-  const filteredMedicines = medicines.filter(med => {
+  const filteredMedicines = (Array.isArray(medicines) ? medicines : []).filter(med => {
     const matchesSearch = med.nama_obat.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           med.kode_obat.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGolongan = selectedGolongan === 'Semua' || med.golongan === selectedGolongan;
@@ -300,7 +300,7 @@ export default function MasterObat() {
   });
 
   // Extract distinct drug classes for filters
-  const golonganOptions = ['Semua', ...Array.from(new Set(medicines.map(m => m.golongan).filter(Boolean)))];
+  const golonganOptions = ['Semua', ...Array.from(new Set((Array.isArray(medicines) ? medicines : []).map(m => m.golongan).filter(Boolean)))];
 
   const handleOpenAddForm = () => {
     setEditId(null);
@@ -549,7 +549,7 @@ export default function MasterObat() {
                   <span className="font-bold text-slate-800 text-xs">Import Data Master Obat (.csv)</span>
                   <p className="text-[10px] text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
                     Silakan drop file CSV (.csv) atau klik tombol di bawah. Kolom yang diimpor: 
-                    <span className="text-teal-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Kemasan | Harga Satuan | Safety Stock | Lead Time | Stok Minimum | Reorder Point</span>
+                    <span className="text-teal-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Harga Satuan | Safety Stock</span>
                   </p>
                 </div>
 
@@ -606,7 +606,7 @@ export default function MasterObat() {
                   rows={4}
                   value={pastedText}
                   onChange={(e) => setPastedText(e.target.value)}
-                  placeholder="Contoh format:&#10;Kode Obat&#9;Nama Obat&#9;Satuan&#9;Kemasan&#9;Harga Satuan&#10;OBT-PAR1&#9;Paracetamol 500mg&#9;Tablet&#9;DUS / 10 Strips&#9;250.00&#10;OBT-AM02&#9;Amoxicillin 500mg&#9;Kaplet&#9;DUS / 10 strips&#9;600.00"
+                  placeholder="Contoh format:&#10;Kode Obat&#9;Nama Obat&#9;Satuan&#9;Harga Satuan&#9;Safety Stock&#10;OBT-001&#9;Paracetamol&#9;Tablet&#9;250&#9;100&#10;OBT-002&#9;Amoxicillin&#9;Kaplet&#9;600&#9;200"
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-1 focus:ring-teal-500 focus:outline-none"
                 />
               </div>
@@ -655,12 +655,12 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="nama" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Lengkap Obat</label>
+              <label htmlFor="nama" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Obat</label>
               <input
                 id="nama"
                 type="text"
                 required
-                placeholder="ex: Paracetamol 500mg"
+                placeholder="ex: Paracetamol"
                 value={namaObat}
                 onChange={(e) => setNamaObat(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
@@ -668,37 +668,13 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="golongan" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Golongan Obat</label>
-              <input
-                id="golongan"
-                type="text"
-                placeholder="ex: Obat Keras, Tablet Bebas, Vitamin"
-                value={golongan}
-                onChange={(e) => setGolongan(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="satuan" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Satuan Penunjuk</label>
+              <label htmlFor="satuan" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Satuan</label>
               <input
                 id="satuan"
                 type="text"
                 placeholder="ex: Tablet, Kapsul, Botol, Pcs"
                 value={satuan}
                 onChange={(e) => setSatuan(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="kemasan" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kemasan Box</label>
-              <input
-                id="kemasan"
-                type="text"
-                placeholder="ex: DUS / 10 Strips"
-                value={kemasan}
-                onChange={(e) => setKemasan(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35"
               />
             </div>
@@ -723,19 +699,6 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="leadtime" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lead Time Delivery (Hari)</label>
-              <input
-                id="leadtime"
-                type="number"
-                min="1"
-                required
-                value={leadTime}
-                onChange={(e) => setLeadTime(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
-              />
-            </div>
-
-            <div>
               <label htmlFor="safetystock" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Safety Stock (Unit)</label>
               <input
                 id="safetystock"
@@ -744,32 +707,6 @@ export default function MasterObat() {
                 required
                 value={safetyStock}
                 onChange={(e) => setSafetyStock(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="stokminimum" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Stok Minimum (Unit)</label>
-              <input
-                id="stokminimum"
-                type="number"
-                min="0"
-                required
-                value={stokMinimum}
-                onChange={(e) => setStokMinimum(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="reorderpoint" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Reorder Point (Unit)</label>
-              <input
-                id="reorderpoint"
-                type="number"
-                min="0"
-                required
-                value={reorderPoint}
-                onChange={(e) => setReorderPoint(e.target.value)}
                 className="mt-1 block w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white text-xs focus:ring-2 focus:ring-teal-500/35 font-mono"
               />
             </div>
@@ -814,7 +751,7 @@ export default function MasterObat() {
 
       {/* Searching & Filter tool rails */}
       <div className="bg-white p-3.5 border border-slate-150 shadow-xs rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="relative rounded-xl shadow-xs w-full sm:max-w-xs">
+        <div className="relative rounded-xl shadow-xs w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-slate-400" />
           </div>
@@ -827,22 +764,6 @@ export default function MasterObat() {
             className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-medium animate-none"
           />
         </div>
-
-        <div className="flex items-center space-x-2">
-          <Layers className="h-4 w-4 text-slate-400 flex-shrink-0" />
-          <span className="text-xs font-semibold text-slate-500">Filter Golongan:</span>
-          <select
-            id="filter-golongan"
-            value={selectedGolongan}
-            onChange={(e) => setSelectedGolongan(e.target.value)}
-            className="text-xs font-bold bg-slate-100 border-none text-slate-700 px-3 py-1.5 rounded-lg focus:outline-none cursor-pointer"
-            style={{ minHeight: '32px' }}
-          >
-            {golonganOptions.map((g, idx) => (
-              <option key={idx} value={g}>{g}</option>
-            ))}
-          </select>
-        </div>
       </div>
 
       {/* Catalog lists table */}
@@ -851,14 +772,11 @@ export default function MasterObat() {
           <table className="min-w-full divide-y divide-slate-100 text-left">
             <thead className="bg-slate-50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Kode</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Obat</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Golongan</th>
+                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Kode Obat</th>
+                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Nama Obat</th>
+                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Satuan</th>
                 <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Harga Satuan</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Lead Time</th>
-                <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
-                <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Stok Min</th>
-                <th scope="col" className="px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Reorder Point</th>
+                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
                 <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Status</th>
                 {(user?.role === 'admin' || user?.role === 'farmasi') && (
                   <th scope="col" className="px-6 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-slate-500">Aksi</th>
@@ -868,14 +786,14 @@ export default function MasterObat() {
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs font-semibold">
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
+                  <td colSpan={7} className="text-center py-10 text-slate-400 font-medium">
                     <RefreshCw className="h-5 w-5 text-teal-600 animate-spin mx-auto mb-2" />
                     <span>Sinkronisasi katalog...</span>
                   </td>
                 </tr>
               ) : filteredMedicines.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-10 text-slate-400 font-medium">
+                  <td colSpan={7} className="text-center py-10 text-slate-400 font-medium">
                     Tidak ditemukan obat yang cocok dengan kriteria filter.
                   </td>
                 </tr>
@@ -888,30 +806,16 @@ export default function MasterObat() {
                       </span>
                     </td>
                     <td className="px-6 py-3.5">
-                      <div>
-                        <div className="font-bold text-slate-900 text-xs">{m.nama_obat}</div>
-                        <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{m.kemasan} ({m.satuan})</div>
-                      </div>
+                      <div className="font-bold text-slate-900 text-xs">{m.nama_obat}</div>
                     </td>
-                    <td className="px-6 py-3.5 whitespace-nowrap">
-                      <span className="text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded-md border border-teal-100 uppercase tracking-wide font-bold">
-                        {m.golongan}
-                      </span>
+                    <td className="px-6 py-3.5 whitespace-nowrap text-slate-600">
+                      {m.satuan}
                     </td>
                     <td className="px-6 py-3.5 whitespace-nowrap font-mono font-bold text-slate-800 text-xs">
                       Rp {Number(m.harga_satuan).toLocaleString('id-ID', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-6 py-3.5 whitespace-nowrap font-mono text-xs text-slate-500">
-                      {m.lead_time_hari} Hari
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap font-mono text-xs text-slate-600">
+                    <td className="px-6 py-3.5 whitespace-nowrap font-mono text-xs text-slate-600">
                       {m.safety_stock ?? 0} Unit
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap font-mono text-xs text-slate-600">
-                      {m.stok_minimum ?? 0} Unit
-                    </td>
-                    <td className="px-4 py-3.5 whitespace-nowrap font-mono text-xs text-slate-600">
-                      {m.reorder_point ?? 0} Unit
                     </td>
                     <td className="px-6 py-3.5 whitespace-nowrap">
                       <span className={`inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${

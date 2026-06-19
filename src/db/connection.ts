@@ -999,6 +999,10 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       const [t] = params;
       res = res.filter(x => x.tanggal === String(t));
     }
+    if (norm.includes('c.tanggal >= ? AND c.tanggal <= ?')) {
+      const [start, end] = params;
+      res = res.filter(x => x.tanggal >= String(start) && x.tanggal <= String(end));
+    }
     return res;
   }
 

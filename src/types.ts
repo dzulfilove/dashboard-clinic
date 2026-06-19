@@ -77,6 +77,15 @@ export interface ForecastResult {
   current_stock: number;
   status_stok: 'Kritis (Perlu Order)' | 'Aman';
   lead_time_hari: number;
+  // New specific formulas fields
+  pemakaian_3_bulan: number;
+  rata_rata: number;
+  forecast_bulan_1: number;
+  forecast_bulan_2: number;
+  forecast_bulan_3: number;
+  total_kebutuhan: number;
+  stok_akhir: number;
+  qty_order: number;
 }
 
 export interface AbcItem {

@@ -44,9 +44,9 @@ export default function Dashboard() {
         ]);
 
         setDbStatus(dbRes.data);
-        setMedForecast(forecastRes.data);
-        setLabEntries(labRes.data);
-        setMedicines(medRes.data);
+        setMedForecast(Array.isArray(forecastRes.data) ? forecastRes.data : []);
+        setLabEntries(Array.isArray(labRes.data) ? labRes.data : []);
+        setMedicines(Array.isArray(medRes.data) ? medRes.data : []);
 
         // Fetch users if admin
         if (user && user.role === 'admin') {

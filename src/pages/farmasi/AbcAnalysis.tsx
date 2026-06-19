@@ -11,6 +11,7 @@ import {
   PieChart,
   ArrowRight
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import api from '../../services/api.js';
 import { AbcItem, AbcResult } from '../../types.js';
 
@@ -128,25 +129,27 @@ export default function AbcAnalysis() {
       )}
 
       {/* Methodological Explanation card */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-3 text-xs leading-relaxed text-slate-600">
-        <BookOpen className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
-        <div>
-          <span className="font-bold text-slate-800 block mb-1">Panduan Pengendalian Stok Metode ABC:</span>
-          <p className="mt-0.5">
-            Metode ini mengelompokkan logistik obat berdasarkan pemakaian modal kumulatif:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2 pt-1 border-t border-slate-200">
-            <div>
-              <span className="font-extrabold text-emerald-700 block">Kelompok A (Kritis - 80% Nilai)</span>
-              <p className="mt-0.5 text-slate-500">Mewakili sekitar 10-20% item fisik tetapi mengambil 80% total porsi biaya. Memerlukan audit stok harian ketat dan pengawasan dari Apoteker.</p>
+      <div className="bg-slate-50/50 border border-slate-200 rounded-3xl p-6">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-teal-600 flex-shrink-0" />
+            <span className="font-bold text-slate-800">Panduan Pengendalian Stok Metode ABC:</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/60 shadow-sm relative overflow-hidden transition-all">
+              <span className="font-extrabold text-emerald-700 block text-xs">Kelas A (≥70% nilai)</span>
+              <p className="mt-1 text-slate-600 text-xs text-justify">Prioritas utama monitoring & kontrol ketat.</p>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-500"></div>
             </div>
-            <div>
-              <span className="font-extrabold text-amber-700 block">Kelompok B (Moderat - 15% Nilai)</span>
-              <p className="mt-0.5 text-slate-500">Mewakili sekitar 20-30% item dengan porsi nilai 15% dari anggaran. Memiliki kontrol pengamanan moderat (stok berkala bulanan).</p>
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/60 shadow-sm relative overflow-hidden transition-all">
+              <span className="font-extrabold text-amber-700 block text-xs">Kelas B (70-90%)</span>
+              <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring reguler.</p>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
             </div>
-            <div>
-              <span className="font-extrabold text-slate-700 block">Kelompok C (Rendah - 5% Nilai)</span>
-              <p className="mt-0.5 text-slate-500">Mewakili porsi besar item fisik (50%+) tetapi hanya mewakili 5% dari pengeluaran modal. Kendali longgar (order bulk/tahunan).</p>
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/60 shadow-sm relative overflow-hidden transition-all">
+              <span className="font-extrabold text-slate-700 block text-xs">Kelas C (&lt;90%)</span>
+              <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring rutin.</p>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
             </div>
           </div>
         </div>
@@ -172,50 +175,68 @@ export default function AbcAnalysis() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             
             {/* KPI: Total drug spend */}
-            <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 shadow-md">
-              <span className="text-xxs font-extrabold text-slate-400 uppercase tracking-wider block">Nilai Total Pengeluaran Obat</span>
-              <h3 className="text-2xl font-black font-mono block mt-1">
+            <motion.div 
+               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+               transition={{ duration: 0.2 }}
+               className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 shadow-lg relative overflow-hidden"
+            >
+              <span className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
+              <h3 className="text-2xl font-black font-mono block mt-2">
                 Rp {totalInvestasi.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
               </h3>
-              <p className="text-xxs text-amber-400 font-medium mt-1 font-mono">Untuk seluruh obat yang digunakan</p>
-            </div>
+              <p className="text-xs text-amber-400 font-medium mt-2 font-mono">Untuk seluruh obat yang digunakan</p>
+              <div className="absolute top-0 right-0 p-4 opacity-10">
+                <DollarSign className="w-16 h-16"/>
+              </div>
+            </motion.div>
 
             {/* Class A summary */}
-            <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs relative overflow-hidden">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok A (80% Nilai Kumulatif)</span>
-              <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-1">
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-150/60 shadow-sm relative overflow-hidden transition-all"
+            >
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok A (80%)</span>
+              <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-2">
                 {classA.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
               </h3>
-              <p className="text-xxs font-bold text-slate-500 mt-1">
+              <p className="text-xxs font-bold text-slate-500 mt-2">
                 Anggaran: Rp {classASpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classASpend/totalInvestasi)*100) : 0}%)
               </p>
-              <div className="absolute right-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
-            </div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-500"></div>
+            </motion.div>
 
             {/* Class B summary */}
-            <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs relative overflow-hidden">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok B (15% Nilai Kumulatif)</span>
-              <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-1">
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-150/60 shadow-sm relative overflow-hidden transition-all"
+            >
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok B (15%)</span>
+              <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-2">
                 {classB.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
               </h3>
-              <p className="text-xxs font-bold text-slate-500 mt-1">
+              <p className="text-xxs font-bold text-slate-500 mt-2">
                 Anggaran: Rp {classBSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classBSpend/totalInvestasi)*100) : 0}%)
               </p>
-              <div className="absolute right-0 top-0 bottom-0 w-1 bg-amber-500"></div>
-            </div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+            </motion.div>
 
             {/* Class C summary */}
-            <div className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs relative overflow-hidden">
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok C (5% Nilai Kumulatif)</span>
-              <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-1">
+            <motion.div 
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              transition={{ duration: 0.2 }}
+              className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-150/60 shadow-sm relative overflow-hidden transition-all"
+            >
+              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok C (5%)</span>
+              <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-2">
                 {classC.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
               </h3>
-              <p className="text-xxs font-bold text-slate-500 mt-1">
+              <p className="text-xxs font-bold text-slate-500 mt-2">
                 Anggaran: Rp {classCSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classCSpend/totalInvestasi)*100) : 0}%)
               </p>
-              <div className="absolute right-0 top-0 bottom-0 w-1 bg-slate-400"></div>
-            </div>
-
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
+            </motion.div>
           </div>
 
           {/* Pareto Ranked Items List */}

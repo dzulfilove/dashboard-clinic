@@ -12,7 +12,10 @@ import {
   Layers,
   FolderOpen,
   BriefcaseMedical,
-  FolderPlus
+  FolderPlus,
+  AlertCircle,
+  CheckCircle,
+  UploadCloud
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import api from '../../services/api.js';
@@ -28,6 +31,11 @@ export default function MasterPemeriksaan() {
   const [allParameters, setAllParameters] = useState<LabParameter[]>([]);
   const [loadingParams, setLoadingParams] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // CSV Import States
+  const [importing, setImporting] = useState(false);
+  const [importFeedback, setImportFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [hoverDrag, setHoverDrag] = useState(false);
 
   // Parameter modal/edit state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,6 +53,132 @@ export default function MasterPemeriksaan() {
   const [quickCategoryName, setQuickCategoryName] = useState('');
   const [quickCategoryError, setQuickCategoryError] = useState('');
   const [quickCategorySuccess, setQuickCategorySuccess] = useState('');
+
+  // Client-side parser for CSV data
+  const parseCSVTextForPemeriksaan = (text: string): any[] => {
+    if (!text) return [];
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lines.length === 0) return [];
+
+    const firstLine = lines[0];
+    let separator = ',';
+    if (firstLine.includes(';')) {
+      separator = ';';
+    } else if (firstLine.includes('\t')) {
+      separator = '\t';
+    }
+
+    const headers = firstLine.split(separator).map(h => h.replace(/^["']|["']$/g, '').trim().toLowerCase());
+    
+    let kategoriIdx = -1;
+    let namaIdx = -1;
+
+    headers.forEach((h, idx) => {
+      if (h.includes('kategori') || h.includes('category') || h.includes('kelompok')) {
+        kategoriIdx = idx;
+      } else if (h.includes('nama') || h.includes('parameter') || h.includes('pemeriksaan') || h.includes('test')) {
+        namaIdx = idx;
+      }
+    });
+
+    // Fallback if no clean match found: first col is kategori, second is nama_parameter
+    if (kategoriIdx === -1) kategoriIdx = 0;
+    if (namaIdx === -1) namaIdx = headers.length > 1 ? 1 : 0;
+
+    const items: any[] = [];
+    for (let i = 1; i < lines.length; i++) {
+       const cells = lines[i].split(separator).map(c => c.replace(/^["']|["']$/g, '').trim());
+       if (cells.length === 0) continue;
+
+       const kategori = cells[kategoriIdx];
+       const nama_parameter = cells[namaIdx];
+       if (!kategori || !nama_parameter) continue;
+
+       items.push({
+         kategori: kategori.toUpperCase().trim(),
+         nama_parameter: nama_parameter.trim()
+       });
+    }
+
+    return items;
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setHoverDrag(true);
+  };
+
+  const handleDragLeave = () => {
+    setHoverDrag(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setHoverDrag(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleCSVImportFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleCSVImportFile = async (file: File) => {
+    if (!file) return;
+    const nameLower = file.name.toLowerCase();
+    if (!nameLower.endsWith('.csv')) {
+      setImportFeedback({ type: 'error', msg: 'Harap unggah file CSV (.csv).' });
+      return;
+    }
+
+    try {
+      setImporting(true);
+      setImportFeedback(null);
+      const reader = new FileReader();
+      reader.readAsText(file);
+      reader.onload = async () => {
+        const csvText = reader.result as string;
+        try {
+          const items = parseCSVTextForPemeriksaan(csvText);
+          if (items.length === 0) {
+            setImportFeedback({ type: 'error', msg: 'File CSV kosong atau format tidak sesuai.' });
+            return;
+          }
+          const res = await api.post('/lab/parameter/import-bulk', { items });
+          setImportFeedback({ type: 'success', msg: res.data.message || 'Sukses mengimpor data pemeriksaan.' });
+          await fetchAllParameters();
+        } catch (err: any) {
+          console.error(err);
+          setImportFeedback({ 
+            type: 'error', 
+            msg: 'Gagal mengimpor data: ' + (err.response?.data?.message || err.message) 
+          });
+        } finally {
+          setImporting(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        setImporting(false);
+        setImportFeedback({ type: 'error', msg: 'Gagal membaca file.' });
+      };
+    } catch (err: any) {
+      console.error(err);
+      setImporting(false);
+      setImportFeedback({ type: 'error', msg: 'Terjadi kesalahan: ' + err.message });
+    }
+  };
+
+  const handleDownloadTemplateCSV = async () => {
+    try {
+      const response = await api.get('/lab/parameter/template-csv', { responseType: 'blob' });
+      const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = 'template_master_pemeriksaan.csv';
+      link.click();
+    } catch (err) {
+      alert('Gagal mengunduh template CSV. Silakan coba lagi.');
+      console.error('Failed to download lab parameter template csv', err);
+    }
+  };
 
   // Fetch all parameters
   const fetchAllParameters = async () => {
@@ -319,6 +453,90 @@ export default function MasterPemeriksaan() {
                 </p>
               )}
             </form>
+          </div>
+
+          {/* 1b. CSV Data Import Card */}
+          <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-4">
+            <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <UploadCloud className="h-4 w-4 text-teal-600" />
+                <span>Import CSV Pemeriksaan</span>
+              </span>
+              <button 
+                onClick={handleDownloadTemplateCSV}
+                className="text-[9px] hover:underline text-teal-600 font-extrabold cursor-pointer"
+              >
+                Unduh Template
+              </button>
+            </h2>
+            
+            <p className="text-[10px] text-slate-500 leading-relaxed mb-3">
+              Impor parameter pemeriksaan sekaligus dengan mengunggah file format CSV (.csv).
+            </p>
+
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`border border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                hoverDrag 
+                  ? 'border-teal-500 bg-teal-50/50 scale-[1.01]' 
+                  : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50/55'
+              }`}
+            >
+              <input
+                id="csv-file-picker"
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleCSVImportFile(e.target.files[0]);
+                  }
+                }}
+              />
+              <label htmlFor="csv-file-picker" className="cursor-pointer block">
+                {importing ? (
+                  <div className="flex flex-col items-center justify-center py-2.5">
+                    <RefreshCw className="h-6 w-6 text-teal-600 animate-spin mb-1.5" />
+                    <span className="text-xxs font-bold text-slate-700">Memproses Berkas...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-1">
+                    <UploadCloud className="h-7 w-7 text-slate-400 mb-1.5" />
+                    <span className="text-xxs font-bold text-slate-800">
+                      Tarik & Lepas berkas di sini
+                    </span>
+                    <span className="text-[10px] text-slate-400 mt-0.5">
+                      atau <span className="text-teal-600 underline">pilih dari file explorer</span>
+                    </span>
+                  </div>
+                )}
+              </label>
+            </div>
+
+            {importFeedback && (
+              <div className={`mt-3 p-2.5 rounded-xl border flex items-start gap-2 ${
+                importFeedback.type === 'success' 
+                  ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
+                  : 'bg-rose-50 border-rose-100 text-rose-800'
+              }`}>
+                {importFeedback.type === 'success' ? (
+                  <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+                )}
+                <span className="text-[10px] font-semibold leading-normal flex-1">
+                  {importFeedback.msg}
+                </span>
+                <button 
+                  onClick={() => setImportFeedback(null)} 
+                  className="text-slate-400 hover:text-slate-600 shrink-0 self-center"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* 2. Category Sidebar List Picker */}

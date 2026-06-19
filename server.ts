@@ -1355,12 +1355,8 @@ app.get('/api/obat/template-excel', authenticateToken, async (req, res) => {
       { header: 'Kode Obat', key: 'kode', width: 15 },
       { header: 'Nama Obat', key: 'nama', width: 30 },
       { header: 'Satuan', key: 'satuan', width: 15 },
-      { header: 'Kemasan', key: 'kemasan', width: 25 },
       { header: 'Harga Satuan', key: 'harga', width: 15 },
-      { header: 'Lead Time', key: 'lead_time', width: 15 },
-      { header: 'Safety Stock', key: 'safety_stock', width: 15 },
-      { header: 'Stok Minimum', key: 'stok_minimum', width: 15 },
-      { header: 'Reorder Point', key: 'reorder_point', width: 15 }
+      { header: 'Safety Stock', key: 'safety_stock', width: 15 }
     ];
 
     // Style the header row
@@ -1374,26 +1370,18 @@ app.get('/api/obat/template-excel', authenticateToken, async (req, res) => {
     // Add some sample data
     worksheet.addRow({
       kode: 'OBT-001',
-      nama: 'Paracetamol 500mg',
+      nama: 'Paracetamol',
       satuan: 'Tablet',
-      kemasan: 'DUS / 10 Strips',
       harga: 250,
-      lead_time: 2,
-      safety_stock: 100,
-      stok_minimum: 150,
-      reorder_point: 200
+      safety_stock: 100
     });
     
     worksheet.addRow({
       kode: 'OBT-002',
-      nama: 'Amoxicillin 500mg',
+      nama: 'Amoxicillin',
       satuan: 'Kaplet',
-      kemasan: 'DUS / 10 Strips',
       harga: 600,
-      lead_time: 3,
-      safety_stock: 200,
-      stok_minimum: 300,
-      reorder_point: 400
+      safety_stock: 200
     });
 
     res.setHeader(
@@ -1416,10 +1404,10 @@ app.get('/api/obat/template-excel', authenticateToken, async (req, res) => {
 // Download template CSV (.csv) for master obat
 app.get('/api/obat/template-csv', authenticateToken, async (req, res) => {
   try {
-    const headers = ['Kode Obat', 'Nama Obat', 'Satuan', 'Kemasan', 'Harga Satuan', 'Lead Time', 'Safety Stock', 'Stok Minimum', 'Reorder Point'];
+    const headers = ['Kode Obat', 'Nama Obat', 'Satuan', 'Harga Satuan', 'Safety Stock'];
     const rows = [
-      ['OBT-001', 'Paracetamol 500mg', 'Tablet', 'DUS / 10 Strips', '250', '2', '100', '150', '200'],
-      ['OBT-002', 'Amoxicillin 500mg', 'Kaplet', 'DUS / 10 Strips', '600', '3', '200', '300', '400']
+      ['OBT-001', 'Paracetamol', 'Tablet', '250', '100'],
+      ['OBT-002', 'Amoxicillin', 'Kaplet', '600', '200']
     ];
 
     const csvContent = "\uFEFF" + [
@@ -1427,12 +1415,106 @@ app.get('/api/obat/template-csv', authenticateToken, async (req, res) => {
       ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(','))
     ].join('\n');
 
-    res.setHeader('Content-Type', 'text/csv;charset=utf-8;');
+    res.setHeader('Content-Type', 'text/csv;charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename=template_master_obat.csv');
     res.status(200).send(csvContent);
   } catch (err: any) {
     console.error('Failed to generate csv template:', err);
     res.status(500).json({ message: 'Gagal menghasilkan template csv.' });
+  }
+});
+
+// Download template CSV (.csv) for lab parameter
+app.get('/api/lab/parameter/template-csv', authenticateToken, async (req, res) => {
+  try {
+    const headers = ['Kategori', 'Nama Parameter'];
+    const rows = [
+      ['HEMATOLOGI', 'Hemoglobin (Hb)'],
+      ['HEMATOLOGI', 'Leukosit'],
+      ['KIMIA DARAH', 'Glukosa Sewaktu'],
+      ['URINALISIS', 'Protein Urin']
+    ];
+
+    const csvContent = "\uFEFF" + [
+      headers.join(','),
+      ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv;charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename=template_master_pemeriksaan.csv');
+    res.status(200).send(csvContent);
+  } catch (err: any) {
+    console.error('Failed to generate csv template for lab parameters:', err);
+    res.status(500).json({ message: 'Gagal menghasilkan template csv.' });
+  }
+});
+
+// Bulk import master data pemeriksaan (lab_parameter)
+app.post('/api/lab/parameter/import-bulk', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req, res) => {
+  const { items } = req.body;
+  if (!items || !Array.isArray(items)) {
+    return res.status(400).json({ message: 'Input "items" harus berupa array data pemeriksaan.' });
+  }
+
+  try {
+    let successCount = 0;
+    const status = db.getDiagnosticStatus();
+
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      for (const item of items) {
+        const kategori = String(item.kategori || '').toUpperCase().trim();
+        const nama_parameter = String(item.nama_parameter || '').trim();
+        if (!kategori || !nama_parameter) continue;
+
+        const exIdx = vdb.lab_parameter.findIndex(
+          p => p.kategori.toUpperCase() === kategori && p.nama_parameter.toLowerCase() === nama_parameter.toLowerCase()
+        );
+
+        if (exIdx !== -1) {
+          vdb.lab_parameter[exIdx].is_active = 1;
+        } else {
+          vdb.lab_parameter.push({
+            id: vdb.lab_parameter.length > 0 ? Math.max(...vdb.lab_parameter.map(p => p.id)) + 1 : 1,
+            kategori,
+            nama_parameter,
+            is_active: 1
+          });
+        }
+        successCount++;
+      }
+      writeVirtualDb(vdb);
+    } else {
+      const existing = await db.query('SELECT id, kategori, nama_parameter FROM lab_parameter');
+      const existingMap = new Map();
+      existing.forEach((p: any) => {
+        const key = `${p.kategori.toUpperCase()}||${p.nama_parameter.toLowerCase()}`;
+        existingMap.set(key, p.id);
+      });
+
+      for (const item of items) {
+        const kategori = String(item.kategori || '').toUpperCase().trim();
+        const nama_parameter = String(item.nama_parameter || '').trim();
+        if (!kategori || !nama_parameter) continue;
+
+        const key = `${kategori}||${nama_parameter.toLowerCase()}`;
+        if (existingMap.has(key)) {
+          const id = existingMap.get(key);
+          await db.query('UPDATE lab_parameter SET is_active = 1 WHERE id = ?', [id]);
+        } else {
+          await db.query('INSERT INTO lab_parameter (kategori, nama_parameter, is_active) VALUES (?, ?, 1)', [kategori, nama_parameter]);
+        }
+        successCount++;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Berhasil mengimpor ${successCount} data pemeriksaan.`
+    });
+  } catch (err: any) {
+    console.error('Import error lab parameters:', err);
+    res.status(500).json({ message: `Gagal memproses import data pemeriksaan: ${err.message}` });
   }
 });
 
@@ -1715,9 +1797,15 @@ app.delete('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farma
 });
 
 app.get('/api/obat/konsumsi', authenticateToken, async (req, res) => {
-  const { tanggal, bulan, tahun } = req.query;
+  const { tanggal, bulan, tahun, start_date, end_date } = req.query;
   try {
-    if (tanggal) {
+    if (start_date && end_date) {
+      const rows = await db.query(
+        'SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_harian c JOIN obat_master o ON c.obat_id = o.id WHERE c.tanggal >= ? AND c.tanggal <= ?',
+        [String(start_date), String(end_date)]
+      );
+      res.json(rows);
+    } else if (tanggal) {
       const rows = await db.query(
         'SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_harian c JOIN obat_master o ON c.obat_id = o.id WHERE c.tanggal = ?',
         [String(tanggal)]
@@ -1839,40 +1927,54 @@ app.get('/api/obat/forecast', authenticateToken, async (req, res) => {
       });
 
       // Average consumption calculation
-      const validRecords = records.filter(r => r !== undefined);
-      const totalPemakaian = validRecords.reduce((sum, r) => sum + r.pemakaian, 0);
+      const pemakaian_3_bulan = records.reduce((sum, r) => sum + (r ? Number(r.pemakaian) : 0), 0);
       
-      // Moving average is either average of existing logs or 0 if none
-      const proyeksi_kebutuhan = validRecords.length > 0 
-        ? Math.round(totalPemakaian / validRecords.length) 
-        : 0;
+      // 1. Rata-rata = Pemakaian 3 bulan ÷ 3
+      const rata_rata = Math.round(pemakaian_3_bulan / 3);
+      
+      // 2. Safety Stock = Rata-rata × 2
+      const safety_stock = Math.round(rata_rata * 2);
 
-      // Safety stock formula: (Average Demand × Lead Time) / 30 (normalized to month)
-      // Standard lead time is in days. For security safety stock buffer:
-      // Safety Stock = Proyeksi Kebutuhan * (Lead Time Hari / 30) * 1.5 (safety multiplier)
-      const leadTimeMultiplier = (medicine.lead_time_hari || 2) / 30;
-      const safety_stock = Math.round(proyeksi_kebutuhan * leadTimeMultiplier * 1.5) || 5;
+      // 3. Forecast bulan 1-3 = Rata-rata
+      const forecast_bulan_1 = rata_rata;
+      const forecast_bulan_2 = rata_rata;
+      const forecast_bulan_3 = rata_rata;
 
-      const reorder_qty = proyeksi_kebutuhan + safety_stock;
+      // 4. Total Kebutuhan = Forecast1 + Forecast2 + Forecast3
+      const total_kebutuhan = forecast_bulan_1 + forecast_bulan_2 + forecast_bulan_3;
 
       // Find current sisa_stok (taking the latest consumption log)
       const lastRec = allConsumption
         .filter((c: any) => c.obat_id === medicine.id)
         .sort((a: any, b: any) => (b.tahun * 12 + b.bulan) - (a.tahun * 12 + a.bulan))[0];
       
-      const current_stock = lastRec ? lastRec.sisa_stok : 0;
+      const stok_akhir = lastRec ? lastRec.sisa_stok : 0;
+
+      // 5. Qty Order = Total Kebutuhan + Safety Stock - Stok Akhir
+      const qty_order = Math.max(0, total_kebutuhan + safety_stock - stok_akhir);
+
+      const current_stock = stok_akhir;
+      const reorder_qty = total_kebutuhan + safety_stock;
       const status_stok = current_stock < reorder_qty ? 'Kritis (Perlu Order)' : 'Aman';
 
       forecasts.push({
         id: medicine.id,
         kode_obat: medicine.kode_obat,
         nama_obat: medicine.nama_obat,
-        proyeksi_kebutuhan,
+        proyeksi_kebutuhan: total_kebutuhan, // Keep for dashboard compatibility 3-month total
         safety_stock,
         reorder_qty,
         current_stock,
         status_stok,
-        lead_time_hari: medicine.lead_time_hari
+        lead_time_hari: medicine.lead_time_hari,
+        pemakaian_3_bulan,
+        rata_rata,
+        forecast_bulan_1,
+        forecast_bulan_2,
+        forecast_bulan_3,
+        total_kebutuhan,
+        stok_akhir,
+        qty_order
       });
     }
 
@@ -1979,13 +2081,11 @@ app.get('/api/obat/alert', authenticateToken, async (req, res) => {
 
       // Forecast moving average demand
       const validForAvg = priorLogs.slice(0, 3);
-      const sumConsumed = validForAvg.reduce((sum, r) => sum + r.pemakaian, 0);
-      const proyeksi_demand = validForAvg.length > 0 ? Math.round(sumConsumed / validForAvg.length) : 50;
-
-      // Safety stock formula
-      const leadTimeMultiplier = (medicine.lead_time_hari || 2) / 30;
-      const safety_stock = Math.round(proyeksi_demand * leadTimeMultiplier * 1.5) || 5;
-      const reorder_qty = proyeksi_demand + safety_stock;
+      const pemakaian_3_bulan = validForAvg.reduce((sum, r) => sum + r.pemakaian, 0);
+      const rata_rata = Math.round(pemakaian_3_bulan / 3);
+      const safety_stock = Math.round(rata_rata * 2);
+      const total_kebutuhan = rata_rata * 3;
+      const reorder_qty = total_kebutuhan + safety_stock;
 
       if (current_stock < reorder_qty) {
         lowStockAlerts.push({
@@ -1994,7 +2094,7 @@ app.get('/api/obat/alert', authenticateToken, async (req, res) => {
           nama_obat: medicine.nama_obat,
           current_stock,
           reorder_qty,
-          proyeksi_demand,
+          proyeksi_demand: total_kebutuhan,
           safety_stock,
           deficit: reorder_qty - current_stock,
           lead_time_hari: medicine.lead_time_hari
