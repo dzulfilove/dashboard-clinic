@@ -139,6 +139,14 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
       throw new Error('File schema.sql tidak ditemukan.');
     }
 
+    // EXTRA: Ensure lab_parameter has kategori_id to avoid migration failure
+    try {
+      await connection.query('ALTER TABLE lab_parameter ADD COLUMN kategori_id INT AFTER id');
+      console.log('Added kategori_id column to lab_parameter');
+    } catch (e) {
+      // Column might already exist, ignore error
+    }
+
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
     const lines = schemaSql.split('\n');
     const cleanLines = lines.map(line => {
