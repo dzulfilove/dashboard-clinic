@@ -14,7 +14,7 @@ import nodemailer from 'nodemailer';
 import { db, initializeDatabase, readVirtualDb, writeVirtualDb, runMigrationScript } from './src/db/connection.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'klinik_puri_medika_fallback_secure_key_2026';
 
 const BASEROW_API_TOKEN = process.env.BASEROW_API_TOKEN;
