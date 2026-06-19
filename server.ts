@@ -876,6 +876,167 @@ app.delete('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admi
   }
 });
 
+// ==========================================
+// --- IGD MODUL ENDPOINTS ---
+// ==========================================
+
+// Get all IGD visits with detailed actions
+app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
+
+  try {
+    const regs = await db.query(`
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode
+      FROM registrasi_igd r
+      JOIN pasien p ON r.pasien_no_rm = p.no_rm
+      WHERE r.tanggal_pelayanan BETWEEN ? AND ?
+    `, [start, end]);
+    
+    const actions = await db.query(`
+      SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
+             t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal
+      FROM tindakan_igd t
+      JOIN master_tindakan m ON t.tindakan_id = m.id
+      WHERE t.tindakan_tanggal BETWEEN ? AND ?
+    `, [start, end]);
+
+    // Group tindakan by registrasi_id
+    const groupedActions = (actions || []).reduce((acc: any, act: any) => {
+      const rId = act.registrasi_id;
+      if (!acc[rId]) acc[rId] = [];
+      acc[rId].push({
+        ...act,
+        tindakan_nama: act.nama_tindakan,
+        tarif_tindakan: Number(act.tarif_tindakan || 0),
+        tarif_sarana: Number(act.tarif_sarana || 0),
+        tarif_pelayanan: Number(act.tarif_pelayanan || 0),
+        tarif_medis: Number(act.tarif_medis || 0),
+        jumlah: Number(act.jumlah || 1),
+        subtotal: Number(act.subtotal || 0)
+      });
+      return acc;
+    }, {});
+
+    // Attach tindakan to corresponding registration
+    const formatted = (regs || []).map((r: any) => ({
+      ...r,
+      tindakan: groupedActions[r.id] || []
+    }));
+
+    res.json(formatted);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Create new IGD record with bulk tindakan actions
+app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
+  
+  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
+    return res.status(400).json({ message: 'Data wajib diisi.' });
+  }
+
+  try {
+    // 1. Upsert Pasien
+    await db.query('INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    
+    // 2. Insert Registrasi
+    const regResult = await db.query(
+      'INSERT INTO registrasi_igd (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase) VALUES (?, ?, ?, ?)',
+      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau']
+    );
+    const regId = regResult.insertId;
+
+    // 3. Insert Tindakan
+    if (Array.isArray(tindakan) && tindakan.length > 0) {
+      for (const t of tindakan) {
+        // Upsert Master Tindakan
+        const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
+        let tid;
+        if (existingTindakanList && existingTindakanList.length > 0) {
+            tid = existingTindakanList[0].id;
+        } else {
+            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan) VALUES (?)', [t.tindakan_nama]);
+            tid = tResult.insertId;
+        }
+
+        await db.query(
+          'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [regId, tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Data berhasil didaftarkan.', regId });
+  } catch (err: any) {
+    if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate entry')) {
+      return res.status(400).json({ message: `No. Registrasi "${no_registrasi}" sudah terdaftar di database.` });
+    }
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update IGD patient details & actions
+app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+  const { id } = req.params;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
+
+  if (!no_rm || !nama_pasien || !tanggal_pelayanan) {
+    return res.status(400).json({ message: 'Data wajib diisi.' });
+  }
+
+  try {
+    // 1. Update/Upsert Pasien
+    await db.query('INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    
+    // 2. Update Registrasi
+    await db.query(
+      'UPDATE registrasi_igd SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', Number(id)]
+    );
+
+    // 3. Re-create child tindakan records to ensure clean relational master-detail status
+    await db.query('DELETE FROM tindakan_igd WHERE registrasi_id = ?', [Number(id)]);
+
+    if (Array.isArray(tindakan) && tindakan.length > 0) {
+      for (const t of tindakan) {
+        // Upsert Master Tindakan
+        const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
+        let tid;
+        if (existingTindakanList && existingTindakanList.length > 0) {
+            tid = existingTindakanList[0].id;
+        } else {
+            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan) VALUES (?)', [t.tindakan_nama]);
+            tid = tResult.insertId;
+        }
+
+        await db.query(
+          'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [Number(id), tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Data kunjungan berhasil diperbarui.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete IGD visit
+app.delete('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM registrasi_igd WHERE id = ?', [Number(id)]);
+    res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // --- ICD-10 Master Data ---
 app.get('/api/pelayanan/icd10', authenticateToken, async (req, res) => {
   try {

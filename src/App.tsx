@@ -19,6 +19,7 @@ import AbcAnalysis from './pages/farmasi/AbcAnalysis.js';
 import UsersManagement from './pages/admin/Users.js';
 import DatabaseSettings from './pages/admin/DatabaseSettings.js';
 import RawatJalan from './pages/pelayanan/RawatJalan.js';
+import IGD from './pages/pelayanan/IGD.js';
 import MasterTindakan from './pages/pelayanan/MasterTindakan.js';
 import MasterPasien from './pages/pelayanan/MasterPasien.js';
 import MasterICD10 from './pages/pelayanan/MasterICD10.js';
@@ -63,6 +64,14 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
                             <RawatJalan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/igd" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
+                            <IGD />
                           </ProtectedRoute>
                         } 
                       />

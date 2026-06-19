@@ -197,7 +197,9 @@ async function runMigrationsIfRequired() {
       !tableList.includes('registrasi_rawat_jalan') ||
       !tableList.includes('master_tindakan') ||
       !tableList.includes('tindakan_rawat_jalan') ||
-      !tableList.includes('master_icd10')
+      !tableList.includes('master_icd10') ||
+      !tableList.includes('registrasi_igd') ||
+      !tableList.includes('tindakan_igd')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -1348,6 +1350,124 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     const reg_id = Number(params[0]);
     if (vdb.tindakan_rawat_jalan) {
       vdb.tindakan_rawat_jalan = vdb.tindakan_rawat_jalan.filter(x => x.registrasi_id !== reg_id);
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  // --- IGD SIMULATION (VIRTUAL DB) ---
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode FROM registrasi_igd r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
+    if (!vdb.registrasi_igd) vdb.registrasi_igd = [];
+    if (!vdb.pasien) vdb.pasien = [];
+    return vdb.registrasi_igd.map((r: any) => {
+      const p = vdb.pasien.find(pas => String(pas.no_rm).toLowerCase() === String(r.pasien_no_rm).toLowerCase());
+      return {
+        id: r.id,
+        no_registrasi: r.no_registrasi,
+        no_rm: r.pasien_no_rm,
+        nama_pasien: p ? p.nama : 'Pasien',
+        tanggal_pelayanan: r.tanggal_pelayanan,
+        triase: r.triase || 'hijau',
+        icd_kode: r.icd_kode || ''
+      };
+    }).sort((a, b) => b.id - a.id);
+  }
+
+  if (norm.startsWith('SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_igd t JOIN master_tindakan m ON t.tindakan_id = m.id')) {
+    if (!vdb.tindakan_igd) vdb.tindakan_igd = [];
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    return vdb.tindakan_igd.map((t: any) => {
+      const m = vdb.master_tindakan.find(mt => mt.id === t.tindakan_id);
+      return {
+        registrasi_id: t.registrasi_id,
+        pelaksana: t.pelaksana,
+        nama_tindakan: m ? m.nama_tindakan : 'Tindakan',
+        tindakan_keterangan: t.tindakan_keterangan,
+        tindakan_tanggal: t.tindakan_tanggal,
+        tindakan_jam: t.tindakan_jam,
+        tarif_tindakan: Number(t.tarif_tindakan || 0),
+        tarif_sarana: Number(t.tarif_sarana || 0),
+        tarif_pelayanan: Number(t.tarif_pelayanan || 0),
+        tarif_medis: Number(t.tarif_medis || 0),
+        jumlah: Number(t.jumlah || 1),
+        subtotal: Number(t.subtotal || 0)
+      };
+    });
+  }
+
+  if (norm.startsWith('INSERT INTO registrasi_igd')) {
+    const [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase] = params;
+    if (!vdb.registrasi_igd) vdb.registrasi_igd = [];
+    const newId = vdb.registrasi_igd.length > 0 ? Math.max(...vdb.registrasi_igd.map(x => x.id)) + 1 : 1;
+    const record = {
+      id: newId,
+      no_registrasi,
+      pasien_no_rm,
+      tanggal_pelayanan,
+      triase: triase || 'hijau'
+    };
+    vdb.registrasi_igd.push(record);
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('INSERT INTO tindakan_igd')) {
+    const [
+      registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+      tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+    ] = params;
+    if (!vdb.tindakan_igd) vdb.tindakan_igd = [];
+    const newId = vdb.tindakan_igd.length > 0 ? Math.max(...vdb.tindakan_igd.map(x => x.id)) + 1 : 1;
+    const action = {
+      id: newId,
+      registrasi_id: Number(registrasi_id),
+      tindakan_id: Number(tindakan_id),
+      pelaksana,
+      tindakan_keterangan: tindakan_keterangan || '',
+      tindakan_tanggal,
+      tindakan_jam,
+      tarif_tindakan: Number(tarif_tindakan || 0),
+      tarif_sarana: Number(tarif_sarana || 0),
+      tarif_pelayanan: Number(tarif_pelayanan || 0),
+      tarif_medis: Number(tarif_medis || 0),
+      jumlah: Number(jumlah || 1),
+      subtotal: Number(subtotal || 0)
+    };
+    vdb.tindakan_igd.push(action);
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE registrasi_igd SET')) {
+    const [pasien_no_rm, tanggal_pelayanan, triase, id] = params;
+    if (!vdb.registrasi_igd) vdb.registrasi_igd = [];
+    const idx = vdb.registrasi_igd.findIndex(r => r.id === Number(id));
+    if (idx !== -1) {
+      vdb.registrasi_igd[idx].pasien_no_rm = pasien_no_rm;
+      vdb.registrasi_igd[idx].tanggal_pelayanan = tanggal_pelayanan;
+      vdb.registrasi_igd[idx].triase = triase || 'hijau';
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('DELETE FROM registrasi_igd WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (vdb.registrasi_igd) {
+      vdb.registrasi_igd = vdb.registrasi_igd.filter(x => x.id !== id);
+    }
+    if (vdb.tindakan_igd) {
+      vdb.tindakan_igd = vdb.tindakan_igd.filter(x => x.registrasi_id !== id);
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('DELETE FROM tindakan_igd WHERE registrasi_id = ?')) {
+    const reg_id = Number(params[0]);
+    if (vdb.tindakan_igd) {
+      vdb.tindakan_igd = vdb.tindakan_igd.filter(x => x.registrasi_id !== reg_id);
     }
     writeVirtualDb(vdb);
     return { affectedRows: 1 };
