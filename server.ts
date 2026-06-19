@@ -687,8 +687,11 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
   }
 
   try {
-    // 1. Upsert Pasien
-    await db.query('INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    // 1. Cek pasien dengan no_rm yang sama
+    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    if (!existingPasien || existingPasien.length === 0) {
+      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    }
     
     // 2. Insert Registrasi
     const regResult = await db.query(
@@ -827,8 +830,11 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
   }
 
   try {
-    // 1. Update/Upsert Pasien
-    await db.query('INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    // 1. Cek pasien dengan no_rm yang sama
+    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    if (!existingPasien || existingPasien.length === 0) {
+      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    }
     
     // 2. Update Registrasi
     await db.query(
@@ -940,8 +946,11 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
   }
 
   try {
-    // 1. Upsert Pasien
-    await db.query('INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    // 1. Cek pasien dengan no_rm yang sama
+    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    if (!existingPasien || existingPasien.length === 0) {
+      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    }
     
     // 2. Insert Registrasi
     const regResult = await db.query(
@@ -959,7 +968,7 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
         if (existingTindakanList && existingTindakanList.length > 0) {
             tid = existingTindakanList[0].id;
         } else {
-            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan) VALUES (?)', [t.tindakan_nama]);
+            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [t.tindakan_nama, 'ralan']);
             tid = tResult.insertId;
         }
 
@@ -989,8 +998,11 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
   }
 
   try {
-    // 1. Update/Upsert Pasien
-    await db.query('INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    // 1. Cek pasien dengan no_rm yang sama
+    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    if (!existingPasien || existingPasien.length === 0) {
+      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    }
     
     // 2. Update Registrasi
     await db.query(
@@ -1009,7 +1021,7 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
         if (existingTindakanList && existingTindakanList.length > 0) {
             tid = existingTindakanList[0].id;
         } else {
-            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan) VALUES (?)', [t.tindakan_nama]);
+            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [t.tindakan_nama, 'ralan']);
             tid = tResult.insertId;
         }
 
@@ -1031,6 +1043,169 @@ app.delete('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'per
   const { id } = req.params;
   try {
     await db.query('DELETE FROM registrasi_igd WHERE id = ?', [Number(id)]);
+    res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- Rawat Inap (Ranap) Endpoints ---
+app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
+  const { startDate, endDate } = req.query;
+  const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
+
+  try {
+    const registrations = await db.query(
+      'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ?',
+      [start, end]
+    );
+
+    const actions = await db.query(
+      'SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_ranap t JOIN master_tindakan m ON t.tindakan_id = m.id'
+    );
+
+    // Group actions by registrasi_id
+    const actionsGrouped = actions.reduce((acc: any, act: any) => {
+      if (!acc[act.registrasi_id]) acc[act.registrasi_id] = [];
+      acc[act.registrasi_id].push({
+        pelaksana: act.pelaksana,
+        tindakan_nama: act.nama_tindakan,
+        tindakan_keterangan: act.tindakan_keterangan || '',
+        tindakan_tanggal: act.tindakan_tanggal ? (typeof act.tindakan_tanggal === 'string' ? act.tindakan_tanggal.split('T')[0] : act.tindakan_tanggal) : '',
+        tindakan_jam: act.tindakan_jam,
+        tarif_tindakan: Number(act.tarif_tindakan || 0),
+        tarif_sarana: Number(act.tarif_sarana || 0),
+        tarif_pelayanan: Number(act.tarif_pelayanan || 0),
+        tarif_medis: Number(act.tarif_medis || 0),
+        jumlah: Number(act.jumlah || 1),
+        subtotal: Number(act.subtotal || 0)
+      });
+      return acc;
+    }, {});
+
+    const formatted = registrations.map((r: any) => ({
+      id: r.id,
+      no_registrasi: r.no_registrasi,
+      no_rm: r.no_rm,
+      nama_pasien: r.nama_pasien,
+      tanggal_pelayanan: r.tanggal_pelayanan ? (typeof r.tanggal_pelayanan === 'string' ? r.tanggal_pelayanan.split('T')[0] : r.tanggal_pelayanan) : '',
+      triase: r.triase || 'hijau',
+      icd_masuk: r.icd_masuk || '',
+      icd_pulang: r.icd_pulang || '',
+      kamar: r.kamar || '',
+      tindakan: actionsGrouped[r.id] || []
+    }));
+
+    res.json(formatted);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, tindakan } = req.body;
+  
+  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
+    return res.status(400).json({ message: 'Data wajib diisi.' });
+  }
+
+  try {
+    // 1. Cek pasien dengan no_rm yang sama
+    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    if (!existingPasien || existingPasien.length === 0) {
+      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    }
+    
+    // 2. Insert Registrasi
+    const regResult = await db.query(
+      'INSERT INTO registrasi_ranap (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '']
+    );
+    const regId = regResult.insertId;
+
+    // 3. Insert Tindakan
+    if (Array.isArray(tindakan) && tindakan.length > 0) {
+      for (const t of tindakan) {
+        // Upsert Master Tindakan
+        const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
+        let tid;
+        if (existingTindakanList && existingTindakanList.length > 0) {
+          tid = existingTindakanList[0].id;
+        } else {
+          const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [t.tindakan_nama, 'ranap']);
+          tid = tResult.insertId;
+        }
+
+        await db.query(
+          'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [regId, tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Data rawat inap berhasil didaftarkan.', regId });
+  } catch (err: any) {
+    if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate entry')) {
+      return res.status(400).json({ message: `No. Registrasi "${no_registrasi}" sudah terdaftar di database.` });
+    }
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
+  const { id } = req.params;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, tindakan } = req.body;
+
+  if (!no_rm || !nama_pasien || !tanggal_pelayanan) {
+    return res.status(400).json({ message: 'Data wajib diisi.' });
+  }
+
+  try {
+    // 1. Cek pasien dengan no_rm yang sama
+    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    if (!existingPasien || existingPasien.length === 0) {
+      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+    }
+    
+    // 2. Update Registrasi
+    await db.query(
+      'UPDATE registrasi_ranap SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_masuk = ?, icd_pulang = ?, kamar = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '', Number(id)]
+    );
+
+    // 3. Re-create actions
+    await db.query('DELETE FROM tindakan_ranap WHERE registrasi_id = ?', [Number(id)]);
+
+    if (Array.isArray(tindakan) && tindakan.length > 0) {
+      for (const t of tindakan) {
+        // Upsert Master Tindakan
+        const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
+        let tid;
+        if (existingTindakanList && existingTindakanList.length > 0) {
+          tid = existingTindakanList[0].id;
+        } else {
+          const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [t.tindakan_nama, 'ranap']);
+          tid = tResult.insertId;
+        }
+
+        await db.query(
+          'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [Number(id), tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+        );
+      }
+    }
+
+    res.json({ success: true, message: 'Data kunjungan berhasil diperbarui.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM registrasi_ranap WHERE id = ?', [Number(id)]);
     res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });

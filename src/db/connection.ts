@@ -199,7 +199,9 @@ async function runMigrationsIfRequired() {
       !tableList.includes('tindakan_rawat_jalan') ||
       !tableList.includes('master_icd10') ||
       !tableList.includes('registrasi_igd') ||
-      !tableList.includes('tindakan_igd')
+      !tableList.includes('tindakan_igd') ||
+      !tableList.includes('registrasi_ranap') ||
+      !tableList.includes('tindakan_ranap')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -1468,6 +1470,143 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     const reg_id = Number(params[0]);
     if (vdb.tindakan_igd) {
       vdb.tindakan_igd = vdb.tindakan_igd.filter(x => x.registrasi_id !== reg_id);
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  // --- RANAP SIMULATION (VIRTUAL DB) ---
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
+    if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
+    if (!vdb.pasien) vdb.pasien = [];
+    return vdb.registrasi_ranap.map((r: any) => {
+      const p = vdb.pasien.find(pas => String(pas.no_rm).toLowerCase() === String(r.pasien_no_rm).toLowerCase());
+      return {
+        id: r.id,
+        no_registrasi: r.no_registrasi,
+        no_rm: r.pasien_no_rm,
+        nama_pasien: p ? p.nama : 'Pasien',
+        tanggal_pelayanan: r.tanggal_pelayanan,
+        triase: r.triase || 'hijau',
+        icd_masuk: r.icd_masuk || '',
+        icd_pulang: r.icd_pulang || '',
+        kamar: r.kamar || ''
+      };
+    }).sort((a, b) => b.id - a.id);
+  }
+
+  if (norm.startsWith('SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_ranap t JOIN master_tindakan m ON t.tindakan_id = m.id')) {
+    if (!vdb.tindakan_ranap) vdb.tindakan_ranap = [];
+    if (!vdb.master_tindakan) vdb.master_tindakan = [];
+    return vdb.tindakan_ranap.map((t: any) => {
+      const m = vdb.master_tindakan.find(mt => mt.id === t.tindakan_id);
+      return {
+        registrasi_id: t.registrasi_id,
+        pelaksana: t.pelaksana,
+        nama_tindakan: m ? m.nama_tindakan : 'Tindakan',
+        tindakan_keterangan: t.tindakan_keterangan,
+        tindakan_tanggal: t.tindakan_tanggal,
+        tindakan_jam: t.tindakan_jam,
+        tarif_tindakan: Number(t.tarif_tindakan || 0),
+        tarif_sarana: Number(t.tarif_sarana || 0),
+        tarif_pelayanan: Number(t.tarif_pelayanan || 0),
+        tarif_medis: Number(t.tarif_medis || 0),
+        jumlah: Number(t.jumlah || 1),
+        subtotal: Number(t.subtotal || 0)
+      };
+    });
+  }
+
+  if (norm.startsWith('INSERT INTO registrasi_ranap')) {
+    // INSERT INTO registrasi_ranap (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar) VALUES (?, ?, ?, ?, ?, ?, ?)
+    const [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar] = params;
+    if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
+    
+    // Check duplication
+    const dup = vdb.registrasi_ranap.some(x => String(x.no_registrasi).toLowerCase() === String(no_registrasi).toLowerCase());
+    if (dup) {
+      const err: any = new Error(`Duplicate entry '${no_registrasi}' for key 'no_registrasi'`);
+      err.code = 'ER_DUP_ENTRY';
+      throw err;
+    }
+
+    const newId = vdb.registrasi_ranap.length > 0 ? Math.max(...vdb.registrasi_ranap.map(x => x.id)) + 1 : 1;
+    const record = {
+      id: newId,
+      no_registrasi,
+      pasien_no_rm,
+      tanggal_pelayanan,
+      triase: triase || 'hijau',
+      icd_masuk: icd_masuk || '',
+      icd_pulang: icd_pulang || '',
+      kamar: kamar || ''
+    };
+    vdb.registrasi_ranap.push(record);
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('INSERT INTO tindakan_ranap')) {
+    const [
+      registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+      tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+    ] = params;
+    if (!vdb.tindakan_ranap) vdb.tindakan_ranap = [];
+    const newId = vdb.tindakan_ranap.length > 0 ? Math.max(...vdb.tindakan_ranap.map(x => x.id)) + 1 : 1;
+    const action = {
+      id: newId,
+      registrasi_id: Number(registrasi_id),
+      tindakan_id: Number(tindakan_id),
+      pelaksana,
+      tindakan_keterangan: tindakan_keterangan || '',
+      tindakan_tanggal,
+      tindakan_jam,
+      tarif_tindakan: Number(tarif_tindakan || 0),
+      tarif_sarana: Number(tarif_sarana || 0),
+      tarif_pelayanan: Number(tarif_pelayanan || 0),
+      tarif_medis: Number(tarif_medis || 0),
+      jumlah: Number(jumlah || 1),
+      subtotal: Number(subtotal || 0)
+    };
+    vdb.tindakan_ranap.push(action);
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE registrasi_ranap SET')) {
+    // UPDATE registrasi_ranap SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_masuk = ?, icd_pulang = ?, kamar = ? WHERE id = ?
+    const [pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, id] = params;
+    if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
+    const idx = vdb.registrasi_ranap.findIndex(r => r.id === Number(id));
+    if (idx !== -1) {
+      vdb.registrasi_ranap[idx].pasien_no_rm = pasien_no_rm;
+      vdb.registrasi_ranap[idx].tanggal_pelayanan = tanggal_pelayanan;
+      vdb.registrasi_ranap[idx].triase = triase || 'hijau';
+      vdb.registrasi_ranap[idx].icd_masuk = icd_masuk || '';
+      vdb.registrasi_ranap[idx].icd_pulang = icd_pulang || '';
+      vdb.registrasi_ranap[idx].kamar = kamar || '';
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('DELETE FROM registrasi_ranap WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (vdb.registrasi_ranap) {
+      vdb.registrasi_ranap = vdb.registrasi_ranap.filter(x => x.id !== id);
+    }
+    if (vdb.tindakan_ranap) {
+      vdb.tindakan_ranap = vdb.tindakan_ranap.filter(x => x.registrasi_id !== id);
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('DELETE FROM tindakan_ranap WHERE registrasi_id = ?')) {
+    const reg_id = Number(params[0]);
+    if (vdb.tindakan_ranap) {
+      vdb.tindakan_ranap = vdb.tindakan_ranap.filter(x => x.registrasi_id !== reg_id);
     }
     writeVirtualDb(vdb);
     return { affectedRows: 1 };

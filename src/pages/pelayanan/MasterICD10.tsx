@@ -94,44 +94,7 @@ export default function MasterICD10() {
         </button>
       </div>
 
-      {/* Database Diagnostic and Record Telemetry Banner */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="p-2.5 bg-white border border-slate-100 rounded-xl">
-              <Database className="h-5 w-5 text-teal-600" />
-            </span>
-            <div>
-              <span className="text-xxs uppercase tracking-wider font-extrabold text-slate-400">STATUS SINKRONISASI</span>
-              <p className="text-xs font-bold text-slate-700 mt-0.5">
-                {dbStatus ? (
-                  dbStatus.isVirtual ? (
-                    <span className="text-amber-600 font-extrabold">Virtual Offline JSON</span>
-                  ) : (
-                    <span className="text-emerald-600 font-extrabold">Aktif Terhubung ke VPS MySQL</span>
-                  )
-                ) : 'Mendeteksi...'}
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <span className="text-xxs uppercase tracking-wider font-extrabold text-slate-400">TOTAL DATA</span>
-            <p className="text-md font-black text-slate-800 mt-0.5">{data.length} Diagnosa</p>
-          </div>
-        </div>
 
-        <div className="bg-teal-50/40 border border-teal-100/60 p-4 rounded-2xl flex items-center gap-3">
-          <span className="p-2.5 bg-white border border-teal-100/50 rounded-xl text-teal-600">
-            <CheckCircle className="h-5 w-5" />
-          </span>
-          <div className="text-xs">
-            <span className="font-extrabold text-teal-800">Uji Migrasi Sukses (100 Data)</span>
-            <p className="text-teal-600/90 mt-0.5">
-              Tabel <strong className="font-mono">master_icd10</strong> telah sepenuhnya dilaras dengan 100 kode rujukan utama WHO.
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Search Input Bar */}
       <div className="bg-white p-4 border border-slate-100 rounded-2xl shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">

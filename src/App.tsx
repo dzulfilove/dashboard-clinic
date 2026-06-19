@@ -23,6 +23,7 @@ import IGD from './pages/pelayanan/IGD.js';
 import MasterTindakan from './pages/pelayanan/MasterTindakan.js';
 import MasterPasien from './pages/pelayanan/MasterPasien.js';
 import MasterICD10 from './pages/pelayanan/MasterICD10.js';
+import RawatInap from './pages/pelayanan/RawatInap.js';
 
 export default function App() {
   const { initialize } = useAuthStore();
@@ -72,6 +73,14 @@ export default function App() {
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
                             <IGD />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/rawat-inap" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
+                            <RawatInap />
                           </ProtectedRoute>
                         } 
                       />

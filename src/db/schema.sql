@@ -240,3 +240,36 @@ CREATE TABLE IF NOT EXISTS tindakan_igd (
   FOREIGN KEY (tindakan_id) REFERENCES master_tindakan(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS registrasi_ranap (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  no_registrasi VARCHAR(50) NOT NULL UNIQUE,
+  pasien_no_rm VARCHAR(20) NOT NULL,
+  tanggal_pelayanan DATE NOT NULL,
+  triase VARCHAR(20) DEFAULT 'hijau',
+  icd_masuk VARCHAR(20),
+  icd_pulang VARCHAR(20),
+  kamar VARCHAR(100),
+  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm),
+  FOREIGN KEY (icd_masuk) REFERENCES master_icd10(kode_icd),
+  FOREIGN KEY (icd_pulang) REFERENCES master_icd10(kode_icd)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS tindakan_ranap (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  registrasi_id INT NOT NULL,
+  tindakan_id INT NOT NULL,
+  pelaksana VARCHAR(150),
+  tindakan_keterangan TEXT,
+  tindakan_tanggal DATE,
+  tindakan_jam TIME,
+  tarif_tindakan DECIMAL(12,2),
+  tarif_sarana DECIMAL(12,2),
+  tarif_pelayanan DECIMAL(12,2),
+  tarif_medis DECIMAL(12,2),
+  jumlah INT,
+  subtotal DECIMAL(12,2),
+  FOREIGN KEY (registrasi_id) REFERENCES registrasi_ranap(id) ON DELETE CASCADE,
+  FOREIGN KEY (tindakan_id) REFERENCES master_tindakan(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+

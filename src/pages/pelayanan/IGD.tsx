@@ -315,6 +315,7 @@ export default function IGD() {
         subtotal: 0
       }
     ]);
+    setIsManualModalOpen(false);
   };
 
   const handleEditClick = (rec: IgdRecord) => {
@@ -485,6 +486,7 @@ export default function IGD() {
           no_rm: act.no_rm,
           nama_pasien: act.nama_pasien,
           tanggal_pelayanan: act.tanggal_pelayanan,
+          triase: 'hijau',
           tindakan: []
         };
       }
@@ -512,6 +514,15 @@ export default function IGD() {
     setParsedData(output);
     setIsParsed(true);
     showFeedback('success', `Berhasil mengurai ${output.length} registrasi kunjungan unik.`);
+  };
+
+  const updateParsedTriage = (idx: number, newTriage: string) => {
+    const updated = [...parsedData];
+    updated[idx] = {
+      ...updated[idx],
+      triase: newTriage
+    };
+    setParsedData(updated);
   };
 
   const handleBulkInsert = async () => {
@@ -1460,6 +1471,29 @@ export default function IGD() {
                             <div className="border-t border-slate-200/50 pt-2 flex justify-between items-center text-[11px] font-semibold text-slate-600">
                               <span>Total Estimasi Biaya:</span>
                               <span className="font-mono text-teal-700 font-extrabold">Rp {amount.toLocaleString('id-ID')}</span>
+                            </div>
+
+                            {/* Triage Selector before saving */}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-white/75 border border-slate-150 p-2.5 rounded-2xl mt-2">
+                              <div className="flex items-center space-x-1.5">
+                                <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">Pilih Triase Pasien:</span>
+                                <select
+                                  value={p.triase || 'hijau'}
+                                  onChange={(e) => updateParsedTriage(idx, e.target.value)}
+                                  className="px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-205 bg-white text-slate-705 focus:outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer"
+                                >
+                                  <option value="hijau">Hijau (Non-Darurat)</option>
+                                  <option value="kuning">Kuning (Darurat)</option>
+                                  <option value="merah">Merah (Gawat Darurat)</option>
+                                  <option value="hitam">Hitam (Meninggal)</option>
+                                </select>
+                              </div>
+                              
+                              {/* Live triage badge */}
+                              <div className={`sm:ml-auto px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 border ${getTriageStyle(p.triase).bg}`}>
+                                <span className={`h-2 w-2 rounded-full ${getTriageStyle(p.triase).dotBg}`} />
+                                <span>{getTriageStyle(p.triase).text}</span>
+                              </div>
                             </div>
                           </div>
                         );
