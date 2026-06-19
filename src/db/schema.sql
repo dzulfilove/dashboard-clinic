@@ -1,12 +1,20 @@
 -- Blueprint Database Klinik Puri Medika --
 -- Database: klinik_puri_medika
 
-CREATE TABLE IF NOT EXISTS lab_parameter (
+CREATE TABLE IF NOT EXISTS lab_kategori (
   id INT NOT NULL AUTO_INCREMENT,
-  kategori VARCHAR(50) NOT NULL,
-  nama_parameter VARCHAR(150) NOT NULL,
+  nama_kategori VARCHAR(50) NOT NULL UNIQUE,
   is_active TINYINT(1) DEFAULT 1,
   PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS lab_parameter (
+  id INT NOT NULL AUTO_INCREMENT,
+  kategori_id INT NOT NULL,
+  nama_parameter VARCHAR(150) NOT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  PRIMARY KEY (id),
+  FOREIGN KEY (kategori_id) REFERENCES lab_kategori(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS lab_data_bulanan (
@@ -95,22 +103,30 @@ CREATE TABLE IF NOT EXISTS obat_forecasting (
   FOREIGN KEY (obat_id) REFERENCES obat_master(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Seed Lab Kategori
+INSERT INTO lab_kategori (nama_kategori, is_active) VALUES
+('HEMATOLOGI', 1),
+('KIMIA DARAH', 1),
+('IMUNOSEROLOGI', 1),
+('URINALISIS', 1)
+ON DUPLICATE KEY UPDATE id=id;
+
 -- Seed Lab Parameters
-INSERT INTO lab_parameter (kategori, nama_parameter, is_active) VALUES
-('HEMATOLOGI', 'Hemoglobin (Hb)', 1),
-('HEMATOLOGI', 'Leukosit', 1),
-('HEMATOLOGI', 'Trombosit', 1),
-('HEMATOLOGI', 'Eritrosit', 1),
-('KIMIA DARAH', 'Glukosa Sewaktu', 1),
-('KIMIA DARAH', 'Kolesterol Total', 1),
-('KIMIA DARAH', 'Asam Urat', 1),
-('KIMIA DARAH', 'Ureum', 1),
-('KIMIA DARAH', 'Kreatinin', 1),
-('KIMIA DARAH', 'SGOT', 1),
-('KIMIA DARAH', 'SGPT', 1),
-('IMUNOSEROLOGI', 'Widal', 1),
-('IMUNOSEROLOGI', 'HBsAg', 1),
-('URINALISIS', 'Urin Lengkap', 1)
+INSERT INTO lab_parameter (kategori_id, nama_parameter, is_active) VALUES
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'HEMATOLOGI'), 'Hemoglobin (Hb)', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'HEMATOLOGI'), 'Leukosit', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'HEMATOLOGI'), 'Trombosit', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'HEMATOLOGI'), 'Eritrosit', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'Glukosa Sewaktu', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'Kolesterol Total', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'Asam Urat', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'Ureum', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'Kreatinin', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'SGOT', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'KIMIA DARAH'), 'SGPT', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'IMUNOSEROLOGI'), 'Widal', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'IMUNOSEROLOGI'), 'HBsAg', 1),
+((SELECT id FROM lab_kategori WHERE nama_kategori = 'URINALISIS'), 'Urin Lengkap', 1)
 ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Obat Master data
