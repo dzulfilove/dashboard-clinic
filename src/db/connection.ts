@@ -147,6 +147,13 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
       // Column might already exist, ignore error
     }
 
+    try {
+      // Make old kategori column nullable if it exists to prevent "doesn't have a default value" errors
+      await connection.query('ALTER TABLE lab_parameter MODIFY COLUMN kategori VARCHAR(100) NULL');
+    } catch (e) {
+      // Column might not exist or other error, ignore
+    }
+
     const schemaSql = fs.readFileSync(schemaPath, 'utf8');
     const lines = schemaSql.split('\n');
     const cleanLines = lines.map(line => {
