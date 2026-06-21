@@ -278,6 +278,23 @@ async function runMigrationsIfRequired() {
         if (pelaksanaRanap.length > 0) {
           await mysqlPool.query("ALTER TABLE tindakan_ranap DROP COLUMN pelaksana");
         }
+
+        // Direct check for dokter table to ensure it exists
+        const [dokterTable]: any = await mysqlPool.query("SHOW TABLES LIKE 'dokter'");
+        if (dokterTable.length === 0) {
+          console.log('Explicitly creating missing dokter table...');
+          await mysqlPool.query(`
+            CREATE TABLE IF NOT EXISTS dokter (
+              id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+              nama_dokter VARCHAR(250) NOT NULL,
+              spesialisasi VARCHAR(150),
+              no_sip VARCHAR(100),
+              status ENUM('aktif', 'non-aktif') DEFAULT 'aktif',
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+          `);
+          console.log('Dokter table created successfully.');
+        }
       } catch (colErr: any) {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);
       }
