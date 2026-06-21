@@ -61,7 +61,8 @@ export default function Sidebar() {
         { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat', 'analis'] },
         { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin'] },
         { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin'] },
-        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin'] },
+        { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin'] },
+        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin'] }
       ]
     },
     {

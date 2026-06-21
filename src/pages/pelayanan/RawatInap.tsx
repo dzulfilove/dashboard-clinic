@@ -43,7 +43,6 @@ import { ICD10 } from '../../types.js';
 
 interface Tindakan {
   id?: number;
-  pelaksana: string;
   tindakan_nama: string;
   tindakan_keterangan: string;
   tindakan_tanggal: string;
@@ -66,6 +65,7 @@ interface InpatientRecord {
   icd_pulang: string;
   kamar: string;
   triase: string;
+  dpjp: string;
   tindakan: Tindakan[];
 }
 
@@ -127,17 +127,18 @@ export default function RawatInap() {
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
-  const [kamar, setKamar] = useState('Flamboyan 1');
+  const [kamar, setKamar] = useState('Kamar Sinta');
   const [icdMasuk, setIcdMasuk] = useState('');
   const [icdPulang, setIcdPulang] = useState('');
+  const [dpjp, setDpjp] = useState('');
   
   const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
   const [icdList, setIcdList] = useState<ICD10[]>([]);
-  const [manualTindakan, setManualTindakan] = useState<Tindakan[]>([
+  const [dokterList, setDokterList] = useState<any[]>([]);
+  const [manualTindakan, setManualTindakan] = useState<any[]>([
     {
-      pelaksana: '',
       tindakan_nama: '',
       tindakan_keterangan: '',
       tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -180,9 +181,19 @@ export default function RawatInap() {
     }
   };
 
+  const fetchDokter = async () => {
+    try {
+      const res = await api.get('/dokter');
+      setDokterList(res.data);
+    } catch (err) {
+      console.warn('Gagal memuat master Dokter:', err);
+    }
+  };
+
   useEffect(() => {
     fetchRecords();
     fetchIcd10();
+    fetchDokter();
   }, [startDate, endDate]);
 
   const showFeedback = (type: 'success' | 'error', message: string) => {
@@ -212,12 +223,12 @@ export default function RawatInap() {
     setNamaPasien('');
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
     setTriase('hijau');
-    setKamar('Flamboyan 1');
+    setKamar('Kamar Sinta');
     setIcdMasuk('');
     setIcdPulang('');
+    setDpjp('');
     setManualTindakan([
       {
-        pelaksana: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -240,13 +251,13 @@ export default function RawatInap() {
     setNamaPasien(rec.nama_pasien);
     setTanggalPelayanan(rec.tanggal_pelayanan);
     setTriase(rec.triase || 'hijau');
-    setKamar(rec.kamar || 'Flamboyan 1');
+    setKamar(rec.kamar || 'Kamar Sinta');
     setIcdMasuk(rec.icd_masuk || '');
     setIcdPulang(rec.icd_pulang || '');
+    setDpjp(rec.dpjp || '');
     
     // map tindakan
     setManualTindakan(rec.tindakan.map((t: any) => ({
-      pelaksana: t.pelaksana,
       tindakan_nama: t.tindakan_nama,
       tindakan_keterangan: t.tindakan_keterangan || '',
       tindakan_tanggal: t.tindakan_tanggal,
@@ -275,6 +286,64 @@ export default function RawatInap() {
     }
   };
 
+  // Helper function to parse Indonesian date strings (e.g., "13 April 2001" or "19 Juni 2026") into YYYY-MM-DD
+  const parseIndoDate = (dateStr: string): string => {
+    if (!dateStr) return new Date().toISOString().split('T')[0];
+    const str = dateStr.trim().toLowerCase();
+    
+    // Check if it's already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+      return str;
+    }
+    
+    // Check if it's DD-MM-YYYY or DD/MM/YYYY
+    const delimiterMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (delimiterMatch) {
+      const d = delimiterMatch[1].padStart(2, '0');
+      const m = delimiterMatch[2].padStart(2, '0');
+      const y = delimiterMatch[3];
+      return `${y}-${m}-${d}`;
+    }
+
+    const monthMap: { [key: string]: string } = {
+      januari: '01', jan: '01',
+      februari: '02', feb: '02',
+      maret: '03', mar: '03',
+      april: '04', apr: '04',
+      mei: '05',
+      juni: '06', jun: '06',
+      juli: '07', jul: '07',
+      agustus: '08', agu: '08', agst: '08',
+      september: '09', sep: '09',
+      oktober: '10', okt: '10',
+      november: '11', nopember: '11', nov: '11',
+      desember: '12', des: '12',
+    };
+
+    const parts = str.split(/\s+/);
+    if (parts.length === 3) {
+      const d = parts[0].padStart(2, '0');
+      const mStr = parts[1];
+      const y = parts[2];
+      const m = monthMap[mStr] || '01';
+      if (/^\d{1,2}$/.test(d) && /^\d{4}$/.test(y)) {
+        return `${y}-${m}-${d}`;
+      }
+    }
+
+    // Fallback parser for standard Date
+    try {
+      const parsed = new Date(dateStr);
+      if (!isNaN(parsed.getTime())) {
+        return parsed.toISOString().split('T')[0];
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    return new Date().toISOString().split('T')[0];
+  };
+
   // Paste Text Parser Suite
   const triggerParser = () => {
     if (!rawText.trim()) {
@@ -285,7 +354,9 @@ export default function RawatInap() {
     const lines = rawText.split('\n');
     const tempActions: any[] = [];
     
-    let headerSkipped = false;
+    // Detect if we are using the new format containing customized columns (e.g. No. Pendaftaran, Tanggal MRS/KRS)
+    const lowerText = rawText.toLowerCase();
+    const isNewFormat = lowerText.includes('pendaftaran') || lowerText.includes('mrs') || lowerText.includes('krs') || lowerText.includes('tanggal lahir');
 
     for (let line of lines) {
       line = line.trim();
@@ -300,72 +371,124 @@ export default function RawatInap() {
       }
 
       // Check header matches
-      if (cols[0] === 'O' || cols[1]?.toLowerCase().includes('registrasi') || cols[1] === 'NO. REGISTRASI') {
-        headerSkipped = true;
+      const isHeader = cols[0]?.toLowerCase().includes('no') || 
+                       cols[1]?.toLowerCase().includes('registrasi') || 
+                       cols[1]?.toLowerCase().includes('pendaftaran') ||
+                       cols[1]?.toLowerCase().includes('reg') ||
+                       cols[2]?.toLowerCase().includes('rm') ||
+                       cols[3]?.toLowerCase().includes('nama');
+      if (isHeader) {
         continue;
       }
 
-      if (cols.length < 6) {
-        continue; // incomplete line schema
-      }
-
-      // Populate elements according to template column map
-      // O  NO. REGISTRASI  NO. RM  PASIEN  PELAKSANA  TINDAKAN NAMA  TINDAKAN TANGGAL  TINDAKAN JAM  JUMLAH  SARANA(Rp)  PELAYANAN(Rp)  MEDIS(Rp)  TINDAKAN BIAYA(Rp)  SUBTOTAL(Rp)
-      const idNo = cols[0];
-      const noReg = cols[1];
-      const noRmCode = cols[2];
-      const pName = cols[3];
-      const exec = cols[4];
-      const tName = cols[5];
-      const tTgl = cols[6] || '';
-      const tJam = cols[7] || '08:00:00';
-
       const cleanNum = (str: string) => {
         if (!str) return 0;
-        // Strip everything but digits
         const stripped = str.replace(/[^\d]/g, '');
         return Number(stripped) || 0;
       };
 
-      const qty = cleanNum(cols[8]) || 1;
-      const tSarana = cleanNum(cols[9]);
-      const tPel = cleanNum(cols[10]);
-      const tMedis = cleanNum(cols[11]);
-      const tTarif = cleanNum(cols[12]);
-      const sub = cleanNum(cols[13]) || ((tTarif + tSarana + tPel + tMedis) * qty);
+      if (isNewFormat) {
+        // Handle custom format columns:
+        // No. | No. Pendaftaran | No. RM | Nama Pasien | Tanggal Lahir | Umur | Jenis Kelamin | Alamat | Kelurahan | Kecamatan | Kota | Nama Tindakan | Tanggal MRS | Tanggal KRS | Unit | Jumlah
+        if (cols.length < 12) {
+          continue; // incomplete line schema
+        }
 
-      // Date parsed DD-MM-YYYY to YYYY-MM-DD
-      let formattedDate = tTgl;
-      if (tTgl.includes('-') || tTgl.includes('/')) {
-        const parts = tTgl.split(/[-/]/);
-        if (parts.length === 3) {
-          const d = parts[0].padStart(2, '0');
-          const m = parts[1].padStart(2, '0');
-          const y = parts[2];
-          formattedDate = `${y}-${m}-${d}`;
+        const noReg = cols[1];
+        const noRmCode = cols[2];
+        const pName = cols[3];
+        const tBirth = cols[4] || '';
+        const tAge = cols[5] || '';
+        const tGender = cols[6] || '';
+        const tAddress = cols[7] || '';
+        const tKel = cols[8] || '';
+        const tKec = cols[9] || '';
+        const tKota = cols[10] || '';
+        const tName = cols[11];
+        const tMRS = cols[12] || '';
+        const tKRS = cols[13] || '';
+        const tUnit = cols[14] || 'Poli Umum';
+        const qty_str = cols[15] || '1';
+
+        const qty = cleanNum(qty_str) || 1;
+        const formattedDate = parseIndoDate(tMRS);
+
+        // Put descriptive patient info in tindakan_keterangan so it is saved and shown transparently
+        const descriptionParts = [];
+        if (tBirth) descriptionParts.push(`Tgl Lahir: ${tBirth}`);
+        if (tAge) descriptionParts.push(`Umur: ${tAge}`);
+        if (tGender) descriptionParts.push(`JK: ${tGender}`);
+        if (tAddress || tKel || tKec || tKota) {
+          descriptionParts.push(`Alamat: ${[tAddress, tKel, tKec, tKota].filter(Boolean).join(', ')}`);
+        }
+        if (tKRS) descriptionParts.push(`Tanggal KRS: ${tKRS}`);
+        const tKet = descriptionParts.join(' | ');
+
+        if (noReg && pName && tName) {
+          tempActions.push({
+            no_registrasi: noReg,
+            no_rm: noRmCode,
+            nama_pasien: pName,
+            tanggal_pelayanan: formattedDate,
+            dpjp: 'Dokter Penanggung Jawab',
+            tindakan_nama: tName,
+            tindakan_keterangan: tKet,
+            tindakan_tanggal: formattedDate,
+            tindakan_jam: '08:00:00',
+            tarif_tindakan: 0,
+            tarif_sarana: 0,
+            tarif_pelayanan: 0,
+            tarif_medis: 0,
+            jumlah: qty,
+            subtotal: 0,
+            kamar: tUnit
+          });
         }
       } else {
-        formattedDate = new Date().toISOString().split('T')[0];
-      }
+        // Handle original format columns:
+        // O | NO. REGISTRASI | NO. RM | PASIEN | PELAKSANA | TINDAKAN NAMA | TINDAKAN TANGGAL | TINDAKAN JAM | JUMLAH | SARANA(Rp) | PELAYANAN(Rp) | MEDIS(Rp) | TINDAKAN BIAYA(Rp) | SUBTOTAL(Rp)
+        if (cols.length < 6) {
+          continue; // incomplete line schema
+        }
 
-      if (noReg && pName && tName) {
-        tempActions.push({
-          no_registrasi: noReg,
-          no_rm: noRmCode,
-          nama_pasien: pName,
-          tanggal_pelayanan: formattedDate,
-          pelaksana: exec,
-          tindakan_nama: tName,
-          tindakan_keterangan: '',
-          tindakan_tanggal: formattedDate,
-          tindakan_jam: tJam,
-          tarif_tindakan: tTarif,
-          tarif_sarana: tSarana,
-          tarif_pelayanan: tPel,
-          tarif_medis: tMedis,
-          jumlah: qty,
-          subtotal: sub
-        });
+        const idNo = cols[0];
+        const noReg = cols[1];
+        const noRmCode = cols[2];
+        const pName = cols[3];
+        const exec = cols[4];
+        const tName = cols[5];
+        const tTgl = cols[6] || '';
+        const tJam = cols[7] || '08:00:00';
+
+        const qty = cleanNum(cols[8]) || 1;
+        const tSarana = cleanNum(cols[9]);
+        const tPel = cleanNum(cols[10]);
+        const tMedis = cleanNum(cols[11]);
+        const tTarif = cleanNum(cols[12]);
+        const sub = cleanNum(cols[13]) || ((tTarif + tSarana + tPel + tMedis) * qty);
+
+        const formattedDate = parseIndoDate(tTgl);
+
+        if (noReg && pName && tName) {
+          tempActions.push({
+            no_registrasi: noReg,
+            no_rm: noRmCode,
+            nama_pasien: pName,
+            tanggal_pelayanan: formattedDate,
+            dpjp: exec,
+            tindakan_nama: tName,
+            tindakan_keterangan: '',
+            tindakan_tanggal: formattedDate,
+            tindakan_jam: tJam,
+            tarif_tindakan: tTarif,
+            tarif_sarana: tSarana,
+            tarif_pelayanan: tPel,
+            tarif_medis: tMedis,
+            jumlah: qty,
+            subtotal: sub,
+            kamar: 'Kamar Sinta'
+          });
+        }
       }
     }
 
@@ -374,20 +497,32 @@ export default function RawatInap() {
     for (const act of tempActions) {
       const key = act.no_registrasi;
       if (!groupedMap[key]) {
+        let parsedKamar = act.kamar || 'Kamar Sinta';
+        const cleanKamar = parsedKamar.trim().toLowerCase();
+        if (cleanKamar.includes('sinta')) {
+          parsedKamar = 'Kamar Sinta';
+        } else if (cleanKamar.includes('rama')) {
+          parsedKamar = 'Kamar Rama';
+        } else if (cleanKamar.includes('yudistira')) {
+          parsedKamar = 'Kamar Yudistira';
+        } else {
+          parsedKamar = 'Kamar Sinta';
+        }
+
         groupedMap[key] = {
           no_registrasi: act.no_registrasi,
           no_rm: act.no_rm,
           nama_pasien: act.nama_pasien,
           tanggal_pelayanan: act.tanggal_pelayanan,
           triase: 'hijau',
-          kamar: 'Flamboyan 1',
+          dpjp: act.dpjp,
+          kamar: parsedKamar,
           icd_masuk: '',
           icd_pulang: '',
           tindakan: []
         };
       }
       groupedMap[key].tindakan.push({
-        pelaksana: act.pelaksana,
         tindakan_nama: act.tindakan_nama,
         tindakan_keterangan: act.tindakan_keterangan,
         tindakan_tanggal: act.tindakan_tanggal,
@@ -418,7 +553,7 @@ export default function RawatInap() {
     try {
       for (const group of parsedData) {
         // Post current group to ranap service endpoint
-        await api.post('/api/pelayanan/ranap', group);
+        await api.post('/pelayanan/ranap', group);
         successCount++;
       }
       showFeedback('success', `Berhasil memasukkan ${successCount} data kunjungan rawat inap secara total.`);
@@ -453,7 +588,7 @@ export default function RawatInap() {
         rec.nama_pasien.toLowerCase().includes(q) ||
         rec.no_registrasi.toLowerCase().includes(q) ||
         rec.no_rm.toLowerCase().includes(q) ||
-        rec.tindakan.some((t: any) => t.tindakan_nama.toLowerCase().includes(q) || t.pelaksana.toLowerCase().includes(q)) ||
+        rec.tindakan.some((t: any) => t.tindakan_nama.toLowerCase().includes(q)) ||
         (rec.icd_masuk && rec.icd_masuk.toLowerCase().includes(q)) ||
         (rec.icd_pulang && rec.icd_pulang.toLowerCase().includes(q))
       );
@@ -561,7 +696,7 @@ export default function RawatInap() {
     setManualTindakan([
       ...manualTindakan,
       {
-        pelaksana: '',
+        dpjp: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -617,15 +752,16 @@ export default function RawatInap() {
       icd_masuk: icdMasuk || null,
       icd_pulang: icdPulang || null,
       kamar,
+      dpjp,
       tindakan: manualTindakan
     };
 
     try {
       if (isEditMode && editTargetId) {
-        await api.put(`/api/pelayanan/ranap/${editTargetId}`, body);
+        await api.put(`/pelayanan/ranap/${editTargetId}`, body);
         showFeedback('success', 'Data kunjungan ranap berhasil diperbarui.');
       } else {
-        await api.post('/api/pelayanan/ranap', body);
+        await api.post('/pelayanan/ranap', body);
         showFeedback('success', 'Pendaftaran Rawat Inap berhasil disimpan.');
       }
       setIsManualModalOpen(false);
@@ -724,7 +860,7 @@ export default function RawatInap() {
           {activeTab === 'statistik' && (
             <div className="space-y-6">
               {/* Infographics Cards Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
@@ -772,28 +908,7 @@ export default function RawatInap() {
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
                 </motion.div>
 
-                {/* 3. Pendapatan Pelayanan */}
-                <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <DollarSign className="h-6 w-6" />
-                    </div>
-                    <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full">
-                      Omset
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display leading-tight">
-                      Rp {totalIncome.toLocaleString('id-ID')}
-                    </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Akumulasi Tarif Semua Tindakan Ranap</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
-                </motion.div>
+
 
                 {/* 4. Kamar Teraktif */}
                 <motion.div 
@@ -1201,6 +1316,9 @@ export default function RawatInap() {
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 border border-teal-100 text-teal-700">
                                   {rec.kamar}
                                 </span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200 text-slate-600">
+                                  DPJP: {rec.dpjp || '-'}
+                                </span>
                               </div>
                               <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px] text-slate-400 font-mono">
                                 <span className="font-black text-slate-600">Reg: {rec.no_registrasi}</span>
@@ -1239,8 +1357,8 @@ export default function RawatInap() {
 
                             {/* Total bill count */}
                             <div className="text-right">
-                              <span className="text-[9.5px] text-slate-400 uppercase tracking-wider font-extrabold block leading-none">Subtotal Tagihan</span>
-                              <span className="text-xs font-mono font-extrabold text-slate-800">Rp {costTotal.toLocaleString('id-ID')}</span>
+                              <span className="text-[9.5px] text-slate-400 uppercase tracking-wider font-extrabold block leading-none">Jumlah Tindakan</span>
+                              <span className="text-xs font-sans font-extrabold text-slate-800">{rec.tindakan.length} Tindakan</span>
                             </div>
 
                             <div className="flex items-center space-x-1 border-l border-slate-100 pl-3">
@@ -1282,35 +1400,29 @@ export default function RawatInap() {
                               exit={{ opacity: 0, height: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="mt-3.5 bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 font-sans space-y-2 text-xs">
-                                <div className="border-b border-slate-200/50 pb-2 flex justify-between text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+                              <div className="mt-3.5 px-4 py-3 border-t border-slate-200">
+                                <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5 mb-3">
                                   <span>Tindakan Medis Ranap ({rec.tindakan.length})</span>
-                                  <span>Nominal</span>
-                                </div>
-                                <div className="divide-y divide-slate-150/50">
+                                </h4>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                   {rec.tindakan.map((t, tIdx) => (
-                                    <div key={tIdx} className="py-2.5 flex flex-col md:flex-row md:items-center justify-between gap-1">
-                                      <div className="space-y-0.5">
-                                        <div className="flex items-center space-x-2">
-                                          <span className="font-extrabold text-slate-750 font-display">{t.tindakan_nama}</span>
-                                          <span className="text-[10px] text-slate-400 font-medium">x{t.jumlah}</span>
+                                    <div key={tIdx} className="bg-white p-4.5 rounded-2xl border border-slate-150 shadow-xxs flex flex-col justify-between space-y-4">
+                                      {/* Header */}
+                                      <div>
+                                        <div className="flex items-start justify-between">
+                                          <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
+                                            {t.tindakan_nama}
+                                          </h5>
+                                          <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                            x{t.jumlah}
+                                          </span>
                                         </div>
-                                        <p className="text-[11px] text-slate-500">
-                                          Oleh: <strong className="font-semibold text-slate-700">{t.pelaksana || '-'}</strong> • Ket: {t.tindakan_keterangan || 'tidak ada catatan'}
+                                        <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                          <Clock className="h-3 w-3 inline-block" />
+                                          <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
                                         </p>
-                                        <div className="text-[9.5px] font-mono text-slate-400 mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
-                                          <span>Sarana: Rp {t.tarif_sarana?.toLocaleString('id-ID')}</span>
-                                          <span>|</span>
-                                          <span>Pelayanan: Rp {t.tarif_pelayanan?.toLocaleString('id-ID')}</span>
-                                          <span>|</span>
-                                          <span>Medis: Rp {t.tarif_medis?.toLocaleString('id-ID')}</span>
-                                          <span>|</span>
-                                          <span>Biaya: Rp {t.tarif_tindakan?.toLocaleString('id-ID')}</span>
-                                        </div>
                                       </div>
-                                      <span className="font-mono text-slate-800 font-extrabold text-xs self-start md:self-center">
-                                        Rp {t.subtotal.toLocaleString('id-ID')}
-                                      </span>
                                     </div>
                                   ))}
                                 </div>
@@ -1352,21 +1464,21 @@ export default function RawatInap() {
           {activeTab === 'input' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Text Area Input Card */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div>
                   <span className="text-[9px] bg-slate-100 border border-slate-200 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2 font-black">Impor Data Hasil Salinan Excel</h3>
-                  <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini sesuai pola kolom rawat inap.</p>
+                  <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini sesuai pola kolom rawat inap (mendukung format pendaftaran & Unit).</p>
                 </div>
 
                 <div className="space-y-3">
                   <textarea
                     rows={8}
-                    placeholder={`O\tNO. REGISTRASI\tNO. RM\tPASIEN\tPELAKSANA\tTINDAKAN NAMA\tTINDAKAN TANGGAL\tTINDAKAN JAM\tJUMLAH\tSARANA (Rp)\tPELAYANAN (Rp)\tMEDIS (Rp)\tTINDAKAN BIAYA (Rp)\tSUBTOTAL (Rp)\n1\tRI01062026-00001\t002462\tINDAH SARASWATI\tDea Oktarika\tMAKANAN PASIEN KELAS II\t01-06-2026\t11:27:52\t1\t90.000\t0\t0\t90.000\t90.000`}
+                    placeholder={`Contoh Format Kolom Excel:\nNo.\tNo. Pendaftaran\tNo. RM\tNama Pasien\tTanggal Lahir\tUmur\tJenis Kelamin\tAlamat\tKelurahan\tKecamatan\tKota\tNama Tindakan\tTanggal MRS\tTanggal KRS\tUnit\tJumlah\n1\tRJ19062026-00001\t002576\tADIS SHANDRA RACHMAZANI\t13 April 2001\t25 Tahun\tPerempuan\tAddress\tKel\tKec\tKota\tHOMECARE PERAWAT\t19 Juni 2026\t19 Juni 2026\tPOLI UMUM\t1`}
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
                     className="w-full p-4 bg-slate-50 border border-slate-200 text-slate-755 font-mono leading-relaxed rounded-2xl focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 focus:outline-none"
-                    style={{ fontSize: '12px', fontWeight: 'normal' }}
+                    style={{ fontSize: '11px', fontWeight: 'normal' }}
                     disabled={submitting}
                   />
 
@@ -1433,19 +1545,36 @@ export default function RawatInap() {
                           </div>
 
                           {/* Extra Inputs: Room/Kamar Bed Code, ICD-10 admission/discharge */}
-                          <div className="grid grid-cols-3 gap-2 border-t border-slate-200/40 pt-2 text-[10px]">
+                          <div className="grid grid-cols-4 gap-2 border-t border-slate-200/40 pt-2 text-[10px]">
                             <div>
-                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
+                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
                               <input
                                 type="text"
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none"
-                                value={p.kamar || ''}
+                                value={p.dpjp || ''}
+                                placeholder="Nama Dokter"
+                                onChange={(e) => {
+                                  const newData = [...parsedData];
+                                  newData[idx].dpjp = e.target.value;
+                                  setParsedData(newData);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
+                              <select
+                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none"
+                                value={p.kamar || 'Kamar Sinta'}
                                 onChange={(e) => {
                                   const newData = [...parsedData];
                                   newData[idx].kamar = e.target.value;
                                   setParsedData(newData);
                                 }}
-                              />
+                              >
+                                <option value="Kamar Sinta">Kamar Sinta</option>
+                                <option value="Kamar Rama">Kamar Rama</option>
+                                <option value="Kamar Yudistira">Kamar Yudistira</option>
+                              </select>
                             </div>
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Masuk (ICD)</label>
@@ -1488,7 +1617,7 @@ export default function RawatInap() {
                             {p.tindakan.map((t: any, tIdx: number) => (
                               <div key={tIdx} className="flex justify-between">
                                 <span className="truncate max-w-[15rem]">• {t.tindakan_nama}</span>
-                                <span className="font-mono text-slate-800">Rp {t.subtotal.toLocaleString('id-ID')}</span>
+                                <span className="font-mono text-slate-400">x{t.jumlah || 1}</span>
                               </div>
                             ))}
                           </div>
@@ -1542,7 +1671,7 @@ export default function RawatInap() {
               <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-wider text-teal-400">Formulir Rawat Inap (Ranap)</h3>
-                  <p className="text-[10.5px] text-slate-400 font-medium">{isEditMode ? 'Ubah rincian resep pelayanan inap' : 'Daftarkan rujukan pelayanan inap baru secara manual'}</p>
+                  <p className="text-xs text-slate-400 font-medium">{isEditMode ? 'Ubah rincian resep pelayanan inap' : 'Daftarkan rujukan pelayanan inap baru secara manual'}</p>
                 </div>
                 <button
                   onClick={() => setIsManualModalOpen(false)}
@@ -1556,7 +1685,7 @@ export default function RawatInap() {
                 {/* 1. Kunjungan Level Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi (Auto-Generate)</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi (Auto-Generate)</label>
                     <input
                       type="text"
                       required
@@ -1567,19 +1696,21 @@ export default function RawatInap() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Kamar Bed Inap</label>
-                    <input
-                      type="text"
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Kamar Bed Inap</label>
+                    <select
                       required
-                      placeholder="Contoh: Bougenville 3, Flamboyan 1"
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                       value={kamar}
                       onChange={(e) => setKamar(e.target.value)}
-                    />
+                    >
+                      <option value="Kamar Sinta">Kamar Sinta</option>
+                      <option value="Kamar Rama">Kamar Rama</option>
+                      <option value="Kamar Yudistira">Kamar Yudistira</option>
+                    </select>
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
                     <input
                       type="text"
                       required
@@ -1591,7 +1722,7 @@ export default function RawatInap() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
                     <input
                       type="text"
                       required
@@ -1603,7 +1734,7 @@ export default function RawatInap() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan Masuk</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan Masuk</label>
                     <input
                       type="date"
                       required
@@ -1614,7 +1745,7 @@ export default function RawatInap() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
                     <select
                       value={triase}
                       onChange={(e) => setTriase(e.target.value)}
@@ -1626,10 +1757,24 @@ export default function RawatInap() {
                       <option value="hitam">Hitam - Meninggal</option>
                     </select>
                   </div>
+                  <div>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                    <select
+                      required
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      value={dpjp}
+                      onChange={(e) => setDpjp(e.target.value)}
+                    >
+                      <option value="">-- Pilih Dokter --</option>
+                      {dokterList.map(d => (
+                        <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+                      ))}
+                    </select>
+                  </div>
 
                   {/* DOUBLE DIAGNOSIS INPUT COLS */}
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Diagnosa Masuk (ICD-10)</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosa Masuk (ICD-10)</label>
                     <select
                       value={icdMasuk}
                       onChange={(e) => setIcdMasuk(e.target.value)}
@@ -1643,7 +1788,7 @@ export default function RawatInap() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Diagnosa Pulang (ICD-10)</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosa Pulang (ICD-10)</label>
                     <select
                       value={icdPulang}
                       onChange={(e) => setIcdPulang(e.target.value)}
@@ -1660,13 +1805,13 @@ export default function RawatInap() {
                 {/* 2. Tindakan Detail Child List row loop */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <h4 className="text-[11px] font-black uppercase text-teal-600 tracking-wide">Rincian Tindakan Pelayanan Bed</h4>
+                    <h4 className="text-xs font-black uppercase text-teal-600 tracking-wide">Rincian Tindakan Pelayanan Bed</h4>
                     <button
                       type="button"
                       onClick={addTindakanField}
-                      className="inline-flex items-center space-x-1 text-teal-600 hover:text-teal-700 font-extrabold uppercase text-[10px] cursor-pointer"
+                      className="inline-flex items-center space-x-1 text-teal-600 hover:text-teal-700 font-extrabold uppercase text-xs cursor-pointer"
                     >
-                      <Plus className="h-3 w-3" />
+                      <Plus className="h-4 w-4" />
                       <span>Tambah Tindakan</span>
                     </button>
                   </div>
@@ -1680,96 +1825,37 @@ export default function RawatInap() {
                             onClick={() => removeTindakanField(idx)}
                             className="absolute top-2 right-2 text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-4 w-4" />
                           </button>
                         )}
 
-                        <span className="text-[9px] bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded font-black uppercase w-max tracking-wider">
+                        <span className="text-xs bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded font-black uppercase w-max tracking-wider">
                           Tindakan Medis #{idx + 1}
                         </span>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Nama Layanan / Tindakan</label>
+                            <label className="block text-xs text-slate-500 font-extrabold uppercase tracking-wider">Nama Layanan / Tindakan</label>
                             <input
                               type="text"
                               required
                               placeholder="Masukkan nama tindakan"
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
+                              className="mt-1.5 w-full px-3 py-2 bg-white border border-slate-200 rounded-xl outline-none text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
                               value={t.tindakan_nama}
                               onChange={(e) => updateTindakanField(idx, 'tindakan_nama', e.target.value)}
                             />
                           </div>
 
                           <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Medis / Pelaksana</label>
-                            <input
-                              type="text"
-                              required
-                              placeholder="Contoh: Dr. Herman, Amd.Kep"
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
-                              value={t.pelaksana}
-                              onChange={(e) => updateTindakanField(idx, 'pelaksana', e.target.value)}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Cost structures array */}
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                          <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Jasa Tindakan (Rp)</label>
-                            <input
-                              type="number"
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
-                              value={t.tarif_tindakan === 0 ? '' : t.tarif_tindakan}
-                              onChange={(e) => updateTindakanField(idx, 'tarif_tindakan', e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Jasa Sarana (Rp)</label>
-                            <input
-                              type="number"
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
-                              value={t.tarif_sarana === 0 ? '' : t.tarif_sarana}
-                              onChange={(e) => updateTindakanField(idx, 'tarif_sarana', e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Jasa Pelayanan (Rp)</label>
-                            <input
-                              type="number"
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
-                              value={t.tarif_pelayanan === 0 ? '' : t.tarif_pelayanan}
-                              onChange={(e) => updateTindakanField(idx, 'tarif_pelayanan', e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Medis (Rp)</label>
-                            <input
-                              type="number"
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
-                              value={t.tarif_medis === 0 ? '' : t.tarif_medis}
-                              onChange={(e) => updateTindakanField(idx, 'tarif_medis', e.target.value)}
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-slate-400 font-extrabold uppercase">Jumlah (Qty)</label>
+                            <label className="block text-xs text-slate-500 font-extrabold uppercase tracking-wider">Jumlah (Qty)</label>
                             <input
                               type="number"
                               required
-                              className="mt-1 w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg outline-none"
+                              className="mt-1.5 w-full px-3 py-2 bg-white border border-slate-200 rounded-xl outline-none text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none font-mono"
                               value={t.jumlah}
                               onChange={(e) => updateTindakanField(idx, 'jumlah', e.target.value)}
                             />
                           </div>
-                        </div>
-
-                        {/* Calculated total summary */}
-                        <div className="flex justify-between items-center bg-slate-100 px-3 py-2 border rounded-xl font-mono text-[11px] font-bold text-slate-700">
-                          <span>Kalkulasi Subtotal Medis</span>
-                          <span className="text-teal-700">
-                            Rp {t.subtotal.toLocaleString('id-ID')}
-                          </span>
                         </div>
                       </div>
                     ))}

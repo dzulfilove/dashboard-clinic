@@ -39,11 +39,10 @@ import {
   Cell
 } from 'recharts';
 import api from '../../services/api.js';
-import { ICD10 } from '../../types.js';
+import { ICD10, TIPE_UNIT_RAWAT_JALAN } from '../../types.js';
 
 interface Tindakan {
   id?: number;
-  pelaksana: string;
   tindakan_nama: string;
   tindakan_keterangan: string;
   tindakan_tanggal: string;
@@ -65,9 +64,50 @@ interface OutpatientRecord {
   tindakan: Tindakan[];
   created_at?: string;
   triase?: string;
+  dpjp: string;
 }
 
 const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
+
+const formatTanggalIndo = (tanggalStr: string) => {
+  if (!tanggalStr) return '-';
+  try {
+    const rawDate = tanggalStr.includes('T') ? tanggalStr.split('T')[0] : tanggalStr;
+    const parts = rawDate.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return `${day} ${months[monthIndex]} ${year}`;
+      }
+    }
+    const d = new Date(tanggalStr);
+    if (!isNaN(d.getTime())) {
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+  } catch (e) {
+    console.warn('Gagal memformat tanggal:', e);
+  }
+  return tanggalStr;
+};
+
+const formatJamIndo = (jamStr: string) => {
+  if (!jamStr) return '-';
+  const parts = jamStr.split(':');
+  if (parts.length >= 2) {
+    return `${parts[0]}:${parts[1]}`;
+  }
+  return jamStr;
+};
 
 const getTriageStyle = (triase?: string) => {
   const normalized = String(triase || 'hijau').toLowerCase();
@@ -123,15 +163,16 @@ export default function RawatJalan() {
   const [triase, setTriase] = useState('hijau');
   const [unit, setUnit] = useState('Poli Umum');
   const [unitFilter, setUnitFilter] = useState('all');
+  const [dpjp, setDpjp] = useState('');
   const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
   const [icdList, setIcdList] = useState<ICD10[]>([]);
+  const [dokterList, setDokterList] = useState<any[]>([]);
   const [icdKode, setIcdKode] = useState('');
   const [bulkUnit, setBulkUnit] = useState('');
   const [manualTindakan, setManualTindakan] = useState<Tindakan[]>([
     {
-      pelaksana: '',
       tindakan_nama: '',
       tindakan_keterangan: '',
       tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -174,7 +215,16 @@ export default function RawatJalan() {
         console.error(err);
       }
     };
+    const fetchDokter = async () => {
+      try {
+        const res = await api.get('/dokter');
+        setDokterList(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     fetchIcd();
+    fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
 
@@ -202,7 +252,6 @@ export default function RawatJalan() {
     setManualTindakan([
       ...manualTindakan,
       {
-        pelaksana: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: tanggalPelayanan,
@@ -240,6 +289,7 @@ export default function RawatJalan() {
           triase: triase,
           unit: unit,
           icd_kode: icdKode,
+          dpjp: dpjp,
           tindakan: manualTindakan
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil diperbarui.`);
@@ -252,6 +302,7 @@ export default function RawatJalan() {
           triase: triase,
           unit: unit,
           icd_kode: icdKode,
+          dpjp: dpjp,
           tindakan: manualTindakan
         });
         showFeedback('success', 'Data pendaftaran rawat jalan berhasil diregistrasi.');
@@ -276,9 +327,9 @@ export default function RawatJalan() {
     setTriase('hijau');
     setUnit('Poli Umum');
     setIcdKode('');
+    setDpjp('');
     setManualTindakan([
       {
-        pelaksana: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -303,10 +354,10 @@ export default function RawatJalan() {
     setTanggalPelayanan(rec.tanggal_pelayanan);
     setTriase(rec.triase || 'hijau');
     setUnit(rec.unit || 'Poli Umum');
+    setDpjp(rec.dpjp || '');
     
     // map tindakan
     setManualTindakan(rec.tindakan.map((t: any) => ({
-      pelaksana: t.pelaksana,
       tindakan_nama: t.tindakan_nama,
       tindakan_keterangan: t.tindakan_keterangan || '',
       tindakan_tanggal: t.tindakan_tanggal,
@@ -347,6 +398,86 @@ export default function RawatJalan() {
     
     let headerSkipped = false;
 
+    // Indonesian month helper
+    const parseIndoDate = (dateStr: string) => {
+      if (!dateStr) return new Date().toISOString().split('T')[0];
+      const cleaned = dateStr.trim().toLowerCase();
+      
+      // Try simple DD-MM-YYYY or YYYY-MM-DD
+      if (cleaned.includes('-') || cleaned.includes('/')) {
+        const parts = cleaned.split(/[-/]/);
+        if (parts.length === 3) {
+          if (parts[2].length === 4) {
+            // DD-MM-YYYY
+            const d = parts[0].padStart(2, '0');
+            const m = parts[1].padStart(2, '0');
+            const y = parts[2];
+            return `${y}-${m}-${d}`;
+          } else if (parts[0].length === 4) {
+            // YYYY-MM-DD
+            return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+          }
+        }
+      }
+
+      const months: { [key: string]: string } = {
+        januari: '01', pebruari: '02', febuari: '02', februari: '02', maret: '03',
+        april: '04', mei: '05', juni: '06', juli: '07', agustus: '08',
+        september: '09', oktober: '10', nopember: '11', november: '11', desember: '12',
+        jan: '01', feb: '02', mar: '03', apr: '04', mei_short: '05', jun: '06',
+        jul: '07', agu: '08', ags: '08', sep: '09', okt: '10', nov: '11', des: '12'
+      };
+
+      const parts = cleaned.split(/\s+/);
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const monthWord = parts[1];
+        const year = parts[2];
+        const monthNum = months[monthWord] || '01';
+        return `${year}-${monthNum}-${day}`;
+      }
+
+      return dateStr.trim() || new Date().toISOString().split('T')[0];
+    };
+
+    const matchUnit = (unitStr: string): string => {
+      if (!unitStr) return 'PL003 (POLI UMUM)';
+      const cleaned = unitStr.toUpperCase().trim();
+      
+      // Direct substring or match lookup in TIPE_UNIT_RAWAT_JALAN
+      const found = TIPE_UNIT_RAWAT_JALAN.find(u => 
+        u.toUpperCase() === cleaned ||
+        u.toUpperCase().includes(cleaned) || 
+        cleaned.includes(u.toUpperCase()) ||
+        u.toUpperCase().replace(/[^A-Z0-9]/g, '').includes(cleaned.replace(/[^A-Z0-9]/g, '')) ||
+        cleaned.replace(/[^A-Z0-9]/g, '').includes(u.toUpperCase().replace(/[^A-Z0-9]/g, ''))
+      );
+
+      if (found) return found;
+
+      // Common Indonesian aliases mapping
+      if (cleaned.includes('POLI UMUM') || cleaned === 'UMUM') return 'PL003 (POLI UMUM)';
+      if (cleaned.includes('POLI ANAK') || cleaned === 'ANAK') return 'PL001 (POLI ANAK)';
+      if (cleaned.includes('POLI THT') || cleaned === 'THT') return 'PL002 (POLI THT)';
+      if (cleaned.includes('POLI OBGYN') || cleaned.includes('KANDUNGAN') || cleaned === 'OBGYN') return 'PL006 (POLI OBGYN)';
+      if (cleaned.includes('POLI MATA') || cleaned === 'MATA') return 'MT (POLI MATA)';
+      if (cleaned.includes('POLI PENYAKIT DALAM') || cleaned === 'DALAM' || cleaned.includes('INTERNA')) return 'PPD (POLI PENYAKIT DALAM)';
+      if (cleaned.includes('POLI PARU') || cleaned === 'PARU') return 'PR (POLI PARU)';
+      if (cleaned.includes('POLI GIGI') || cleaned.includes('GIGI DAN MULUT')) return 'GGM (POLI GIGI DAN MULUT)';
+      if (cleaned.includes('FISIOTERAPI') || cleaned.includes('REHABILITASI')) return 'PL004 (POLI FISIOTERAPI)';
+      if (cleaned.includes('SARAF') || cleaned.includes('NEUROLOGI')) return 'SARAF (POLI SARAF)';
+      if (cleaned.includes('JANTUNG') || cleaned.includes('KARDIO')) return 'JPD (POLI JANTUNG DAN PEMBULUH DARAH)';
+      if (cleaned.includes('UROLOGI')) return 'URO (POLI UROLOGI)';
+      if (cleaned.includes('BEDAH UMUM')) return 'BU (POLI BEDAH UMUM)';
+      if (cleaned.includes('ORTOPEDI')) return 'ORT (POLI ORTOPEDI)';
+      if (cleaned.includes('HOMECARE') || cleaned.includes('HC')) return 'HC (HOMECARE)';
+      if (cleaned.includes('IGD')) return 'IGD';
+      if (cleaned.includes('RAWAT INAP') || cleaned.includes('RANAP') || cleaned.includes('IRI')) return 'IRI (RAWAT INAP)';
+      if (cleaned.includes('LABORATORIUM') || cleaned.includes('LAB')) return 'LABORATORIUM';
+      
+      return 'PL003 (POLI UMUM)';
+    };
+
     for (let line of lines) {
       line = line.trim();
       if (!line) continue;
@@ -360,7 +491,10 @@ export default function RawatJalan() {
       }
 
       // Check header matches
-      if (cols[0] === 'NO' || cols[1]?.toLowerCase().includes('registrasi') || cols[1] === 'NO. REGISTRASI') {
+      if (
+        cols[0]?.toLowerCase().includes('no') && 
+        (cols[1]?.toLowerCase().includes('pendaftaran') || cols[1]?.toLowerCase().includes('registrasi') || cols[1]?.toLowerCase().includes('reg'))
+      ) {
         headerSkipped = true;
         continue;
       }
@@ -369,46 +503,61 @@ export default function RawatJalan() {
         continue; // incomplete line schema
       }
 
-      // Populate elements
-      const idNo = cols[0];
-      const noReg = cols[1];
-      const noRmCode = cols[2];
-      const pName = cols[3];
-      const exec = cols[4];
-      const tName = cols[5];
-      const tKet = cols[6] || '';
-      const tTgl = cols[7] || '';
-      const tJam = cols[8] || '08:00:00';
+      // Populate elements dynamically based on columns count
+      let noReg = "";
+      let noRmCode = "";
+      let pName = "";
+      let exec = "Petugas Medis";
+      let tName = "";
+      let tKet = "";
+      let tTgl = "";
+      let tJam = "08:00:00";
+      let tTarif = 0;
+      let tSarana = 0;
+      let tPel = 0;
+      let tMedis = 0;
+      let qty = 1;
+      let parsedUnit = "PL003 (POLI UMUM)";
 
-      // Cleaner
       const cleanNum = (str: string) => {
         if (!str) return 0;
-        // Strip everything but digits
         const stripped = str.replace(/[^\d]/g, '');
         return Number(stripped) || 0;
       };
 
-      const tTarif = cleanNum(cols[9]);
-      const tSarana = cleanNum(cols[10]);
-      const tPel = cleanNum(cols[11]);
-      const tMedis = cleanNum(cols[12]);
-      const qty = cleanNum(cols[13]) || 1;
-      const sub = cleanNum(cols[14]) || (tTarif * qty);
-
-      // Date parsed DD-MM-YYYY to YYYY-MM-DD
-      let formattedDate = tTgl;
-      if (tTgl.includes('-') || tTgl.includes('/')) {
-        const parts = tTgl.split(/[-/]/);
-        if (parts.length === 3) {
-          const d = parts[0].padStart(2, '0');
-          const m = parts[1].padStart(2, '0');
-          const y = parts[2];
-          formattedDate = `${y}-${m}-${d}`;
-        }
+      if (cols.length >= 15) {
+        // New standard 16-columns format
+        noReg = cols[1];
+        noRmCode = cols[2];
+        pName = cols[3];
+        tName = cols[11]; // Nama Tindakan
+        tTgl = cols[12] || ''; // Tanggal MRS
+        parsedUnit = matchUnit(cols[14]); // Unit
+        qty = cols[15] ? cleanNum(cols[15]) || 1 : 1;
+        tKet = [
+          cols[7] ? `Alamat: ${cols[7]}` : '',
+          cols[5] ? `Umur: ${cols[5]}` : '',
+          cols[6] ? `JK: ${cols[6]}` : ''
+        ].filter(Boolean).join(' • ');
       } else {
-        // Fallback default date
-        formattedDate = new Date().toISOString().split('T')[0];
+        // Old format mapping
+        noReg = cols[1];
+        noRmCode = cols[2];
+        pName = cols[3];
+        exec = cols[4];
+        tName = cols[5];
+        tKet = cols[6] || '';
+        tTgl = cols[7] || '';
+        tJam = cols[8] || '08:00:00';
+
+        tTarif = cleanNum(cols[9]);
+        tSarana = cleanNum(cols[10]);
+        tPel = cleanNum(cols[11]);
+        tMedis = cleanNum(cols[12]);
+        qty = cleanNum(cols[13]) || 1;
       }
+
+      const formattedDate = parseIndoDate(tTgl);
 
       if (noReg && pName && tName) {
         tempActions.push({
@@ -426,7 +575,8 @@ export default function RawatJalan() {
           tarif_pelayanan: tPel,
           tarif_medis: tMedis,
           jumlah: qty,
-          subtotal: sub
+          subtotal: 0,
+          unit: parsedUnit
         });
       }
     }
@@ -441,6 +591,7 @@ export default function RawatJalan() {
           no_rm: act.no_rm,
           nama_pasien: act.nama_pasien,
           tanggal_pelayanan: act.tanggal_pelayanan,
+          unit: act.unit,
           tindakan: []
         };
       }
@@ -472,7 +623,8 @@ export default function RawatJalan() {
 
   const handleBulkInsert = async () => {
     if (parsedData.length === 0) return;
-    if (!bulkUnit) {
+    const allHaveUnit = parsedData.every(p => p.unit);
+    if (!bulkUnit && !allHaveUnit) {
       showFeedback('error', 'Silakan pilih unit pelayanan terlebih dahulu sebelum menyimpan.');
       return;
     }
@@ -487,7 +639,7 @@ export default function RawatJalan() {
           nama_pasien: p.nama_pasien,
           tanggal_pelayanan: p.tanggal_pelayanan,
           triase: p.triase || 'hijau',
-          unit: bulkUnit,
+          unit: p.unit || bulkUnit,
           tindakan: p.tindakan
         });
         successCount++;
@@ -565,7 +717,7 @@ export default function RawatJalan() {
 
   // Group procedure counts
   const procedureMap: { [key: string]: number } = {};
-  const pelaksanaMap: { [key: string]: number } = {};
+  const dpjpMap: { [key: string]: number } = {};
   const dateMap: { [key: string]: { kunjungan: number; pendapatan: number } } = {};
 
   safeRecords.forEach(r => {
@@ -573,20 +725,23 @@ export default function RawatJalan() {
     if (!dateMap[dStr]) dateMap[dStr] = { kunjungan: 0, pendapatan: 0 };
     dateMap[dStr].kunjungan += 1;
 
+    if (r.dpjp) {
+      dpjpMap[r.dpjp] = (dpjpMap[r.dpjp] || 0) + 1;
+    }
+
     r.tindakan.forEach(t => {
       procedureMap[t.tindakan_nama] = (procedureMap[t.tindakan_nama] || 0) + 1;
-      pelaksanaMap[t.pelaksana] = (pelaksanaMap[t.pelaksana] || 0) + 1;
       dateMap[dStr].pendapatan += t.subtotal;
     });
   });
 
   // Most Active Clinic Performer
-  let topPerformer = '-';
-  let topPerformerCount = 0;
-  Object.entries(pelaksanaMap).forEach(([name, count]) => {
-    if (count > topPerformerCount) {
-      topPerformer = name;
-      topPerformerCount = count;
+  let topDPJP = '-';
+  let topDPJPCount = 0;
+  Object.entries(dpjpMap).forEach(([name, count]) => {
+    if (count > topDPJPCount) {
+      topDPJP = name;
+      topDPJPCount = count;
     }
   });
 
@@ -693,7 +848,7 @@ export default function RawatJalan() {
           {activeTab === 'statistik' && (
             <div className="space-y-6">
               {/* Core metrics bento boxes */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
@@ -741,30 +896,9 @@ export default function RawatJalan() {
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
                 </motion.div>
 
-                {/* 3. Pendapatan Pelayanan */}
-                <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <DollarSign className="h-6 w-6" />
-                    </div>
-                    <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full">
-                      Omset
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display leading-tight">
-                      Rp {totalIncome.toLocaleString('id-ID')}
-                    </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Akumulasi Tarif Semua Tindakan</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
-                </motion.div>
 
-                {/* 4. Pratik Teraktif */}
+
+                {/* 4. DPJP Teraktif */}
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
@@ -775,15 +909,15 @@ export default function RawatJalan() {
                       <TrendingUp className="h-6 w-6 text-amber-600" />
                     </div>
                     <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
-                      Aktif
+                      DPJP
                     </span>
                   </div>
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold text-slate-900 tracking-tight font-display truncate leading-tight uppercase">
-                      {topPerformer}
+                      {topDPJP}
                     </h3>
                     <p className="text-xxs font-mono text-amber-600 font-bold mt-1">
-                      {topPerformerCount} Prosedur
+                      {topDPJPCount} Kunjungan
                     </p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
@@ -820,6 +954,35 @@ export default function RawatJalan() {
                       </ResponsiveContainer>
                     )}
                   </div>
+
+                  {/* Additional Procedures Filter Section */}
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <h4 className="text-xs font-bold text-slate-750 uppercase tracking-wider">Daftar Semua Tindakan ({allTreatmentData.length})</h4>
+                      {procedureFilter && (
+                        <button 
+                          onClick={() => setProcedureFilter(null)}
+                          className="text-[10px] text-teal-600 hover:text-teal-700 font-extrabold uppercase tracking-wide cursor-pointer"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[220px] overflow-y-auto pr-1">
+                      {allTreatmentData.map((item, idx) => (
+                         <div 
+                           key={idx} 
+                           className={`p-2.5 rounded-xl cursor-pointer text-xs flex justify-between items-center transition-all border ${procedureFilter === item.name ? 'bg-teal-50 border-teal-200 text-teal-900 font-bold' : 'bg-slate-50/50 hover:bg-slate-100 border-slate-150/40 text-slate-700 hover:text-slate-900'}`}
+                           onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
+                         >
+                           <span className="truncate pr-1.5">{item.name}</span>
+                           <span className="font-extrabold text-[11px] text-slate-800 bg-white border border-slate-200 shadow-3xs px-2 py-0.5 rounded-lg shrink-0">
+                             {item.count}
+                           </span>
+                         </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Chart 2: Top 5 Procedures */}
@@ -855,12 +1018,12 @@ export default function RawatJalan() {
                   </div>
 
                   {/* Legends */}
-                  <div className="space-y-1.5 max-h-[120px] overflow-y-auto">
+                  <div className="space-y-1.5 max-h-[180px] overflow-y-auto">
                     {chartTreatmentData.map((item, idx) => (
                       <div 
                         key={idx} 
                         className={`flex items-center justify-between text-[11px] font-medium text-slate-650 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
-                        onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
+                        onClick={() => setProcedureFilter(procedureFilter === item.name ? item.name : null)}
                       >
                         <div className="flex items-center space-x-2 truncate max-w-[12rem]">
                           <span className="h-2 w-2 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
@@ -869,23 +1032,6 @@ export default function RawatJalan() {
                         <span className="font-bold text-slate-800">{item.count} tindakan</span>
                       </div>
                     ))}
-                  </div>
-                  
-                  {/* Additional Procedures Filter Section */}
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <h4 className="text-xs font-bold text-slate-700 mb-2">Semua Tindakan:</h4>
-                    <div className="max-h-[200px] overflow-y-auto space-y-1">
-                      {allTreatmentData.map((item, idx) => (
-                         <div 
-                           key={idx} 
-                           className={`p-2 rounded-lg cursor-pointer text-xs flex justify-between items-center ${procedureFilter === item.name ? 'bg-teal-100 text-teal-900' : 'hover:bg-slate-100'}`}
-                           onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
-                         >
-                           <span className="truncate">{item.name}</span>
-                           <span className="font-bold">{item.count}</span>
-                         </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1090,13 +1236,9 @@ export default function RawatJalan() {
                     className="pl-4 pr-8 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
                   >
                     <option value="all">Semua Unit</option>
-                    <option value="Poli Umum">Poli Umum</option>
-                    <option value="Poli Gigi">Poli Gigi</option>
-                    <option value="Poli KIA (Ibu & Anak)">Poli KIA (Ibu & Anak)</option>
-                    <option value="Poli Anak">Poli Anak</option>
-                    <option value="Poli Spesialis">Poli Spesialis</option>
-                    <option value="IGD (Gawat Darurat)">IGD (Gawat Darurat)</option>
-                    <option value="Unit Penunjang">Unit Penunjang</option>
+                    {TIPE_UNIT_RAWAT_JALAN.map(unit => (
+                        <option key={unit} value={unit}>{unit}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -1137,9 +1279,9 @@ export default function RawatJalan() {
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Unit Pelayanan</th>
+                          <th className="px-6 py-4.5">DPJP</th>
                           <th className="px-6 py-4.5">Tanggal Kunjungan</th>
                           <th className="px-6 py-4.5 text-center">Jumlah Tindakan</th>
-                          <th className="px-6 py-4.5 text-right">Subtotal Biaya</th>
                           <th className="px-6 py-4.5 text-center">Aksi</th>
                         </tr>
                       </thead>
@@ -1180,6 +1322,11 @@ export default function RawatJalan() {
                                     {rec.unit || 'Poli Umum'}
                                   </span>
                                 </td>
+                                <td className="px-6 py-4.5">
+                                  <span className="text-[11px] font-medium text-slate-700">
+                                    {rec.dpjp || '-'}
+                                  </span>
+                                </td>
                                 <td className="px-6 py-4.5 font-normal text-slate-650">
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </td>
@@ -1187,9 +1334,6 @@ export default function RawatJalan() {
                                   <span className="inline-flex items-center px-2.5 py-1 text-xxs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
                                     {rec.tindakan.length} Tindakan
                                   </span>
-                                </td>
-                                <td className="px-6 py-4.5 text-right font-semibold text-slate-900 font-mono">
-                                  Rp {totalCost.toLocaleString('id-ID')}
                                 </td>
                                 <td className="px-6 py-4.5">
                                   <div className="flex items-center justify-center space-x-1.5">
@@ -1248,42 +1392,8 @@ export default function RawatJalan() {
                                               </div>
                                               <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
                                                 <Clock className="h-3 w-3 inline-block" />
-                                                <span>{t.tindakan_tanggal} pukul {t.tindakan_jam}</span>
+                                                <span>{formatTanggalIndo(t.tindakan_tanggal)} pukul {formatJamIndo(t.tindakan_jam)}</span>
                                               </p>
-                                            </div>
-
-                                            {/* Details cost */}
-                                            <div className="bg-slate-50 p-2.5 rounded-xl space-y-1 text-slate-500 text-[10px] font-semibold">
-                                              <div className="flex justify-between">
-                                                <span>Tarif Tindakan:</span>
-                                                <span className="font-mono">Rp {(t.tarif_tindakan).toLocaleString('id-ID')}</span>
-                                              </div>
-                                              <div className="flex justify-between">
-                                                <span>Tarif Sarana:</span>
-                                                <span className="font-mono">Rp {(t.tarif_sarana).toLocaleString('id-ID')}</span>
-                                              </div>
-                                              <div className="flex justify-between col">
-                                                <span>Tarif Pelayanan:</span>
-                                                <span className="font-mono">Rp {(t.tarif_pelayanan).toLocaleString('id-ID')}</span>
-                                              </div>
-                                              {t.tarif_medis > 0 && (
-                                                <div className="flex justify-between col">
-                                                  <span>Tarif Jasa Medis:</span>
-                                                  <span className="font-mono text-emerald-600">Rp {(t.tarif_medis).toLocaleString('id-ID')}</span>
-                                                </div>
-                                              )}
-                                            </div>
-
-                                            {/* Footer row */}
-                                            <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-[10px]">
-                                              <div>
-                                                <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Pelaksana Medis</span>
-                                                <span className="font-extrabold text-teal-750">{t.pelaksana || 'Petugas Medis'}</span>
-                                              </div>
-                                              <div className="text-right">
-                                                <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Subtotal</span>
-                                                <span className="font-black text-slate-900 text-xs font-mono">Rp {t.subtotal.toLocaleString('id-ID')}</span>
-                                              </div>
                                             </div>
                                           </div>
                                         ))}
@@ -1413,12 +1523,23 @@ export default function RawatJalan() {
                       {parsedData.map((p, idx) => (
                         <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-2">
                           <div className="flex justify-between items-start">
-                            <div>
+                            <div className="flex-1">
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
                               <span className="text-[10px] text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex flex-col items-end space-y-1">
                                 <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+                                <input
+                                    type="text"
+                                    className="text-[10px] font-bold border rounded-lg p-1 bg-white w-24"
+                                    value={p.dpjp || ''}
+                                    placeholder="DPJP"
+                                    onChange={(e) => {
+                                        const newData = [...parsedData];
+                                        newData[idx].dpjp = e.target.value;
+                                        setParsedData(newData);
+                                    }}
+                                />
                                 <select 
                                     className="text-[10px] font-bold border rounded-lg p-1 bg-white"
                                     value={p.triase || 'hijau'}
@@ -1441,7 +1562,7 @@ export default function RawatJalan() {
                             {p.tindakan.map((t: any, tIdx: number) => (
                               <div key={tIdx} className="flex justify-between">
                                 <span className="truncate max-w-[15rem]">• {t.tindakan_nama}</span>
-                                <span className="font-mono text-slate-800">Rp {t.subtotal.toLocaleString('id-ID')}</span>
+                                <span className="font-mono text-slate-400">x{t.jumlah || 1}</span>
                               </div>
                             ))}
                           </div>
@@ -1459,13 +1580,9 @@ export default function RawatJalan() {
                           required
                         >
                           <option value="" disabled>-- Pilih Unit --</option>
-                          <option value="Poli Umum">Poli Umum</option>
-                          <option value="Poli Gigi">Poli Gigi</option>
-                          <option value="Poli KIA (Ibu & Anak)">Poli KIA (Ibu & Anak)</option>
-                          <option value="Poli Anak">Poli Anak</option>
-                          <option value="Poli Spesialis">Poli Spesialis</option>
-                          <option value="IGD (Gawat Darurat)">IGD (Gawat Darurat)</option>
-                          <option value="Unit Penunjang">Unit Penunjang</option>
+                          {TIPE_UNIT_RAWAT_JALAN.map(unit => (
+                              <option key={unit} value={unit}>{unit}</option>
+                          ))}
                         </select>
                       </div>
 
@@ -1501,37 +1618,39 @@ export default function RawatJalan() {
 
           {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
           {isManualModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white w-full max-w-4xl rounded-3xl border border-slate-150 shadow-2xl overflow-hidden my-8 flex flex-col max-h-[90vh]"
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
               >
                 {/* Modal Header */}
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/75">
+                <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 font-display">
-                      {isEditMode ? 'Form Koreksi Pelayanan Rawat Jalan' : 'Form Registrasi Pelayanan Rawat Jalan'}
+                    <h3 className="text-sm font-black uppercase tracking-wider text-teal-400">
+                      {isEditMode ? 'Formulir Koreksi Rawat Jalan (Rajal)' : 'Formulir Registrasi Rawat Jalan (Rajal)'}
                     </h3>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Input detail data kunjungan beserta rincian tarif tindakan</p>
+                    <p className="text-xs text-slate-400 font-medium">Input detail data kunjungan beserta rincian tarif tindakan secara manual</p>
                   </div>
                   <button
                     onClick={resetManualForm}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
 
                 {/* Modal Form Scrollable Wrapper */}
-                <form onSubmit={handleManualSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+                <form onSubmit={handleManualSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 text-xs text-slate-650">
                   {/* Section A: Demography */}
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">A. Identitas & Demutasi Kunjungan</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div className="space-y-4">
+                    <div className="border-b border-slate-100 pb-2">
+                      <h4 className="text-xs font-black uppercase text-teal-600 tracking-wide">Identitas & Demutasi Kunjungan</h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
                         <input
                           type="text"
                           placeholder="Contoh: RJ16062026-00001"
@@ -1544,31 +1663,31 @@ export default function RawatJalan() {
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
                         <input
                           type="text"
                           placeholder="Contoh: 002502"
                           value={noRm}
                           onChange={(e) => setNoRm(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
                         <input
                           type="text"
                           placeholder="Contoh: MADE YULIANA"
                           value={namaPasien}
                           onChange={(e) => setNamaPasien(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white uppercase"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
                         <input
                           type="date"
                           value={tanggalPelayanan}
@@ -1577,22 +1696,24 @@ export default function RawatJalan() {
                           required
                         />
                       </div>
+
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Triase</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
                         <select
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           required
                         >
-                          <option value="hijau">Hijau</option>
-                          <option value="kuning">Kuning</option>
-                          <option value="hitam">Hitam</option>
-                          <option value="merah">Merah</option>
+                          <option value="hijau">Hijau - Non Darurat</option>
+                          <option value="kuning">Kuning - Darurat</option>
+                          <option value="hitam">Hitam - Meninggal</option>
+                          <option value="merah">Merah - Gawat Darurat</option>
                         </select>
                       </div>
+
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan</label>
                         <select
                           value={unit}
                           onChange={(e) => setUnit(e.target.value)}
@@ -1600,17 +1721,29 @@ export default function RawatJalan() {
                           required
                         >
                           <option value="" disabled>-- Pilih Unit --</option>
-                          <option value="Poli Umum">Poli Umum</option>
-                          <option value="Poli Gigi">Poli Gigi</option>
-                          <option value="Poli KIA (Ibu & Anak)">Poli KIA (Ibu & Anak)</option>
-                          <option value="Poli Anak">Poli Anak</option>
-                          <option value="Poli Spesialis">Poli Spesialis</option>
-                          <option value="IGD (Gawat Darurat)">IGD (Gawat Darurat)</option>
-                          <option value="Unit Penunjang">Unit Penunjang</option>
+                          {TIPE_UNIT_RAWAT_JALAN.map(unit => (
+                              <option key={unit} value={unit}>{unit}</option>
+                          ))}
                         </select>
                       </div>
+
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Diagnosis (ICD-10)</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                        <select
+                          value={dpjp}
+                          onChange={(e) => setDpjp(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        >
+                          <option value="">-- Pilih Dokter --</option>
+                          {dokterList.map(d => (
+                            <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosis (ICD-10)</label>
                         <select
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
@@ -1627,69 +1760,55 @@ export default function RawatJalan() {
                   {/* Section B: Actions list */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">B. Daftar Tindakan Medikasi & Jasa Pelaksana</h4>
+                      <h4 className="text-xs font-black uppercase text-teal-600 tracking-wide">Rincian Tindakan Pelayanan Bed</h4>
                       <button
                         type="button"
                         onClick={addManualTindakanRow}
-                        className="inline-flex items-center space-x-1.5 text-xxs font-extrabold bg-teal-50 border border-teal-150 text-teal-700 px-2.5 py-1.5 rounded-lg hover:bg-teal-100 transition-all cursor-pointer"
+                        className="inline-flex items-center space-x-1 text-teal-600 hover:text-teal-700 font-extrabold uppercase text-xs cursor-pointer"
                       >
-                        <Plus className="h-3.5 w-3.5" />
+                        <Plus className="h-4 w-4" />
                         <span>Tambah Tindakan</span>
                       </button>
                     </div>
 
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                       {manualTindakan.map((t, index) => (
-                        <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-200/80 relative space-y-3">
+                        <div key={index} className="bg-slate-50 p-4 rounded-2xl border border-slate-150 flex flex-col space-y-3 relative font-sans">
                           {/* Remove button */}
                           {manualTindakan.length > 1 && (
                             <button
                               type="button"
                               onClick={() => removeManualTindakanRow(index)}
-                              className="absolute top-3 right-3 text-rose-500 hover:text-rose-700 p-1 bg-white hover:bg-rose-50 border border-slate-200/50 rounded-lg transition-all"
-                              title="Hapus baris ini"
+                              className="absolute top-2 right-2 text-slate-404 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Hapus tindakan ini"
                             >
-                              <X className="h-3.5 w-3.5" />
+                              <X className="h-4 w-4" />
                             </button>
                           )}
 
-                          <span className="text-[10px] text-teal-700 font-extrabold uppercase block tracking-wider">Tindakan #{index + 1}</span>
+                          <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 border border-teal-100 px-2.5 py-1 rounded w-fit uppercase">
+                            Tindakan #{index + 1}
+                          </span>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Nama Tindakan</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Nama Layanan/Tindakan</label>
                               <input
                                 type="text"
-                                placeholder="KONSULTASI DOKTER / INJEKSI"
+                                placeholder="Masukkan nama tindakan (e.g., Konsultasi Dokter)"
                                 value={t.tindakan_nama}
                                 onChange={(e) => {
                                   const updated = [...manualTindakan];
                                   updated[index].tindakan_nama = e.target.value;
                                   setManualTindakan(updated);
                                 }}
-                                className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 required
                               />
                             </div>
 
                             <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Petugas Pelaksana</label>
-                              <input
-                                type="text"
-                                placeholder="dr. Muhammad Jundi Nasrullah"
-                                value={t.pelaksana}
-                                onChange={(e) => {
-                                  const updated = [...manualTindakan];
-                                  updated[index].pelaksana = e.target.value;
-                                  setManualTindakan(updated);
-                                }}
-                                className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Keterangan Tambahan</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Keterangan Tambahan</label>
                               <input
                                 type="text"
                                 placeholder="Opsional"
@@ -1699,76 +1818,19 @@ export default function RawatJalan() {
                                   updated[index].tindakan_keterangan = e.target.value;
                                   setManualTindakan(updated);
                                 }}
-                                className="mt-1 block w-full px-2.5 py-1.5 bg-white border border-slate-205 rounded-lg text-xs"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Cost Matrix breakdowns */}
-                          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
-                            <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Alat (Rp)</label>
-                              <input
-                                type="number"
-                                value={t.tarif_tindakan}
-                                onChange={(e) => updateTarifFields(index, 'tarif_tindakan', Number(e.target.value))}
-                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                                min={0}
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Sarana</label>
-                              <input
-                                type="number"
-                                value={t.tarif_sarana}
-                                onChange={(e) => updateTarifFields(index, 'tarif_sarana', Number(e.target.value))}
-                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                                min={0}
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Pelayanan</label>
-                              <input
-                                type="number"
-                                value={t.tarif_pelayanan}
-                                onChange={(e) => updateTarifFields(index, 'tarif_pelayanan', Number(e.target.value))}
-                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                                min={0}
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Tarif Medis</label>
-                              <input
-                                type="number"
-                                value={t.tarif_medis}
-                                onChange={(e) => updateTarifFields(index, 'tarif_medis', Number(e.target.value))}
-                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
-                                min={0}
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase">Jumlah (Qty)</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Jumlah (QTY)</label>
                               <input
                                 type="number"
                                 value={t.jumlah}
                                 onChange={(e) => updateTarifFields(index, 'jumlah', Number(e.target.value))}
-                                className="mt-1 block w-full px-2.5 py-1 bg-white border border-slate-205 rounded-lg text-xs font-mono"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-205 rounded-xl text-xs font-mono focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 min={1}
                                 required
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-[9px] font-bold text-slate-500 uppercase text-slate-400">Subtotal</label>
-                              <input
-                                type="text"
-                                value={`Rp ${t.subtotal.toLocaleString('id-ID')}`}
-                                className="mt-1 block w-full px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-lg text-xs font-mono font-black text-slate-700"
-                                disabled
                               />
                             </div>
                           </div>
@@ -1799,7 +1861,7 @@ export default function RawatJalan() {
                       ) : (
                         <>
                           <CheckCircle className="h-4 w-4" />
-                          <span>{isEditMode ? 'Simpan Koreksi' : 'Daftarkan Pelayanan'}</span>
+                          <span>{isEditMode ? 'Simpan Kunjungan' : 'Simpan Kunjungan'}</span>
                         </>
                       )}
                     </button>

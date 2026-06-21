@@ -54,6 +54,59 @@ const roleGuard = (allowedRoles: string[]) => {
   };
 };
 
+// Helper to extract role cleanly from Baserow multiple select or text fields
+function helperExtractRole(peranField: any, divisiField: any): string {
+  let rolesStr = '';
+  if (peranField) {
+    if (Array.isArray(peranField)) {
+      rolesStr = peranField.map((r: any) => {
+        if (r && typeof r === 'object') {
+          return r.value || r.name || JSON.stringify(r);
+        }
+        return String(r);
+      }).join(' ');
+    } else if (typeof peranField === 'string') {
+      rolesStr = peranField;
+    } else if (typeof peranField === 'object' && peranField !== null) {
+      rolesStr = peranField.value || peranField.name || JSON.stringify(peranField);
+    } else {
+      rolesStr = String(peranField);
+    }
+  }
+
+  let divStr = '';
+  if (divisiField) {
+    if (Array.isArray(divisiField)) {
+      divStr = divisiField.map((r: any) => {
+        if (r && typeof r === 'object') {
+          return r.value || r.name || JSON.stringify(r);
+        }
+        return String(r);
+      }).join(' ');
+    } else if (typeof divisiField === 'string') {
+      divStr = divisiField;
+    } else if (typeof divisiField === 'object' && divisiField !== null) {
+      divStr = divisiField.value || divisiField.name || JSON.stringify(divisiField);
+    } else {
+      divStr = String(divisiField);
+    }
+  }
+
+  const combined = (rolesStr + ' ' + divStr).trim().toLowerCase();
+
+  if (combined.includes('admin') || combined.includes('it') || combined.includes('developer') || combined.includes('owner')) {
+    return 'admin';
+  } else if (combined.includes('perawat')) {
+    return 'perawat';
+  } else if (combined.includes('analis') || combined.includes('analyst') || combined.includes('lab') || combined.includes('laboratorium')) {
+    return 'analis';
+  } else if (combined.includes('farmasi') || combined.includes('apotek') || combined.includes('apoteker')) {
+    return 'farmasi';
+  }
+
+  return rolesStr.trim().toLowerCase() || 'admin';
+}
+
 /* ==================== 1. DIAGNOSTIC SERVICES ==================== */
 
 app.get('/api/db/status', async (req, res) => {
@@ -196,21 +249,33 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
   try {
     // Fetch all rows from Baserow table 936
     const url = BASEROW_TABLE_URL;
-    const response = await axios.get(url, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Accept': 'application/json'
-      }
-    });
+    let userRow;
+    let usersFromVirtual: any[] = [];
+    let isVirtual = false;
 
-    const rows = response.data.results || [];
-    const userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
-
-    if (!userRow) {
-      return res.status(404).json({ message: 'Alamat email tidak terdaftar dalam database Baserow.' });
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Token ${BASEROW_API_TOKEN}`,
+          'Accept': 'application/json'
+        },
+        timeout: 5000
+      });
+      const rows = response.data.results || [];
+      userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
+    } catch (err: any) {
+      console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
+      isVirtual = true;
+      const vdb = readVirtualDb();
+      usersFromVirtual = vdb.users || [];
+      userRow = usersFromVirtual.find((u: any) => u.email && u.email.toLowerCase().trim() === email.toLowerCase().trim());
     }
 
-    const userName = userRow['Nama Karyawan'] || 'Karyawan Puri Medika';
+    if (!userRow) {
+      return res.status(404).json({ message: 'Alamat email tidak terdaftar.' });
+    }
+
+    const userName = userRow['Nama Karyawan'] || userRow.nama || 'Karyawan Puri Medika';
 
     // Generate a 6-digit random OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -218,17 +283,28 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     // Set OTP expiry to 10 minutes from now
     const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-    // Update Baserow row matching userRow.id
-    const patchUrl = `${BASEROW_BASE_URL}/${userRow.id}/?user_field_names=true`;
-    await axios.patch(patchUrl, {
-      'OTP 2': otp,
-      'OTP 2 Expired': expiry
-    }, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    if (!isVirtual) {
+       // Update Baserow row matching userRow.id
+       const patchUrl = `${BASEROW_BASE_URL}/${userRow.id}/?user_field_names=true`;
+       await axios.patch(patchUrl, {
+         'OTP 2': otp,
+         'OTP 2 Expired': expiry
+       }, {
+         headers: {
+           'Authorization': `Token ${BASEROW_API_TOKEN}`,
+           'Content-Type': 'application/json'
+         }
+       });
+    } else {
+       // Update virtual_db user
+       const vdb = readVirtualDb();
+       const uIdx = vdb.users.findIndex((u: any) => u.email === userRow.email);
+       if (uIdx !== -1) {
+         vdb.users[uIdx]['OTP_2'] = otp;
+         vdb.users[uIdx]['OTP_2_Expired'] = expiry;
+         writeVirtualDb(vdb);
+       }
+    }
 
     // Send the email via Nodemailer
     const emailRes = await sendOTPEmail(email.toLowerCase().trim(), otp, userName);
@@ -236,7 +312,7 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     res.json({
       success: true,
       message: emailRes.messageUrl 
-        ? `Kode OTP berhasil diperbarui di Baserow & dikirimkan ke email simulasi.`
+        ? `Kode OTP berhasil diperbarui & dikirimkan ke email simulasi.`
         : `Kode OTP berhasil dikirim ke email: ${email}`,
       debugOtp: otp, // still included for easy fallback testing/verification
       emailPreviewUrl: emailRes.messageUrl || null
@@ -265,22 +341,32 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
   try {
     // Fetch all rows from Baserow table 936
     const url = BASEROW_TABLE_URL;
-    const response = await axios.get(url, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Accept': 'application/json'
-      }
-    });
+    let userRow;
+    let isVirtual = false;
 
-    const rows = response.data.results || [];
-    const userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
+    try {
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Token ${BASEROW_API_TOKEN}`,
+          'Accept': 'application/json'
+        },
+        timeout: 5000
+      });
+      const rows = response.data.results || [];
+      userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
+    } catch (err: any) {
+      console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
+      isVirtual = true;
+      const vdb = readVirtualDb();
+      userRow = (vdb.users || []).find((u: any) => u.email && u.email.toLowerCase().trim() === email.toLowerCase().trim());
+    }
 
     if (!userRow) {
       return res.status(404).json({ message: 'User tidak ditemukan.' });
     }
 
-    const savedOtp = userRow['OTP 2'] ? String(userRow['OTP 2']).trim() : '';
-    const expiryStr = userRow['OTP 2 Expired'];
+    const savedOtp = (isVirtual ? userRow['OTP_2'] : userRow['OTP 2']) ? String(isVirtual ? userRow['OTP_2'] : userRow['OTP 2']).trim() : '';
+    const expiryStr = isVirtual ? userRow['OTP_2_Expired'] : userRow['OTP 2 Expired'];
 
     if (!savedOtp || savedOtp !== String(otp).trim()) {
       return res.status(401).json({ message: 'Kode OTP yang dimasukkan tidak cocok.' });
@@ -293,58 +379,15 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
       }
     }
 
-    // Use ID, Name, and Role entirely determined from the active Baserow row
+    // Use ID, Name, and Role entirely determined from the active row
     const localUserId = Number(userRow.id || 100 + Math.floor(Math.random() * 100));
-    const localUserName = userRow['Nama Karyawan'] || 'Karyawan Puri Medika';
-    let localUserRole = 'admin'; // default role
-
-    // Determine role by mapping row's 'Peran' column first, and falling back to Divisi if empty
-    let rolesStr = '';
-    if (userRow.Peran) {
-      if (typeof userRow.Peran === 'string') {
-        rolesStr = userRow.Peran;
-      } else if (typeof userRow.Peran === 'object') {
-        rolesStr = userRow.Peran.value || userRow.Peran.name || JSON.stringify(userRow.Peran);
-      } else {
-        rolesStr = String(userRow.Peran);
-      }
-    }
-
-    rolesStr = rolesStr.trim().toLowerCase();
-
-    if (rolesStr) {
-      if (rolesStr.includes('admin')) {
-        localUserRole = 'admin';
-      } else if (rolesStr.includes('perawat')) {
-        localUserRole = 'perawat';
-      } else if (rolesStr.includes('analis') || rolesStr.includes('analyst')) {
-        localUserRole = 'analis';
-      } else if (rolesStr.includes('farmasi') || rolesStr.includes('apotek') || rolesStr.includes('apoteker')) {
-        localUserRole = 'farmasi';
-      } else {
-        localUserRole = rolesStr;
-      }
-    } else {
-      // Determine role by mapping row's Divisi field robustly
-      let divStr = '';
-      if (userRow.Divisi) {
-        if (typeof userRow.Divisi === 'string') {
-          divStr = userRow.Divisi;
-        } else if (typeof userRow.Divisi === 'object') {
-          divStr = userRow.Divisi.value || userRow.Divisi.name || JSON.stringify(userRow.Divisi);
-        } else {
-          divStr = String(userRow.Divisi);
-        }
-      }
-      const div = divStr.toLowerCase();
-      if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
-        localUserRole = 'admin';
-      } else if (div.includes('lab') || div.includes('laboratorium') || div.includes('analis') || div.includes('perawat')) {
-        localUserRole = 'analis';
-      } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
-        localUserRole = 'farmasi';
-      }
-    }
+    const localUserName = userRow['Nama Karyawan'] || userRow.nama || 'Karyawan Puri Medika';
+    
+    // Determine role cleanly using helper
+    const localUserRole = helperExtractRole(
+      isVirtual ? userRow.role : userRow.Peran,
+      isVirtual ? '' : userRow.Divisi
+    );
 
     // Sign JWT
     const token = jwt.sign(
@@ -353,17 +396,27 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
       { expiresIn: '24h' }
     );
 
-    // Optional: clear OTP in Baserow to make it single-use
-    const patchUrl = `${BASEROW_BASE_URL}/${userRow.id}/?user_field_names=true`;
-    await axios.patch(patchUrl, {
-      'OTP 2': '',
-      'OTP 2 Expired': null
-    }, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    }).catch((e: any) => console.warn('Failed to clean OTP 2 in Baserow:', e.message));
+    // Optional: clear OTP in Baserow/VDB to make it single-use
+    if (!isVirtual) {
+       const patchUrl = `${BASEROW_BASE_URL}/${userRow.id}/?user_field_names=true`;
+       await axios.patch(patchUrl, {
+         'OTP 2': '',
+         'OTP 2 Expired': null
+       }, {
+         headers: {
+           'Authorization': `Token ${BASEROW_API_TOKEN}`,
+           'Content-Type': 'application/json'
+         }
+       }).catch((e: any) => console.warn('Failed to clean OTP 2 in Baserow:', e.message));
+    } else {
+       const vdb = readVirtualDb();
+       const uIdx = vdb.users.findIndex((u: any) => u.email === userRow.email);
+       if (uIdx !== -1) {
+         vdb.users[uIdx]['OTP_2'] = '';
+         vdb.users[uIdx]['OTP_2_Expired'] = null;
+         writeVirtualDb(vdb);
+       }
+    }
 
     res.json({
       token,
@@ -635,14 +688,14 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
 
   try {
     const regs = await db.query(`
-      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit, r.icd_kode
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit, r.icd_kode, r.dpjp
       FROM registrasi_rawat_jalan r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
       WHERE r.tanggal_pelayanan BETWEEN ? AND ?
     `, [start, end]);
     
     const actions = await db.query(`
-      SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
+      SELECT t.registrasi_id, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
              t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal
       FROM tindakan_rawat_jalan t
       JOIN master_tindakan m ON t.tindakan_id = m.id
@@ -680,7 +733,7 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
 
 // Create new outpatient record with bulk tindakan actions
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, tindakan } = req.body;
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, dpjp, tindakan } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
     return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
@@ -693,11 +746,27 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
       await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
     }
     
-    // 2. Insert Registrasi
-    const regResult = await db.query(
-      'INSERT INTO registrasi_rawat_jalan (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit) VALUES (?, ?, ?, ?, ?)',
-      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum']
-    );
+    // 2. Insert or Update Registrasi
+    let regResult: any;
+    const existingReg: any = await db.query('SELECT id FROM registrasi_rawat_jalan WHERE no_registrasi = ?', [no_registrasi]);
+    
+    if (existingReg && existingReg.length > 0) {
+      const regId = existingReg[0].id;
+      await db.query(
+        'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ?, dpjp = ? WHERE id = ?',
+        [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', dpjp || null, regId]
+      );
+      
+      // Delete old tindakan records
+      await db.query('DELETE FROM tindakan_rawat_jalan WHERE registrasi_id = ?', [regId]);
+      
+      regResult = { insertId: regId };
+    } else {
+      regResult = await db.query(
+        'INSERT INTO registrasi_rawat_jalan (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit, dpjp) VALUES (?, ?, ?, ?, ?, ?)',
+        [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', dpjp || null]
+      );
+    }
     const regId = regResult.insertId;
 
     // 3. Insert Tindakan
@@ -714,17 +783,14 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
         }
 
         await db.query(
-          'INSERT INTO tindakan_rawat_jalan (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [regId, tid, t.pelaksana, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          'INSERT INTO tindakan_rawat_jalan (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [regId, tid, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
 
     res.json({ success: true, message: 'Data berhasil didaftarkan.', regId });
   } catch (err: any) {
-    if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate entry')) {
-      return res.status(400).json({ message: `No. Registrasi "${no_registrasi}" sudah terdaftar di database.` });
-    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -779,6 +845,53 @@ app.delete('/api/master-tindakan/:id', authenticateToken, roleGuard(['admin']), 
   }
 });
 
+// Master Data Dokter
+app.get('/api/dokter', authenticateToken, async (req: any, res) => {
+  try {
+    const rows = await db.query('SELECT * FROM dokter ORDER BY nama_dokter ASC');
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/dokter', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  const { nama_dokter, spesialisasi, no_sip, status } = req.body;
+  try {
+    const result = await db.query(
+      'INSERT INTO dokter (nama_dokter, spesialisasi, no_sip, status) VALUES (?, ?, ?, ?)',
+      [nama_dokter, spesialisasi, no_sip, status || 'aktif']
+    );
+    res.json({ success: true, id: result.insertId });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  const { id } = req.params;
+  const { nama_dokter, spesialisasi, no_sip, status } = req.body;
+  try {
+    await db.query(
+      'UPDATE dokter SET nama_dokter = ?, spesialisasi = ?, no_sip = ?, status = ? WHERE id = ?',
+      [nama_dokter, spesialisasi, no_sip, status, Number(id)]
+    );
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM dokter WHERE id = ?', [Number(id)]);
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Master Data Pasien
 app.get('/api/pasien', authenticateToken, async (req: any, res) => {
   try {
@@ -823,7 +936,7 @@ app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async 
 // Update outpatient patient details & actions
 app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
-  const { no_rm, nama_pasien, tanggal_pelayanan, triase, unit, tindakan } = req.body;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, unit, dpjp, tindakan } = req.body;
 
   if (!no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
     return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
@@ -838,8 +951,8 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
     
     // 2. Update Registrasi
     await db.query(
-      'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ? WHERE id = ?',
-      [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', Number(id)]
+      'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ?, dpjp = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', dpjp || null, Number(id)]
     );
 
     // 3. Re-create child tindakan records to ensure clean relational master-detail status
@@ -858,8 +971,8 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
         }
 
         await db.query(
-          'INSERT INTO tindakan_rawat_jalan (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [Number(id), tid, t.pelaksana, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          'INSERT INTO tindakan_rawat_jalan (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [Number(id), tid, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -894,14 +1007,14 @@ app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
 
   try {
     const regs = await db.query(`
-      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode, r.dpjp
       FROM registrasi_igd r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
       WHERE r.tanggal_pelayanan BETWEEN ? AND ?
     `, [start, end]);
     
     const actions = await db.query(`
-      SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
+      SELECT t.registrasi_id, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
              t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal
       FROM tindakan_igd t
       JOIN master_tindakan m ON t.tindakan_id = m.id
@@ -939,7 +1052,7 @@ app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
 
 // Create new IGD record with bulk tindakan actions
 app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
@@ -952,11 +1065,27 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
       await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
     }
     
-    // 2. Insert Registrasi
-    const regResult = await db.query(
-      'INSERT INTO registrasi_igd (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase) VALUES (?, ?, ?, ?)',
-      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau']
-    );
+    // 2. Insert or Update Registrasi
+    let regResult: any;
+    const existingReg: any = await db.query('SELECT id FROM registrasi_igd WHERE no_registrasi = ?', [no_registrasi]);
+    
+    if (existingReg && existingReg.length > 0) {
+      const regId = existingReg[0].id;
+      await db.query(
+        'UPDATE registrasi_igd SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_kode = ?, dpjp = ? WHERE id = ?',
+        [no_rm, tanggal_pelayanan, triase || 'hijau', icd_kode || null, dpjp || null, regId]
+      );
+      
+      // Delete old tindakan records
+      await db.query('DELETE FROM tindakan_igd WHERE registrasi_id = ?', [regId]);
+      
+      regResult = { insertId: regId };
+    } else {
+      regResult = await db.query(
+        'INSERT INTO registrasi_igd (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_kode, dpjp) VALUES (?, ?, ?, ?, ?, ?)',
+        [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', icd_kode || null, dpjp || null]
+      );
+    }
     const regId = regResult.insertId;
 
     // 3. Insert Tindakan
@@ -966,24 +1095,21 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
         const existingTindakanList: any = await db.query('SELECT id FROM master_tindakan WHERE nama_tindakan = ?', [t.tindakan_nama]);
         let tid;
         if (existingTindakanList && existingTindakanList.length > 0) {
-            tid = existingTindakanList[0].id;
+          tid = existingTindakanList[0].id;
         } else {
-            const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [t.tindakan_nama, 'ralan']);
-            tid = tResult.insertId;
+          const tResult = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [t.tindakan_nama, 'ralan']);
+          tid = tResult.insertId;
         }
 
         await db.query(
-          'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [regId, tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [regId, tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
 
     res.json({ success: true, message: 'Data berhasil didaftarkan.', regId });
   } catch (err: any) {
-    if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate entry')) {
-      return res.status(400).json({ message: `No. Registrasi "${no_registrasi}" sudah terdaftar di database.` });
-    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -991,7 +1117,7 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
 // Update IGD patient details & actions
 app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
-  const { no_rm, nama_pasien, tanggal_pelayanan, triase, tindakan } = req.body;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan } = req.body;
 
   if (!no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
@@ -1006,8 +1132,8 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
     
     // 2. Update Registrasi
     await db.query(
-      'UPDATE registrasi_igd SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ? WHERE id = ?',
-      [no_rm, tanggal_pelayanan, triase || 'hijau', Number(id)]
+      'UPDATE registrasi_igd SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_kode = ?, dpjp = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', icd_kode || null, dpjp || null, Number(id)]
     );
 
     // 3. Re-create child tindakan records to ensure clean relational master-detail status
@@ -1026,8 +1152,8 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
         }
 
         await db.query(
-          'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [Number(id), tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [Number(id), tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -1057,19 +1183,18 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
 
   try {
     const registrations = await db.query(
-      'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ?',
+      'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ?',
       [start, end]
     );
 
     const actions = await db.query(
-      'SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_ranap t JOIN master_tindakan m ON t.tindakan_id = m.id'
+      'SELECT t.registrasi_id, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_ranap t JOIN master_tindakan m ON t.tindakan_id = m.id'
     );
 
     // Group actions by registrasi_id
     const actionsGrouped = actions.reduce((acc: any, act: any) => {
       if (!acc[act.registrasi_id]) acc[act.registrasi_id] = [];
       acc[act.registrasi_id].push({
-        pelaksana: act.pelaksana,
         tindakan_nama: act.nama_tindakan,
         tindakan_keterangan: act.tindakan_keterangan || '',
         tindakan_tanggal: act.tindakan_tanggal ? (typeof act.tindakan_tanggal === 'string' ? act.tindakan_tanggal.split('T')[0] : act.tindakan_tanggal) : '',
@@ -1104,7 +1229,7 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, tindakan } = req.body;
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
@@ -1117,11 +1242,27 @@ app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat
       await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
     }
     
-    // 2. Insert Registrasi
-    const regResult = await db.query(
-      'INSERT INTO registrasi_ranap (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '']
-    );
+    // 2. Insert or Update Registrasi
+    let regResult: any;
+    const existingReg: any = await db.query('SELECT id FROM registrasi_ranap WHERE no_registrasi = ?', [no_registrasi]);
+    
+    if (existingReg && existingReg.length > 0) {
+      const regId = existingReg[0].id;
+      await db.query(
+        'UPDATE registrasi_ranap SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_masuk = ?, icd_pulang = ?, kamar = ?, dpjp = ? WHERE id = ?',
+        [no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '', dpjp || null, regId]
+      );
+      
+      // Delete old tindakan records
+      await db.query('DELETE FROM tindakan_ranap WHERE registrasi_id = ?', [regId]);
+      
+      regResult = { insertId: regId };
+    } else {
+      regResult = await db.query(
+        'INSERT INTO registrasi_ranap (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '', dpjp || null]
+      );
+    }
     const regId = regResult.insertId;
 
     // 3. Insert Tindakan
@@ -1138,24 +1279,21 @@ app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat
         }
 
         await db.query(
-          'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [regId, tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [regId, tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
 
     res.json({ success: true, message: 'Data rawat inap berhasil didaftarkan.', regId });
   } catch (err: any) {
-    if (err.code === 'ER_DUP_ENTRY' || err.message?.includes('Duplicate entry')) {
-      return res.status(400).json({ message: `No. Registrasi "${no_registrasi}" sudah terdaftar di database.` });
-    }
     res.status(500).json({ message: err.message });
   }
 });
 
 app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
-  const { no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, tindakan } = req.body;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan } = req.body;
 
   if (!no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
@@ -1170,8 +1308,8 @@ app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'pera
     
     // 2. Update Registrasi
     await db.query(
-      'UPDATE registrasi_ranap SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_masuk = ?, icd_pulang = ?, kamar = ? WHERE id = ?',
-      [no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '', Number(id)]
+      'UPDATE registrasi_ranap SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_masuk = ?, icd_pulang = ?, kamar = ?, dpjp = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', icd_masuk || null, icd_pulang || null, kamar || '', dpjp || null, Number(id)]
     );
 
     // 3. Re-create actions
@@ -1190,8 +1328,8 @@ app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'pera
         }
 
         await db.query(
-          'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [Number(id), tid, t.pelaksana, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [Number(id), tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -1247,18 +1385,105 @@ app.put('/api/pelayanan/icd10/:id', authenticateToken, roleGuard(['admin']), asy
 
 /* ==================== 4. PHARMACY ENDPOINTS ==================== */
 
+async function fetchMedicinesWithStock(q?: string) {
+  const medicines = await db.query('SELECT * FROM obat_master WHERE is_active = 1');
+  
+  // Try retrieving harian logs, handle missing table safely
+  let harian: any[] = [];
+  try {
+    harian = await db.query('SELECT * FROM obat_konsumsi_harian') || [];
+  } catch (err) {
+    console.warn('Error reading harian logs:', err);
+  }
+
+  const results = medicines.map((m: any) => {
+    const saldo_tahun = m.saldo_awal_tahun ? Number(m.saldo_awal_tahun) : null;
+    const saldo_bulan = m.saldo_awal_bulan ? Number(m.saldo_awal_bulan) : null;
+    const saldo_nilai = Number(m.saldo_awal_nilai || 0);
+
+    let total_penerimaan = 0;
+    let total_pemakaian = 0;
+    let total_retur_hilang = 0;
+
+    if (saldo_tahun && saldo_bulan) {
+      const startingDateStr = `${saldo_tahun}-${String(saldo_bulan).padStart(2, '0')}-01`;
+      
+      const relevantLogs = harian.filter((h: any) => {
+        return h.obat_id === m.id && h.tanggal >= startingDateStr;
+      });
+
+      relevantLogs.forEach((h: any) => {
+        total_penerimaan += Number(h.penerimaan || 0);
+        total_pemakaian += Number(h.pemakaian || 0);
+        total_retur_hilang += Number(h.retur_hilang || 0);
+      });
+    }
+
+    const stok_akhir = (saldo_tahun && saldo_bulan)
+      ? (saldo_nilai + total_penerimaan - total_pemakaian - total_retur_hilang)
+      : 0;
+
+    return {
+      ...m,
+      saldo_awal_tahun: saldo_tahun,
+      saldo_awal_bulan: saldo_bulan,
+      saldo_awal_nilai: saldo_nilai,
+      total_penerimaan,
+      total_pemakaian,
+      total_retur_hilang,
+      stok_akhir
+    };
+  });
+
+  if (q) {
+    const qLower = q.toLowerCase();
+    return results.filter((o: any) =>
+      o.nama_obat.toLowerCase().includes(qLower) || o.kode_obat.toLowerCase().includes(qLower)
+    );
+  }
+
+  return results;
+}
+
 app.get('/api/obat/master', authenticateToken, async (req, res) => {
   const q = req.query.q ? String(req.query.q) : '';
   try {
-    const rows = await db.query('SELECT * FROM obat_master WHERE is_active = 1');
-    let resData = rows;
-    if (q) {
-      const qLower = q.toLowerCase();
-      resData = rows.filter((o: any) =>
-        o.nama_obat.toLowerCase().includes(qLower) || o.kode_obat.toLowerCase().includes(qLower)
+    const resData = await fetchMedicinesWithStock(q);
+    res.json(resData);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/obat/saldo-awal', authenticateToken, roleGuard(['admin', 'farmasi']), async (req: any, res) => {
+  const { obat_id, tahun, bulan, saldo_awal_nilai } = req.body;
+  if (!obat_id || !tahun || !bulan) {
+    return res.status(400).json({ message: 'Obat ID, Tahun, dan Bulan wajib diisi.' });
+  }
+
+  try {
+    const status = db.getDiagnosticStatus();
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      const idx = vdb.obat_master.findIndex(o => o.id === Number(obat_id));
+      if (idx !== -1) {
+        vdb.obat_master[idx] = {
+          ...vdb.obat_master[idx],
+          saldo_awal_tahun: Number(tahun),
+          saldo_awal_bulan: Number(bulan),
+          saldo_awal_nilai: Number(saldo_awal_nilai || 0)
+        };
+        writeVirtualDb(vdb);
+      } else {
+        return res.status(404).json({ message: 'Obat tidak ditemukan.' });
+      }
+    } else {
+      await db.query(
+        'UPDATE obat_master SET saldo_awal_tahun = ?, saldo_awal_bulan = ?, saldo_awal_nilai = ? WHERE id = ?',
+        [Number(tahun), Number(bulan), Number(saldo_awal_nilai || 0), Number(obat_id)]
       );
     }
-    res.json(resData);
+    res.json({ success: true, message: 'Saldo awal tahunan berhasil disimpan.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -1919,6 +2144,18 @@ app.get('/api/obat/forecast', authenticateToken, async (req, res) => {
 
     const forecasts = [];
 
+    // Find actual target month data if it exists to match ABC analysis exactly
+    const targetMonthLogs = allConsumption.filter((c: any) => c.bulan === bProj && c.tahun === tProj);
+    const hasTargetData = targetMonthLogs.length > 0;
+
+    // Check if we have consumption logs for the most recent historical month (M-1)
+    const m1 = prevMonths[0];
+    const m1Logs = allConsumption.filter((c: any) => c.bulan === m1.b && c.tahun === m1.t);
+    const hasM1Data = m1Logs.length > 0;
+
+    // We'll calculate an ABC valuation list to assign categories
+    const valuationList = [];
+
     for (const medicine of medicines) {
       const records = prevMonths.map(pm => {
         return allConsumption.find(
@@ -1957,6 +2194,26 @@ app.get('/api/obat/forecast', authenticateToken, async (req, res) => {
       const reorder_qty = total_kebutuhan + safety_stock;
       const status_stok = current_stock < reorder_qty ? 'Kritis (Perlu Order)' : 'Aman';
 
+      // Base pemakaian for ABC analysis (use target month logs if available to align with ABC analysis page)
+      let abcPemakaian = 0;
+      if (hasTargetData) {
+        const targetLog = targetMonthLogs.find((c: any) => c.obat_id === medicine.id);
+        abcPemakaian = targetLog ? Number(targetLog.pemakaian) : 0;
+      } else if (hasM1Data) {
+        const m1LogForDrug = m1Logs.find((c: any) => c.obat_id === medicine.id);
+        abcPemakaian = m1LogForDrug ? Number(m1LogForDrug.pemakaian) : 0;
+      } else {
+        abcPemakaian = pemakaian_3_bulan; // fallback to 3-month cumulative consumption
+      }
+
+      const hashPrice = Number(medicine.harga_satuan || 0);
+      const total_nilai = abcPemakaian * hashPrice;
+
+      valuationList.push({
+        id: medicine.id,
+        total_nilai
+      });
+
       forecasts.push({
         id: medicine.id,
         kode_obat: medicine.kode_obat,
@@ -1974,8 +2231,36 @@ app.get('/api/obat/forecast', authenticateToken, async (req, res) => {
         forecast_bulan_3,
         total_kebutuhan,
         stok_akhir,
-        qty_order
+        qty_order,
+        kelas_abc: 'C' // default placeholder
       });
+    }
+
+    // Sort valuation list to compute final Pareto/ABC classes
+    valuationList.sort((a, b) => b.total_nilai - a.total_nilai);
+    const grandTotalValue = valuationList.reduce((sum, item) => sum + item.total_nilai, 0);
+
+    let runningSum = 0;
+    const abcCategoriesMap = new Map();
+
+    for (const valItem of valuationList) {
+      runningSum += valItem.total_nilai;
+      const kumulatif_persen = grandTotalValue > 0 ? (runningSum / grandTotalValue) * 100 : 0;
+      
+      let klasifikasi = 'C';
+      if (kumulatif_persen <= 80 && valItem.total_nilai > 0) {
+        klasifikasi = 'A';
+      } else if (kumulatif_persen <= 95 && valItem.total_nilai > 0) {
+        klasifikasi = 'B';
+      }
+      abcCategoriesMap.set(valItem.id, klasifikasi);
+    }
+
+    // Update forecasts with calculated ABC class
+    for (const f of forecasts) {
+      if (f.id && abcCategoriesMap.has(f.id)) {
+        f.kelas_abc = abcCategoriesMap.get(f.id);
+      }
     }
 
     res.json(forecasts);
@@ -2026,17 +2311,19 @@ app.get('/api/obat/abc', authenticateToken, async (req, res) => {
     // 3. Compute total clinic drug spend for this period
     const grandTotalValue = list.reduce((sum: number, x: any) => sum + x.total_nilai, 0);
 
-    // 4. Calculate cumulative percentage & assign ABC category
+    // 4. Calculate cumulative percentage & assign ABC category (items with total_nilai <= 0 are strictly Class C)
     let runningSum = 0;
     const abcResult = list.map((item: any) => {
       runningSum += item.total_nilai;
       const kumulatif_persen = grandTotalValue > 0 ? (runningSum / grandTotalValue) * 100 : 0;
       
       let klasifikasi = 'C';
-      if (kumulatif_persen <= 80) {
-        klasifikasi = 'A';
-      } else if (kumulatif_persen <= 95) {
-        klasifikasi = 'B';
+      if (item.total_nilai > 0) {
+        if (kumulatif_persen <= 80) {
+          klasifikasi = 'A';
+        } else if (kumulatif_persen <= 95) {
+          klasifikasi = 'B';
+        }
       }
 
       return {
@@ -2126,50 +2413,18 @@ app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req,
     });
     const rows = response.data.results || [];
     const formattedUsers = rows.map((r: any) => {
-      let peranStr = '';
-      if (r.Peran) {
-        if (typeof r.Peran === 'string') {
-          peranStr = r.Peran;
-        } else if (typeof r.Peran === 'object') {
-          peranStr = r.Peran.value || r.Peran.name || JSON.stringify(r.Peran);
-        } else {
-          peranStr = String(r.Peran);
-        }
-      }
-      peranStr = peranStr.trim().toLowerCase();
-
+      const role = helperExtractRole(r.Peran, r.Divisi);
+      
       let divStr = '';
       if (r.Divisi) {
         if (typeof r.Divisi === 'string') {
           divStr = r.Divisi;
-        } else if (typeof r.Divisi === 'object') {
+        } else if (Array.isArray(r.Divisi)) {
+          divStr = r.Divisi.map((d: any) => (d && typeof d === 'object') ? (d.value || d.name) : String(d)).join(' ');
+        } else if (typeof r.Divisi === 'object' && r.Divisi !== null) {
           divStr = r.Divisi.value || r.Divisi.name || JSON.stringify(r.Divisi);
         } else {
           divStr = String(r.Divisi);
-        }
-      }
-
-      let role = 'admin';
-      if (peranStr) {
-        if (peranStr.includes('admin')) {
-          role = 'admin';
-        } else if (peranStr.includes('perawat')) {
-          role = 'perawat';
-        } else if (peranStr.includes('analis') || peranStr.includes('analyst')) {
-          role = 'analis';
-        } else if (peranStr.includes('farmasi') || peranStr.includes('apotek') || peranStr.includes('apoteker')) {
-          role = 'farmasi';
-        } else {
-          role = peranStr;
-        }
-      } else {
-        const div = divStr.toLowerCase();
-        if (div.includes('it') || div.includes('admin') || div.includes('it divisi') || div.includes('owner')) {
-          role = 'admin';
-        } else if (div.includes('lab') || div.includes('laboratorium') || div.includes('analis') || div.includes('perawat')) {
-          role = 'analis';
-        } else if (div.includes('farmasi') || div.includes('apotek') || div.includes('apoteker')) {
-          role = 'farmasi';
         }
       }
 

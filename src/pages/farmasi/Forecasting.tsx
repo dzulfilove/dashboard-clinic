@@ -9,7 +9,10 @@ import {
   CheckCircle,
   TrendingDown,
   ChevronRight,
-  Info
+  Info,
+  Search,
+  ArrowUpDown,
+  Filter
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { ForecastResult } from '../../types.js';
@@ -24,6 +27,11 @@ export default function Forecasting() {
   const d = new Date();
   const [projMonth, setProjMonth] = useState(d.getMonth() + 1); // Defaults to current month
   const [projYear, setProjYear] = useState(2026); // Default seed year
+
+  // Filters & Sorting state
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'need_order' | 'safe'>('all');
+  const [sortBy, setSortBy] = useState<string>('nama_asc');
 
   const months = [
     { value: 1, name: 'Januari' },
@@ -191,6 +199,70 @@ export default function Forecasting() {
             </motion.div>
           </div>
 
+          {/* Filters & Sorting Control Panel */}
+          <div className="bg-white p-4.5 rounded-2xl border border-slate-150 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-sm">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-slate-400" />
+              </span>
+              <input
+                type="text"
+                placeholder="Cari nama atau kode obat..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                style={{ minHeight: '40px' }}
+              />
+            </div>
+
+            {/* Right side controls */}
+            <div className="flex flex-wrap items-center gap-3">
+              
+              {/* Status Filter */}
+              <div className="flex items-center space-x-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-white text-slate-850 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                >
+                  Semua
+                </button>
+                <button
+                  onClick={() => setStatusFilter('need_order')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'need_order' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-500 hover:text-rose-600'}`}
+                >
+                  Perlu Order
+                </button>
+                <button
+                  onClick={() => setStatusFilter('safe')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'safe' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-500 hover:text-emerald-600'}`}
+                >
+                  Aman
+                </button>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-200 rounded-xl hover:bg-slate-100/50 transition-colors">
+                <ArrowUpDown className="h-4 w-4 text-slate-500" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent border-none text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
+                  style={{ minHeight: '24px' }}
+                >
+                  <option value="nama_asc">Nama Obat (A-Z)</option>
+                  <option value="nama_desc">Nama Obat (Z-A)</option>
+                  <option value="qty_order_desc">Kebutuhan Order (Tertinggi)</option>
+                  <option value="stok_akhir_asc">Stok Akhir (Terendah)</option>
+                  <option value="stok_akhir_desc">Stok Akhir (Tertinggi)</option>
+                  <option value="pemakaian_desc">Pemakaian 3 Bln (Terbanyak)</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+
           {/* Forecasting data table */}
           <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -198,6 +270,7 @@ export default function Forecasting() {
                 <thead className="bg-slate-50">
                   <tr>
                     <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode & Nama Obat</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Kelas ABC</th>
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Pemakaian 3 Bln</th>
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata</th>
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
@@ -209,70 +282,124 @@ export default function Forecasting() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
-                  {forecasts.map((f) => (
-                    <tr key={f.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-3.5">
-                        <div>
-                          <span className="font-mono text-[9px] font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
-                            {f.kode_obat}
+                  {forecasts
+                    .filter((f) => {
+                      const matchesSearch = 
+                        f.nama_obat.toLowerCase().includes(search.toLowerCase()) ||
+                        f.kode_obat.toLowerCase().includes(search.toLowerCase());
+                      const needOrder = (f.qty_order ?? 0) > 0;
+                      const matchesStatus = 
+                        statusFilter === 'all' ||
+                        (statusFilter === 'need_order' && needOrder) ||
+                        (statusFilter === 'safe' && !needOrder);
+                      return matchesSearch && matchesStatus;
+                    })
+                    .sort((a, b) => {
+                      if (sortBy === 'nama_asc') {
+                        return a.nama_obat.localeCompare(b.nama_obat);
+                      }
+                      if (sortBy === 'nama_desc') {
+                        return b.nama_obat.localeCompare(a.nama_obat);
+                      }
+                      if (sortBy === 'qty_order_desc') {
+                        return (b.qty_order ?? 0) - (a.qty_order ?? 0);
+                      }
+                      if (sortBy === 'stok_akhir_asc') {
+                        const stockA = a.stok_akhir ?? a.current_stock ?? 0;
+                        const stockB = b.stok_akhir ?? b.current_stock ?? 0;
+                        return stockA - stockB;
+                      }
+                      if (sortBy === 'stok_akhir_desc') {
+                        const stockA = a.stok_akhir ?? a.current_stock ?? 0;
+                        const stockB = b.stok_akhir ?? b.current_stock ?? 0;
+                        return stockB - stockA;
+                      }
+                      if (sortBy === 'pemakaian_desc') {
+                        return (b.pemakaian_3_bulan ?? 0) - (a.pemakaian_3_bulan ?? 0);
+                      }
+                      return 0;
+                    })
+                    .map((f) => (
+                      <tr key={f.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-6 py-3.5">
+                          <div className="text-xs">
+                            <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                              {f.kode_obat}
+                            </span>
+                            <h4 className="font-bold text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
+                          </div>
+                        </td>
+
+                        {/* Kelas ABC */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap">
+                          {f.kelas_abc ? (
+                            <span className={`inline-flex items-center justify-center font-black text-[11px] h-6 px-2.5 rounded-lg ${
+                              f.kelas_abc === 'A' 
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
+                                : f.kelas_abc === 'B' 
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-150' 
+                                  : 'bg-slate-50 text-slate-500 border border-slate-150'
+                            }`}>
+                              Kelas {f.kelas_abc}
+                            </span>
+                          ) : (
+                            <span className="text-slate-300 font-bold">-</span>
+                          )}
+                        </td>
+
+                        {/* Pemakaian 3 Bln */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700">
+                          {f.pemakaian_3_bulan ?? 0} <span className="text-xs font-normal text-slate-400">unit</span>
+                        </td>
+
+                        {/* Rata-rata */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700 bg-slate-50/30 font-medium">
+                          {f.rata_rata ?? 0} <span className="text-xs font-normal text-slate-400">unit</span>
+                        </td>
+
+                        {/* Safety stock */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600 font-medium">
+                          {f.safety_stock ?? 0} <span className="text-xs font-normal text-slate-300">unit</span>
+                        </td>
+
+                        {/* Forecast Bulan 1-3 */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600">
+                          <span className="inline-flex items-center space-x-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 text-xs">
+                            <span className="font-bold text-slate-850">{f.forecast_bulan_1 ?? 0}</span>
+                            <span className="text-slate-300">|</span>
+                            <span className="font-bold text-slate-850">{f.forecast_bulan_2 ?? 0}</span>
+                            <span className="text-slate-300">|</span>
+                            <span className="font-bold text-slate-850">{f.forecast_bulan_3 ?? 0}</span>
                           </span>
-                          <h4 className="font-bold text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
-                        </div>
-                      </td>
+                        </td>
 
-                      {/* Pemakaian 3 Bln */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700">
-                        {f.pemakaian_3_bulan ?? 0} <span className="text-xxs font-normal text-slate-400">unit</span>
-                      </td>
+                        {/* Total Kebutuhan */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-xs text-slate-900 bg-slate-55/20">
+                          {f.total_kebutuhan ?? 0} <span className="text-xs font-normal text-slate-400">unit</span>
+                        </td>
 
-                      {/* Rata-rata */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700 bg-slate-50/30 font-medium">
-                        {f.rata_rata ?? 0} <span className="text-xxs font-normal text-slate-400">unit</span>
-                      </td>
+                        {/* Stok Akhir */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-medium text-xs text-purple-700 bg-purple-50/10">
+                          {f.stok_akhir ?? f.current_stock ?? 0} <span className="text-xs font-normal text-purple-400">unit</span>
+                        </td>
 
-                      {/* Safety stock */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600 font-medium">
-                        {f.safety_stock ?? 0} <span className="text-xxs font-normal text-slate-300">unit</span>
-                      </td>
+                        {/* Qty Order */}
+                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-xs text-teal-800 bg-teal-50/60 border-x border-teal-100">
+                          {f.qty_order ?? 0} <span className="text-xs font-normal text-teal-400">unit</span>
+                        </td>
 
-                      {/* Forecast Bulan 1-3 */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600">
-                        <span className="inline-flex items-center space-x-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
-                          <span className="font-bold text-slate-850">{f.forecast_bulan_1 ?? 0}</span>
-                          <span className="text-slate-300">|</span>
-                          <span className="font-bold text-slate-850">{f.forecast_bulan_2 ?? 0}</span>
-                          <span className="text-slate-300">|</span>
-                          <span className="font-bold text-slate-850">{f.forecast_bulan_3 ?? 0}</span>
-                        </span>
-                      </td>
-
-                      {/* Total Kebutuhan */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-slate-900 bg-slate-55/20">
-                        {f.total_kebutuhan ?? 0} <span className="text-xxs font-normal text-slate-400">unit</span>
-                      </td>
-
-                      {/* Stok Akhir */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-medium text-purple-700 bg-purple-50/10">
-                        {f.stok_akhir ?? f.current_stock ?? 0} <span className="text-xxs font-normal text-purple-400">unit</span>
-                      </td>
-
-                      {/* Qty Order */}
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-teal-800 bg-teal-50/60 border-x border-teal-100">
-                        {f.qty_order ?? 0} <span className="text-xxs font-normal text-teal-400">unit</span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-6 py-3.5 text-right whitespace-nowrap">
-                        <span className={`inline-flex items-center space-x-1 text-xxs font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                          (f.qty_order ?? 0) > 0
-                            ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-150'
-                            : 'bg-emerald-100 text-emerald-800 border border-emerald-150'
-                        }`}>
-                          {(f.qty_order ?? 0) > 0 ? 'Perlu Order' : 'Aman'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                        {/* Status */}
+                        <td className="px-6 py-3.5 text-right whitespace-nowrap">
+                          <span className={`inline-flex items-center space-x-1 text-[11px] font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                            (f.qty_order ?? 0) > 0
+                              ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-150'
+                              : 'bg-emerald-100 text-emerald-800 border border-emerald-150'
+                          }`}>
+                            {(f.qty_order ?? 0) > 0 ? 'Perlu Order' : 'Aman'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

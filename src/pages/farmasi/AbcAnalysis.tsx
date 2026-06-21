@@ -178,13 +178,13 @@ export default function AbcAnalysis() {
             <motion.div 
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
                transition={{ duration: 0.2 }}
-               className="bg-slate-900 text-white rounded-3xl p-6 border border-slate-800 shadow-lg relative overflow-hidden"
+               className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden"
             >
-              <span className="text-xxs font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
+              <span className="text-[14px] font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
               <h3 className="text-2xl font-black font-mono block mt-2">
                 Rp {totalInvestasi.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
               </h3>
-              <p className="text-xs text-amber-400 font-medium mt-2 font-mono">Untuk seluruh obat yang digunakan</p>
+              <p className="text-[14px] text-amber-400 font-medium mt-2 font-mono">Untuk seluruh obat yang digunakan</p>
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <DollarSign className="w-16 h-16"/>
               </div>
@@ -192,50 +192,47 @@ export default function AbcAnalysis() {
 
             {/* Class A summary */}
             <motion.div 
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-              transition={{ duration: 0.2 }}
-              className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-150/60 shadow-sm relative overflow-hidden transition-all"
+               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.2 }}
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm relative overflow-hidden transition-all"
             >
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok A (80%)</span>
+              <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
               <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-2">
-                {classA.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
+                {classA.length} <span className="text-[14px] font-semibold text-slate-400">Obat</span>
               </h3>
-              <p className="text-xxs font-bold text-slate-500 mt-2">
+              <p className="text-[14px] font-bold text-slate-600 mt-2">
                 Anggaran: Rp {classASpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classASpend/totalInvestasi)*100) : 0}%)
               </p>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-500"></div>
             </motion.div>
 
             {/* Class B summary */}
             <motion.div 
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-              transition={{ duration: 0.2 }}
-              className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-150/60 shadow-sm relative overflow-hidden transition-all"
+               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.2 }}
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm relative overflow-hidden transition-all"
             >
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok B (15%)</span>
+              <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
               <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-2">
-                {classB.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
+                {classB.length} <span className="text-[14px] font-semibold text-slate-400">Obat</span>
               </h3>
-              <p className="text-xxs font-bold text-slate-500 mt-2">
+              <p className="text-[14px] font-bold text-slate-600 mt-2">
                 Anggaran: Rp {classBSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classBSpend/totalInvestasi)*100) : 0}%)
               </p>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
             </motion.div>
 
             {/* Class C summary */}
             <motion.div 
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-              transition={{ duration: 0.2 }}
-              className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-150/60 shadow-sm relative overflow-hidden transition-all"
+               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.2 }}
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm relative overflow-hidden transition-all"
             >
-              <span className="text-xxs font-bold text-slate-400 uppercase tracking-wider block">Kelompok C (5%)</span>
+              <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
               <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-2">
-                {classC.length} <span className="text-xs font-semibold text-slate-400">Obat</span>
+                {classC.length} <span className="text-[14px] font-semibold text-slate-400">Obat</span>
               </h3>
-              <p className="text-xxs font-bold text-slate-500 mt-2">
+              <p className="text-[14px] font-bold text-slate-600 mt-2">
                 Anggaran: Rp {classCSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classCSpend/totalInvestasi)*100) : 0}%)
               </p>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
             </motion.div>
           </div>
 
@@ -261,32 +258,32 @@ export default function AbcAnalysis() {
                     <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-widest text-slate-400">Kelompok</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 text-sm font-semibold">
+                <tbody className="divide-y divide-slate-100 text-slate-700 text-xs font-semibold">
                   {abcData.map((item, index) => (
                     <tr key={item.obat_id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-400">
                         #{index + 1}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <span className="font-mono text-xxs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">
+                        <div className="text-xs">
+                          <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">
                             {item.kode_obat}
                           </span>
-                          <h4 className="font-bold text-slate-900 mt-1.5 text-sm">{item.nama_obat}</h4>
-                          <p className="text-xxs text-slate-400 font-medium mt-1 uppercase">{item.golongan}</p>
+                          <h4 className="font-bold text-slate-900 mt-1.5 text-xs">{item.nama_obat}</h4>
+                          <p className="text-xs text-slate-400 font-medium mt-1 uppercase">{item.golongan}</p>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-bold text-slate-800">
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-bold text-xs text-slate-800">
                         {item.pemakaian.toLocaleString('id-ID')}
                       </td>
 
-                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono text-slate-500">
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono text-xs text-slate-500">
                         Rp {item.harga_satuan.toLocaleString('id-ID')}
                       </td>
 
                       {/* Spend calculation */}
-                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-extrabold text-slate-900">
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-extrabold text-xs text-slate-900">
                         Rp {item.total_nilai.toLocaleString('id-ID')}
                       </td>
 
@@ -302,7 +299,7 @@ export default function AbcAnalysis() {
 
                       {/* ABC class representation tag */}
                       <td className="px-6 py-4 text-center whitespace-nowrap">
-                        <span className={`inline-flex items-center justify-center h-8 w-8 text-sm font-black rounded-lg ${
+                        <span className={`inline-flex items-center justify-center h-7 w-7 text-xs font-black rounded-lg ${
                           item.klasifikasi === 'A' ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-300' :
                           item.klasifikasi === 'B' ? 'bg-amber-100 text-amber-800 border border-amber-250' :
                           'bg-slate-100 text-slate-500 border border-slate-200'

@@ -209,7 +209,8 @@ async function runMigrationsIfRequired() {
       !tableList.includes('registrasi_igd') ||
       !tableList.includes('tindakan_igd') ||
       !tableList.includes('registrasi_ranap') ||
-      !tableList.includes('tindakan_ranap')
+      !tableList.includes('tindakan_ranap') ||
+      !tableList.includes('dokter')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -225,6 +226,15 @@ async function runMigrationsIfRequired() {
           console.log('Columns added successfully.');
         }
 
+        const [saldoCols]: any = await mysqlPool.query("SHOW COLUMNS FROM obat_master LIKE 'saldo_awal_tahun'");
+        if (saldoCols.length === 0) {
+          console.log('Adding columns for saldo_awal to existing obat_master MySQL table...');
+          await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN saldo_awal_tahun INT DEFAULT NULL AFTER reorder_point");
+          await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN saldo_awal_bulan TINYINT DEFAULT NULL AFTER saldo_awal_tahun");
+          await mysqlPool.query("ALTER TABLE obat_master ADD COLUMN saldo_awal_nilai INT DEFAULT 0 AFTER saldo_awal_bulan");
+          console.log('Saldo awal columns added successfully.');
+        }
+
         const [ralanCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_rawat_jalan LIKE 'unit'");
         if (ralanCols.length === 0) {
           console.log('Adding column unit to existing registrasi_rawat_jalan MySQL table...');
@@ -237,6 +247,36 @@ async function runMigrationsIfRequired() {
           console.log('Adding column icd_kode to existing registrasi_rawat_jalan MySQL table...');
           await mysqlPool.query("ALTER TABLE registrasi_rawat_jalan ADD COLUMN icd_kode VARCHAR(20) AFTER unit");
           console.log('Column icd_kode added successfully.');
+        }
+
+        const [dpjpRalanCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_rawat_jalan LIKE 'dpjp'");
+        if (dpjpRalanCols.length === 0) {
+          await mysqlPool.query("ALTER TABLE registrasi_rawat_jalan ADD COLUMN dpjp VARCHAR(250) AFTER icd_kode");
+        }
+
+        const [dpjpRanapCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_ranap LIKE 'dpjp'");
+        if (dpjpRanapCols.length === 0) {
+          await mysqlPool.query("ALTER TABLE registrasi_ranap ADD COLUMN dpjp VARCHAR(250) AFTER kamar");
+        }
+
+        const [dpjpIgdCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_igd LIKE 'dpjp'");
+        if (dpjpIgdCols.length === 0) {
+          await mysqlPool.query("ALTER TABLE registrasi_igd ADD COLUMN dpjp VARCHAR(250) AFTER icd_kode");
+        }
+
+        const [pelaksanaRalan]: any = await mysqlPool.query("SHOW COLUMNS FROM tindakan_rawat_jalan LIKE 'pelaksana'");
+        if (pelaksanaRalan.length > 0) {
+          await mysqlPool.query("ALTER TABLE tindakan_rawat_jalan DROP COLUMN pelaksana");
+        }
+        
+        const [pelaksanaIgd]: any = await mysqlPool.query("SHOW COLUMNS FROM tindakan_igd LIKE 'pelaksana'");
+        if (pelaksanaIgd.length > 0) {
+          await mysqlPool.query("ALTER TABLE tindakan_igd DROP COLUMN pelaksana");
+        }
+        
+        const [pelaksanaRanap]: any = await mysqlPool.query("SHOW COLUMNS FROM tindakan_ranap LIKE 'pelaksana'");
+        if (pelaksanaRanap.length > 0) {
+          await mysqlPool.query("ALTER TABLE tindakan_ranap DROP COLUMN pelaksana");
         }
       } catch (colErr: any) {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);
@@ -590,8 +630,26 @@ export function readVirtualDb(): VirtualDatabase {
     initVirtualDb();
   }
   const data: VirtualDatabase = JSON.parse(fs.readFileSync(VIRTUAL_DB_FILE, 'utf8'));
+  let updated = false;
   if (!data.master_icd10 || data.master_icd10.length < 50) {
     data.master_icd10 = COMMON_ICD10.map((item, idx) => ({ id: idx + 1, ...item }));
+    updated = true;
+  }
+  if (data.obat_master) {
+    data.obat_master = data.obat_master.map((o: any) => {
+      if (o.saldo_awal_tahun === undefined || o.saldo_awal_bulan === undefined || o.saldo_awal_nilai === undefined) {
+        updated = true;
+        return {
+          ...o,
+          saldo_awal_tahun: o.saldo_awal_tahun !== undefined ? o.saldo_awal_tahun : null,
+          saldo_awal_bulan: o.saldo_awal_bulan !== undefined ? o.saldo_awal_bulan : null,
+          saldo_awal_nilai: o.saldo_awal_nilai !== undefined ? o.saldo_awal_nilai : 0
+        };
+      }
+      return o;
+    });
+  }
+  if (updated) {
     fs.writeFileSync(VIRTUAL_DB_FILE, JSON.stringify(data, null, 2), 'utf8');
   }
   return data;

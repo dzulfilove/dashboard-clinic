@@ -47,6 +47,13 @@ export interface ObatMaster {
   safety_stock?: number;
   stok_minimum?: number;
   reorder_point?: number;
+  saldo_awal_tahun?: number | null;
+  saldo_awal_bulan?: number | null;
+  saldo_awal_nilai?: number;
+  total_penerimaan?: number;
+  total_pemakaian?: number;
+  total_retur_hilang?: number;
+  stok_akhir?: number;
   is_active: number;
 }
 
@@ -86,6 +93,7 @@ export interface ForecastResult {
   total_kebutuhan: number;
   stok_akhir: number;
   qty_order: number;
+  kelas_abc?: string;
 }
 
 export interface AbcItem {
@@ -111,3 +119,35 @@ export interface ICD10 {
   kode_icd: string;
   deskripsi: string;
 }
+
+export const TIPE_UNIT_RAWAT_JALAN = [
+  "LABORATORIUM",
+  "IRI (RAWAT INAP)",
+  "RAD (RADIOLOGI)",
+  "APS",
+  "HEM (HEMODIALISA)",
+  "IRJ (RAWAT JALAN)",
+  "IGD",
+  "APT (APOTEK)",
+  "INV (INVENTORY)",
+  "HC (HOMECARE)",
+  "GGM (POLI GIGI DAN MULUT)",
+  "RHM (POLI REHABILITASI MEDIK)",
+  "GIZI (POLI GIZI)",
+  "MCU",
+  "JPD (POLI JANTUNG DAN PEMBULUH DARAH)",
+  "PL002 (POLI THT)",
+  "DVE (POLI DERMATOLOGI, VENEREOLOGI DAN ESTETIKA)",
+  "SARAF (POLI SARAF)",
+  "PL004 (POLI FISIOTERAPI)",
+  "PL001 (POLI ANAK)",
+  "MT (POLI MATA)",
+  "URO (POLI UROLOGI)",
+  "PSIK (POLI PSIKOLOGI)",
+  "PPD (POLI PENYAKIT DALAM)",
+  "PR (POLI PARU)",
+  "PL003 (POLI UMUM)",
+  "PL006 (POLI OBGYN)",
+  "ORT (POLI ORTOPEDI)",
+  "BU (POLI BEDAH UMUM)"
+];

@@ -40,7 +40,6 @@ import { ICD10 } from '../../types.js';
 
 interface Tindakan {
   id?: number;
-  pelaksana: string;
   tindakan_nama: string;
   tindakan_keterangan: string;
   tindakan_tanggal: string;
@@ -63,6 +62,7 @@ interface IgdRecord {
   created_at?: string;
   triase?: string;
   icd_kode?: string;
+  dpjp: string;
 }
 
 const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
@@ -119,14 +119,15 @@ export default function IGD() {
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
+  const [dpjp, setDpjp] = useState('');
   const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
   const [icdList, setIcdList] = useState<ICD10[]>([]);
+  const [dokterList, setDokterList] = useState<any[]>([]);
   const [icdKode, setIcdKode] = useState('');
   const [manualTindakan, setManualTindakan] = useState<Tindakan[]>([
     {
-      pelaksana: '',
       tindakan_nama: '',
       tindakan_keterangan: '',
       tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -169,7 +170,16 @@ export default function IGD() {
         console.error(err);
       }
     };
+    const fetchDokter = async () => {
+      try {
+        const res = await api.get('/dokter');
+        setDokterList(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     fetchIcd();
+    fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
 
@@ -193,7 +203,6 @@ export default function IGD() {
     setManualTindakan([
       ...manualTindakan,
       {
-        pelaksana: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -262,6 +271,7 @@ export default function IGD() {
           tanggal_pelayanan: tanggalPelayanan,
           triase: triase,
           icd_kode: icdKode || null,
+          dpjp: dpjp,
           tindakan: manualTindakan
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil diperbarui.`);
@@ -273,6 +283,7 @@ export default function IGD() {
           tanggal_pelayanan: tanggalPelayanan,
           triase: triase,
           icd_kode: icdKode || null,
+          dpjp: dpjp,
           tindakan: manualTindakan
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil disimpan ke database.`);
@@ -300,9 +311,9 @@ export default function IGD() {
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
     setTriase('hijau');
     setIcdKode('');
+    setDpjp('');
     setManualTindakan([
       {
-        pelaksana: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -327,6 +338,7 @@ export default function IGD() {
     setTanggalPelayanan(rec.tanggal_pelayanan);
     setTriase(rec.triase || 'hijau');
     setIcdKode(rec.icd_kode || '');
+    setDpjp(rec.dpjp || '');
     
     if (rec.tindakan && rec.tindakan.length > 0) {
       setManualTindakan(rec.tindakan.map(t => ({
@@ -337,7 +349,6 @@ export default function IGD() {
     } else {
       setManualTindakan([
         {
-          pelaksana: '',
           tindakan_nama: '',
           tindakan_keterangan: '',
           tindakan_tanggal: rec.tanggal_pelayanan,
@@ -398,6 +409,48 @@ export default function IGD() {
     const tempActions: any[] = [];
     let headerSkipped = false;
 
+    // Indonesian month helper
+    const parseIndoDate = (dateStr: string) => {
+      if (!dateStr) return new Date().toISOString().split('T')[0];
+      const cleaned = dateStr.trim().toLowerCase();
+      
+      // Try simple DD-MM-YYYY or YYYY-MM-DD
+      if (cleaned.includes('-') || cleaned.includes('/')) {
+        const parts = cleaned.split(/[-/]/);
+        if (parts.length === 3) {
+          if (parts[2].length === 4) {
+            // DD-MM-YYYY
+            const d = parts[0].padStart(2, '0');
+            const m = parts[1].padStart(2, '0');
+            const y = parts[2];
+            return `${y}-${m}-${d}`;
+          } else if (parts[0].length === 4) {
+            // YYYY-MM-DD
+            return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+          }
+        }
+      }
+
+      const months: { [key: string]: string } = {
+        januari: '01', pebruari: '02', febuari: '02', februari: '02', maret: '03',
+        april: '04', mei: '05', juni: '06', juli: '07', agustus: '08',
+        september: '09', oktober: '10', nopember: '11', november: '11', desember: '12',
+        jan: '01', feb: '02', mar: '03', apr: '04', mei_short: '05', jun: '06',
+        jul: '07', agu: '08', ags: '08', sep: '09', okt: '10', nov: '11', des: '12'
+      };
+
+      const parts = cleaned.split(/\s+/);
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const monthWord = parts[1];
+        const year = parts[2];
+        const monthNum = months[monthWord] || '01';
+        return `${year}-${monthNum}-${day}`;
+      }
+
+      return dateStr.trim() || new Date().toISOString().split('T')[0];
+    };
+
     for (let line of lines) {
       line = line.trim();
       if (!line) continue;
@@ -409,26 +462,36 @@ export default function IGD() {
 
       if (
         cols[0] === 'NO' || 
+        cols[0] === 'No.' ||
+        cols[1]?.toLowerCase().includes('pendaftaran') || 
         cols[1]?.toLowerCase().includes('reg') || 
-        cols[1] === 'NO. REG.' ||
-        cols[2] === 'NO. RM'
+        cols[2] === 'NO. RM' ||
+        cols[2]?.toLowerCase().includes('rm')
       ) {
         headerSkipped = true;
         continue;
       }
 
-      if (cols.length < 9) {
+      // Format requires at least 12 columns to get the tindakan name
+      if (cols.length < 12) {
         continue;
       }
 
-      const idNo = cols[0];
       const noReg = cols[1];
       const noRmCode = cols[2];
       const pName = cols[3];
-      const exec = cols[4];
-      const tName = cols[5];
-      const tTgl = cols[6] || '';
-      const tJam = cols[7] || '08:00:00';
+      // cols[4] Tanggal Lahir
+      // cols[5] Umur
+      // cols[6] Jenis Kelamin
+      // cols[7] Alamat
+      // cols[8] Kelurahan
+      // cols[9] Kecamatan
+      // cols[10] Kota
+      const tName = cols[11];
+      const tTgl = cols[12] || '';
+      // cols[13] Tanggal KRS
+      // cols[14] Unit (POLI UMUM, etc.)
+      const qtyRaw = cols[15] || '1';
 
       const cleanNum = (str: string) => {
         if (!str) return 0;
@@ -436,25 +499,16 @@ export default function IGD() {
         return Number(stripped) || 0;
       };
 
-      const tTarif = cleanNum(cols[8]);
-      const tSarana = cleanNum(cols[9]);
-      const tPel = cleanNum(cols[10]);
-      const tMedis = cleanNum(cols[11]);
-      const qty = cleanNum(cols[12]) || 1;
-      const sub = cleanNum(cols[13]) || (tTarif * qty);
+      const exec = 'Medis/Petugas IGD';
+      const tJam = '08:00:00';
+      const tTarif = 0;
+      const tSarana = 0;
+      const tPel = 0;
+      const tMedis = 0;
+      const qty = cleanNum(qtyRaw) || 1;
+      const sub = 0;
 
-      let formattedDate = tTgl;
-      if (tTgl.includes('-') || tTgl.includes('/')) {
-        const parts = tTgl.split(/[-/]/);
-        if (parts.length === 3) {
-          const d = parts[0].padStart(2, '0');
-          const m = parts[1].padStart(2, '0');
-          const y = parts[2];
-          formattedDate = `${y}-${m}-${d}`;
-        }
-      } else {
-        formattedDate = new Date().toISOString().split('T')[0];
-      }
+      const formattedDate = parseIndoDate(tTgl);
 
       if (noReg && pName && tName) {
         tempActions.push({
@@ -487,6 +541,7 @@ export default function IGD() {
           nama_pasien: act.nama_pasien,
           tanggal_pelayanan: act.tanggal_pelayanan,
           triase: 'hijau',
+          icd_kode: '',
           tindakan: []
         };
       }
@@ -525,6 +580,15 @@ export default function IGD() {
     setParsedData(updated);
   };
 
+  const updateParsedIcd = (idx: number, newIcd: string) => {
+    const updated = [...parsedData];
+    updated[idx] = {
+      ...updated[idx],
+      icd_kode: newIcd
+    };
+    setParsedData(updated);
+  };
+
   const handleBulkInsert = async () => {
     if (parsedData.length === 0) return;
     setSubmitting(true);
@@ -538,6 +602,7 @@ export default function IGD() {
           nama_pasien: p.nama_pasien,
           tanggal_pelayanan: p.tanggal_pelayanan,
           triase: p.triase || 'hijau',
+          icd_kode: p.icd_kode || null,
           tindakan: p.tindakan
         });
         successCount++;
@@ -613,7 +678,7 @@ export default function IGD() {
 
   // Group procedure counts
   const procedureMap: { [key: string]: number } = {};
-  const pelaksanaMap: { [key: string]: number } = {};
+  const dpjpMap: { [key: string]: number } = {};
   const dateMap: { [key: string]: { kunjungan: number; pendapatan: number } } = {};
 
   safeRecords.forEach(r => {
@@ -621,19 +686,22 @@ export default function IGD() {
     if (!dateMap[dStr]) dateMap[dStr] = { kunjungan: 0, pendapatan: 0 };
     dateMap[dStr].kunjungan += 1;
 
+    if (r.dpjp) {
+      dpjpMap[r.dpjp] = (dpjpMap[r.dpjp] || 0) + 1;
+    }
+
     r.tindakan.forEach(t => {
       procedureMap[t.tindakan_nama] = (procedureMap[t.tindakan_nama] || 0) + 1;
-      pelaksanaMap[t.pelaksana] = (pelaksanaMap[t.pelaksana] || 0) + 1;
       dateMap[dStr].pendapatan += t.subtotal;
     });
   });
 
-  let topPerformer = '-';
-  let topPerformerCount = 0;
-  Object.entries(pelaksanaMap).forEach(([name, count]) => {
-    if (count > topPerformerCount) {
-      topPerformer = name;
-      topPerformerCount = count;
+  let topDPJP = '-';
+  let topDPJPCount = 0;
+  Object.entries(dpjpMap).forEach(([name, count]) => {
+    if (count > topDPJPCount) {
+      topDPJP = name;
+      topDPJPCount = count;
     }
   });
 
@@ -737,7 +805,7 @@ export default function IGD() {
           {activeTab === 'statistik' && (
             <div className="space-y-6">
               {/* Core metrics bento boxes */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
@@ -785,30 +853,9 @@ export default function IGD() {
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
                 </motion.div>
 
-                {/* 3. Pendapatan Pelayanan */}
-                <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <DollarSign className="h-6 w-6" />
-                    </div>
-                    <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full">
-                      Omset
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display leading-tight">
-                      Rp {totalIncome.toLocaleString('id-ID')}
-                    </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Akumulasi Tarif Semua Tindakan IGD</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
-                </motion.div>
 
-                {/* 4. Praktisi Teraktif */}
+
+                {/* 4. DPJP Teraktif */}
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
@@ -819,15 +866,15 @@ export default function IGD() {
                       <TrendingUp className="h-6 w-6 text-amber-600" />
                     </div>
                     <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
-                      Aktif
+                      DPJP
                     </span>
                   </div>
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold text-slate-900 tracking-tight font-display truncate leading-tight uppercase">
-                      {topPerformer}
+                      {topDPJP}
                     </h3>
                     <p className="text-xxs font-mono text-amber-600 font-bold mt-1">
-                      {topPerformerCount} Prosedur
+                      {topDPJPCount} Kunjungan
                     </p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
@@ -1164,9 +1211,9 @@ export default function IGD() {
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Diagnosis (ICD-10)</th>
+                          <th className="px-6 py-4.5">DPJP</th>
                           <th className="px-6 py-4.5">Tanggal Kunjungan</th>
                           <th className="px-6 py-4.5 text-center">Jumlah Tindakan</th>
-                          <th className="px-6 py-4.5 text-right">Subtotal Biaya</th>
                           <th className="px-6 py-4.5 text-center">Aksi</th>
                         </tr>
                       </thead>
@@ -1216,6 +1263,11 @@ export default function IGD() {
                                     ))}
                                   </select>
                                 </td>
+                                <td className="px-6 py-4.5">
+                                  <span className="text-[11px] font-medium text-slate-700">
+                                    {rec.dpjp || '-'}
+                                  </span>
+                                </td>
                                 <td className="px-6 py-4.5 font-normal text-slate-600">
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </td>
@@ -1223,9 +1275,6 @@ export default function IGD() {
                                   <span className="inline-flex items-center px-2.5 py-1 text-xxs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
                                     {rec.tindakan.length} Tindakan
                                   </span>
-                                </td>
-                                <td className="px-6 py-4.5 text-right font-semibold text-slate-900 font-mono">
-                                  Rp {totalCost.toLocaleString('id-ID')}
                                 </td>
                                 <td className="px-6 py-4.5">
                                   <div className="flex items-center justify-center space-x-1.5">
@@ -1284,42 +1333,8 @@ export default function IGD() {
                                               </div>
                                               <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
                                                 <Clock className="h-3 w-3 inline-block" />
-                                                <span>{t.tindakan_tanggal} pukul {t.tindakan_jam}</span>
+                                                <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
                                               </p>
-                                            </div>
-
-                                            {/* Details cost */}
-                                            <div className="bg-slate-50 p-2.5 rounded-xl space-y-1 text-slate-500 text-[10px] font-semibold">
-                                              <div className="flex justify-between">
-                                                <span>Tarif Tindakan:</span>
-                                                <span className="font-mono">Rp {t.tarif_tindakan.toLocaleString('id-ID')}</span>
-                                              </div>
-                                              <div className="flex justify-between">
-                                                <span>Tarif Sarana:</span>
-                                                <span className="font-mono">Rp {t.tarif_sarana.toLocaleString('id-ID')}</span>
-                                              </div>
-                                              <div className="flex justify-between">
-                                                <span>Tarif Pelayanan:</span>
-                                                <span className="font-mono">Rp {t.tarif_pelayanan.toLocaleString('id-ID')}</span>
-                                              </div>
-                                              {t.tarif_medis > 0 && (
-                                                <div className="flex justify-between">
-                                                  <span>Tarif Jasa Medis:</span>
-                                                  <span className="font-mono text-emerald-600">Rp {t.tarif_medis.toLocaleString('id-ID')}</span>
-                                                </div>
-                                              )}
-                                            </div>
-
-                                            {/* Footer row */}
-                                            <div className="flex items-center justify-between border-t border-slate-100 pt-2 text-[10px]">
-                                              <div>
-                                                <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Pelaksana Medis</span>
-                                                <span className="font-extrabold text-teal-750">{t.pelaksana || 'Petugas Medis'}</span>
-                                              </div>
-                                              <div className="text-right">
-                                                <span className="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">Subtotal</span>
-                                                <span className="font-black text-slate-900 text-xs font-mono">Rp {t.subtotal.toLocaleString('id-ID')}</span>
-                                              </div>
                                             </div>
                                           </div>
                                         ))}
@@ -1393,7 +1408,7 @@ export default function IGD() {
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div>
-                  <span className="text-[9px] bg-slate-100 border border-slate-200 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
+                  <span className="text-xs bg-slate-100 border border-slate-200 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2">Impor Data Hasil Salinan Excel (IGD)</h3>
                   <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini. Pastikan menyertakan baris header / judul kolom untuk memudahkan pembacaan.</p>
                 </div>
@@ -1401,7 +1416,7 @@ export default function IGD() {
                 <div className="space-y-3">
                   <textarea
                     rows={6}
-                    placeholder={`NO\tNO. REGISTRASI\tNO. RM\tPASIEN\tPELAKSANA\tTINDAKAN NAMA\tTINDAKAN TANGGAL\tTINDAKAN JAM\tTINDAKAN (Rp)\tJUMLAH\tSUBTOTAL (Rp)\n1\tIGD07062026-00001\t002494\tRONDIYAH\tdr. Taufik Hidayat\tKONSULTASI DOKTER\t07-06-2026\t10:09:57\t35.000\t1\t35.000`}
+                    placeholder={`No.\tNo. Pendaftaran\tNo. RM\tNama Pasien\tTanggal Lahir\tUmur\tJenis Kelamin\tAlamat\tKelurahan\tKecamatan\tKota\tNama Tindakan\tTanggal MRS\tTanggal KRS\tUnit\tJumlah\n1\tRJ21062026-00004\t002589\tAKBAR REPANJI\t24 Maret 2000\t26 Tahun 2 Bulan 28 Hari\tLaki - Laki\tJL P SENOPATI KARANG SARI BLOK 4 B\t\t\tKOTA BANDAR LAMPUNG\tAKOMODASI HOMECARE KENDARAAN PRIBADI 6-10 KM (MOTOR)\t21 Juni 2026\t21 Juni 2026\tPOLI UMUM\t1`}
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
                     className="w-full p-3 bg-slate-55 border border-slate-200 text-slate-750 font-mono leading-relaxed rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 focus:outline-none"
@@ -1437,7 +1452,7 @@ export default function IGD() {
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div>
                         <h4 className="text-sm font-extrabold text-slate-850">Pratinjau Hasil Pembacaan</h4>
-                        <p className="text-[10.5px] text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien IGD</p>
+                        <p className="text-xs text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien IGD</p>
                       </div>
                       <span className="h-10 w-10 text-emerald-600 bg-emerald-50 rounded-full flex items-center justify-center font-black text-xs">
                         {parsedData.length}
@@ -1447,52 +1462,88 @@ export default function IGD() {
                     {/* Preview patient block loop */}
                     <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
                       {parsedData.map((p, idx) => {
-                        const amount = p.tindakan.reduce((v: number, current: any) => v + Number(current.subtotal || 0), 0);
                         return (
                           <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-2">
                             <div className="flex justify-between items-start">
                               <div>
                                 <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
-                                <span className="text-[10px] text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
+                                <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <span className="text-slate-400 text-[10px] font-mono">{p.tanggal_pelayanan}</span>
+                                <span className="text-slate-400 text-xs font-mono">{p.tanggal_pelayanan}</span>
                               </div>
                             </div>
                             
                             <div className="flex flex-wrap gap-1.5 pt-1.5">
                               {p.tindakan.map((t: any, sIdx: number) => (
-                                <span key={sIdx} className="bg-white border border-slate-200 px-2 py-0.5 rounded text-[10px] text-slate-600 font-medium">
-                                  {t.tindakan_nama} x{t.jumlah} (Rp {t.subtotal.toLocaleString('id-ID')})
+                                <span key={sIdx} className="bg-white border border-slate-200 px-2 py-0.5 rounded text-xs text-slate-600 font-medium">
+                                  {t.tindakan_nama} x{t.jumlah}
                                 </span>
                               ))}
                             </div>
 
-                            <div className="border-t border-slate-200/50 pt-2 flex justify-between items-center text-[11px] font-semibold text-slate-600">
-                              <span>Total Estimasi Biaya:</span>
-                              <span className="font-mono text-teal-700 font-extrabold">Rp {amount.toLocaleString('id-ID')}</span>
-                            </div>
+                            {/* Triage & Diagnosis Selector before saving */}
+                            <div className="bg-slate-50/75 border border-slate-150 p-3 rounded-2xl mt-3">
+                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Triase Kegawatan</label>
+                                  <select
+                                    value={p.triase || 'hijau'}
+                                    onChange={(e) => updateParsedTriage(idx, e.target.value)}
+                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
+                                  >
+                                    <option value="hijau">Hijau (Non-Darurat)</option>
+                                    <option value="kuning">Kuning (Darurat)</option>
+                                    <option value="merah">Merah (Gawat Darurat)</option>
+                                    <option value="hitam">Hitam (Meninggal)</option>
+                                  </select>
+                                </div>
 
-                            {/* Triage Selector before saving */}
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 bg-white/75 border border-slate-150 p-2.5 rounded-2xl mt-2">
-                              <div className="flex items-center space-x-1.5">
-                                <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wide">Pilih Triase Pasien:</span>
-                                <select
-                                  value={p.triase || 'hijau'}
-                                  onChange={(e) => updateParsedTriage(idx, e.target.value)}
-                                  className="px-2.5 py-1 text-xs font-bold rounded-lg border border-slate-205 bg-white text-slate-705 focus:outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer"
-                                >
-                                  <option value="hijau">Hijau (Non-Darurat)</option>
-                                  <option value="kuning">Kuning (Darurat)</option>
-                                  <option value="merah">Merah (Gawat Darurat)</option>
-                                  <option value="hitam">Hitam (Meninggal)</option>
-                                </select>
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Diagnosa Masuk (ICD-10)</label>
+                                  <select
+                                    value={p.icd_kode || ''}
+                                    onChange={(e) => updateParsedIcd(idx, e.target.value)}
+                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
+                                  >
+                                    <option value="">-- Pilih Diagnosis --</option>
+                                    {icdList.map(icd => (
+                                      <option key={icd.id} value={icd.kode_icd}>
+                                        {icd.kode_icd} - {icd.deskripsi}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                                
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DPJP</label>
+                                  <input
+                                    type="text"
+                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                                    value={p.dpjp || ''}
+                                    placeholder="Nama Dokter"
+                                    onChange={(e) => {
+                                      const newData = [...parsedData];
+                                      newData[idx].dpjp = e.target.value;
+                                      setParsedData(newData);
+                                    }}
+                                  />
+                                </div>
                               </div>
                               
-                              {/* Live triage badge */}
-                              <div className={`sm:ml-auto px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 border ${getTriageStyle(p.triase).bg}`}>
-                                <span className={`h-2 w-2 rounded-full ${getTriageStyle(p.triase).dotBg}`} />
-                                <span>{getTriageStyle(p.triase).text}</span>
+                              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100">
+                                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Status Terpilih</span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border ${getTriageStyle(p.triase).bg}`}>
+                                    <span className={`h-1.5 w-1.5 rounded-full ${getTriageStyle(p.triase).dotBg}`} />
+                                    <span>{getTriageStyle(p.triase).text}</span>
+                                  </span>
+                                  {p.icd_kode && (
+                                    <span className="text-xs font-mono font-bold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-150 uppercase tracking-wider">
+                                      {p.icd_kode}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1502,7 +1553,7 @@ export default function IGD() {
 
                     {/* Confirm and post */}
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[10px] text-slate-400 font-medium">* Tindakan akan di-link ke pasien baru/lama secara aman.</span>
+                      <span className="text-xs text-slate-400 font-medium">* Tindakan akan di-link ke pasien baru/lama secara aman.</span>
                       <button
                         onClick={handleBulkInsert}
                         className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 transition active:scale-98 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer"
@@ -1524,102 +1575,121 @@ export default function IGD() {
 
           {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
           {isManualModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white w-full max-w-4xl rounded-3xl border border-slate-150 shadow-2xl overflow-hidden my-8 flex flex-col max-h-[90vh]"
+                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
               >
                 {/* Modal Header */}
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/75">
+                <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 font-display">
-                      {isEditMode ? 'Form Koreksi Pelayanan IGD' : 'Form Registrasi Pelayanan IGD'}
+                    <h3 className="text-sm font-black uppercase tracking-wider text-teal-400">
+                      {isEditMode ? 'Formulir Koreksi IGD (Gawat Darurat)' : 'Formulir Registrasi IGD (Gawat Darurat)'}
                     </h3>
-                    <p className="text-[10px] text-slate-400 mt-0.5">Input detail data kunjungan beserta rincian tarif tindakan Instalasi Gawat Darurat</p>
+                    <p className="text-xs text-slate-400 font-medium">Input detail data kunjungan beserta rincian tarif tindakan Instalasi Gawat Darurat secara manual</p>
                   </div>
                   <button
                     onClick={resetManualForm}
-                    className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </button>
                 </div>
 
                 {/* Modal Form Scrollable Wrapper */}
-                <form onSubmit={handleManualSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+                <form onSubmit={(e) => { e.preventDefault(); handleManualSubmit(); }} className="flex-1 overflow-y-auto p-6 space-y-6 text-xs text-slate-650">
                   {/* Section A: Demography */}
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">A. Identitas & Demutasi Kunjungan</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-4">
+                    <div className="border-b border-slate-100 pb-2">
+                      <h4 className="text-xs font-black uppercase text-teal-600 tracking-wide">Identitas & Demutasi Kunjungan</h4>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
                         <input
                           type="text"
                           placeholder="Contoh: IGD16062026-00001"
                           value={noRegistrasi}
                           onChange={(e) => setNoRegistrasi(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           disabled={isEditMode}
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
                         <input
                           type="text"
                           placeholder="Contoh: 002494"
                           value={noRm}
                           onChange={(e) => setNoRm(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
                         <input
                           type="text"
                           placeholder="Contoh: RONDIYAH"
                           value={namaPasien}
                           onChange={(e) => setNamaPasien(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white uppercase"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
                         <input
                           type="date"
                           value={tanggalPelayanan}
                           onChange={(e) => setTanggalPelayanan(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           required
                         />
                       </div>
+
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Triase IGD</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
                         <select
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           required
                         >
-                          <option value="hijau">Hijau</option>
-                          <option value="kuning">Kuning</option>
-                          <option value="hitam">Hitam</option>
-                          <option value="merah">Merah</option>
+                          <option value="hijau">Hijau - Non Darurat</option>
+                          <option value="kuning">Kuning - Darurat</option>
+                          <option value="hitam">Hitam - Meninggal</option>
+                          <option value="merah">Merah - Gawat Darurat</option>
                         </select>
                       </div>
+
                       <div>
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Diagnosis (ICD-10)</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                        <select
+                          value={dpjp}
+                          onChange={(e) => setDpjp(e.target.value)}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          required
+                        >
+                          <option value="">-- Pilih Dokter --</option>
+                          {dokterList.map(d => (
+                            <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosis (ICD-10)</label>
                         <select
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                         >
                           <option value="">-- Pilih Diagnosis --</option>
                           {icdList.map(icd => <option key={icd.id} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>)}
@@ -1631,174 +1701,133 @@ export default function IGD() {
                   {/* Section B: Actions list */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-extrabold uppercase text-slate-400 tracking-wider">B. Daftar Tindakan Medikasi & Jasa Pelaksana IGD</h4>
+                      <h4 className="text-xs font-black uppercase text-teal-600 tracking-wide">Rincian Tindakan Pelayanan Bed</h4>
                       <button
                         type="button"
                         onClick={addManualTindakanRow}
-                        className="inline-flex items-center space-x-1.5 text-xxs font-extrabold bg-teal-50 border border-teal-150 text-teal-700 px-2.5 py-1.5 rounded-lg hover:bg-teal-100 transition-all cursor-pointer"
+                        className="inline-flex items-center space-x-1 text-teal-600 hover:text-teal-700 font-extrabold uppercase text-xs cursor-pointer"
                       >
-                        <Plus className="h-3.5 w-3.5" />
+                        <Plus className="h-4 w-4" />
                         <span>Tambah Tindakan</span>
                       </button>
                     </div>
 
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                       {manualTindakan.map((t, index) => (
-                        <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-200/80 relative space-y-3">
+                        <div key={index} className="bg-slate-50 p-4 rounded-2xl border border-slate-150 flex flex-col space-y-3 relative font-sans">
                           {/* Remove button */}
                           {manualTindakan.length > 1 && (
                             <button
                               type="button"
                               onClick={() => removeManualTindakanRow(index)}
-                              className="absolute top-3 right-3 text-rose-500 hover:text-rose-700 p-1 bg-white hover:bg-rose-50 border border-slate-200/50 rounded-lg transition-all cursor-pointer"
-                              title="Hapus baris ini"
+                              className="absolute top-2 right-2 text-slate-404 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors cursor-pointer"
+                              title="Hapus tindakan ini"
                             >
                               <X className="h-4 w-4" />
                             </button>
                           )}
 
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 border border-teal-100 px-2.5 py-1 rounded w-fit uppercase">
+                            Tindakan #{index + 1}
+                          </span>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-[9.5px] font-bold text-slate-405 uppercase tracking-wide">Nama Pelaksana Jasa</label>
-                              <input
-                                type="text"
-                                placeholder="Contoh: dr. Taufik Hidayat"
-                                value={t.pelaksana}
-                                onChange={(e) => updateManualTindakanField(index, 'pelaksana', e.target.value)}
-                                className="mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-teal-500/20 focus:outline-none"
-                                required
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[9.5px] font-bold text-slate-405 uppercase tracking-wide">Tindakan Medis</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Layanan/Tindakan Medis</label>
                               <input
                                 type="text"
                                 placeholder="Contoh: KONSULTASI DOKTER UMUM"
                                 value={t.tindakan_nama}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_nama', e.target.value)}
-                                className="mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-teal-500/20 focus:outline-none"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 required
                               />
                             </div>
+
                             <div>
-                              <label className="block text-[9.5px] font-bold text-slate-405 uppercase tracking-wide">Keterangan Tambahan</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Keterangan Tambahan</label>
                               <input
                                 type="text"
                                 placeholder="Opsional"
                                 value={t.tindakan_keterangan}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_keterangan', e.target.value)}
-                                className="mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-teal-500/20 focus:outline-none"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                               />
                             </div>
 
                             <div>
-                              <label className="block text-[9.5px] font-bold text-slate-405 uppercase tracking-wide">Tanggal Tindakan</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Tindakan</label>
                               <input
                                 type="date"
                                 value={t.tindakan_tanggal}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_tanggal', e.target.value)}
-                                className="mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-teal-500/20 focus:outline-none"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 required
                               />
                             </div>
+
                             <div>
-                              <label className="block text-[9.5px] font-bold text-slate-405 uppercase tracking-wide">Waktu (Jam)</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Waktu (Jam)</label>
                               <input
                                 type="time"
                                 step={1}
                                 value={t.tindakan_jam}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_jam', e.target.value)}
-                                className="mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-teal-500/20 focus:outline-none"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
                                 required
                               />
                             </div>
+
                             <div>
-                              <label className="block text-[9.5px] font-bold text-slate-405 uppercase tracking-wide">Jumlah (QTY)</label>
+                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Jumlah (QTY)</label>
                               <input
                                 type="number"
                                 min={1}
                                 value={t.jumlah}
                                 onChange={(e) => updateManualTindakanField(index, 'jumlah', e.target.value)}
-                                className="mt-1 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-teal-500/20 focus:outline-none font-mono"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
                                 required
                               />
-                            </div>
-                          </div>
-
-                          {/* Cost Breakdown */}
-                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2 border-t border-slate-150 bg-slate-100/50 p-2.5 rounded-xl">
-                            <div>
-                              <label className="block text-[8.5px] font-bold text-slate-450 uppercase">Tarif Sarana</label>
-                              <input
-                                type="number"
-                                placeholder="0"
-                                value={t.tarif_sarana}
-                                onChange={(e) => updateManualTindakanField(index, 'tarif_sarana', e.target.value)}
-                                className="mt-1 block w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-400 font-mono"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[8.5px] font-bold text-slate-450 uppercase">Tarif Pelayanan</label>
-                              <input
-                                type="number"
-                                placeholder="0"
-                                value={t.tarif_pelayanan}
-                                onChange={(e) => updateManualTindakanField(index, 'tarif_pelayanan', e.target.value)}
-                                className="mt-1 block w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-400 font-mono"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[8.5px] font-bold text-slate-450 uppercase">Tarif Jasa Medis</label>
-                              <input
-                                type="number"
-                                placeholder="0"
-                                value={t.tarif_medis}
-                                onChange={(e) => updateManualTindakanField(index, 'tarif_medis', e.target.value)}
-                                className="mt-1 block w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs focus:ring-1 focus:ring-teal-400 font-mono"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[8.5px] font-bold text-slate-450 uppercase">Tarif Total</label>
-                              <div className="mt-1 w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-500 font-mono font-bold pt-1.5 h-8">
-                                Rp {t.tarif_tindakan.toLocaleString('id-ID')}
-                              </div>
-                            </div>
-                            <div className="col-span-2 sm:col-span-1 text-right">
-                              <label className="block text-[8.5px] font-extrabold text-teal-650 uppercase">Subtotal</label>
-                              <div className="mt-1 w-full px-2 py-1 text-slate-900 text-xs font-mono font-black pt-1.5">
-                                Rp {t.subtotal.toLocaleString('id-ID')}
-                              </div>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                </form>
 
-                {/* Modal Footer */}
-                <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <div className="text-[11px] font-bold text-slate-450 pl-2">
-                    Total Kunjungan: <span className="text-slate-800 font-mono text-xs">Rp {manualTindakan.reduce((sum, t) => sum + t.subtotal, 0).toLocaleString('id-ID')}</span>
+                  {/* Submit button bar */}
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div className="text-xs font-bold text-slate-500 pl-1">
+                      Jumlah Tindakan: <span className="text-slate-800 font-mono text-xs">{manualTindakan.length} Item</span>
+                    </div>
+                    <div className="flex space-x-2.5">
+                      <button
+                        type="button"
+                        onClick={resetManualForm}
+                        className="px-5 py-2.5 border border-slate-250 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        className="inline-flex items-center space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs px-6 py-2.5 rounded-xl shadow-xs cursor-pointer"
+                        disabled={submitting}
+                      >
+                        {submitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white" />
+                            <span>Sedang menyimpan...</span>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-4 w-4" />
+                            <span>{isEditMode ? 'Simpan Kunjungan' : 'Simpan Kunjungan'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2.5 shadow-2xs pr-1">
-                    <button
-                      type="button"
-                      onClick={resetManualForm}
-                      className="px-4.5 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleManualSubmit}
-                      className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 transition active:scale-98 text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer"
-                      disabled={submitting}
-                    >
-                      {submitting ? 'Menyimpan...' : isEditMode ? 'Terapkan Koreksi' : 'Kirim Pendaftaran'}
-                    </button>
-                  </div>
-                </div>
+                </form>
               </motion.div>
             </div>
           )}

@@ -36,6 +36,7 @@ import {
   Cell
 } from 'recharts';
 import { motion } from 'motion/react';
+import SaldoAwal from '../../components/SaldoAwal.js';
 
 const COLORS = ['#0d9488', '#4f46e5', '#f59e0b', '#ef4444', '#1e293b', '#ec4899', '#8b5cf6'];
 
@@ -72,7 +73,7 @@ export default function InputKonsumsi() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   // Statistics states and controllers
-  const [activeTab, setActiveTab] = useState<'input' | 'stats'>('stats');
+  const [activeTab, setActiveTab] = useState<'input' | 'stats' | 'saldo'>('stats');
   const [statsStartDate, setStatsStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 30);
@@ -131,8 +132,11 @@ export default function InputKonsumsi() {
             retur_hilang: String(match.retur_hilang || 0)
           };
         } else {
+          const suggestedStock = m.stok_akhir !== undefined 
+            ? String(m.stok_akhir) 
+            : String(m.saldo_awal_nilai || '');
           initialMap[m.id] = {
-            stok_awal: '',
+            stok_awal: suggestedStock,
             penerimaan: '',
             pemakaian: '',
             retur_hilang: ''
@@ -396,10 +400,25 @@ export default function InputKonsumsi() {
             <BarChart2 className="h-4 w-4" />
             <span>Statistik &amp; Chart</span>
           </button>
+          <button
+            id="tab-btn-saldo"
+            onClick={() => setActiveTab('saldo')}
+            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              activeTab === 'saldo' 
+                ? 'bg-white text-teal-700 shadow-xs' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            <Calculator className="h-4 w-4" />
+            <span>Saldo Awal</span>
+          </button>
         </div>
       </div>
 
-      {activeTab === 'stats' ? (
+      {activeTab === 'saldo' ? (
+        <SaldoAwal />
+      ) : activeTab === 'stats' ? (
         <div className="space-y-6">
           {/* Rentang Tanggal Filter UI Card */}
           <div className="bg-white p-4.5 border border-slate-150 shadow-xs rounded-2xl">
