@@ -1517,17 +1517,20 @@ export default function IGD() {
                                 
                                 <div>
                                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DPJP</label>
-                                  <input
-                                    type="text"
-                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                                  <select
+                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
                                     value={p.dpjp || ''}
-                                    placeholder="Nama Dokter"
                                     onChange={(e) => {
                                       const newData = [...parsedData];
                                       newData[idx].dpjp = e.target.value;
                                       setParsedData(newData);
                                     }}
-                                  />
+                                  >
+                                    <option value="">-- Pilih Dokter DPJP --</option>
+                                    {dokterList.map(d => (
+                                      <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+                                    ))}
+                                  </select>
                                 </div>
                               </div>
                               

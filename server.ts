@@ -733,7 +733,7 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
 
 // Create new outpatient record with bulk tindakan actions
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, dpjp, tindakan } = req.body;
+  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
     return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
@@ -753,8 +753,8 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
     if (existingReg && existingReg.length > 0) {
       const regId = existingReg[0].id;
       await db.query(
-        'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ?, dpjp = ? WHERE id = ?',
-        [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', dpjp || null, regId]
+        'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ?, icd_kode = ?, dpjp = ? WHERE id = ?',
+        [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', icd_kode || null, dpjp || null, regId]
       );
       
       // Delete old tindakan records
@@ -763,8 +763,8 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
       regResult = { insertId: regId };
     } else {
       regResult = await db.query(
-        'INSERT INTO registrasi_rawat_jalan (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit, dpjp) VALUES (?, ?, ?, ?, ?, ?)',
-        [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', dpjp || null]
+        'INSERT INTO registrasi_rawat_jalan (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, unit, icd_kode, dpjp) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [no_registrasi, no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', icd_kode || null, dpjp || null]
       );
     }
     const regId = regResult.insertId;
@@ -955,7 +955,7 @@ app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async 
 // Update outpatient patient details & actions
 app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
-  const { no_rm, nama_pasien, tanggal_pelayanan, triase, unit, dpjp, tindakan } = req.body;
+  const { no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan } = req.body;
 
   if (!no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
     return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
@@ -970,8 +970,8 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
     
     // 2. Update Registrasi
     await db.query(
-      'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ?, dpjp = ? WHERE id = ?',
-      [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', dpjp || null, Number(id)]
+      'UPDATE registrasi_rawat_jalan SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, unit = ?, icd_kode = ?, dpjp = ? WHERE id = ?',
+      [no_rm, tanggal_pelayanan, triase || 'hijau', unit || 'Poli Umum', icd_kode || null, dpjp || null, Number(id)]
     );
 
     // 3. Re-create child tindakan records to ensure clean relational master-detail status

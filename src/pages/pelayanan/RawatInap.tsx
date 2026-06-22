@@ -1548,17 +1548,20 @@ export default function RawatInap() {
                           <div className="grid grid-cols-4 gap-2 border-t border-slate-200/40 pt-2 text-[10px]">
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
-                              <input
-                                type="text"
-                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none"
+                              <select
+                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
                                 value={p.dpjp || ''}
-                                placeholder="Nama Dokter"
                                 onChange={(e) => {
                                   const newData = [...parsedData];
                                   newData[idx].dpjp = e.target.value;
                                   setParsedData(newData);
                                 }}
-                              />
+                              >
+                                <option value="">-- DPJP --</option>
+                                {dokterList.map(d => (
+                                  <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+                                ))}
+                              </select>
                             </div>
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>

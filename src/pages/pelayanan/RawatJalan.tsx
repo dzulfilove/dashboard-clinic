@@ -640,6 +640,8 @@ export default function RawatJalan() {
           tanggal_pelayanan: p.tanggal_pelayanan,
           triase: p.triase || 'hijau',
           unit: p.unit || bulkUnit,
+          icd_kode: p.icd_kode || null,
+          dpjp: p.dpjp || null,
           tindakan: p.tindakan
         });
         successCount++;
@@ -1521,39 +1523,73 @@ export default function RawatJalan() {
                     {/* Preview patient block loop */}
                     <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
                       {parsedData.map((p, idx) => (
-                        <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-2">
+                        <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
                               <span className="text-[10px] text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
                             </div>
-                            <div className="flex flex-col items-end space-y-1">
-                                <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
-                                <input
-                                    type="text"
-                                    className="text-[10px] font-bold border rounded-lg p-1 bg-white w-24"
-                                    value={p.dpjp || ''}
-                                    placeholder="DPJP"
-                                    onChange={(e) => {
-                                        const newData = [...parsedData];
-                                        newData[idx].dpjp = e.target.value;
-                                        setParsedData(newData);
-                                    }}
-                                />
+                            <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+                          </div>
+
+                          {/* Controls Grid */}
+                          <div className="bg-white border border-slate-150 p-3 rounded-xl">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                              <div>
+                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Triase</label>
                                 <select 
-                                    className="text-[10px] font-bold border rounded-lg p-1 bg-white"
-                                    value={p.triase || 'hijau'}
-                                    onChange={(e) => {
-                                        const newData = [...parsedData];
-                                        newData[idx].triase = e.target.value;
-                                        setParsedData(newData);
-                                    }}
+                                  className="text-[10px] font-bold border border-slate-200 rounded-lg p-1 w-full bg-white text-slate-800"
+                                  value={p.triase || 'hijau'}
+                                  onChange={(e) => {
+                                    const newData = [...parsedData];
+                                    newData[idx].triase = e.target.value;
+                                    setParsedData(newData);
+                                  }}
                                 >
-                                    <option value="hijau">Hijau</option>
-                                    <option value="kuning">Kuning</option>
-                                    <option value="hitam">Hitam</option>
-                                    <option value="merah">Merah</option>
+                                  <option value="hijau">Hijau</option>
+                                  <option value="kuning">Kuning</option>
+                                  <option value="hitam">Hitam</option>
+                                  <option value="merah">Merah</option>
                                 </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Diagnosa (ICD-10)</label>
+                                <select 
+                                  className="text-[10px] font-bold border border-slate-200 rounded-lg p-1 w-full bg-white text-slate-800"
+                                  value={p.icd_kode || ''}
+                                  onChange={(e) => {
+                                    const newData = [...parsedData];
+                                    newData[idx].icd_kode = e.target.value;
+                                    setParsedData(newData);
+                                  }}
+                                >
+                                  <option value="">-- Diagnosa ICD-10 --</option>
+                                  {icdList.map(icd => (
+                                    <option key={icd.id} value={icd.kode_icd}>
+                                      {icd.kode_icd} - {icd.deskripsi}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              <div>
+                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">DPJP</label>
+                                <select
+                                  className="text-[10px] font-bold border border-slate-200 rounded-lg p-1 w-full bg-white text-slate-800"
+                                  value={p.dpjp || ''}
+                                  onChange={(e) => {
+                                    const newData = [...parsedData];
+                                    newData[idx].dpjp = e.target.value;
+                                    setParsedData(newData);
+                                  }}
+                                >
+                                  <option value="">-- DPJP --</option>
+                                  {dokterList.map(d => (
+                                    <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+                                  ))}
+                                </select>
+                              </div>
                             </div>
                           </div>
 
