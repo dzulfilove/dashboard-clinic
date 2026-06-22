@@ -633,10 +633,13 @@ export default function IGD() {
     const matchesTriage = triageFilter === 'all' || String(rec.triase || 'hijau').toLowerCase() === triageFilter;
     const matchesProcedure = !procedureFilter || rec.tindakan.some(t => t.tindakan_nama === procedureFilter);
     const matchesSearch = (
-      rec.nama_pasien.toLowerCase().includes(q) ||
-      rec.no_registrasi.toLowerCase().includes(q) ||
-      rec.no_rm.toLowerCase().includes(q) ||
-      rec.tindakan.some((t: any) => t.tindakan_nama.toLowerCase().includes(q) || t.pelaksana.toLowerCase().includes(q))
+      (rec.nama_pasien || '').toLowerCase().includes(q) ||
+      (rec.no_registrasi || '').toLowerCase().includes(q) ||
+      (rec.no_rm || '').toLowerCase().includes(q) ||
+      rec.tindakan.some((t: any) => 
+        (t.tindakan_nama || '').toLowerCase().includes(q) || 
+        (t.pelaksana || '').toLowerCase().includes(q)
+      )
     );
     return matchesTriage && matchesProcedure && matchesSearch;
   });

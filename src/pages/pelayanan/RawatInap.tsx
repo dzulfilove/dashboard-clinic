@@ -586,10 +586,10 @@ export default function RawatInap() {
       const matchesRoom = roomFilter === 'all' || (rec.kamar || 'Flamboyan 1') === roomFilter;
       const matchesProcedure = !procedureFilter || rec.tindakan.some(t => t.tindakan_nama === procedureFilter);
       const matchesSearch = (
-        rec.nama_pasien.toLowerCase().includes(q) ||
-        rec.no_registrasi.toLowerCase().includes(q) ||
-        rec.no_rm.toLowerCase().includes(q) ||
-        rec.tindakan.some((t: any) => t.tindakan_nama.toLowerCase().includes(q)) ||
+        (rec.nama_pasien || '').toLowerCase().includes(q) ||
+        (rec.no_registrasi || '').toLowerCase().includes(q) ||
+        (rec.no_rm || '').toLowerCase().includes(q) ||
+        rec.tindakan.some((t: any) => (t.tindakan_nama || '').toLowerCase().includes(q)) ||
         (rec.icd_masuk && rec.icd_masuk.toLowerCase().includes(q)) ||
         (rec.icd_pulang && rec.icd_pulang.toLowerCase().includes(q))
       );

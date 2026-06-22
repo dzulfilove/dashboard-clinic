@@ -440,8 +440,8 @@ export default function RawatJalan() {
       return dateStr.trim() || new Date().toISOString().split('T')[0];
     };
 
-    const matchUnit = (unitStr: string): string => {
-      if (!unitStr) return 'PL003 (POLI UMUM)';
+    const matchUnit = (unitStr: string): string | null => {
+      if (!unitStr) return null;
       const cleaned = unitStr.toUpperCase().trim();
       
       // Direct substring or match lookup in TIPE_UNIT_RAWAT_JALAN
@@ -475,7 +475,7 @@ export default function RawatJalan() {
       if (cleaned.includes('RAWAT INAP') || cleaned.includes('RANAP') || cleaned.includes('IRI')) return 'IRI (RAWAT INAP)';
       if (cleaned.includes('LABORATORIUM') || cleaned.includes('LAB')) return 'LABORATORIUM';
       
-      return 'PL003 (POLI UMUM)';
+      return null;
     };
 
     for (let line of lines) {
@@ -517,7 +517,7 @@ export default function RawatJalan() {
       let tPel = 0;
       let tMedis = 0;
       let qty = 1;
-      let parsedUnit = "PL003 (POLI UMUM)";
+      let parsedUnit: string | null = null;
 
       const cleanNum = (str: string) => {
         if (!str) return 0;
@@ -672,10 +672,13 @@ export default function RawatJalan() {
     const matchesUnit = unitFilter === 'all' || (rec.unit || 'Poli Umum') === unitFilter;
     const matchesProcedure = !procedureFilter || rec.tindakan.some(t => t.tindakan_nama === procedureFilter);
     const matchesSearch = (
-      rec.nama_pasien.toLowerCase().includes(q) ||
-      rec.no_registrasi.toLowerCase().includes(q) ||
-      rec.no_rm.toLowerCase().includes(q) ||
-      rec.tindakan.some((t: any) => t.tindakan_nama.toLowerCase().includes(q) || t.pelaksana.toLowerCase().includes(q))
+      (rec.nama_pasien || '').toLowerCase().includes(q) ||
+      (rec.no_registrasi || '').toLowerCase().includes(q) ||
+      (rec.no_rm || '').toLowerCase().includes(q) ||
+      rec.tindakan.some((t: any) => 
+        (t.tindakan_nama || '').toLowerCase().includes(q) || 
+        (t.pelaksana || '').toLowerCase().includes(q)
+      )
     );
     return matchesTriage && matchesUnit && matchesProcedure && matchesSearch;
   });
