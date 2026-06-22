@@ -295,8 +295,6 @@ CREATE TABLE IF NOT EXISTS tindakan_ranap (
 CREATE TABLE IF NOT EXISTS dokter (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nama_dokter VARCHAR(250) NOT NULL,
-  spesialisasi VARCHAR(150),
-  no_sip VARCHAR(100),
   status ENUM('aktif', 'non-aktif') DEFAULT 'aktif',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

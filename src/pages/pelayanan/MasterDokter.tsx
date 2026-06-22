@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { 
   Search, 
   Plus, 
@@ -9,16 +9,16 @@ import {
   Check, 
   AlertCircle,
   RefreshCw,
-  Stethoscope
+  Stethoscope,
+  FileUp,
+  Download
 } from 'lucide-react';
 import api from '../../services/api';
-import { motion } from 'motion/react';
+import Papa from 'papaparse';
 
 interface Dokter {
   id: number;
   nama_dokter: string;
-  spesialisasi: string;
-  no_sip: string;
   status: 'aktif' | 'non-aktif';
 }
 
@@ -26,14 +26,13 @@ export default function MasterDokter() {
   const [data, setData] = useState<Dokter[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Dokter | null>(null);
   const [formData, setFormData] = useState({
     nama_dokter: '',
-    spesialisasi: '',
-    no_sip: '',
     status: 'aktif' as 'aktif' | 'non-aktif'
   });
   
@@ -59,7 +58,7 @@ export default function MasterDokter() {
 
   const handleOpenAddModal = () => {
     setEditingItem(null);
-    setFormData({ nama_dokter: '', spesialisasi: '', no_sip: '', status: 'aktif' });
+    setFormData({ nama_dokter: '', status: 'aktif' });
     setFeedback(null);
     setIsModalOpen(true);
   };
@@ -68,8 +67,6 @@ export default function MasterDokter() {
     setEditingItem(item);
     setFormData({ 
       nama_dokter: item.nama_dokter, 
-      spesialisasi: item.spesialisasi || '', 
-      no_sip: item.no_sip || '', 
       status: item.status 
     });
     setFeedback(null);
@@ -108,10 +105,8 @@ export default function MasterDokter() {
         await api.post('/dokter', formData);
         setFeedback({ type: 'success', message: 'Dokter baru berhasil didaftarkan.' });
       }
-      setTimeout(() => {
-        setIsModalOpen(false);
-        fetchDokters();
-      }, 1000);
+      setIsModalOpen(false);
+      fetchDokters();
     } catch (err: any) {
       setFeedback({ 
         type: 'error', 
@@ -122,245 +117,261 @@ export default function MasterDokter() {
     }
   };
 
+  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const doctors = results.data.map((row: any) => ({
+            nama_dokter: row.nama_dokter || row.nama || row.Nama,
+            status: (row.status || row.Status || 'aktif').toLowerCase() === 'aktif' ? 'aktif' : 'non-aktif'
+          })).filter(d => d.nama_dokter);
+
+          if (doctors.length === 0) {
+            setFeedback({ type: 'error', message: 'Tidak ada data dokter valid ditemukan di CSV.' });
+            setLoading(false);
+            return;
+          }
+
+          await api.post('/dokter/bulk', { doctors });
+          setFeedback({ type: 'success', message: `${doctors.length} dokter berhasil diimpor.` });
+          fetchDokters();
+        } catch (err) {
+          console.error(err);
+          setFeedback({ type: 'error', message: 'Gagal mengimpor data CSV.' });
+          setLoading(false);
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        setFeedback({ type: 'error', message: 'Kesalahan saat membaca file CSV.' });
+        setLoading(false);
+      }
+    });
+    
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const downloadTemplate = () => {
+    const csvContent = "nama_dokter,status\ndr. Example Name,aktif\ndr. Another Name,non-aktif";
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "template_dokter.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredData = data.filter(item => 
-    item.nama_dokter.toLowerCase().includes(search.toLowerCase()) ||
-    (item.spesialisasi && item.spesialisasi.toLowerCase().includes(search.toLowerCase())) ||
-    (item.no_sip && item.no_sip.toLowerCase().includes(search.toLowerCase()))
+    item.nama_dokter.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50/50 min-h-screen">
-      {/* Header section with minimal branding */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="space-y-6">
+      {/* Upper header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-8 h-1 bg-teal-600 rounded-full"></span>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-teal-700/60">Sistem Informasi Rumah Sakit</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-850 tracking-tight flex items-center gap-3">
-            Master <span className="text-teal-600 italic">Dokter</span>
+          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+            <Stethoscope className="h-5 w-5 text-teal-600" />
+            <span>Master Data Dokter</span>
           </h1>
-          <p className="text-slate-500 text-sm font-medium mt-1">Kelola data tenaga medis dan DPJP unit pelayanan</p>
+          <p className="text-slate-500 text-xs mt-1">
+            Daftar tenaga medis dan DPJP unit pelayanan Klinik Puri Medika.
+          </p>
         </div>
-        
-        <button 
-          onClick={handleOpenAddModal}
-          className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-2xl font-bold text-sm transition-all shadow-lg shadow-teal-600/20 active:scale-95 self-start"
-        >
-          <Plus size={18} />
-          Tambah Dokter Baru
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={downloadTemplate}
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-lg transition shadow-sm"
+          >
+            <Download className="h-3 w-3" />
+            <span>Template</span>
+          </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs rounded-lg transition shadow-sm"
+          >
+            <FileUp className="h-3 w-3" />
+            <span>Import CSV</span>
+          </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImportCSV} 
+            accept=".csv" 
+            className="hidden" 
+          />
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium text-xs rounded-lg shadow-sm"
+          >
+            <Plus className="h-3 w-3" />
+            <span>Tambah Dokter</span>
+          </button>
+        </div>
       </div>
 
       {feedback && (
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`flex items-center gap-3 p-4 rounded-2xl ${
-            feedback.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-rose-50 text-rose-700 border border-rose-100'
-          }`}
-        >
-          {feedback.type === 'success' ? <Check size={18} /> : <AlertCircle size={18} />}
-          <span className="text-sm font-bold tracking-tight">{feedback.message}</span>
-          <button onClick={() => setFeedback(null)} className="ml-auto opacity-50 hover:opacity-100 italic text-xs">Tutup</button>
-        </motion.div>
+        <div className={`p-4 rounded-xl flex items-center gap-3 border ${
+          feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+        }`}>
+          {feedback.type === 'success' ? <Check className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
+          <span className="text-sm font-semibold">{feedback.message}</span>
+        </div>
       )}
 
-      {/* Main Table Content */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="relative group w-full sm:max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-teal-600 transition-colors" size={18} />
-            <input 
-              type="text" 
-              placeholder="Cari dokter, spesialisasi, atau SIP..." 
+      {/* Main card */}
+      <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+        {/* Controls header */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+          <div className="relative w-full sm:max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Cari nama dokter..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-teal-600/10 transition-all placeholder:text-slate-400 font-medium"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl font-medium transition"
             />
           </div>
-          
-          <button 
-            onClick={fetchDokters}
-            className="flex items-center gap-2 text-slate-500 hover:text-teal-600 p-2 transition-colors rounded-xl hover:bg-slate-50"
-            title="Muat ulang data"
-          >
-            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-          </button>
+          <p className="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono sm:text-right">
+            Total {filteredData.length} dokter
+          </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-50/50 text-left border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-400">Infografis Dokter</th>
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-slate-400 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {loading ? (
-                <tr>
-                  <td colSpan={2} className="px-6 py-20 text-center">
-                    <div className="flex flex-col items-center gap-2">
-                       <RefreshCw className="animate-spin text-teal-600 mb-2" size={32} />
-                       <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Sinkronisasi Database...</p>
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="py-20 text-center text-slate-400">
+            <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-3 text-teal-600" />
+            <span className="font-semibold text-sm">Update data...</span>
+          </div>
+        ) : filteredData.length === 0 ? (
+          <div className="py-16 text-center text-slate-400">
+            <Search className="h-10 w-10 mx-auto mb-3 opacity-40 text-slate-500" />
+            <p className="font-extrabold text-sm text-slate-600">Tidak ada dokter ditemukan</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/70 border-b border-slate-100">
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Dokter</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Status</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider text-right">Aksi</th>
                 </tr>
-              ) : filteredData.length === 0 ? (
-                <tr>
-                  <td colSpan={2} className="px-6 py-20 text-center">
-                    <div className="flex flex-col items-center gap-2 opacity-30 grayscale">
-                       <User size={48} className="text-slate-300" />
-                       <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Data Dokter Tidak Ditemukan</p>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filteredData.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/30 transition-colors group">
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 shrink-0">
-                          <Stethoscope size={24} />
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredData.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 transition">
+                    <td className="py-3 px-5 text-xs text-slate-800 font-medium">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
+                          <User size={14} />
                         </div>
-                        <div>
-                          <p className="text-sm font-black text-slate-850 tracking-tight">{item.nama_dokter}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="text-[10px] items-center flex gap-1 font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                              {item.spesialisasi || 'Umum'}
-                            </span>
-                            <span className="text-[10px] text-slate-400 font-medium italic">
-                              SIP: {item.no_sip || '-'}
-                            </span>
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                              item.status === 'aktif' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'
-                            }`}>
-                              {item.status}
-                            </span>
-                          </div>
-                        </div>
+                        {item.nama_dokter}
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-center gap-2">
-                        <button 
+                    <td className="py-3 px-5 text-xs">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                        item.status === 'aktif' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-5 text-right">
+                      <div className="inline-flex items-center gap-1.5">
+                        <button
                           onClick={() => handleOpenEditModal(item)}
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all active:scale-90"
-                          title="Ubah Data"
+                          className="p-1 px-2.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
                         >
-                          <Edit2 size={16} />
+                          <Edit2 className="h-3 w-3" />
+                          <span>Ubah</span>
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(item.id)}
-                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all active:scale-90"
-                          title="Hapus Data"
+                          className="p-1 px-2.5 hover:bg-rose-50 hover:text-rose-600 rounded-lg text-slate-500 transition text-xs font-normal inline-flex items-center gap-1"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 className="h-3 w-3" />
+                          <span>Hapus</span>
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
-      {/* Modal Add/Edit */}
+      {/* Action modal dialog */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-          <motion.div 
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-[2.5rem] w-full max-w-lg shadow-2xl overflow-hidden"
-          >
-            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-teal-600 text-white">
-              <div>
-                <h3 className="text-xl font-black italic tracking-tight">
-                  {editingItem ? 'Perbarui Data Dokter' : 'Registrasi Dokter Baru'}
-                </h3>
-                <p className="text-teal-100 text-xs mt-1 font-medium italic opacity-80 leading-relaxed">
-                  Lengkapi berkas identitas medis tenaga kesehatan
-                </p>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="bg-white w-full max-w-md rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h3 className="font-extrabold text-slate-900 text-base">
+                {editingItem ? 'Perbarui Data Dokter' : 'Registrasi Dokter Baru'}
+              </h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-white/10 rounded-2xl"
+                className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition"
               >
-                <X size={20} />
+                <X className="h-4.5 w-4.5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-6">
-              <div className="grid grid-cols-1 gap-6">
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Nama Lengkap Dokter <span className="text-rose-500">*</span></label>
-                  <input 
-                    type="text" 
-                    required
-                    value={formData.nama_dokter}
-                    onChange={(e) => setFormData({...formData, nama_dokter: e.target.value})}
-                    placeholder="Contoh: dr. Budi Santoso, Sp.PD"
-                    className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-teal-600/10 font-bold tracking-tight"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Spesialisasi</label>
-                  <input 
-                    type="text" 
-                    value={formData.spesialisasi}
-                    onChange={(e) => setFormData({...formData, spesialisasi: e.target.value})}
-                    placeholder="Contoh: Spesialis Penyakit Dalam"
-                    className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-teal-600/10 font-bold tracking-tight"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Nomor SIP</label>
-                    <input 
-                      type="text" 
-                      value={formData.no_sip}
-                      onChange={(e) => setFormData({...formData, no_sip: e.target.value})}
-                      placeholder="No. Surat Izin Praktik"
-                      className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-teal-600/10 font-bold tracking-tight"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 ml-1">Status Keaktifan</label>
-                    <select 
-                      value={formData.status}
-                      onChange={(e) => setFormData({...formData, status: e.target.value as 'aktif' | 'non-aktif'})}
-                      className="w-full px-5 py-3.5 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-teal-600/10 font-bold tracking-tight appearance-none"
-                    >
-                      <option value="aktif">AKTIF</option>
-                      <option value="non-aktif">NON-AKTIF</option>
-                    </select>
-                  </div>
-                </div>
+            <form onSubmit={handleSubmit} className="p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Nama Lengkap Dokter</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: dr. Budi Santoso"
+                  value={formData.nama_dokter}
+                  onChange={(e) => setFormData(prev => ({ ...prev, nama_dokter: e.target.value }))}
+                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                />
               </div>
 
-              <div className="pt-4">
-                <button 
+              <div>
+                <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Status Keaktifan</label>
+                <select 
+                  value={formData.status}
+                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'aktif' | 'non-aktif' }))}
+                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                >
+                  <option value="aktif">AKTIF</option>
+                  <option value="non-aktif">NON-AKTIF</option>
+                </select>
+              </div>
+
+              <div className="pt-3 border-t border-slate-50 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition"
+                >
+                  Batal
+                </button>
+                <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/20 flex items-center justify-center gap-2"
+                  className="px-4 py-2 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 active:scale-97 disabled:opacity-50 rounded-xl transition shadow-sm flex items-center gap-1.5"
                 >
-                  {submitting ? (
-                    <RefreshCw className="animate-spin" size={20} />
-                  ) : (
-                    <>
-                      <Check size={20} />
-                      {editingItem ? 'SIMPAN PERUBAHAN DATA' : 'DAFTARKAN DOKTER SEKARANG'}
-                    </>
-                  )}
+                  {submitting && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
+                  <span>{editingItem ? 'Simpan Perubahan' : 'Simpan Dokter'}</span>
                 </button>
               </div>
             </form>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

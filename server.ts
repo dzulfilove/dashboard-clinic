@@ -856,11 +856,11 @@ app.get('/api/dokter', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/dokter', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
-  const { nama_dokter, spesialisasi, no_sip, status } = req.body;
+  const { nama_dokter, status } = req.body;
   try {
     const result = await db.query(
-      'INSERT INTO dokter (nama_dokter, spesialisasi, no_sip, status) VALUES (?, ?, ?, ?)',
-      [nama_dokter, spesialisasi, no_sip, status || 'aktif']
+      'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
+      [nama_dokter, status || 'aktif']
     );
     res.json({ success: true, id: result.insertId });
   } catch (err: any) {
@@ -870,11 +870,11 @@ app.post('/api/dokter', authenticateToken, roleGuard(['admin']), async (req: any
 
 app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
   const { id } = req.params;
-  const { nama_dokter, spesialisasi, no_sip, status } = req.body;
+  const { nama_dokter, status } = req.body;
   try {
     await db.query(
-      'UPDATE dokter SET nama_dokter = ?, spesialisasi = ?, no_sip = ?, status = ? WHERE id = ?',
-      [nama_dokter, spesialisasi, no_sip, status, Number(id)]
+      'UPDATE dokter SET nama_dokter = ?, status = ? WHERE id = ?',
+      [nama_dokter, status, Number(id)]
     );
     res.json({ success: true });
   } catch (err: any) {
@@ -886,6 +886,25 @@ app.delete('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (re
   const { id } = req.params;
   try {
     await db.query('DELETE FROM dokter WHERE id = ?', [Number(id)]);
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  const { doctors } = req.body;
+  if (!Array.isArray(doctors)) return res.status(400).json({ message: 'Invalid data format' });
+  
+  try {
+    for (const d of doctors) {
+      if (d.nama_dokter) {
+        await db.query(
+          'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
+          [d.nama_dokter, d.status || 'aktif']
+        );
+      }
+    }
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
