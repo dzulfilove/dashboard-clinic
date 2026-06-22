@@ -88,7 +88,7 @@ export default function App() {
                       <Route 
                         path="/pelayanan/master-tindakan" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <MasterTindakan />
                           </ProtectedRoute>
                         } 
@@ -96,7 +96,7 @@ export default function App() {
                       <Route 
                         path="/pelayanan/master-pasien" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <MasterPasien />
                           </ProtectedRoute>
                         } 
@@ -104,7 +104,7 @@ export default function App() {
                       <Route 
                         path="/pelayanan/master-icd10" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <MasterICD10 />
                           </ProtectedRoute>
                         } 
@@ -112,7 +112,7 @@ export default function App() {
                       <Route 
                         path="/pelayanan/master-dokter" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <MasterDokter />
                           </ProtectedRoute>
                         } 

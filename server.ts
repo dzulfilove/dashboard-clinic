@@ -814,7 +814,7 @@ app.get('/api/debug/migrate', async (req: any, res) => {
   }
 });
 
-app.post('/api/master-tindakan', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+app.post('/api/master-tindakan', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { nama_tindakan, jenis } = req.body;
   try {
     await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [nama_tindakan, jenis]);
@@ -824,7 +824,7 @@ app.post('/api/master-tindakan', authenticateToken, roleGuard(['admin']), async 
   }
 });
 
-app.put('/api/master-tindakan/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+app.put('/api/master-tindakan/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
   const { nama_tindakan, jenis } = req.body;
   try {
@@ -855,7 +855,7 @@ app.get('/api/dokter', authenticateToken, async (req: any, res) => {
   }
 });
 
-app.post('/api/dokter', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+app.post('/api/dokter', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { nama_dokter, status } = req.body;
   try {
     const result = await db.query(
@@ -868,7 +868,7 @@ app.post('/api/dokter', authenticateToken, roleGuard(['admin']), async (req: any
   }
 });
 
-app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
   const { nama_dokter, status } = req.body;
   try {
@@ -892,7 +892,7 @@ app.delete('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (re
   }
 });
 
-app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { doctors } = req.body;
   if (!Array.isArray(doctors)) return res.status(400).json({ message: 'Invalid data format' });
   
@@ -1379,7 +1379,7 @@ app.get('/api/pelayanan/icd10', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/pelayanan/icd10', authenticateToken, roleGuard(['admin']), async (req, res) => {
+app.post('/api/pelayanan/icd10', authenticateToken, roleGuard(['admin', 'perawat']), async (req, res) => {
   const { kode_icd, deskripsi } = req.body;
   if (!kode_icd || !deskripsi) return res.status(400).json({ message: 'Kode dan Deskripsi wajib diisi.' });
   try {
@@ -1390,7 +1390,7 @@ app.post('/api/pelayanan/icd10', authenticateToken, roleGuard(['admin']), async 
   }
 });
 
-app.put('/api/pelayanan/icd10/:id', authenticateToken, roleGuard(['admin']), async (req, res) => {
+app.put('/api/pelayanan/icd10/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req, res) => {
   const { kode_icd, deskripsi } = req.body;
   const { id } = req.params;
   try {

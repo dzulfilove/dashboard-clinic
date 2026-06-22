@@ -768,6 +768,26 @@ export default function RawatJalan() {
     .sort((a,b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime())
     .slice(0, 10);
 
+  // 10 Diagnosa Terbanyak (ICD-10)
+  const icdCountMap: { [key: string]: number } = {};
+  safeRecords.forEach(r => {
+    if (r.icd_kode) {
+      icdCountMap[r.icd_kode] = (icdCountMap[r.icd_kode] || 0) + 1;
+    }
+  });
+
+  const top10Diagnosa = Object.entries(icdCountMap)
+    .map(([kode, count]) => {
+      const matchingIcd = icdList.find((item) => item.kode_icd === kode);
+      return {
+        kode,
+        deskripsi: matchingIcd ? matchingIcd.deskripsi : 'Deskripsi Tidak Diketahui',
+        count
+      };
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
@@ -1036,6 +1056,68 @@ export default function RawatJalan() {
                     ))}
                   </div>
                 </div>
+              </div>
+
+              {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
+              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
+                      <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
+                      <span>10 Diagnosa Terbanyak (ICD-10)</span>
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis rawat jalan dengan kunjungan terbanyak</p>
+                  </div>
+                  <span className="text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
+                    Kunjungan Terbanyak
+                  </span>
+                </div>
+
+                {top10Diagnosa.length === 0 ? (
+                  <div className="text-center py-10 text-slate-350 text-xs font-mono border border-dashed border-slate-200 rounded-2xl">
+                    Belum ada diagnosa (ICD-10) tercatat pada rekam medis kunjungan
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {top10Diagnosa.map((item, index) => {
+                      const percentage = totalVisits > 0 ? Math.round((item.count / totalVisits) * 100) : 0;
+                      return (
+                        <div key={item.kode} className="p-3.5 bg-slate-50/50 hover:bg-slate-50 rounded-2xl border border-slate-100/80 transition flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <span className="text-xs font-bold text-slate-400 w-5 shrink-0 text-center font-mono">
+                              #{index + 1}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-extrabold text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
+                                  {item.kode}
+                                </span>
+                                <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
+                                  {item.deskripsi}
+                                </span>
+                              </div>
+                              <div className="w-full bg-slate-200/60 rounded-full h-1 mt-2 overflow-hidden max-w-[180px]">
+                                <div 
+                                  className="bg-rose-500 h-1 rounded-full" 
+                                  style={{ width: `${Math.max(percentage, 5)}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right shrink-0">
+                            <span className="text-xs font-black text-slate-800 font-mono">
+                              {item.count}
+                            </span>
+                            <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
+                              Kunjungan ({percentage}%)
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Sample Pasted Output references */}
