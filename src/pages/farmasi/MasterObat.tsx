@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { ObatMaster } from '../../types.js';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function MasterObat() {
   const { user } = useAuthStore();
@@ -391,10 +392,30 @@ export default function MasterObat() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-4">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="space-y-4"
+    >
       {/* Header controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Package className="h-5 w-5 text-teal-600" />
@@ -417,20 +438,28 @@ export default function MasterObat() {
             <span>Tambah Obat Baru</span>
           </button>
         )}
-      </div>
+      </motion.div>
 
-      {feedback && (
-        <div id="obat-feedback-alert" className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-semibold ${
-          feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
-        }`}>
-          {feedback.type === 'success' ? <CheckCircle className="h-4 w-4 text-emerald-600" /> : <AlertCircle className="h-4 w-4 text-rose-600" />}
-          <span>{feedback.msg}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            id="obat-feedback-alert" 
+            className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-semibold ${
+              feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+            }`}
+          >
+            {feedback.type === 'success' ? <CheckCircle className="h-4 w-4 text-emerald-600" /> : <AlertCircle className="h-4 w-4 text-rose-600" />}
+            <span>{feedback.msg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Import module with tabs */}
       {(user?.role === 'admin' || user?.role === 'farmasi') && (
-        <div className="bg-white p-5 border border-slate-200 shadow-sm rounded-2xl space-y-4">
+        <motion.div variants={itemVariants} className="bg-white p-5 border border-slate-200 shadow-sm rounded-2xl space-y-4">
           <div className="flex border-b border-slate-200 pb-2 space-x-4">
             <button
               id="tab-excel-btn"
@@ -621,12 +650,18 @@ export default function MasterObat() {
               </button>
             </div>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* Dynamic Input/Edit Block Form Drawer style */}
-      {isFormOpen && (
-        <div className="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4 text-xs">
+      <AnimatePresence>
+        {isFormOpen && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+            className="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4 text-xs"
+          >
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
             <h2 className="text-xs font-extrabold text-teal-450">
               {editId ? `Ubah Data Obat: ${kodeObat}` : 'Tambah Katalog Obat Baru'}
@@ -746,11 +781,12 @@ export default function MasterObat() {
               </button>
             </div>
           </form>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Searching & Filter tool rails */}
-      <div className="bg-white p-3.5 border border-slate-150 shadow-xs rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} className="bg-white p-3.5 border border-slate-150 shadow-xs rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative rounded-xl shadow-xs w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-slate-400" />
@@ -764,10 +800,10 @@ export default function MasterObat() {
             className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-medium animate-none"
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* Catalog lists table */}
-      <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden text-xs">
+      <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden text-xs">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-100 text-left">
             <thead className="bg-slate-50">
@@ -784,22 +820,39 @@ export default function MasterObat() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700 text-xs font-semibold">
+              <AnimatePresence mode="popLayout">
               {loading ? (
-                <tr>
+                <motion.tr 
+                  key="loading"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <td colSpan={7} className="text-center py-10 text-slate-400 font-medium">
                     <RefreshCw className="h-5 w-5 text-teal-600 animate-spin mx-auto mb-2" />
                     <span>Sinkronisasi katalog...</span>
                   </td>
-                </tr>
+                </motion.tr>
               ) : filteredMedicines.length === 0 ? (
-                <tr>
+                <motion.tr 
+                  key="empty"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
                   <td colSpan={7} className="text-center py-10 text-slate-400 font-medium">
                     Tidak ditemukan obat yang cocok dengan kriteria filter.
                   </td>
-                </tr>
+                </motion.tr>
               ) : (
                 filteredMedicines.map((m) => (
-                  <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
+                  <motion.tr 
+                    key={m.id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="hover:bg-slate-50/70 transition-colors"
+                  >
                     <td className="px-6 py-3.5 whitespace-nowrap">
                       <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200/60 font-bold">
                         {m.kode_obat}
@@ -857,13 +910,14 @@ export default function MasterObat() {
                         </div>
                       </td>
                     )}
-                  </tr>
+                  </motion.tr>
                 ))
               )}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

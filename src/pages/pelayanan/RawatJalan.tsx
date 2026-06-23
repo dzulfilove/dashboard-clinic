@@ -706,6 +706,21 @@ export default function RawatJalan() {
     ];
   }, [records]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   const itemsPerPage = 100;
   const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   
@@ -792,9 +807,14 @@ export default function RawatJalan() {
     .slice(0, 10);
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="space-y-6"
+    >
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <FileCheck className="h-5 w-5 text-teal-600" />
@@ -840,7 +860,7 @@ export default function RawatJalan() {
             <span>Registrasi Manual</span>
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Floating feedback portal */}
       <AnimatePresence>
@@ -861,19 +881,32 @@ export default function RawatJalan() {
         )}
       </AnimatePresence>
 
-      {/* LOADING SPINNERS */}
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600" />
-          <p className="text-slate-400 font-mono text-xs mt-4">Mengakses data server rawat jalan...</p>
-        </div>
-      ) : (
-        <>
-          {/* TAB 1: DASHBOARD & STATS */}
-          {activeTab === 'statistik' && (
-            <div className="space-y-6">
+      {/* MAIN CONTENT AREA */}
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div 
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center py-20"
+          >
+            <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600" />
+            <p className="text-slate-400 font-mono text-xs mt-4">Mengakses data server rawat jalan...</p>
+          </motion.div>
+        ) : (
+          <motion.div key="content">
+            {/* TAB 1: DASHBOARD & STATS */}
+            {activeTab === 'statistik' && (
+              <motion.div 
+                key="stats"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                className="space-y-6"
+              >
               {/* Core metrics bento boxes */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
@@ -948,10 +981,10 @@ export default function RawatJalan() {
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
                 </motion.div>
                 
-              </div>
+              </motion.div>
 
               {/* Graphical trends */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Chart 1: Kunjungan & Pendapatan Harian */}
                 <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs lg:col-span-2 space-y-4">
                   <div>
@@ -1059,10 +1092,10 @@ export default function RawatJalan() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+              <motion.div variants={itemVariants} className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
@@ -1121,10 +1154,10 @@ export default function RawatJalan() {
                     })}
                   </div>
                 )}
-              </div>
+              </motion.div>
 
               {/* Sample Pasted Output references */}
-              <div className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md">
+              <motion.div variants={itemVariants} className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md">
                 <div className="absolute top-[-20%] right-[-10%] w-[20rem] h-[20rem] bg-teal-500/10 rounded-full blur-[80px]" />
                 <div className="flex items-center space-x-2.5 z-10 relative">
                   <FileText className="h-5 w-5 text-teal-400" />
@@ -1142,13 +1175,19 @@ export default function RawatJalan() {
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           )}
 
           {/* TAB 2: DETAILED RECORDS GRID */}
           {activeTab === 'kunjungan' && (
-            <div className="space-y-4">
+            <motion.div 
+              key="visits"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              className="space-y-4"
+            >
               {/* Infografis Kunjungan Per Triase */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150">
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
@@ -1545,12 +1584,18 @@ export default function RawatJalan() {
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {/* TAB 3: PASTE TEXT BULK IMPORTER */}
           {activeTab === 'input' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <motion.div 
+              key="input"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start"
+            >
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div>
@@ -1734,18 +1779,22 @@ export default function RawatJalan() {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
+        </motion.div>
+      )}
+      </AnimatePresence>
 
-          {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
-          {isManualModalOpen && (
-            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
-              >
+      {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
+      <AnimatePresence>
+        {isManualModalOpen && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+            >
                 {/* Modal Header */}
                 <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
                   <div>
@@ -1990,9 +2039,8 @@ export default function RawatJalan() {
                 </form>
               </motion.div>
             </div>
-          )}
-        </>
-      )}
-    </div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }

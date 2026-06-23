@@ -12,6 +12,7 @@ import {
   Users2
 } from 'lucide-react';
 import api from '../../services/api';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Pasien {
   no_rm: string;
@@ -141,10 +142,30 @@ export default function MasterPasien() {
     (p.no_rm || '').toLowerCase().includes(search.toLowerCase())
   );
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="space-y-6"
+    >
       {/* Upper header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Users2 className="h-5 w-5 text-teal-600" />
@@ -162,19 +183,26 @@ export default function MasterPasien() {
           <UserPlus className="h-3 w-3" />
           <span>Daftarkan Pasien Baru</span>
         </button>
-      </div>
+      </motion.div>
 
-      {feedback && (
-        <div className={`p-4 rounded-xl flex items-center gap-3 border ${
-          feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
-        }`}>
-          {feedback.type === 'success' ? <Check className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
-          <span className="text-sm font-semibold">{feedback.message}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`p-4 rounded-xl flex items-center gap-3 border ${
+              feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+            }`}
+          >
+            {feedback.type === 'success' ? <Check className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
+            <span className="text-sm font-semibold">{feedback.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main card */}
-      <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
         {/* Controls header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
           <div className="relative w-full sm:max-w-md">
@@ -215,8 +243,15 @@ export default function MasterPasien() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
+                <AnimatePresence mode="popLayout">
                 {filteredData.map((p) => (
-                  <tr key={p.no_rm} className="hover:bg-slate-50/50 transition">
+                  <motion.tr 
+                    key={p.no_rm} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="hover:bg-slate-50/50 transition"
+                  >
                     <td className="py-3 px-5 text-xs text-slate-800 font-mono">
                       {p.no_rm}
                     </td>
@@ -253,18 +288,25 @@ export default function MasterPasien() {
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Detail modal dialog */}
+      <AnimatePresence>
       {isDetailModalOpen && selectedPasien && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-2xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="bg-white w-full max-w-2xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+          >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-extrabold text-slate-900 text-base">
                 Detail Pasien: {selectedPasien.nama}
@@ -317,14 +359,21 @@ export default function MasterPasien() {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* Visit detail modal dialog */}
+      <AnimatePresence>
       {isVisitDetailModalOpen && selectedVisit && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="bg-white w-full max-w-xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+          >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-extrabold text-slate-900 text-base">
                 Detail Kunjungan: {selectedVisit.no_registrasi}
@@ -385,14 +434,21 @@ export default function MasterPasien() {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
+      </AnimatePresence>
 
       {/* Action modal dialog */}
+      <AnimatePresence>
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-md rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="bg-white w-full max-w-md rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+          >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-extrabold text-slate-900 text-base">
                 {editingItem ? 'Perbarui Profil Pasien Ny / Tuan' : 'Pendaftaran Nomor Rekam Medis'}
@@ -449,9 +505,10 @@ export default function MasterPasien() {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
-    </div>
+      </AnimatePresence>
+    </motion.div>
   );
 }

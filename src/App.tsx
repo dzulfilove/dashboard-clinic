@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 import { useAuthStore } from './store/authStore.js';
 
 // Layout & guards
 import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
+import PageTransition from './components/PageTransition.js';
 
 // Pages
 import Login from './pages/Login.js';
@@ -36,9 +38,19 @@ export default function App() {
 
   return (
     <Router>
-      <Routes>
+      <AppContent />
+    </Router>
+  );
+}
+
+function AppContent() {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         {/* Public Login Route */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
 
         {/* Bound Protected Core Application Layout */}
         <Route
@@ -56,16 +68,17 @@ export default function App() {
                 {/* Core Main Viewport Stage */}
                 <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-auto max-h-screen">
                   <div className="max-w-7xl mx-auto">
-                    <Routes>
-                      {/* Integrated Shared Dashboard (Home) */}
-                      <Route path="/" element={<Dashboard />} />
+                    <AnimatePresence mode="wait">
+                      <Routes location={location} key={location.pathname}>
+                        {/* Integrated Shared Dashboard (Home) */}
+                        <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
 
                       {/* LABORATORY MODUL ROUTES */}
                       <Route 
                         path="/pelayanan/rawat-jalan" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
-                            <RawatJalan />
+                            <PageTransition><RawatJalan /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -73,7 +86,7 @@ export default function App() {
                         path="/pelayanan/igd" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
-                            <IGD />
+                            <PageTransition><IGD /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -81,7 +94,7 @@ export default function App() {
                         path="/pelayanan/rawat-inap" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
-                            <RawatInap />
+                            <PageTransition><RawatInap /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -89,7 +102,7 @@ export default function App() {
                         path="/pelayanan/master-tindakan" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                            <MasterTindakan />
+                            <PageTransition><MasterTindakan /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -97,7 +110,7 @@ export default function App() {
                         path="/pelayanan/master-pasien" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                            <MasterPasien />
+                            <PageTransition><MasterPasien /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -105,7 +118,7 @@ export default function App() {
                         path="/pelayanan/master-icd10" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                            <MasterICD10 />
+                            <PageTransition><MasterICD10 /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -113,7 +126,7 @@ export default function App() {
                         path="/pelayanan/master-dokter" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                            <MasterDokter />
+                            <PageTransition><MasterDokter /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -123,7 +136,7 @@ export default function App() {
                         path="/lab/input" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
-                            <InputPemeriksaan />
+                            <PageTransition><InputPemeriksaan /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -131,7 +144,7 @@ export default function App() {
                         path="/lab/master" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
-                            <MasterPemeriksaan />
+                            <PageTransition><MasterPemeriksaan /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -139,7 +152,7 @@ export default function App() {
                         path="/lab/dashboard" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
-                            <DashboardLab />
+                            <PageTransition><DashboardLab /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -149,7 +162,7 @@ export default function App() {
                         path="/farmasi/master" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                            <MasterObat />
+                            <PageTransition><MasterObat /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -157,7 +170,7 @@ export default function App() {
                         path="/farmasi/input" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                            <InputKonsumsi />
+                            <PageTransition><InputKonsumsi /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -165,7 +178,7 @@ export default function App() {
                         path="/farmasi/forecast" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                            <Forecasting />
+                            <PageTransition><Forecasting /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -173,7 +186,7 @@ export default function App() {
                         path="/farmasi/abc" 
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                            <AbcAnalysis />
+                            <PageTransition><AbcAnalysis /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -183,7 +196,7 @@ export default function App() {
                         path="/admin/users" 
                         element={
                           <ProtectedRoute allowedRoles={['admin']}>
-                            <UsersManagement />
+                            <PageTransition><UsersManagement /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -191,7 +204,7 @@ export default function App() {
                         path="/admin/db-settings" 
                         element={
                           <ProtectedRoute allowedRoles={['admin']}>
-                            <DatabaseSettings />
+                            <PageTransition><DatabaseSettings /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />
@@ -199,6 +212,7 @@ export default function App() {
                       {/* Wildcard Fallback redirection */}
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
+                    </AnimatePresence>
                   </div>
                 </main>
               </div>
@@ -206,6 +220,6 @@ export default function App() {
           }
         />
       </Routes>
-    </Router>
+    </AnimatePresence>
   );
 }
