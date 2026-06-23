@@ -46,9 +46,9 @@ export default function Sidebar() {
       title: 'Laboratorium',
       icon: FlaskConical,
       items: [
-        { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'lab', 'perawat', 'analis'] },
-        { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'lab', 'perawat', 'analis'] },
-        { name: 'Master Pemeriksaan', path: '/lab/master', icon: Layers, roles: ['admin', 'lab', 'perawat', 'analis'] }
+        { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'analis'] },
+        { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'analis'] },
+        { name: 'Master Pemeriksaan', path: '/lab/master', icon: Layers, roles: ['admin', 'analis'] }
       ]
     },
     {
@@ -56,9 +56,9 @@ export default function Sidebar() {
       title: 'Pelayanan Klinik',
       icon: Activity,
       items: [
-        { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat', 'analis'] },
-        { name: 'IGD', path: '/pelayanan/igd', icon: Activity, roles: ['admin', 'perawat', 'analis'] },
-        { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat', 'analis'] },
+        { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat'] },
+        { name: 'IGD', path: '/pelayanan/igd', icon: Activity, roles: ['admin', 'perawat'] },
+        { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat'] },
         { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin', 'perawat'] },
         { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin', 'perawat'] },
         { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin', 'perawat'] },
@@ -180,12 +180,15 @@ export default function Sidebar() {
       </AnimatePresence>
 
       {/* Sidebar Container */}
-      <aside 
+      <motion.aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between border-r border-slate-800/40 z-45 transition-all duration-300
-          ${collapsed ? 'w-20' : 'w-72'} 
-          ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
-        `}
+        initial={false}
+        animate={{ 
+          width: collapsed ? 80 : 288,
+          x: mobileOpen ? 0 : (window.innerWidth < 768 ? -288 : 0)
+        }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        className="fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between border-r border-slate-800/40 z-45"
       >
         {/* Upper Brand Section */}
         <div>
@@ -266,7 +269,7 @@ export default function Sidebar() {
                   {/* Parent Section Menu Button */}
                   <button
                     onClick={() => toggleSection(item.title)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer group
                       ${isChildActive 
                         ? 'bg-white/5 text-teal-400 border border-teal-500/10' 
                         : 'text-slate-300 hover:bg-white/5 hover:text-slate-100'}
@@ -275,22 +278,29 @@ export default function Sidebar() {
                     style={{ minHeight: '44px' }}
                   >
                     <div className="flex items-center space-x-3 overflow-hidden">
-                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-teal-400' : 'text-slate-400'}`} />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-teal-300'}`} />
+                      {!collapsed && <motion.span layout className="truncate">{item.title}</motion.span>}
                     </div>
                     {!collapsed && (
-                      <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180 text-teal-400' : ''}`} />
+                      <motion.div
+                        animate={{ rotate: isOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-colors duration-200 ${isOpen ? 'text-teal-400' : 'group-hover:text-slate-300'}`} />
+                      </motion.div>
                     )}
                   </button>
 
-                  {/* Submenu container */}
-                  <AnimatePresence initial={false}>
+                  <AnimatePresence initial={false} mode="sync">
                     {isOpen && !collapsed && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        transition={{ 
+                          height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+                          opacity: { duration: 0.2 }
+                        }}
                         className="overflow-hidden pl-4 space-y-1 border-l border-slate-900 ml-5"
                       >
                         {item.items && item.items.map((subItem: any, subIdx: number) => {
@@ -368,7 +378,7 @@ export default function Sidebar() {
             </button>
           </div>
         </div>
-      </aside>
+      </motion.aside>
     </>
   );
 }

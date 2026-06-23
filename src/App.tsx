@@ -77,7 +77,7 @@ function AppContent() {
                       <Route 
                         path="/pelayanan/rawat-jalan" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <PageTransition><RawatJalan /></PageTransition>
                           </ProtectedRoute>
                         } 
@@ -85,7 +85,7 @@ function AppContent() {
                       <Route 
                         path="/pelayanan/igd" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <PageTransition><IGD /></PageTransition>
                           </ProtectedRoute>
                         } 
@@ -93,7 +93,7 @@ function AppContent() {
                       <Route 
                         path="/pelayanan/rawat-inap" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis']}>
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <PageTransition><RawatInap /></PageTransition>
                           </ProtectedRoute>
                         } 
@@ -135,7 +135,7 @@ function AppContent() {
                       <Route 
                         path="/lab/input" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
+                          <ProtectedRoute allowedRoles={['admin', 'analis']}>
                             <PageTransition><InputPemeriksaan /></PageTransition>
                           </ProtectedRoute>
                         } 
@@ -143,7 +143,7 @@ function AppContent() {
                       <Route 
                         path="/lab/master" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
+                          <ProtectedRoute allowedRoles={['admin', 'analis']}>
                             <PageTransition><MasterPemeriksaan /></PageTransition>
                           </ProtectedRoute>
                         } 
@@ -151,7 +151,7 @@ function AppContent() {
                       <Route 
                         path="/lab/dashboard" 
                         element={
-                          <ProtectedRoute allowedRoles={['admin', 'lab', 'perawat', 'analis']}>
+                          <ProtectedRoute allowedRoles={['admin', 'analis']}>
                             <PageTransition><DashboardLab /></PageTransition>
                           </ProtectedRoute>
                         } 

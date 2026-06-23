@@ -1168,7 +1168,7 @@ export default function RawatJalan() {
                 </p>
                 <div className="pt-1.5 z-10 relative">
                   <button 
-                    onClick={() => setActiveTab('import')} 
+                    onClick={() => setActiveTab('input')} 
                     className="inline-flex items-center space-x-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-4 py-2 rounded-xl transition-all cursor-pointer"
                   >
                     <span>Coba Impor Massal Sekarang</span>
