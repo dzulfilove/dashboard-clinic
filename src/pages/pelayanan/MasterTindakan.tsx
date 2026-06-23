@@ -112,8 +112,8 @@ export default function MasterTindakan() {
   };
 
   const filteredData = data.filter(t => 
-    t.nama_tindakan.toLowerCase().includes(search.toLowerCase()) || 
-    t.jenis.toLowerCase().includes(search.toLowerCase())
+    (t.nama_tindakan || '').toLowerCase().includes(search.toLowerCase()) || 
+    (t.jenis || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (

@@ -293,8 +293,8 @@ export default function MasterObat() {
 
   // Filter medicines
   const filteredMedicines = (Array.isArray(medicines) ? medicines : []).filter(med => {
-    const matchesSearch = med.nama_obat.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          med.kode_obat.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (med.nama_obat || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          (med.kode_obat || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGolongan = selectedGolongan === 'Semua' || med.golongan === selectedGolongan;
     return matchesSearch && matchesGolongan;
   });

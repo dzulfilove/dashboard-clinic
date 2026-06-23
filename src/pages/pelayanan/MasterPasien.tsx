@@ -137,8 +137,8 @@ export default function MasterPasien() {
   };
 
   const filteredData = data.filter(p => 
-    p.nama.toLowerCase().includes(search.toLowerCase()) || 
-    p.no_rm.toLowerCase().includes(search.toLowerCase())
+    (p.nama || '').toLowerCase().includes(search.toLowerCase()) || 
+    (p.no_rm || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (

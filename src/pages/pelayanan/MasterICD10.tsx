@@ -58,8 +58,8 @@ export default function MasterICD10() {
 
   // Filter & Search Logic
   const filteredData = data.filter(item => 
-    item.kode_icd.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.deskripsi.toLowerCase().includes(searchQuery.toLowerCase())
+    (item.kode_icd || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.deskripsi || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Pagination Logic

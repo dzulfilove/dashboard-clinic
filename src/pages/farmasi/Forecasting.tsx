@@ -285,8 +285,8 @@ export default function Forecasting() {
                   {forecasts
                     .filter((f) => {
                       const matchesSearch = 
-                        f.nama_obat.toLowerCase().includes(search.toLowerCase()) ||
-                        f.kode_obat.toLowerCase().includes(search.toLowerCase());
+                        (f.nama_obat || '').toLowerCase().includes(search.toLowerCase()) ||
+                        (f.kode_obat || '').toLowerCase().includes(search.toLowerCase());
                       const needOrder = (f.qty_order ?? 0) > 0;
                       const matchesStatus = 
                         statusFilter === 'all' ||

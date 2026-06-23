@@ -257,9 +257,9 @@ export default function InputKonsumsi() {
   const [statsSearchQuery, setStatsSearchQuery] = useState('');
 
   const filteredMedicines = (Array.isArray(medicines) ? medicines : []).filter(m => 
-    m.nama_obat.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    m.kode_obat.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (m.golongan && m.golongan.toLowerCase().includes(searchQuery.toLowerCase()))
+    (m.nama_obat || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (m.kode_obat || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (m.golongan || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Compile statistics summaries

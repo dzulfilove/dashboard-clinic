@@ -172,7 +172,7 @@ export default function MasterDokter() {
   };
 
   const filteredData = data.filter(item => 
-    item.nama_dokter.toLowerCase().includes(search.toLowerCase())
+    (item.nama_dokter || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
