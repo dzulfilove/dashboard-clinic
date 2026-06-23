@@ -48,7 +48,7 @@ function AppContent() {
   
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes>
         {/* Public Login Route */}
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
 

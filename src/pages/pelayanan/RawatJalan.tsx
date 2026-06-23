@@ -882,312 +882,296 @@ export default function RawatJalan() {
       </AnimatePresence>
 
       {/* MAIN CONTENT AREA */}
-      <AnimatePresence mode="wait">
+      <div className="min-h-[400px]">
         {loading ? (
-          <motion.div 
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center py-20"
-          >
-            <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600" />
-            <p className="text-slate-400 font-mono text-xs mt-4">Mengakses data server rawat jalan...</p>
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center py-20"
+            >
+              <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600" />
+              <p className="text-slate-400 font-mono text-xs mt-4">Mengakses data server rawat jalan...</p>
+            </motion.div>
+          </AnimatePresence>
         ) : (
-          <motion.div key="content">
-            {/* TAB 1: DASHBOARD & STATS */}
-            {activeTab === 'statistik' && (
-              <motion.div 
-                key="stats"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                className="space-y-6"
-              >
-              {/* Core metrics bento boxes */}
-              <motion.div variants={containerVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                {/* 1. Kunjungan Pasien */}
-                <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <Users className="h-6 w-6" />
-                    </div>
-                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
-                      Kunjungan
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {totalVisits} <span className="text-xs font-normal text-slate-450">Kasus</span>
-                    </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
-                </motion.div>
-
-                {/* 2. Tindakan Medis */}
-                <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <ClipboardList className="h-6 w-6" />
-                    </div>
-                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
-                      Tindakan
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {totalProcedures} <span className="text-xs font-normal text-slate-450">Tindakan</span>
-                    </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Tindakan Medis Dilakukan</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
-                </motion.div>
-
-
-
-                {/* 4. DPJP Teraktif */}
-                <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <TrendingUp className="h-6 w-6 text-amber-600" />
-                    </div>
-                    <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
-                      DPJP
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-lg font-semibold text-slate-900 tracking-tight font-display truncate leading-tight uppercase">
-                      {topDPJP}
-                    </h3>
-                    <p className="text-xxs font-mono text-amber-600 font-bold mt-1">
-                      {topDPJPCount} Kunjungan
-                    </p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
-                </motion.div>
-                
-              </motion.div>
-
-              {/* Graphical trends */}
-              <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Chart 1: Kunjungan & Pendapatan Harian */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs lg:col-span-2 space-y-4">
-                  <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian</h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
-                  </div>
-
-                  <div className="h-[280px]">
-                    {chartTrendData.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-slate-350 text-xs font-mono">
-                        Tidak ada data statistik tersedia
-                      </div>
-                    ) : (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={chartTrendData}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="tanggal" fontSize={10} tickLine={false} stroke="#94a3b8" />
-                          <YAxis yAxisId="left" fontSize={10} tickLine={false} stroke="#2563eb" label={{ value: 'Kunjungan', angle: -90, position: 'insideLeft', style: {fontSize: 9, fill: '#2563eb'} }} />
-                          <YAxis yAxisId="right" orientation="right" fontSize={10} tickLine={false} stroke="#0d9488" label={{ value: 'Pendapatan (K Rp)', angle: 90, position: 'insideRight', style: {fontSize: 9, fill: '#0d9488'} }} />
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
-                          <Legend wrapperStyle={{ fontSize: '10px' }} />
-                          <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                          <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Tarif Pendapatan" stroke="#0f766e" strokeWidth={2.5} dot={{ r: 4 }} />
-                        </ComposedChart>
-                      </ResponsiveContainer>
-                    )}
-                  </div>
-
-                  {/* Additional Procedures Filter Section */}
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <div className="flex items-center justify-between mb-2.5">
-                      <h4 className="text-xs font-bold text-slate-750 uppercase tracking-wider">Daftar Semua Tindakan ({allTreatmentData.length})</h4>
-                      {procedureFilter && (
-                        <button 
-                          onClick={() => setProcedureFilter(null)}
-                          className="text-[10px] text-teal-600 hover:text-teal-700 font-extrabold uppercase tracking-wide cursor-pointer"
-                        >
-                          Reset Filter
-                        </button>
-                      )}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[220px] overflow-y-auto pr-1">
-                      {allTreatmentData.map((item, idx) => (
-                         <div 
-                           key={idx} 
-                           className={`p-2.5 rounded-xl cursor-pointer text-xs flex justify-between items-center transition-all border ${procedureFilter === item.name ? 'bg-teal-50 border-teal-200 text-teal-900 font-bold' : 'bg-slate-50/50 hover:bg-slate-100 border-slate-150/40 text-slate-700 hover:text-slate-900'}`}
-                           onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
-                         >
-                           <span className="truncate pr-1.5">{item.name}</span>
-                           <span className="font-extrabold text-[11px] text-slate-800 bg-white border border-slate-200 shadow-3xs px-2 py-0.5 rounded-lg shrink-0">
-                             {item.count}
-                           </span>
-                         </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Chart 2: Top 5 Procedures */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
-                  <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan Terbanyak</h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan rawat jalan</p>
-                  </div>
-
-                  <div className="h-[250px] flex items-center justify-center">
-                    {chartTreatmentData.length === 0 ? (
-                      <div className="text-slate-350 text-xs font-mono">Belum ada tindakan medis tercatat</div>
-                    ) : (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={chartTreatmentData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
-                            paddingAngle={5}
-                            dataKey="count"
-                          >
-                            {chartTreatmentData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    )}
-                  </div>
-
-                  {/* Legends */}
-                  <div className="space-y-1.5 max-h-[180px] overflow-y-auto">
-                    {chartTreatmentData.map((item, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`flex items-center justify-between text-[11px] font-medium text-slate-650 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
-                        onClick={() => setProcedureFilter(procedureFilter === item.name ? item.name : null)}
-                      >
-                        <div className="flex items-center space-x-2 truncate max-w-[12rem]">
-                          <span className="h-2 w-2 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
-                          <span className="truncate">{item.name}</span>
+          <div className="space-y-6">
+            {/* TAB CONTENT SWITCHER */}
+            <AnimatePresence mode="wait">
+              {activeTab === 'statistik' && (
+                <div className="space-y-6">
+                  {/* Core metrics bento boxes */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    {/* 1. Kunjungan Pasien */}
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                      <div className="flex items-center justify-between">
+                        <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                          <Users className="h-6 w-6" />
                         </div>
-                        <span className="font-bold text-slate-800">{item.count} tindakan</span>
+                        <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                          Kunjungan
+                        </span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
+                      <div className="mt-4">
+                        <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                          {totalVisits} <span className="text-xs font-normal text-slate-450">Kasus</span>
+                        </h3>
+                        <p className="text-xxs font-normal text-slate-500 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                    </div>
 
-              {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
-              <motion.div variants={itemVariants} className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                  <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
-                      <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
-                      <span>10 Diagnosa Terbanyak (ICD-10)</span>
-                    </h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis rawat jalan dengan kunjungan terbanyak</p>
-                  </div>
-                  <span className="text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
-                    Kunjungan Terbanyak
-                  </span>
-                </div>
+                    {/* 2. Tindakan Medis */}
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                      <div className="flex items-center justify-between">
+                        <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                          <ClipboardList className="h-6 w-6" />
+                        </div>
+                        <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                          Tindakan
+                        </span>
+                      </div>
+                      <div className="mt-4">
+                        <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                          {totalProcedures} <span className="text-xs font-normal text-slate-450">Tindakan</span>
+                        </h3>
+                        <p className="text-xxs font-normal text-slate-500 mt-1">Total Tindakan Medis Dilakukan</p>
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                    </div>
 
-                {top10Diagnosa.length === 0 ? (
-                  <div className="text-center py-10 text-slate-350 text-xs font-mono border border-dashed border-slate-200 rounded-2xl">
-                    Belum ada diagnosa (ICD-10) tercatat pada rekam medis kunjungan
+                    {/* 4. DPJP Teraktif */}
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                      <div className="flex items-center justify-between">
+                        <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
+                          <TrendingUp className="h-6 w-6 text-amber-600" />
+                        </div>
+                        <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
+                          DPJP
+                        </span>
+                      </div>
+                      <div className="mt-4">
+                        <h3 className="text-lg font-semibold text-slate-900 tracking-tight font-display truncate leading-tight uppercase">
+                          {topDPJP}
+                        </h3>
+                        <p className="text-xxs font-mono text-amber-600 font-bold mt-1">
+                          {topDPJPCount} Kunjungan
+                        </p>
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+                    </div>
+                    
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {top10Diagnosa.map((item, index) => {
-                      const percentage = totalVisits > 0 ? Math.round((item.count / totalVisits) * 100) : 0;
-                      return (
-                        <div key={item.kode} className="p-3.5 bg-slate-50/50 hover:bg-slate-50 rounded-2xl border border-slate-100/80 transition flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3.5 min-w-0">
-                            <span className="text-xs font-bold text-slate-400 w-5 shrink-0 text-center font-mono">
-                              #{index + 1}
-                            </span>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-extrabold text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
-                                  {item.kode}
+
+                  {/* Graphical trends */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Chart 1: Kunjungan & Pendapatan Harian */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs lg:col-span-2 space-y-4">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian</h3>
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
+                      </div>
+
+                      <div className="h-[280px]">
+                        {chartTrendData.length === 0 ? (
+                          <div className="flex items-center justify-center h-full text-slate-350 text-xs font-mono">
+                            Tidak ada data statistik tersedia
+                          </div>
+                        ) : (
+                          <ResponsiveContainer width="100%" height="100%">
+                            <ComposedChart data={chartTrendData}>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                              <XAxis dataKey="tanggal" fontSize={10} tickLine={false} stroke="#94a3b8" />
+                              <YAxis yAxisId="left" fontSize={10} tickLine={false} stroke="#2563eb" label={{ value: 'Kunjungan', angle: -90, position: 'insideLeft', style: {fontSize: 9, fill: '#2563eb'} }} />
+                              <YAxis yAxisId="right" orientation="right" fontSize={10} tickLine={false} stroke="#0d9488" label={{ value: 'Pendapatan (K Rp)', angle: 90, position: 'insideRight', style: {fontSize: 9, fill: '#0d9488'} }} />
+                              <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
+                              <Legend wrapperStyle={{ fontSize: '10px' }} />
+                              <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                              <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Tarif Pendapatan" stroke="#0f766e" strokeWidth={2.5} dot={{ r: 4 }} />
+                            </ComposedChart>
+                          </ResponsiveContainer>
+                        )}
+                      </div>
+
+                      {/* Additional Procedures Filter Section */}
+                      <div className="mt-4 pt-4 border-t border-slate-100">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <h4 className="text-xs font-bold text-slate-750 uppercase tracking-wider">Daftar Semua Tindakan ({allTreatmentData.length})</h4>
+                          {procedureFilter && (
+                            <button 
+                              onClick={() => setProcedureFilter(null)}
+                              className="text-[10px] text-teal-600 hover:text-teal-700 font-extrabold uppercase tracking-wide cursor-pointer"
+                            >
+                              Reset Filter
+                            </button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 max-h-[220px] overflow-y-auto pr-1">
+                          {allTreatmentData.map((item, idx) => (
+                             <div 
+                               key={idx} 
+                               className={`p-2.5 rounded-xl cursor-pointer text-xs flex justify-between items-center transition-all border ${procedureFilter === item.name ? 'bg-teal-50 border-teal-200 text-teal-900 font-bold' : 'bg-slate-50/50 hover:bg-slate-100 border-slate-150/40 text-slate-700 hover:text-slate-900'}`}
+                               onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
+                             >
+                               <span className="truncate pr-1.5">{item.name}</span>
+                               <span className="font-extrabold text-[11px] text-slate-800 bg-white border border-slate-200 shadow-3xs px-2 py-0.5 rounded-lg shrink-0">
+                                 {item.count}
+                               </span>
+                             </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Chart 2: Top 5 Procedures */}
+                    <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan Terbanyak</h3>
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan rawat jalan</p>
+                      </div>
+
+                      <div className="h-[250px] flex items-center justify-center">
+                        {chartTreatmentData.length === 0 ? (
+                          <div className="text-slate-350 text-xs font-mono">Belum ada tindakan medis tercatat</div>
+                        ) : (
+                          <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                              <Pie
+                                data={chartTreatmentData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={60}
+                                outerRadius={80}
+                                paddingAngle={5}
+                                dataKey="count"
+                              >
+                                {chartTreatmentData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                              </Pie>
+                              <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        )}
+                      </div>
+
+                      {/* Legends */}
+                      <div className="space-y-1.5 max-h-[180px] overflow-y-auto">
+                        {chartTreatmentData.map((item, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`flex items-center justify-between text-[11px] font-medium text-slate-650 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
+                            onClick={() => setProcedureFilter(procedureFilter === item.name ? item.name : null)}
+                          >
+                            <div className="flex items-center space-x-2 truncate max-w-[12rem]">
+                              <span className="h-2 w-2 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
+                              <span className="truncate">{item.name}</span>
+                            </div>
+                            <span className="font-bold text-slate-800">{item.count} tindakan</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
+                  <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
+                          <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
+                          <span>10 Diagnosa Terbanyak (ICD-10)</span>
+                        </h3>
+                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis rawat jalan dengan kunjungan terbanyak</p>
+                      </div>
+                      <span className="text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
+                        Kunjungan Terbanyak
+                      </span>
+                    </div>
+
+                    {top10Diagnosa.length === 0 ? (
+                      <div className="text-center py-10 text-slate-350 text-xs font-mono border border-dashed border-slate-200 rounded-2xl">
+                        Belum ada diagnosa (ICD-10) tercatat pada rekam medis kunjungan
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {top10Diagnosa.map((item, index) => {
+                          const percentage = totalVisits > 0 ? Math.round((item.count / totalVisits) * 100) : 0;
+                          return (
+                            <div key={item.kode} className="p-3.5 bg-slate-50/50 hover:bg-slate-50 rounded-2xl border border-slate-100/80 transition flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3.5 min-w-0">
+                                <span className="text-xs font-bold text-slate-400 w-5 shrink-0 text-center font-mono">
+                                  #{index + 1}
                                 </span>
-                                <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
-                                  {item.deskripsi}
-                                </span>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-extrabold text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
+                                      {item.kode}
+                                    </span>
+                                    <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
+                                      {item.deskripsi}
+                                    </span>
+                                  </div>
+                                  <div className="w-full bg-slate-200/60 rounded-full h-1 mt-2 overflow-hidden max-w-[180px]">
+                                    <div 
+                                      className="bg-rose-500 h-1 rounded-full" 
+                                      style={{ width: `${Math.max(percentage, 5)}%` }}
+                                    />
+                                  </div>
+                                </div>
                               </div>
-                              <div className="w-full bg-slate-200/60 rounded-full h-1 mt-2 overflow-hidden max-w-[180px]">
-                                <div 
-                                  className="bg-rose-500 h-1 rounded-full" 
-                                  style={{ width: `${Math.max(percentage, 5)}%` }}
-                                />
+                              
+                              <div className="text-right shrink-0">
+                                <span className="text-xs font-black text-slate-800 font-mono">
+                                  {item.count}
+                                </span>
+                                <span className="text-[9px] text-slate-450 font-bold block uppercase tracking-wider">
+                                  Kunjungan ({percentage}%)
+                                </span>
                               </div>
                             </div>
-                          </div>
-                          
-                          <div className="text-right shrink-0">
-                            <span className="text-xs font-black text-slate-800 font-mono">
-                              {item.count}
-                            </span>
-                            <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
-                              Kunjungan ({percentage}%)
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                )}
-              </motion.div>
 
-              {/* Sample Pasted Output references */}
-              <motion.div variants={itemVariants} className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md">
-                <div className="absolute top-[-20%] right-[-10%] w-[20rem] h-[20rem] bg-teal-500/10 rounded-full blur-[80px]" />
-                <div className="flex items-center space-x-2.5 z-10 relative">
-                  <FileText className="h-5 w-5 text-teal-400" />
-                  <h4 className="text-xs font-extrabold uppercase tracking-widest text-teal-400">Instruksi Integrasi Impor Cepat (Paste Excel)</h4>
+                  {/* Sample Pasted Output references */}
+                  <div className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md">
+                    <div className="absolute top-[-20%] right-[-10%] w-[20rem] h-[20rem] bg-teal-500/10 rounded-full blur-[80px]" />
+                    <div className="flex items-center space-x-2.5 z-10 relative">
+                      <FileText className="h-5 w-5 text-teal-400" />
+                      <h4 className="text-xs font-extrabold uppercase tracking-widest text-teal-400">Instruksi Integrasi Impor Cepat (Paste Excel)</h4>
+                    </div>
+                    <p className="text-xs leading-relaxed text-slate-300 max-w-4xl z-10 relative">
+                      Fasilitas kami mendukung penginputan rekam medis outpatient secara masif dari spreadsheet Excel maupun kuitansi klaim. Salin penuh seluruh baris data tabular tindakan, masuk ke menu <strong>&ldquo;Import Teks&rdquo;</strong>, tempelkan, dan sistem kami secara dinamis meng-grouping tindakan beruntun di bawah satu kode pendaftaran pasien yang sama secara otomatis!
+                    </p>
+                    <div className="pt-1.5 z-10 relative">
+                      <button 
+                        onClick={() => setActiveTab('input')} 
+                        className="inline-flex items-center space-x-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-4 py-2 rounded-xl transition-all cursor-pointer"
+                      >
+                        <span>Coba Impor Massal Sekarang</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs leading-relaxed text-slate-300 max-w-4xl z-10 relative">
-                  Fasilitas kami mendukung penginputan rekam medis outpatient secara masif dari spreadsheet Excel maupun kuitansi klaim. Salin penuh seluruh baris data tabular tindakan, masuk ke menu <strong>&ldquo;Import Teks&rdquo;</strong>, tempelkan, dan sistem kami secara dinamis meng-grouping tindakan beruntun di bawah satu kode pendaftaran pasien yang sama secara otomatis!
-                </p>
-                <div className="pt-1.5 z-10 relative">
-                  <button 
-                    onClick={() => setActiveTab('input')} 
-                    className="inline-flex items-center space-x-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-4 py-2 rounded-xl transition-all cursor-pointer"
-                  >
-                    <span>Coba Impor Massal Sekarang</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
+              )}
 
-          {/* TAB 2: DETAILED RECORDS GRID */}
-          {activeTab === 'kunjungan' && (
-            <motion.div 
-              key="visits"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="space-y-4"
-            >
+              {/* TAB 2: DETAILED RECORDS GRID */}
+              {activeTab === 'kunjungan' && (
+                <motion.div 
+                  key="visits"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-4"
+                >
               {/* Infografis Kunjungan Per Triase */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150">
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
@@ -1587,15 +1571,16 @@ export default function RawatJalan() {
             </motion.div>
           )}
 
-          {/* TAB 3: PASTE TEXT BULK IMPORTER */}
-          {activeTab === 'input' && (
-            <motion.div 
-              key="input"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start"
-            >
+              {/* TAB 3: PASTE TEXT BULK IMPORTER */}
+              {activeTab === 'input' && (
+                <motion.div 
+                  key="input"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start"
+                >
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div>
@@ -1781,9 +1766,10 @@ export default function RawatJalan() {
               </div>
             </motion.div>
           )}
-        </motion.div>
-      )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
+    )}
+  </div>
 
       {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
       <AnimatePresence>
