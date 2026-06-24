@@ -183,8 +183,20 @@ export default function InputKonsumsi() {
     const inputs = rowInputs[obatId];
     if (!inputs) return;
 
-    setSavingRows(prev => ({ ...prev, [obatId]: true }));
     setFeedback(null);
+
+    // Validate that initial balance for this year exists
+    const medicine = medicines.find(m => m.id === obatId);
+    const inputYear = new Date(selectedDate).getFullYear();
+    if (!medicine || !medicine.saldo_awal_tahun || Number(medicine.saldo_awal_tahun) !== inputYear) {
+      setFeedback({
+        type: 'error',
+        msg: `Gagal: Saldo awal tahun ${inputYear} belum diinput untuk obat ${medicine?.nama_obat || ''}. Silakan input saldo awal terlebih dahulu.`
+      });
+      return;
+    }
+
+    setSavingRows(prev => ({ ...prev, [obatId]: true }));
 
     const sawal = inputs.stok_awal === '' ? 0 : Number(inputs.stok_awal);
     const terima = inputs.penerimaan === '' ? 0 : Number(inputs.penerimaan);
@@ -218,8 +230,28 @@ export default function InputKonsumsi() {
 
   // Bulk save all rows
   const handleSaveAll = async () => {
-    setLoading(true);
     setFeedback(null);
+    const inputYear = new Date(selectedDate).getFullYear();
+
+    // Check if any medicines with modified inputs do not have initial balance set
+    const invalidMeds = medicines.filter(med => {
+      const inputs = rowInputs[med.id];
+      if (!inputs) return false;
+      const hasInputs = inputs.penerimaan !== '' || inputs.pemakaian !== '' || inputs.retur_hilang !== '';
+      if (!hasInputs) return false;
+
+      return !med.saldo_awal_tahun || Number(med.saldo_awal_tahun) !== inputYear;
+    });
+
+    if (invalidMeds.length > 0) {
+      setFeedback({
+        type: 'error',
+        msg: `Gagal: Ada ${invalidMeds.length} obat yang belum diinput saldo awal tahun ${inputYear} (${invalidMeds.map(m => m.nama_obat).join(', ')}). Silakan lengkapi saldo awal terlebih dahulu.`
+      });
+      return;
+    }
+
+    setLoading(true);
     let successCount = 0;
     let failedCount = 0;
 
@@ -824,9 +856,11 @@ export default function InputKonsumsi() {
                           const inputs = rowInputs[m.id] || { stok_awal: '', penerimaan: '', pemakaian: '', retur_hilang: '' };
                           const sisa = getSisaStok(m.id);
                           const isSaving = savingRows[m.id] || false;
+                          const inputYear = new Date(selectedDate).getFullYear();
+                          const hasNoSaldoAwal = !m.saldo_awal_tahun || Number(m.saldo_awal_tahun) !== inputYear;
 
                           return (
-                            <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
+                            <tr key={m.id} className={`transition-colors ${hasNoSaldoAwal ? 'bg-slate-50/40 hover:bg-slate-55/40 opacity-80' : 'hover:bg-slate-50/70'}`}>
                               <td className="px-6 py-3">
                                 <div>
                                   <span className="font-mono text-xxs font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
@@ -834,6 +868,14 @@ export default function InputKonsumsi() {
                                   </span>
                                   <h4 className="font-medium text-slate-900 mt-1 text-xs">{m.nama_obat}</h4>
                                   <p className="text-xxs text-slate-400 font-medium mt-0.5 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
+                                  {hasNoSaldoAwal && (
+                                    <div className="mt-1.5">
+                                      <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                        <AlertCircle className="h-3 w-3 text-rose-500" />
+                                        Saldo {inputYear} Belum Diinput
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </td>
 
@@ -845,8 +887,9 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.stok_awal}
                                   onChange={(e) => handleCellChange(m.id, 'stok_awal', e.target.value)}
-                                  className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30"
-                                  placeholder="0"
+                                  disabled={hasNoSaldoAwal}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
+                                  placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
 
@@ -858,8 +901,9 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.penerimaan}
                                   onChange={(e) => handleCellChange(m.id, 'penerimaan', e.target.value)}
-                                  className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30"
-                                  placeholder="0"
+                                  disabled={hasNoSaldoAwal}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
+                                  placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
 
@@ -871,8 +915,9 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.pemakaian}
                                   onChange={(e) => handleCellChange(m.id, 'pemakaian', e.target.value)}
-                                  className="w-20 text-center py-1 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30"
-                                  placeholder="0"
+                                  disabled={hasNoSaldoAwal}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
+                                  placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
 
@@ -884,15 +929,16 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.retur_hilang}
                                   onChange={(e) => handleCellChange(m.id, 'retur_hilang', e.target.value)}
-                                  className="w-20 text-center py-1 bg-amber-50/50 border border-amber-200 rounded-lg text-amber-900 font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/30"
-                                  placeholder="0"
+                                  disabled={hasNoSaldoAwal}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-amber-50/50 border border-amber-200 text-amber-900'}`}
+                                  placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
 
                               {/* Dynamically Calulcated Sisa Stok Cell */}
                               <td className="px-5 py-3 text-center whitespace-nowrap">
-                                <span className={`text-xs font-semibold font-mono ${sisa < 10 ? 'text-rose-600' : 'text-slate-800'}`}>
-                                  {sisa}
+                                <span className={`text-xs font-semibold font-mono ${hasNoSaldoAwal ? 'text-slate-400' : sisa < 10 ? 'text-rose-600' : 'text-slate-800'}`}>
+                                  {hasNoSaldoAwal ? '-' : sisa}
                                 </span>
                               </td>
 
@@ -902,9 +948,9 @@ export default function InputKonsumsi() {
                                   <button
                                     id={`save-row-${m.id}`}
                                     onClick={() => handleSaveRow(m.id)}
-                                    disabled={isSaving}
-                                    className="p-2 bg-teal-50 hover:bg-teal-600 border border-teal-250 text-teal-700 hover:text-white rounded-xl transition-all cursor-pointer flex items-center justify-center mx-auto"
-                                    title="Simpan baris obat ini"
+                                    disabled={isSaving || hasNoSaldoAwal}
+                                    className={`p-2 border rounded-xl transition-all flex items-center justify-center mx-auto ${hasNoSaldoAwal ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-teal-50 hover:bg-teal-600 border-teal-250 text-teal-700 hover:text-white cursor-pointer'}`}
+                                    title={hasNoSaldoAwal ? `Saldo awal tahun ${inputYear} belum diinput` : "Simpan baris obat ini"}
                                     style={{ minHeight: '44px', minWidth: '44px' }}
                                   >
                                     <Save className="h-4.5 w-4.5" />

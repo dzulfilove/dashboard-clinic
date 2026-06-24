@@ -23,7 +23,8 @@ const BASEROW_BASE_URL = process.env.BASEROW_BASE_URL;
 
 // Middelewares
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Initialize Database (real VPS MySQL or fall back to virtual DB)
 initializeDatabase().then(async (dbStatus) => {
@@ -2980,9 +2981,25 @@ app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']
     return res.status(400).json({ message: 'Informasi obat dan tanggal harus lengkap.' });
   }
 
-  const sisa_stok = Number(stok_awal || 0) + Number(penerimaan || 0) - Number(pemakaian || 0) - Number(retur_hilang || 0);
-
   try {
+    // Check if medicine exists and has initial balance for the input year
+    const medicines = await db.query('SELECT * FROM obat_master WHERE id = ?', [Number(obat_id)]);
+    if (medicines.length === 0) {
+      return res.status(404).json({ message: 'Obat tidak ditemukan.' });
+    }
+
+    const m = medicines[0];
+    const dateObj = new Date(tanggal);
+    const inputYear = dateObj.getFullYear();
+
+    if (!m.saldo_awal_tahun || Number(m.saldo_awal_tahun) !== inputYear) {
+      return res.status(400).json({ 
+        message: `Gagal: Saldo awal tahun ${inputYear} belum diinput untuk obat ${m.nama_obat || ''}. Silakan input saldo awal terlebih dahulu.` 
+      });
+    }
+
+    const sisa_stok = Number(stok_awal || 0) + Number(penerimaan || 0) - Number(pemakaian || 0) - Number(retur_hilang || 0);
+
     // 1. Insert/Update Harian
     await db.query(
       'INSERT INTO obat_konsumsi_harian (obat_id, tanggal, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
@@ -2990,7 +3007,6 @@ app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']
     );
 
     // 2. Extract bulan & tahun from tanggal
-    const dateObj = new Date(tanggal);
     const bulan = dateObj.getMonth() + 1;
     const tahun = dateObj.getFullYear();
 

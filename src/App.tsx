@@ -7,6 +7,7 @@ import { useAuthStore } from './store/authStore.js';
 import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import PageTransition from './components/PageTransition.js';
+import InteractiveGuide from './components/InteractiveGuide.js';
 
 // Pages
 import Login from './pages/Login.js';
@@ -67,6 +68,9 @@ function AppContent() {
                 
                 {/* Sidebar Navigation */}
                 <Sidebar />
+
+                {/* Interactive Guide Widget */}
+                <InteractiveGuide />
 
                 {/* Core Main Viewport Stage */}
                 <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-auto max-h-screen">
