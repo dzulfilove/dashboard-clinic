@@ -27,6 +27,9 @@ import MasterPasien from './pages/pelayanan/MasterPasien.js';
 import MasterICD10 from './pages/pelayanan/MasterICD10.js';
 import RawatInap from './pages/pelayanan/RawatInap.js';
 import MasterDokter from './pages/pelayanan/MasterDokter.js';
+import MasterWilayah from './pages/pelayanan/MasterWilayah.js';
+import DemografiKunjungan from './pages/demografi/DemografiKunjungan.js';
+import DemografiDiagnosa from './pages/demografi/DemografiDiagnosa.js';
 
 export default function App() {
   const { initialize } = useAuthStore();
@@ -127,6 +130,32 @@ function AppContent() {
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                             <PageTransition><MasterDokter /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-wilayah" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <PageTransition><MasterWilayah /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+
+                      {/* DEMOGRAPHIC MODULE ROUTES */}
+                      <Route 
+                        path="/demografi/pasien" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
+                            <PageTransition><DemografiKunjungan /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/demografi/diagnosa" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
+                            <PageTransition><DemografiDiagnosa /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />

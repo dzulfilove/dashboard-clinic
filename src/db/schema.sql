@@ -184,9 +184,37 @@ CREATE TABLE IF NOT EXISTS pelayanan_rawat_jalan_tindakan (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Normalized Tables (New)
+CREATE TABLE IF NOT EXISTS kota (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nama VARCHAR(100) UNIQUE NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS kecamatan (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  kota_id INT,
+  nama VARCHAR(100) NOT NULL,
+  FOREIGN KEY (kota_id) REFERENCES kota(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS kelurahan (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  kecamatan_id INT,
+  nama VARCHAR(100) NOT NULL,
+  FOREIGN KEY (kecamatan_id) REFERENCES kecamatan(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS pasien (
   no_rm VARCHAR(20) NOT NULL PRIMARY KEY,
-  nama VARCHAR(150) NOT NULL
+  nama VARCHAR(150) NOT NULL,
+  tanggal_lahir DATE,
+  alamat VARCHAR(255),
+  jenis_kelamin ENUM('L', 'P'),
+  kelurahan_id INT,
+  kecamatan_id INT,
+  kota_id INT,
+  FOREIGN KEY (kelurahan_id) REFERENCES kelurahan(id),
+  FOREIGN KEY (kecamatan_id) REFERENCES kecamatan(id),
+  FOREIGN KEY (kota_id) REFERENCES kota(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS master_icd10 (

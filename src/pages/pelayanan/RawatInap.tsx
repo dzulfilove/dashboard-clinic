@@ -163,7 +163,13 @@ export default function RawatInap() {
     setLoading(true);
     try {
       const res = await api.get(`/pelayanan/ranap?startDate=${startDate}&endDate=${endDate}`);
-      setRecords(res.data);
+      const sorted = (res.data || []).sort((a: any, b: any) => {
+        const dateA = new Date(a.tanggal_pelayanan).getTime();
+        const dateB = new Date(b.tanggal_pelayanan).getTime();
+        if (dateB !== dateA) return dateB - dateA;
+        return (b.id || 0) - (a.id || 0);
+      });
+      setRecords(sorted);
     } catch (err: any) {
       console.error(err);
       showFeedback('error', 'Gagal memuat data kunjungan rawat inap.');
@@ -442,7 +448,13 @@ export default function RawatInap() {
             tarif_medis: 0,
             jumlah: qty,
             subtotal: 0,
-            kamar: tUnit
+            kamar: tUnit,
+            tanggal_lahir: tBirth,
+            jenis_kelamin: tGender,
+            alamat: tAddress,
+            kelurahan: tKel,
+            kecamatan: tKec,
+            kota: tKota
           });
         }
       } else {
@@ -487,7 +499,13 @@ export default function RawatInap() {
             tarif_medis: tMedis,
             jumlah: qty,
             subtotal: sub,
-            kamar: 'Kamar Sinta'
+            kamar: 'Kamar Sinta',
+            tanggal_lahir: '',
+            jenis_kelamin: '',
+            alamat: '',
+            kelurahan: '',
+            kecamatan: '',
+            kota: ''
           });
         }
       }
@@ -520,7 +538,13 @@ export default function RawatInap() {
           kamar: parsedKamar,
           icd_masuk: '',
           icd_pulang: '',
-          tindakan: []
+          tindakan: [],
+          tanggal_lahir: act.tanggal_lahir,
+          jenis_kelamin: act.jenis_kelamin,
+          alamat: act.alamat,
+          kelurahan: act.kelurahan,
+          kecamatan: act.kecamatan,
+          kota: act.kota
         };
       }
       groupedMap[key].tindakan.push({
@@ -545,6 +569,27 @@ export default function RawatInap() {
 
     setParsedData(finalGrouped);
     setIsParsed(true);
+    setDuplicateMap({});
+
+    // Dynamic Bulk Duplicate Checker
+    const checkDuplicates = async () => {
+      setCheckingBulkDuplicate(true);
+      try {
+        const list = finalGrouped.map(x => x.no_registrasi).filter(Boolean);
+        if (list.length > 0) {
+          const res = await api.post('/pelayanan/check-duplicates-bulk', { no_registrasi_list: list });
+          if (res.data && res.data.duplicates) {
+            setDuplicateMap(res.data.duplicates);
+          }
+        }
+      } catch (err) {
+        console.error('Gagal memeriksa duplikat massal:', err);
+      } finally {
+        setCheckingBulkDuplicate(false);
+      }
+    };
+    checkDuplicates();
+
     showFeedback('success', `Berhasil memilah ${finalGrouped.length} baris master kunjungan rawat inap.`);
   };
 
@@ -1629,6 +1674,20 @@ export default function RawatInap() {
                               </select>
                             </div>
                           </div>
+
+                          {duplicateMap[p.no_registrasi] ? (
+                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
+                              <span className="text-xs mt-0.5">⚠️</span>
+                              <span>
+                                <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+                              <span className="text-xs mt-0.5">🆕</span>
+                              <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
+                            </div>
+                          )}
 
                           {/* Extra Inputs: Room/Kamar Bed Code, ICD-10 admission/discharge */}
                           <div className="grid grid-cols-4 gap-2 border-t border-slate-200/40 pt-2 text-[10px]">

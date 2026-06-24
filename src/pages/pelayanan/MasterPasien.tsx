@@ -13,14 +13,9 @@ import {
 } from 'lucide-react';
 import api from '../../services/api';
 import { motion, AnimatePresence } from 'motion/react';
-
-interface Pasien {
-  no_rm: string;
-  nama: string;
-}
+import { Pasien } from '../../types';
 
 export default function MasterPasien() {
-  const [data, setData] = useState<Pasien[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
@@ -29,8 +24,13 @@ export default function MasterPasien() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isVisitDetailModalOpen, setIsVisitDetailModalOpen] = useState(false);
   const [selectedPasien, setSelectedPasien] = useState<Pasien | null>(null);
+  const [editingItem, setEditingItem] = useState<Pasien | null>(null);
   const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
   const [visits, setVisits] = useState<any[]>([]);
+  const [data, setData] = useState<Pasien[]>([]);
+  const [kotaList, setKotaList] = useState<any[]>([]);
+  const [kecamatanList, setKecamatanList] = useState<any[]>([]);
+  const [kelurahanList, setKelurahanList] = useState<any[]>([]);
 
   const fetchVisitsForPatient = async (no_rm: string) => {
     try {
@@ -54,7 +54,13 @@ export default function MasterPasien() {
 
   const [formData, setFormData] = useState({
     no_rm: '',
-    nama: ''
+    nama: '',
+    tanggal_lahir: '',
+    alamat: '',
+    jenis_kelamin: 'L' as 'L' | 'P',
+    kelurahan_id: 0,
+    kecamatan_id: 0,
+    kota_id: 0
   });
   
   const [submitting, setSubmitting] = useState(false);
@@ -73,20 +79,54 @@ export default function MasterPasien() {
     }
   };
 
+  const fetchWilayah = async () => {
+    try {
+      const [kR, kecR, kelR] = await Promise.all([
+        api.get('/kota'),
+        api.get('/kecamatan'),
+        api.get('/kelurahan')
+      ]);
+      setKotaList(kR.data);
+      setKecamatanList(kecR.data);
+      setKelurahanList(kelR.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchPasiens();
+    fetchWilayah();
   }, []);
 
   const handleOpenAddModal = () => {
     setEditingItem(null);
-    setFormData({ no_rm: '', nama: '' });
+    setFormData({ 
+      no_rm: '', 
+      nama: '', 
+      tanggal_lahir: '', 
+      alamat: '', 
+      jenis_kelamin: 'L', 
+      kelurahan_id: 0, 
+      kecamatan_id: 0, 
+      kota_id: 0 
+    });
     setFeedback(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (item: Pasien) => {
     setEditingItem(item);
-    setFormData({ no_rm: item.no_rm, nama: item.nama });
+    setFormData({
+      no_rm: item.no_rm,
+      nama: item.nama,
+      tanggal_lahir: item.tanggal_lahir || '',
+      alamat: item.alamat || '',
+      jenis_kelamin: item.jenis_kelamin || 'L',
+      kelurahan_id: item.kelurahan_id || 0,
+      kecamatan_id: item.kecamatan_id || 0,
+      kota_id: item.kota_id || 0,
+    });
     setFeedback(null);
     setIsModalOpen(true);
   };
@@ -118,7 +158,7 @@ export default function MasterPasien() {
     try {
       if (editingItem) {
         // Edit Mode
-        await api.put(`/pasien/${editingItem.no_rm}`, { nama: formData.nama });
+        await api.put(`/pasien/${editingItem.no_rm}`, formData);
         setFeedback({ type: 'success', message: 'Informasi pasien berhasil diperbarui.' });
       } else {
         // Add Mode
@@ -239,6 +279,11 @@ export default function MasterPasien() {
                 <tr className="bg-slate-50/70 border-b border-slate-100">
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nomor Rekam Medis (RM)</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Lengkap Pasien</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Tanggal Lahir</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Alamat</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Kelurahan</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Kecamatan</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Kota</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider text-right">Aksi Kelola</th>
                 </tr>
               </thead>
@@ -257,6 +302,21 @@ export default function MasterPasien() {
                     </td>
                     <td className="py-3 px-5 text-xs text-slate-800">
                       {p.nama}
+                    </td>
+                    <td className="py-3 px-5 text-xs text-slate-800">
+                      {p.tanggal_lahir}
+                    </td>
+                    <td className="py-3 px-5 text-xs text-slate-800">
+                      {p.alamat}
+                    </td>
+                    <td className="py-3 px-5 text-xs text-slate-800">
+                      {p.kelurahan?.nama}
+                    </td>
+                    <td className="py-3 px-5 text-xs text-slate-800">
+                      {p.kecamatan?.nama}
+                    </td>
+                    <td className="py-3 px-5 text-xs text-slate-800">
+                      {p.kota?.nama}
                     </td>
                     <td className="py-3 px-5 text-right">
                       <div className="inline-flex items-center gap-1.5">
@@ -485,6 +545,74 @@ export default function MasterPasien() {
                   onChange={(e) => setFormData(prev => ({ ...prev, nama: e.target.value }))}
                   className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Tanggal Lahir</label>
+                  <input
+                    type="date"
+                    value={formData.tanggal_lahir}
+                    onChange={(e) => setFormData(prev => ({ ...prev, tanggal_lahir: e.target.value }))}
+                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Jenis Kelamin</label>
+                  <select
+                    value={formData.jenis_kelamin}
+                    onChange={(e) => setFormData(prev => ({ ...prev, jenis_kelamin: e.target.value as 'L' | 'P' }))}
+                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                  >
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Alamat</label>
+                <textarea
+                  value={formData.alamat}
+                  onChange={(e) => setFormData(prev => ({ ...prev, alamat: e.target.value }))}
+                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Kota</label>
+                  <select
+                    value={formData.kota_id}
+                    onChange={(e) => setFormData(prev => ({ ...prev, kota_id: parseInt(e.target.value) }))}
+                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                  >
+                    <option value={0}>Pilih Kota</option>
+                    {kotaList.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Kecamatan</label>
+                  <select
+                    value={formData.kecamatan_id}
+                    onChange={(e) => setFormData(prev => ({ ...prev, kecamatan_id: parseInt(e.target.value) }))}
+                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                  >
+                    <option value={0}>Pilih Kecamatan</option>
+                    {kecamatanList.filter(kec => kec.kota_id === formData.kota_id).map(kec => <option key={kec.id} value={kec.id}>{kec.nama}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Kelurahan</label>
+                  <select
+                    value={formData.kelurahan_id}
+                    onChange={(e) => setFormData(prev => ({ ...prev, kelurahan_id: parseInt(e.target.value) }))}
+                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                  >
+                    <option value={0}>Pilih Kelurahan</option>
+                    {kelurahanList.filter(kel => kel.kecamatan_id === formData.kecamatan_id).map(kel => <option key={kel.id} value={kel.id}>{kel.nama}</option>)}
+                  </select>
+                </div>
               </div>
 
               <div className="pt-3 border-t border-slate-50 flex items-center justify-end gap-3">

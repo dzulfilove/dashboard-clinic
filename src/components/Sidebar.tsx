@@ -62,7 +62,17 @@ export default function Sidebar() {
         { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin', 'perawat'] },
         { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin', 'perawat'] },
         { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin', 'perawat'] }
+        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin', 'perawat'] },
+        { name: 'Master Wilayah', path: '/pelayanan/master-wilayah', icon: Layers, roles: ['admin', 'perawat'] }
+      ]
+    },
+    {
+      isGroup: true,
+      title: 'Demografi Kunjungan',
+      icon: PieChart,
+      items: [
+        { name: 'Demografi Pasien', path: '/demografi/pasien', icon: Users, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] },
+        { name: 'Demografi Diagnosa', path: '/demografi/diagnosa', icon: Activity, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] }
       ]
     },
     {

@@ -192,12 +192,24 @@ export default function RawatJalan() {
   const [isParsed, setIsParsed] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
+  // Duplicate Check States
+  const [duplicateMap, setDuplicateMap] = useState<{[key: string]: any}>({});
+  const [checkingBulkDuplicate, setCheckingBulkDuplicate] = useState(false);
+  const [manualDuplicateData, setManualDuplicateData] = useState<any>(null);
+  const [checkingManualDuplicate, setCheckingManualDuplicate] = useState(false);
+
   // Load records
   const fetchRecords = async (start = startDate, end = endDate) => {
     setLoading(true);
     try {
       const res = await api.get('/pelayanan/rawat-jalan', { params: { startDate: start, endDate: end } });
-      setRecords(res.data || []);
+      const sorted = (res.data || []).sort((a: any, b: any) => {
+        const dateA = new Date(a.tanggal_pelayanan).getTime();
+        const dateB = new Date(b.tanggal_pelayanan).getTime();
+        if (dateB !== dateA) return dateB - dateA;
+        return (b.id || 0) - (a.id || 0);
+      });
+      setRecords(sorted);
     } catch (err: any) {
       console.error('Gagal memuat rekap pelayanan', err);
       showFeedback('error', 'Gagal memuat database pelayanan rawat jalan.');
@@ -227,6 +239,32 @@ export default function RawatJalan() {
     fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (!noRegistrasi || isEditMode) {
+      setManualDuplicateData(null);
+      return;
+    }
+
+    const delayDebounce = setTimeout(async () => {
+      setCheckingManualDuplicate(true);
+      try {
+        const res = await api.get('/pelayanan/check-duplicate', { params: { no_registrasi: noRegistrasi } });
+        if (res.data && res.data.exists) {
+          setManualDuplicateData(res.data);
+        } else {
+          setManualDuplicateData(null);
+        }
+      } catch (err) {
+        console.error('Error checking duplicate:', err);
+        setManualDuplicateData(null);
+      } finally {
+        setCheckingManualDuplicate(false);
+      }
+    }, 600);
+
+    return () => clearTimeout(delayDebounce);
+  }, [noRegistrasi, isEditMode]);
 
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
@@ -517,6 +555,12 @@ export default function RawatJalan() {
       let tPel = 0;
       let tMedis = 0;
       let qty = 1;
+      let tglLahir = "";
+      let jk = "";
+      let alamat = "";
+      let kelurahan = "";
+      let kecamatan = "";
+      let kota = "";
       let parsedUnit: string | null = null;
 
       const cleanNum = (str: string) => {
@@ -530,6 +574,12 @@ export default function RawatJalan() {
         noReg = cols[1];
         noRmCode = cols[2];
         pName = cols[3];
+        tglLahir = cols[4];
+        jk = cols[6];
+        alamat = cols[7];
+        kelurahan = cols[8];
+        kecamatan = cols[9];
+        kota = cols[10];
         tName = cols[11]; // Nama Tindakan
         tTgl = cols[12] || ''; // Tanggal MRS
         parsedUnit = matchUnit(cols[14]); // Unit
@@ -576,7 +626,13 @@ export default function RawatJalan() {
           tarif_medis: tMedis,
           jumlah: qty,
           subtotal: 0,
-          unit: parsedUnit
+          unit: parsedUnit,
+          tanggal_lahir: tglLahir,
+          jenis_kelamin: jk,
+          alamat: alamat,
+          kelurahan: kelurahan,
+          kecamatan: kecamatan,
+          kota: kota
         });
       }
     }
@@ -592,7 +648,13 @@ export default function RawatJalan() {
           nama_pasien: act.nama_pasien,
           tanggal_pelayanan: act.tanggal_pelayanan,
           unit: act.unit,
-          tindakan: []
+          tindakan: [],
+          tanggal_lahir: act.tanggal_lahir,
+          jenis_kelamin: act.jenis_kelamin,
+          alamat: act.alamat,
+          kelurahan: act.kelurahan,
+          kecamatan: act.kecamatan,
+          kota: act.kota
         };
       }
       groupedMap[key].tindakan.push({
@@ -618,6 +680,27 @@ export default function RawatJalan() {
 
     setParsedData(output);
     setIsParsed(true);
+    setDuplicateMap({});
+
+    // Dynamic Bulk Duplicate Checker
+    const checkDuplicates = async () => {
+      setCheckingBulkDuplicate(true);
+      try {
+        const list = output.map(x => x.no_registrasi).filter(Boolean);
+        if (list.length > 0) {
+          const res = await api.post('/pelayanan/check-duplicates-bulk', { no_registrasi_list: list });
+          if (res.data && res.data.duplicates) {
+            setDuplicateMap(res.data.duplicates);
+          }
+        }
+      } catch (err) {
+        console.error('Gagal memeriksa duplikat massal:', err);
+      } finally {
+        setCheckingBulkDuplicate(false);
+      }
+    };
+    checkDuplicates();
+
     showFeedback('success', `Berhasil mengurai ${output.length} registrasi kunjungan unik.`);
   };
 
@@ -642,7 +725,13 @@ export default function RawatJalan() {
           unit: p.unit || bulkUnit,
           icd_kode: p.icd_kode || null,
           dpjp: p.dpjp || null,
-          tindakan: p.tindakan
+          tindakan: p.tindakan,
+          tanggal_lahir: p.tanggal_lahir,
+          jenis_kelamin: p.jenis_kelamin,
+          alamat: p.alamat,
+          kelurahan: p.kelurahan,
+          kecamatan: p.kecamatan,
+          kota: p.kota
         });
         successCount++;
       }
@@ -1647,6 +1736,20 @@ export default function RawatJalan() {
                             <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
                           </div>
 
+                          {duplicateMap[p.no_registrasi] ? (
+                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
+                              <span className="text-xs mt-0.5">⚠️</span>
+                              <span>
+                                <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+                              <span className="text-xs mt-0.5">🆕</span>
+                              <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
+                            </div>
+                          )}
+
                           {/* Controls Grid */}
                           <div className="bg-white border border-slate-150 p-3 rounded-xl">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1816,6 +1919,22 @@ export default function RawatJalan() {
                           disabled={isEditMode}
                           required
                         />
+                        {checkingManualDuplicate && (
+                          <p className="text-[10px] text-teal-600 mt-1 font-bold animate-pulse">Memeriksa nomor registrasi...</p>
+                        )}
+                        {!checkingManualDuplicate && manualDuplicateData && (
+                          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[10px] p-2.5 rounded-lg mt-1.5 font-sans space-y-0.5 leading-relaxed">
+                            <p className="font-bold flex items-center text-amber-900">
+                              <span className="mr-1">⚠️</span> Nomor Registrasi Sudah Terdaftar
+                            </p>
+                            <p>
+                              Ditemukan di modul <strong>{manualDuplicateData.modul}</strong> atas nama <strong>{manualDuplicateData.nama_pasien}</strong> ({manualDuplicateData.tanggal_pelayanan}).
+                            </p>
+                            <p className="text-amber-700">
+                              Menyimpan akan <strong>memperbarui (update)</strong> data kunjungan yang ada.
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div>

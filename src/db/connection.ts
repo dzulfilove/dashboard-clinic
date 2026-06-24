@@ -217,7 +217,10 @@ async function runMigrationsIfRequired() {
       !tableList.includes('tindakan_igd') ||
       !tableList.includes('registrasi_ranap') ||
       !tableList.includes('tindakan_ranap') ||
-      !tableList.includes('dokter')
+      !tableList.includes('dokter') ||
+      !tableList.includes('kota') ||
+      !tableList.includes('kecamatan') ||
+      !tableList.includes('kelurahan')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -284,6 +287,38 @@ async function runMigrationsIfRequired() {
         const [pelaksanaRanap]: any = await mysqlPool.query("SHOW COLUMNS FROM tindakan_ranap LIKE 'pelaksana'");
         if (pelaksanaRanap.length > 0) {
           await mysqlPool.query("ALTER TABLE tindakan_ranap DROP COLUMN pelaksana");
+        }
+
+        // Migrating pasien table new columns if they do not exist
+        const [pasienTanggalLahirCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'tanggal_lahir'");
+        if (pasienTanggalLahirCol.length === 0) {
+          console.log('Adding tanggal_lahir to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN tanggal_lahir DATE AFTER nama");
+        }
+        const [pasienAlamatCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'alamat'");
+        if (pasienAlamatCol.length === 0) {
+          console.log('Adding alamat to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN alamat VARCHAR(255) AFTER tanggal_lahir");
+        }
+        const [pasienJkCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'jenis_kelamin'");
+        if (pasienJkCol.length === 0) {
+          console.log('Adding jenis_kelamin to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN jenis_kelamin ENUM('L', 'P') AFTER alamat");
+        }
+        const [pasienKelurahanCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'kelurahan_id'");
+        if (pasienKelurahanCol.length === 0) {
+          console.log('Adding kelurahan_id to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN kelurahan_id INT AFTER jenis_kelamin");
+        }
+        const [pasienKecamatanCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'kecamatan_id'");
+        if (pasienKecamatanCol.length === 0) {
+          console.log('Adding kecamatan_id to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN kecamatan_id INT AFTER kelurahan_id");
+        }
+        const [pasienKotaCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'kota_id'");
+        if (pasienKotaCol.length === 0) {
+          console.log('Adding kota_id to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN kota_id INT AFTER kecamatan_id");
         }
 
         // Direct check for dokter table to ensure it exists
@@ -444,6 +479,9 @@ interface VirtualDatabase {
   registrasi_rawat_jalan?: any[];
   tindakan_rawat_jalan?: any[];
   master_icd10?: any[];
+  kota?: any[];
+  kecamatan?: any[];
+  kelurahan?: any[];
 }
 
 function initVirtualDb() {
@@ -653,6 +691,30 @@ export function readVirtualDb(): VirtualDatabase {
   }
   const data: VirtualDatabase = JSON.parse(fs.readFileSync(VIRTUAL_DB_FILE, 'utf8'));
   let updated = false;
+  if (!data.kota) {
+    data.kota = [
+      { id: 1, nama: 'Jakarta Selatan' },
+      { id: 2, nama: 'Bandung' },
+      { id: 3, nama: 'Surabaya' }
+    ];
+    updated = true;
+  }
+  if (!data.kecamatan) {
+    data.kecamatan = [
+      { id: 1, kota_id: 1, nama: 'Kebayoran Baru' },
+      { id: 2, kota_id: 1, nama: 'Cilandak' },
+      { id: 3, kota_id: 2, nama: 'Coblong' }
+    ];
+    updated = true;
+  }
+  if (!data.kelurahan) {
+    data.kelurahan = [
+      { id: 1, kecamatan_id: 1, nama: 'Senayan' },
+      { id: 2, kecamatan_id: 1, nama: 'Selong' },
+      { id: 3, kecamatan_id: 3, nama: 'Dago' }
+    ];
+    updated = true;
+  }
   if (!data.master_icd10 || data.master_icd10.length < 50) {
     data.master_icd10 = COMMON_ICD10.map((item, idx) => ({ id: idx + 1, ...item }));
     updated = true;
@@ -1299,20 +1361,165 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   // --- 8.5 PASIEN (VIRTUAL DB) ---
-  if (norm.startsWith('SELECT * FROM pasien')) {
+  if (norm.startsWith('SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p') ||
+      norm.startsWith('SELECT * FROM pasien')) {
     if (!vdb.pasien) vdb.pasien = [];
-    return vdb.pasien;
+    if (!vdb.kota) vdb.kota = [];
+    if (!vdb.kecamatan) vdb.kecamatan = [];
+    if (!vdb.kelurahan) vdb.kelurahan = [];
+    return vdb.pasien.map((p: any) => {
+      const k = vdb.kota.find((kt: any) => kt.id === Number(p.kota_id));
+      const kec = vdb.kecamatan.find((kc: any) => kc.id === Number(p.kecamatan_id));
+      const kel = vdb.kelurahan.find((kl: any) => kl.id === Number(p.kelurahan_id));
+      return {
+        ...p,
+        kota_nama: k ? k.nama : null,
+        kecamatan_nama: kec ? kec.nama : null,
+        kelurahan_nama: kel ? kel.nama : null
+      };
+    });
+  }
+
+  if (norm.startsWith('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id)')) {
+    const [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id] = params;
+    if (!vdb.pasien) vdb.pasien = [];
+    // Remove duplicates if already exists
+    vdb.pasien = vdb.pasien.filter(p => String(p.no_rm).toLowerCase() !== String(no_rm).toLowerCase());
+    vdb.pasien.push({
+      no_rm: String(no_rm),
+      nama: String(nama),
+      tanggal_lahir: tanggal_lahir ? String(tanggal_lahir) : null,
+      alamat: alamat ? String(alamat) : null,
+      jenis_kelamin: jenis_kelamin ? String(jenis_kelamin) : null,
+      kota_id: kota_id ? Number(kota_id) : null,
+      kecamatan_id: kecamatan_id ? Number(kecamatan_id) : null,
+      kelurahan_id: kelurahan_id ? Number(kelurahan_id) : null
+    });
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
   }
 
   if (norm.startsWith('INSERT INTO pasien') || norm.startsWith('INSERT IGNORE INTO pasien')) {
-    // INSERT IGNORE INTO pasien (no_rm, nama) VALUES (?, ?)
+    // Fallback simple insert
     const [no_rm, nama] = params;
     if (!vdb.pasien) vdb.pasien = [];
     const exists = vdb.pasien.some(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
     if (!exists) {
-      vdb.pasien.push({ no_rm: String(no_rm), nama: String(nama) });
+      vdb.pasien.push({ 
+        no_rm: String(no_rm), 
+        nama: String(nama),
+        tanggal_lahir: null,
+        alamat: null,
+        jenis_kelamin: null,
+        kota_id: null,
+        kecamatan_id: null,
+        kelurahan_id: null
+      });
       writeVirtualDb(vdb);
     }
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?')) {
+    const [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_rm] = params;
+    if (!vdb.pasien) vdb.pasien = [];
+    const idx = vdb.pasien.findIndex(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
+    if (idx !== -1) {
+      vdb.pasien[idx].nama = String(nama);
+      vdb.pasien[idx].tanggal_lahir = tanggal_lahir ? String(tanggal_lahir) : null;
+      vdb.pasien[idx].alamat = alamat ? String(alamat) : null;
+      vdb.pasien[idx].jenis_kelamin = jenis_kelamin ? String(jenis_kelamin) : null;
+      vdb.pasien[idx].kota_id = kota_id ? Number(kota_id) : null;
+      vdb.pasien[idx].kecamatan_id = kecamatan_id ? Number(kecamatan_id) : null;
+      vdb.pasien[idx].kelurahan_id = kelurahan_id ? Number(kelurahan_id) : null;
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  // --- 8.5.1 MASTER WILAYAH (VIRTUAL DB) ---
+  if (norm.startsWith('SELECT * FROM kota')) {
+    if (!vdb.kota) vdb.kota = [];
+    return vdb.kota;
+  }
+
+  if (norm.startsWith('INSERT INTO kota (nama) VALUES (?)')) {
+    const [nama] = params;
+    if (!vdb.kota) vdb.kota = [];
+    const newId = vdb.kota.length > 0 ? Math.max(...vdb.kota.map(k => k.id)) + 1 : 1;
+    vdb.kota.push({ id: newId, nama: String(nama) });
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('DELETE FROM kota WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (!vdb.kota) vdb.kota = [];
+    vdb.kota = vdb.kota.filter(k => k.id !== id);
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('SELECT kec.*, k.nama as kota_nama FROM kecamatan kec') || 
+      norm.startsWith('SELECT kec.*, k.nama as kota_nama FROM kecamatan') ||
+      norm.startsWith('SELECT * FROM kecamatan')) {
+    if (!vdb.kecamatan) vdb.kecamatan = [];
+    if (!vdb.kota) vdb.kota = [];
+    return vdb.kecamatan.map((kec: any) => {
+      const k = vdb.kota.find((kt: any) => kt.id === Number(kec.kota_id));
+      return {
+        ...kec,
+        kota_nama: k ? k.nama : null
+      };
+    });
+  }
+
+  if (norm.startsWith('INSERT INTO kecamatan (nama, kota_id) VALUES (?, ?)')) {
+    const [nama, kota_id] = params;
+    if (!vdb.kecamatan) vdb.kecamatan = [];
+    const newId = vdb.kecamatan.length > 0 ? Math.max(...vdb.kecamatan.map(k => k.id)) + 1 : 1;
+    vdb.kecamatan.push({ id: newId, nama: String(nama), kota_id: Number(kota_id) });
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('DELETE FROM kecamatan WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (!vdb.kecamatan) vdb.kecamatan = [];
+    vdb.kecamatan = vdb.kecamatan.filter(k => k.id !== id);
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('SELECT kel.*, kec.nama as kecamatan_nama FROM kelurahan kel') || 
+      norm.startsWith('SELECT kel.*, kec.nama as kecamatan_nama FROM kelurahan') ||
+      norm.startsWith('SELECT * FROM kelurahan')) {
+    if (!vdb.kelurahan) vdb.kelurahan = [];
+    if (!vdb.kecamatan) vdb.kecamatan = [];
+    return vdb.kelurahan.map((kel: any) => {
+      const kec = vdb.kecamatan.find((kc: any) => kc.id === Number(kel.kecamatan_id));
+      return {
+        ...kel,
+        kecamatan_nama: kec ? kec.nama : null
+      };
+    });
+  }
+
+  if (norm.startsWith('INSERT INTO kelurahan (nama, kecamatan_id) VALUES (?, ?)')) {
+    const [nama, kecamatan_id] = params;
+    if (!vdb.kelurahan) vdb.kelurahan = [];
+    const newId = vdb.kelurahan.length > 0 ? Math.max(...vdb.kelurahan.map(k => k.id)) + 1 : 1;
+    vdb.kelurahan.push({ id: newId, nama: String(nama), kecamatan_id: Number(kecamatan_id) });
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('DELETE FROM kelurahan WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (!vdb.kelurahan) vdb.kelurahan = [];
+    vdb.kelurahan = vdb.kelurahan.filter(k => k.id !== id);
+    writeVirtualDb(vdb);
     return { affectedRows: 1 };
   }
 
@@ -1332,7 +1539,12 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         triase: r.triase || 'hijau',
         unit: r.unit || 'Poli Umum'
       };
-    }).sort((a, b) => b.id - a.id);
+    }).sort((a, b) => {
+      const dateA = new Date(a.tanggal_pelayanan).getTime();
+      const dateB = new Date(b.tanggal_pelayanan).getTime();
+      if (dateB !== dateA) return dateB - dateA;
+      return b.id - a.id;
+    });
   }
 
   if (norm.startsWith('SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_rawat_jalan t JOIN master_tindakan m ON t.tindakan_id = m.id')) {
@@ -1464,7 +1676,12 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         triase: r.triase || 'hijau',
         icd_kode: r.icd_kode || ''
       };
-    }).sort((a, b) => b.id - a.id);
+    }).sort((a, b) => {
+      const dateA = new Date(a.tanggal_pelayanan).getTime();
+      const dateB = new Date(b.tanggal_pelayanan).getTime();
+      if (dateB !== dateA) return dateB - dateA;
+      return b.id - a.id;
+    });
   }
 
   if (norm.startsWith('SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_igd t JOIN master_tindakan m ON t.tindakan_id = m.id')) {
@@ -1584,7 +1801,12 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         icd_pulang: r.icd_pulang || '',
         kamar: r.kamar || ''
       };
-    }).sort((a, b) => b.id - a.id);
+    }).sort((a, b) => {
+      const dateA = new Date(a.tanggal_pelayanan).getTime();
+      const dateB = new Date(b.tanggal_pelayanan).getTime();
+      if (dateB !== dateA) return dateB - dateA;
+      return b.id - a.id;
+    });
   }
 
   if (norm.startsWith('SELECT t.registrasi_id, t.pelaksana, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_ranap t JOIN master_tindakan m ON t.tindakan_id = m.id')) {

@@ -692,6 +692,7 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
       FROM registrasi_rawat_jalan r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
       WHERE r.tanggal_pelayanan BETWEEN ? AND ?
+      ORDER BY r.tanggal_pelayanan DESC, r.id DESC
     `, [start, end]);
     
     const actions = await db.query(`
@@ -731,19 +732,223 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
   }
 });
 
+function cleanDateForDb(dateStr?: string): string | null {
+  if (!dateStr) return null;
+  let cleaned = String(dateStr).trim();
+  if (!cleaned) return null;
+
+  // Replace multiple spaces with a single space
+  cleaned = cleaned.replace(/\s+/g, ' ');
+
+  // 1. Try parsing space-separated date, e.g., "05 Desember 2005" or "5 Des 2005" or "2005 Des 5"
+  const spaceParts = cleaned.split(' ');
+  if (spaceParts.length === 3) {
+    let day = '';
+    let month = '';
+    let year = '';
+
+    const monthsMap: { [key: string]: string } = {
+      januari: '01', jan: '01',
+      februari: '02', feb: '02',
+      maret: '03', mar: '03',
+      april: '04', apr: '04',
+      mei: '05', may: '05',
+      juni: '06', jun: '06',
+      juli: '07', jul: '07',
+      agustus: '08', agu: '08', ags: '08', aug: '08',
+      september: '09', sep: '09',
+      oktober: '10', okt: '10', oct: '10',
+      november: '11', nov: '11',
+      desember: '12', des: '12', dec: '12'
+    };
+
+    let foundMonthIndex = -1;
+    let monthVal = '';
+    for (let i = 0; i < 3; i++) {
+      const partLower = spaceParts[i].toLowerCase();
+      if (monthsMap[partLower]) {
+        foundMonthIndex = i;
+        monthVal = monthsMap[partLower];
+        break;
+      }
+    }
+
+    if (foundMonthIndex !== -1) {
+      month = monthVal;
+      const otherIndices = [0, 1, 2].filter(idx => idx !== foundMonthIndex);
+      const p1 = spaceParts[otherIndices[0]];
+      const p2 = spaceParts[otherIndices[1]];
+
+      if (p1.length === 4) {
+        year = p1;
+        day = p2.padStart(2, '0');
+      } else if (p2.length === 4) {
+        year = p2;
+        day = p1.padStart(2, '0');
+      } else {
+        if (Number(p1) > Number(p2)) {
+          year = p1;
+          day = p2.padStart(2, '0');
+        } else {
+          year = p2;
+          day = p1.padStart(2, '0');
+        }
+      }
+
+      if (year.length === 2) {
+        year = Number(year) > 30 ? `19${year}` : `20${year}`;
+      }
+      if (year.length === 4 && !isNaN(Number(year)) && !isNaN(Number(day))) {
+        return `${year}-${month}-${day}`;
+      }
+    }
+  }
+
+  // 2. Try parsing dash or slash separated, e.g. "05-12-2005" or "2005-12-05" or "12/05/2005"
+  if (cleaned.includes('-') || cleaned.includes('/')) {
+    const parts = cleaned.split(/[-/]/).map(p => p.trim());
+    if (parts.length === 3) {
+      const monthsMap: { [key: string]: string } = {
+        januari: '01', jan: '01',
+        februari: '02', feb: '02',
+        maret: '03', mar: '03',
+        april: '04', apr: '04',
+        mei: '05', may: '05',
+        juni: '06', jun: '06',
+        juli: '07', jul: '07',
+        agustus: '08', agu: '08', ags: '08', aug: '08',
+        september: '09', sep: '09',
+        oktober: '10', okt: '10', oct: '10',
+        november: '11', nov: '11',
+        desember: '12', des: '12', dec: '12'
+      };
+      
+      let m = parts[1];
+      const mLower = m.toLowerCase();
+      if (monthsMap[mLower]) {
+        m = monthsMap[mLower];
+      } else {
+        m = m.padStart(2, '0');
+      }
+
+      if (parts[2].length === 4) {
+        const d = parts[0].padStart(2, '0');
+        const y = parts[2];
+        return `${y}-${m}-${d}`;
+      } else if (parts[0].length === 4) {
+        return `${parts[0]}-${m}-${parts[2].padStart(2, '0')}`;
+      }
+    }
+  }
+
+  // 3. Fallback to native Date parser
+  const parsedTimestamp = Date.parse(cleaned);
+  if (!isNaN(parsedTimestamp)) {
+    const dObj = new Date(parsedTimestamp);
+    const y = dObj.getFullYear();
+    const m = String(dObj.getMonth() + 1).padStart(2, '0');
+    const d = String(dObj.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  const matchYmd = cleaned.match(/^(\d{4})[^\d]+(\d{1,2})[^\d]+(\d{1,2})$/);
+  if (matchYmd) {
+    return `${matchYmd[1]}-${matchYmd[2].padStart(2, '0')}-${matchYmd[3].padStart(2, '0')}`;
+  }
+  const matchDmy = cleaned.match(/^(\d{1,2})[^\d]+(\d{1,2})[^\d]+(\d{4})$/);
+  if (matchDmy) {
+    return `${matchDmy[3]}-${matchDmy[2].padStart(2, '0')}-${matchDmy[1].padStart(2, '0')}`;
+  }
+
+  return null;
+}
+
+async function resolveWilayahIds(kotaNama?: string, kecamatanNama?: string, kelurahanNama?: string): Promise<{ kota_id: number | null; kecamatan_id: number | null; kelurahan_id: number | null }> {
+  let kota_id: number | null = null;
+  let kecamatan_id: number | null = null;
+  let kelurahan_id: number | null = null;
+
+  try {
+    if (kotaNama && kotaNama.trim()) {
+      const trimmedKota = kotaNama.trim();
+      const existingKota: any = await db.query('SELECT id FROM kota WHERE LOWER(nama) = LOWER(?)', [trimmedKota]);
+      if (existingKota && existingKota.length > 0) {
+        kota_id = existingKota[0].id;
+      } else {
+        const insertRes = await db.query('INSERT INTO kota (nama) VALUES (?)', [trimmedKota]);
+        kota_id = insertRes.insertId;
+      }
+    }
+
+    if (kecamatanNama && kecamatanNama.trim() && kota_id) {
+      const trimmedKec = kecamatanNama.trim();
+      const existingKec: any = await db.query('SELECT id FROM kecamatan WHERE LOWER(nama) = LOWER(?) AND kota_id = ?', [trimmedKec, kota_id]);
+      if (existingKec && existingKec.length > 0) {
+        kecamatan_id = existingKec[0].id;
+      } else {
+        const insertRes = await db.query('INSERT INTO kecamatan (nama, kota_id) VALUES (?, ?)', [trimmedKec, kota_id]);
+        kecamatan_id = insertRes.insertId;
+      }
+    }
+
+    if (kelurahanNama && kelurahanNama.trim() && kecamatan_id) {
+      const trimmedKel = kelurahanNama.trim();
+      const existingKel: any = await db.query('SELECT id FROM kelurahan WHERE LOWER(nama) = LOWER(?) AND kecamatan_id = ?', [trimmedKel, kecamatan_id]);
+      if (existingKel && existingKel.length > 0) {
+        kelurahan_id = existingKel[0].id;
+      } else {
+        const insertRes = await db.query('INSERT INTO kelurahan (nama, kecamatan_id) VALUES (?, ?)', [trimmedKel, kecamatan_id]);
+        kelurahan_id = insertRes.insertId;
+      }
+    }
+  } catch (err) {
+    console.error('Error in resolveWilayahIds:', err);
+  }
+
+  return { kota_id, kecamatan_id, kelurahan_id };
+}
+
 // Create new outpatient record with bulk tindakan actions
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan } = req.body;
+  const { 
+    no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
+    tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
+  } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
     return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
   }
 
   try {
+    // Resolve Wilayah IDs
+    const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
+
+    // Clean gender and date of birth
+    const jkClean = jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('P') ? 'P' : (jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('L') ? 'L' : null);
+    const dobClean = cleanDateForDb(tanggal_lahir);
+
     // 1. Cek pasien dengan no_rm yang sama
-    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    const existingPasien: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [no_rm]);
     if (!existingPasien || existingPasien.length === 0) {
-      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+      await db.query(
+        'INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        [no_rm, nama_pasien, dobClean, alamat || null, jkClean, kota_id, kecamatan_id, kelurahan_id]
+      );
+    } else {
+      // Merge properties
+      const p = existingPasien[0];
+      const mergedNama = nama_pasien || p.nama;
+      const mergedDob = dobClean || p.tanggal_lahir;
+      const mergedAlamat = alamat || p.alamat;
+      const mergedJk = jkClean || p.jenis_kelamin;
+      const mergedKotaId = kota_id || p.kota_id;
+      const mergedKecamatanId = kecamatan_id || p.kecamatan_id;
+      const mergedKelurahanId = kelurahan_id || p.kelurahan_id;
+
+      await db.query(
+        'UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?',
+        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, no_rm]
+      );
     }
     
     // 2. Insert or Update Registrasi
@@ -914,17 +1119,28 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
 // Master Data Pasien
 app.get('/api/pasien', authenticateToken, async (req: any, res) => {
   try {
-    const rows = await db.query('SELECT * FROM pasien');
-    res.json(rows);
+    const rows = await db.query('SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id');
+    const formatted = rows.map((r: any) => ({
+        no_rm: r.no_rm,
+        nama: r.nama,
+        tanggal_lahir: r.tanggal_lahir,
+        alamat: r.alamat,
+        jenis_kelamin: r.jenis_kelamin,
+        kota: { id: r.kota_id, nama: r.kota_nama },
+        kecamatan: { id: r.kecamatan_id, nama: r.kecamatan_nama },
+        kelurahan: { id: r.kelurahan_id, nama: r.kelurahan_nama }
+    }));
+    res.json(formatted);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
 });
 
 app.post('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
-  const { no_rm, nama } = req.body;
+  const { no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id } = req.body;
   try {
-    await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama]);
+    await db.query('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id]);
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -933,9 +1149,10 @@ app.post('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat']), asyn
 
 app.put('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { no_rm } = req.params;
-  const { nama } = req.body;
+  const { nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id } = req.body;
   try {
-    await db.query('UPDATE pasien SET nama = ? WHERE no_rm = ?', [nama, no_rm]);
+    await db.query('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?', 
+        [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_rm]);
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -951,6 +1168,637 @@ app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async 
     res.status(500).json({ message: err.message });
   }
 });
+
+// --- DEMOGRAFI & PASIEN LOYAL ENDPOINTS ---
+app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any, res: any) => {
+  try {
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    
+    let startDateParam = req.query.startDate ? String(req.query.startDate) : null;
+    let endDateParam = req.query.endDate ? String(req.query.endDate) : null;
+    
+    // Default to last 30 days if period is not specified
+    if (!startDateParam || !endDateParam) {
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      startDateParam = startDateParam || thirtyDaysAgo.toISOString().split('T')[0];
+      endDateParam = endDateParam || today.toISOString().split('T')[0];
+    }
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      const patients = vdb.pasien || [];
+      const rj = vdb.registrasi_rawat_jalan || [];
+      const igd = vdb.registrasi_igd || [];
+      const ranap = vdb.registrasi_ranap || [];
+      const cities = vdb.kota || [];
+      const districts = vdb.kecamatan || [];
+      const subdistricts = vdb.kelurahan || [];
+
+      // Union all visits
+      const allVisits = [
+        ...(rj || []).map((v: any) => ({ no_registrasi: v.no_registrasi, pasien_no_rm: v.pasien_no_rm, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Jalan' })),
+        ...(igd || []).map((v: any) => ({ no_registrasi: v.no_registrasi, pasien_no_rm: v.pasien_no_rm, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'IGD' })),
+        ...(ranap || []).map((v: any) => ({ no_registrasi: v.no_registrasi, pasien_no_rm: v.pasien_no_rm, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Inap' }))
+      ];
+
+      // Counters
+      const visitCountMap: Record<string, number> = {};
+      const visitCountPeriodMap: Record<string, number> = {};
+      
+      const sDate = new Date(startDateParam);
+      const eDate = new Date(endDateParam);
+
+      allVisits.forEach(v => {
+        const rm = String(v.pasien_no_rm);
+        visitCountMap[rm] = (visitCountMap[rm] || 0) + 1;
+        
+        const vDate = new Date(v.tanggal_pelayanan);
+        if (vDate >= sDate && vDate <= eDate) {
+          visitCountPeriodMap[rm] = (visitCountPeriodMap[rm] || 0) + 1;
+        }
+      });
+
+      // Top All Time (20)
+      const topAllTime = patients.map((p: any) => {
+        const total_visits = visitCountMap[String(p.no_rm)] || 0;
+        const city = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
+        const district = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
+        const subdistrict = subdistricts.find((s: any) => s.id === p.kelurahan_id)?.nama || 'Tidak Diketahui';
+        return {
+          no_rm: p.no_rm,
+          nama: p.nama,
+          tanggal_lahir: p.tanggal_lahir,
+          jenis_kelamin: p.jenis_kelamin || 'Tidak Diketahui',
+          alamat: p.alamat || '-',
+          kota: city,
+          kecamatan: district,
+          kelurahan: subdistrict,
+          total_visits
+        };
+      }).filter(p => p.total_visits > 0)
+        .sort((a, b) => b.total_visits - a.total_visits)
+        .slice(0, 20);
+
+      // Top Selected Period (20)
+      const topPeriod = patients.map((p: any) => {
+        const total_visits = visitCountPeriodMap[String(p.no_rm)] || 0;
+        const city = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
+        const district = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
+        const subdistrict = subdistricts.find((s: any) => s.id === p.kelurahan_id)?.nama || 'Tidak Diketahui';
+        return {
+          no_rm: p.no_rm,
+          nama: p.nama,
+          tanggal_lahir: p.tanggal_lahir,
+          jenis_kelamin: p.jenis_kelamin || 'Tidak Diketahui',
+          alamat: p.alamat || '-',
+          kota: city,
+          kecamatan: district,
+          kelurahan: subdistrict,
+          total_visits
+        };
+      }).filter(p => p.total_visits > 0)
+        .sort((a, b) => b.total_visits - a.total_visits)
+        .slice(0, 20);
+
+      // Region Stats
+      const kotaStats: Record<string, { kota: string; jumlah_pasien: number; jumlah_kunjungan: number }> = {};
+      cities.forEach((c: any) => {
+        kotaStats[c.nama] = { kota: c.nama, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+      });
+      kotaStats['Tidak Diketahui'] = { kota: 'Tidak Diketahui', jumlah_pasien: 0, jumlah_kunjungan: 0 };
+
+      patients.forEach((p: any) => {
+        const cName = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
+        if (!kotaStats[cName]) kotaStats[cName] = { kota: cName, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+        kotaStats[cName].jumlah_pasien += 1;
+      });
+
+      allVisits.forEach((v: any) => {
+        const p = patients.find(pas => String(pas.no_rm) === String(v.pasien_no_rm));
+        const cName = p ? (cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui') : 'Tidak Diketahui';
+        if (!kotaStats[cName]) kotaStats[cName] = { kota: cName, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+        kotaStats[cName].jumlah_kunjungan += 1;
+      });
+      const byKota = Object.values(kotaStats).sort((a, b) => b.jumlah_pasien - a.jumlah_pasien);
+
+      // District
+      const kecStats: Record<string, { kecamatan: string; kota: string; jumlah_pasien: number; jumlah_kunjungan: number }> = {};
+      patients.forEach((p: any) => {
+        const kName = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
+        const cName = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
+        const key = `${kName} - ${cName}`;
+        if (!kecStats[key]) kecStats[key] = { kecamatan: kName, kota: cName, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+        kecStats[key].jumlah_pasien += 1;
+      });
+      allVisits.forEach((v: any) => {
+        const p = patients.find(pas => String(pas.no_rm) === String(v.pasien_no_rm));
+        if (p) {
+          const kName = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
+          const cName = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
+          const key = `${kName} - ${cName}`;
+          if (!kecStats[key]) kecStats[key] = { kecamatan: kName, kota: cName, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+          kecStats[key].jumlah_kunjungan += 1;
+        }
+      });
+      const byKecamatan = Object.values(kecStats).sort((a, b) => b.jumlah_pasien - a.jumlah_pasien);
+
+      // Subdistrict
+      const kelStats: Record<string, { kelurahan: string; kecamatan: string; jumlah_pasien: number; jumlah_kunjungan: number }> = {};
+      patients.forEach((p: any) => {
+        const sName = subdistricts.find((s: any) => s.id === p.kelurahan_id)?.nama || 'Tidak Diketahui';
+        const kName = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
+        const key = `${sName} - ${kName}`;
+        if (!kelStats[key]) kelStats[key] = { kelurahan: sName, kecamatan: kName, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+        kelStats[key].jumlah_pasien += 1;
+      });
+      allVisits.forEach((v: any) => {
+        const p = patients.find(pas => String(pas.no_rm) === String(v.pasien_no_rm));
+        if (p) {
+          const sName = subdistricts.find((s: any) => s.id === p.kelurahan_id)?.nama || 'Tidak Diketahui';
+          const kName = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
+          const key = `${sName} - ${kName}`;
+          if (!kelStats[key]) kelStats[key] = { kelurahan: sName, kecamatan: kName, jumlah_pasien: 0, jumlah_kunjungan: 0 };
+          kelStats[key].jumlah_kunjungan += 1;
+        }
+      });
+      const byKelurahan = Object.values(kelStats).sort((a, b) => b.jumlah_pasien - a.jumlah_pasien);
+
+      // Patient Demographics (Gender & Age)
+      const genderStats = { L: 0, P: 0, 'Tidak Diketahui': 0 };
+      patients.forEach((p: any) => {
+        const jk = p.jenis_kelamin;
+        if (jk === 'L') genderStats.L += 1;
+        else if (jk === 'P') genderStats.P += 1;
+        else genderStats['Tidak Diketahui'] += 1;
+      });
+      const byGender = [
+        { jenis_kelamin: 'Laki-laki', jumlah: genderStats.L },
+        { jenis_kelamin: 'Perempuan', jumlah: genderStats.P }
+      ];
+      if (genderStats['Tidak Diketahui'] > 0) {
+        byGender.push({ jenis_kelamin: 'Tidak Diketahui', jumlah: genderStats['Tidak Diketahui'] });
+      }
+
+      // Age Group
+      const ageStats = {
+        'Balita (<5 thn)': 0,
+        'Anak-anak (5-11 thn)': 0,
+        'Remaja (12-17 thn)': 0,
+        'Dewasa (18-45 thn)': 0,
+        'Paruh Baya (46-60 thn)': 0,
+        'Lansia (>60 thn)': 0,
+        'Tidak Diketahui': 0
+      };
+      patients.forEach((p: any) => {
+        if (!p.tanggal_lahir) {
+          ageStats['Tidak Diketahui'] += 1;
+          return;
+        }
+        const birthDate = new Date(p.tanggal_lahir);
+        const diffMs = Date.now() - birthDate.getTime();
+        const age = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+        if (age < 5) ageStats['Balita (<5 thn)'] += 1;
+        else if (age <= 11) ageStats['Anak-anak (5-11 thn)'] += 1;
+        else if (age <= 17) ageStats['Remaja (12-17 thn)'] += 1;
+        else if (age <= 45) ageStats['Dewasa (18-45 thn)'] += 1;
+        else if (age <= 60) ageStats['Paruh Baya (46-60 thn)'] += 1;
+        else ageStats['Lansia (>60 thn)'] += 1;
+      });
+      const byAgeGroup = Object.entries(ageStats)
+        .map(([kelompok_usia, jumlah]) => ({ kelompok_usia, jumlah }))
+        .filter(item => item.jumlah > 0);
+
+      // Return unified response
+      return res.json({
+        topAllTime,
+        topPeriod,
+        byKota,
+        byKecamatan,
+        byKelurahan,
+        byGender,
+        byAgeGroup
+      });
+    } else {
+      // Real VPS MySQL Queries
+      const topAllTime = await db.query(`
+        SELECT 
+          p.no_rm,
+          p.nama,
+          p.tanggal_lahir,
+          p.jenis_kelamin,
+          p.alamat,
+          IFNULL(k.nama, 'Tidak Diketahui') as kota,
+          IFNULL(kec.nama, 'Tidak Diketahui') as kecamatan,
+          IFNULL(kel.nama, 'Tidak Diketahui') as kelurahan,
+          COUNT(DISTINCT r.no_registrasi) as total_visits
+        FROM pasien p
+        JOIN (
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_rawat_jalan
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_igd
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_ranap
+        ) r ON p.no_rm = r.pasien_no_rm
+        LEFT JOIN kota k ON p.kota_id = k.id
+        LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id
+        LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id
+        GROUP BY p.no_rm
+        ORDER BY total_visits DESC
+        LIMIT 20
+      `);
+
+      const topPeriod = await db.query(`
+        SELECT 
+          p.no_rm,
+          p.nama,
+          p.tanggal_lahir,
+          p.jenis_kelamin,
+          p.alamat,
+          IFNULL(k.nama, 'Tidak Diketahui') as kota,
+          IFNULL(kec.nama, 'Tidak Diketahui') as kecamatan,
+          IFNULL(kel.nama, 'Tidak Diketahui') as kelurahan,
+          COUNT(DISTINCT r.no_registrasi) as total_visits
+        FROM pasien p
+        JOIN (
+          SELECT no_registrasi, pasien_no_rm, tanggal_pelayanan FROM registrasi_rawat_jalan
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm, tanggal_pelayanan FROM registrasi_igd
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm, tanggal_pelayanan FROM registrasi_ranap
+        ) r ON p.no_rm = r.pasien_no_rm
+        LEFT JOIN kota k ON p.kota_id = k.id
+        LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id
+        LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id
+        WHERE r.tanggal_pelayanan BETWEEN ? AND ?
+        GROUP BY p.no_rm
+        ORDER BY total_visits DESC
+        LIMIT 20
+      `, [startDateParam, endDateParam]);
+
+      const byKota = await db.query(`
+        SELECT 
+          IFNULL(k.nama, 'Tidak Diketahui') as kota, 
+          COUNT(DISTINCT p.no_rm) as jumlah_pasien,
+          COUNT(DISTINCT r.no_registrasi) as jumlah_kunjungan
+        FROM pasien p
+        LEFT JOIN kota k ON p.kota_id = k.id
+        LEFT JOIN (
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_rawat_jalan
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_igd
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_ranap
+        ) r ON p.no_rm = r.pasien_no_rm
+        GROUP BY k.nama
+        ORDER BY jumlah_pasien DESC
+      `);
+
+      const byKecamatan = await db.query(`
+        SELECT 
+          IFNULL(kec.nama, 'Tidak Diketahui') as kecamatan, 
+          IFNULL(k.nama, 'Tidak Diketahui') as kota,
+          COUNT(DISTINCT p.no_rm) as jumlah_pasien,
+          COUNT(DISTINCT r.no_registrasi) as jumlah_kunjungan
+        FROM pasien p
+        LEFT JOIN kota k ON p.kota_id = k.id
+        LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id
+        LEFT JOIN (
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_rawat_jalan
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_igd
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_ranap
+        ) r ON p.no_rm = r.pasien_no_rm
+        GROUP BY kec.nama, k.nama
+        ORDER BY jumlah_pasien DESC
+      `);
+
+      const byKelurahan = await db.query(`
+        SELECT 
+          IFNULL(kel.nama, 'Tidak Diketahui') as kelurahan, 
+          IFNULL(kec.nama, 'Tidak Diketahui') as kecamatan,
+          COUNT(DISTINCT p.no_rm) as jumlah_pasien,
+          COUNT(DISTINCT r.no_registrasi) as jumlah_kunjungan
+        FROM pasien p
+        LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id
+        LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id
+        LEFT JOIN (
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_rawat_jalan
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_igd
+          UNION ALL
+          SELECT no_registrasi, pasien_no_rm FROM registrasi_ranap
+        ) r ON p.no_rm = r.pasien_no_rm
+        GROUP BY kel.nama, kec.nama
+        ORDER BY jumlah_pasien DESC
+      `);
+
+      const dbGender = await db.query(`
+        SELECT 
+          CASE jenis_kelamin
+            WHEN 'L' THEN 'Laki-laki'
+            WHEN 'P' THEN 'Perempuan'
+            ELSE 'Tidak Diketahui'
+          END as jenis_kelamin,
+          COUNT(*) as jumlah
+        FROM pasien
+        GROUP BY jenis_kelamin
+      `);
+
+      const byGender = Array.isArray(dbGender) ? dbGender : [];
+
+      const dbAgeGroup = await db.query(`
+        SELECT 
+          CASE 
+            WHEN DATEDIFF(CURRENT_DATE, tanggal_lahir) / 365.25 < 5 THEN 'Balita (<5 thn)'
+            WHEN DATEDIFF(CURRENT_DATE, tanggal_lahir) / 365.25 BETWEEN 5 AND 11 THEN 'Anak-anak (5-11 thn)'
+            WHEN DATEDIFF(CURRENT_DATE, tanggal_lahir) / 365.25 BETWEEN 12 AND 17 THEN 'Remaja (12-17 thn)'
+            WHEN DATEDIFF(CURRENT_DATE, tanggal_lahir) / 365.25 BETWEEN 18 AND 45 THEN 'Dewasa (18-45 thn)'
+            WHEN DATEDIFF(CURRENT_DATE, tanggal_lahir) / 365.25 BETWEEN 46 AND 60 THEN 'Paruh Baya (46-60 thn)'
+            ELSE 'Lansia (>60 thn)'
+          END as kelompok_usia,
+          COUNT(*) as jumlah
+        FROM pasien
+        WHERE tanggal_lahir IS NOT NULL
+        GROUP BY kelompok_usia
+      `);
+      const byAgeGroup = Array.isArray(dbAgeGroup) ? dbAgeGroup : [];
+
+      return res.json({
+        topAllTime,
+        topPeriod,
+        byKota,
+        byKecamatan,
+        byKelurahan,
+        byGender,
+        byAgeGroup
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/pelayanan/demografi/loyal-pasien/:no_rm', authenticateToken, async (req: any, res: any) => {
+  try {
+    const { no_rm } = req.params;
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      const rj = (vdb.registrasi_rawat_jalan || []).filter((v: any) => String(v.pasien_no_rm) === String(no_rm));
+      const igd = (vdb.registrasi_igd || []).filter((v: any) => String(v.pasien_no_rm) === String(no_rm));
+      const ranap = (vdb.registrasi_ranap || []).filter((v: any) => String(v.pasien_no_rm) === String(no_rm));
+
+      const history = [
+        ...rj.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Jalan', dpjp: v.dpjp || 'dr. Umum', icd: v.icd_kode || '-' })),
+        ...igd.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'IGD', dpjp: v.dpjp || 'dr. IGD', icd: v.icd_kode || '-' })),
+        ...ranap.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Inap', dpjp: v.dpjp || 'dr. Spesialis', icd: v.icd_masuk || v.icd_pulang || '-' }))
+      ].sort((a, b) => new Date(b.tanggal_pelayanan).getTime() - new Date(a.tanggal_pelayanan).getTime());
+
+      res.json(history);
+    } else {
+      const history = await db.query(`
+        SELECT no_registrasi, tanggal_pelayanan, 'Rawat Jalan' as tipe, IFNULL(dpjp, 'dr. Umum') as dpjp, IFNULL(icd_kode, '-') as icd FROM registrasi_rawat_jalan WHERE pasien_no_rm = ?
+        UNION ALL
+        SELECT no_registrasi, tanggal_pelayanan, 'IGD' as tipe, IFNULL(dpjp, 'dr. IGD') as dpjp, IFNULL(icd_kode, '-') as icd FROM registrasi_igd WHERE pasien_no_rm = ?
+        UNION ALL
+        SELECT no_registrasi, tanggal_pelayanan, 'Rawat Inap' as tipe, IFNULL(dpjp, 'dr. Spesialis') as dpjp, CONCAT_WS(' / ', IFNULL(icd_masuk, '-'), IFNULL(icd_pulang, '-')) as icd FROM registrasi_ranap WHERE pasien_no_rm = ?
+        ORDER BY tanggal_pelayanan DESC
+      `, [no_rm, no_rm, no_rm]);
+      res.json(history);
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get('/api/pelayanan/demografi/diagnosa', authenticateToken, async (req: any, res: any) => {
+  try {
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    
+    let startDateParam = req.query.startDate ? String(req.query.startDate) : null;
+    let endDateParam = req.query.endDate ? String(req.query.endDate) : null;
+    
+    if (!startDateParam || !endDateParam) {
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      startDateParam = startDateParam || thirtyDaysAgo.toISOString().split('T')[0];
+      endDateParam = endDateParam || today.toISOString().split('T')[0];
+    }
+
+    let rj: any[] = [];
+    let igd: any[] = [];
+    let ranap: any[] = [];
+    let patients: any[] = [];
+    let icdMaster: any[] = [];
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      rj = vdb.registrasi_rawat_jalan || [];
+      igd = vdb.registrasi_igd || [];
+      ranap = vdb.registrasi_ranap || [];
+      patients = vdb.pasien || [];
+      icdMaster = vdb.master_icd10 || [];
+    } else {
+      rj = await db.query(`SELECT id, no_registrasi, pasien_no_rm, tanggal_pelayanan, icd_kode, dpjp FROM registrasi_rawat_jalan`);
+      igd = await db.query(`SELECT id, no_registrasi, pasien_no_rm, tanggal_pelayanan, icd_kode, dpjp FROM registrasi_igd`);
+      ranap = await db.query(`SELECT id, no_registrasi, pasien_no_rm, tanggal_pelayanan, icd_masuk, icd_pulang, dpjp FROM registrasi_ranap`);
+      patients = await db.query(`SELECT no_rm, nama, tanggal_lahir, jenis_kelamin FROM pasien`);
+      icdMaster = await db.query(`SELECT id, kode_icd, deskripsi FROM master_icd10`);
+    }
+
+    // Standardize collections
+    const rjVisits = rj.map((v: any) => ({
+      no_registrasi: v.no_registrasi,
+      pasien_no_rm: v.pasien_no_rm,
+      tanggal_pelayanan: v.tanggal_pelayanan,
+      icd_kode: v.icd_kode,
+      tipe: 'Rawat Jalan'
+    }));
+
+    const igdVisits = igd.map((v: any) => ({
+      no_registrasi: v.no_registrasi,
+      pasien_no_rm: v.pasien_no_rm,
+      tanggal_pelayanan: v.tanggal_pelayanan,
+      icd_kode: v.icd_kode,
+      tipe: 'IGD'
+    }));
+
+    const ranapVisits = ranap.map((v: any) => {
+      const icd = v.icd_pulang || v.icd_masuk || '';
+      return {
+        no_registrasi: v.no_registrasi,
+        pasien_no_rm: v.pasien_no_rm,
+        tanggal_pelayanan: v.tanggal_pelayanan,
+        icd_kode: icd,
+        tipe: 'Rawat Inap'
+      };
+    });
+
+    const allVisits = [...rjVisits, ...igdVisits, ...ranapVisits];
+
+    const sDate = new Date(startDateParam);
+    const eDate = new Date(endDateParam);
+
+    // Filter within period
+    const filteredVisits = allVisits.filter(v => {
+      if (!v.icd_kode) return false;
+      const code = String(v.icd_kode).trim().toUpperCase();
+      if (!code || code === '-' || code === 'TIDAK ADA' || code === 'NULL') return false;
+      
+      const vDate = new Date(v.tanggal_pelayanan);
+      return vDate >= sDate && vDate <= eDate;
+    });
+
+    // Let's create an ICD Map for description lookup
+    const icdMap: Record<string, string> = {};
+    icdMaster.forEach((item: any) => {
+      const code = String(item.kode_icd || item.code || '').trim().toUpperCase();
+      if (code) {
+        icdMap[code] = item.deskripsi || item.description || 'Diagnosis Umum';
+      }
+    });
+
+    // Create a Patient map for gender / age lookup
+    const patientMap: Record<string, any> = {};
+    patients.forEach((p: any) => {
+      patientMap[String(p.no_rm)] = p;
+    });
+
+    // Grouping stats
+    const diagnosaStats: Record<string, {
+      icd_kode: string;
+      deskripsi: string;
+      jumlah: number;
+      rawat_jalan: number;
+      igd: number;
+      rawat_inap: number;
+      gender: { L: number; P: number; 'Tidak Diketahui': number };
+      age: {
+        'Balita (<5 thn)': number;
+        'Anak-anak (5-11 thn)': number;
+        'Remaja (12-17 thn)': number;
+        'Dewasa (18-45 thn)': number;
+        'Paruh Baya (46-60 thn)': number;
+        'Lansia (>60 thn)': number;
+        'Tidak Diketahui': number;
+      };
+    }> = {};
+
+    filteredVisits.forEach((v: any) => {
+      const code = String(v.icd_kode).trim().toUpperCase();
+      const desc = icdMap[code] || 'Diagnosis Lain-lain';
+      
+      if (!diagnosaStats[code]) {
+        diagnosaStats[code] = {
+          icd_kode: code,
+          deskripsi: desc,
+          jumlah: 0,
+          rawat_jalan: 0,
+          igd: 0,
+          rawat_inap: 0,
+          gender: { L: 0, P: 0, 'Tidak Diketahui': 0 },
+          age: {
+            'Balita (<5 thn)': 0,
+            'Anak-anak (5-11 thn)': 0,
+            'Remaja (12-17 thn)': 0,
+            'Dewasa (18-45 thn)': 0,
+            'Paruh Baya (46-60 thn)': 0,
+            'Lansia (>60 thn)': 0,
+            'Tidak Diketahui': 0
+          }
+        };
+      }
+
+      const stat = diagnosaStats[code];
+      stat.jumlah += 1;
+      
+      if (v.tipe === 'Rawat Jalan') stat.rawat_jalan += 1;
+      else if (v.tipe === 'IGD') stat.igd += 1;
+      else if (v.tipe === 'Rawat Inap') stat.rawat_inap += 1;
+
+      // Gender & Age calculations
+      const patient = patientMap[String(v.pasien_no_rm)];
+      if (patient) {
+        const jk = patient.jenis_kelamin;
+        if (jk === 'L') stat.gender.L += 1;
+        else if (jk === 'P') stat.gender.P += 1;
+        else stat.gender['Tidak Diketahui'] += 1;
+
+        if (!patient.tanggal_lahir) {
+          stat.age['Tidak Diketahui'] += 1;
+        } else {
+          const birthDate = new Date(patient.tanggal_lahir);
+          const diffMs = Date.now() - birthDate.getTime();
+          const age = diffMs / (1000 * 60 * 60 * 24 * 365.25);
+          if (age < 5) stat.age['Balita (<5 thn)'] += 1;
+          else if (age <= 11) stat.age['Anak-anak (5-11 thn)'] += 1;
+          else if (age <= 17) stat.age['Remaja (12-17 thn)'] += 1;
+          else if (age <= 45) stat.age['Dewasa (18-45 thn)'] += 1;
+          else if (age <= 60) stat.age['Paruh Baya (46-60 thn)'] += 1;
+          else stat.age['Lansia (>60 thn)'] += 1;
+        }
+      } else {
+        stat.gender['Tidak Diketahui'] += 1;
+        stat.age['Tidak Diketahui'] += 1;
+      }
+    });
+
+    const sortedDiagnosa = Object.values(diagnosaStats)
+      .sort((a, b) => b.jumlah - a.jumlah);
+
+    const topDiagnosa = sortedDiagnosa.slice(0, 15);
+
+    // Timeline trend calculation
+    const timelineMap: Record<string, Record<string, number>> = {};
+    const top5Codes = topDiagnosa.slice(0, 5).map(d => d.icd_kode);
+
+    filteredVisits.forEach((v: any) => {
+      const code = String(v.icd_kode).trim().toUpperCase();
+      if (!top5Codes.includes(code)) return;
+
+      const dateStr = String(v.tanggal_pelayanan).split('T')[0];
+      if (!timelineMap[dateStr]) {
+        timelineMap[dateStr] = {};
+        top5Codes.forEach(c => { timelineMap[dateStr][c] = 0; });
+      }
+      timelineMap[dateStr][code] += 1;
+    });
+
+    const timelineData = Object.entries(timelineMap)
+      .map(([tanggal, counts]) => ({
+        tanggal,
+        ...counts
+      }))
+      .sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
+
+    res.json({
+      topDiagnosa,
+      timelineData,
+      top5Codes
+    });
+
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Master Wilayah
+app.get('/api/kota', authenticateToken, async (req: any, res) => { try { const rows = await db.query('SELECT * FROM kota'); res.json(rows); } catch (err: any) { res.status(500).json({ message: err.message }); } });
+app.post('/api/kota', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama } = req.body; if (!nama) throw new Error('Nama kota wajib diisi'); await db.query('INSERT INTO kota (nama) VALUES (?)', [nama]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
+app.delete('/api/kota/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kota WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
+
+app.get('/api/kecamatan', authenticateToken, async (req: any, res) => { try { const rows = await db.query('SELECT kec.*, k.nama as kota_nama FROM kecamatan kec LEFT JOIN kota k ON kec.kota_id = k.id'); res.json(rows); } catch (err: any) { res.status(500).json({ message: err.message }); } });
+app.post('/api/kecamatan', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama, kota_id } = req.body; if (!nama || !kota_id) throw new Error('Nama kecamatan dan kota ID wajib diisi'); await db.query('INSERT INTO kecamatan (nama, kota_id) VALUES (?, ?)', [nama, kota_id]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
+app.delete('/api/kecamatan/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kecamatan WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
+
+app.get('/api/kelurahan', authenticateToken, async (req: any, res) => { try { const rows = await db.query('SELECT kel.*, kec.nama as kecamatan_nama FROM kelurahan kel LEFT JOIN kecamatan kec ON kel.kecamatan_id = kec.id'); res.json(rows); } catch (err: any) { res.status(500).json({ message: err.message }); } });
+app.post('/api/kelurahan', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama, kecamatan_id } = req.body; if (!nama || !kecamatan_id) throw new Error('Nama kelurahan dan kecamatan ID wajib diisi'); await db.query('INSERT INTO kelurahan (nama, kecamatan_id) VALUES (?, ?)', [nama, kecamatan_id]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
+app.delete('/api/kelurahan/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kelurahan WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 
 // Update outpatient patient details & actions
 app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
@@ -1030,6 +1878,7 @@ app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
       FROM registrasi_igd r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
       WHERE r.tanggal_pelayanan BETWEEN ? AND ?
+      ORDER BY r.tanggal_pelayanan DESC, r.id DESC
     `, [start, end]);
     
     const actions = await db.query(`
@@ -1071,17 +1920,45 @@ app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
 
 // Create new IGD record with bulk tindakan actions
 app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan } = req.body;
+  const { 
+    no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan,
+    tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
+  } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
   }
 
   try {
+    // Resolve Wilayah IDs
+    const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
+
+    // Clean gender and date of birth
+    const jkClean = jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('P') ? 'P' : (jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('L') ? 'L' : null);
+    const dobClean = cleanDateForDb(tanggal_lahir);
+
     // 1. Cek pasien dengan no_rm yang sama
-    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    const existingPasien: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [no_rm]);
     if (!existingPasien || existingPasien.length === 0) {
-      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+      await db.query(
+        'INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        [no_rm, nama_pasien, dobClean, alamat || null, jkClean, kota_id, kecamatan_id, kelurahan_id]
+      );
+    } else {
+      // Merge properties
+      const p = existingPasien[0];
+      const mergedNama = nama_pasien || p.nama;
+      const mergedDob = dobClean || p.tanggal_lahir;
+      const mergedAlamat = alamat || p.alamat;
+      const mergedJk = jkClean || p.jenis_kelamin;
+      const mergedKotaId = kota_id || p.kota_id;
+      const mergedKecamatanId = kecamatan_id || p.kecamatan_id;
+      const mergedKelurahanId = kelurahan_id || p.kelurahan_id;
+
+      await db.query(
+        'UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?',
+        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, no_rm]
+      );
     }
     
     // 2. Insert or Update Registrasi
@@ -1202,7 +2079,7 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
 
   try {
     const registrations = await db.query(
-      'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ?',
+      'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ? ORDER BY r.tanggal_pelayanan DESC, r.id DESC',
       [start, end]
     );
 
@@ -1248,17 +2125,45 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan } = req.body;
+  const { 
+    no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan,
+    tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
+  } = req.body;
   
   if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
   }
 
   try {
+    // Resolve Wilayah IDs
+    const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
+
+    // Clean gender and date of birth
+    const jkClean = jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('P') ? 'P' : (jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('L') ? 'L' : null);
+    const dobClean = cleanDateForDb(tanggal_lahir);
+
     // 1. Cek pasien dengan no_rm yang sama
-    const existingPasien: any = await db.query('SELECT no_rm FROM pasien WHERE no_rm = ?', [no_rm]);
+    const existingPasien: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [no_rm]);
     if (!existingPasien || existingPasien.length === 0) {
-      await db.query('INSERT INTO pasien (no_rm, nama) VALUES (?, ?)', [no_rm, nama_pasien]);
+      await db.query(
+        'INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+        [no_rm, nama_pasien, dobClean, alamat || null, jkClean, kota_id, kecamatan_id, kelurahan_id]
+      );
+    } else {
+      // Merge properties
+      const p = existingPasien[0];
+      const mergedNama = nama_pasien || p.nama;
+      const mergedDob = dobClean || p.tanggal_lahir;
+      const mergedAlamat = alamat || p.alamat;
+      const mergedJk = jkClean || p.jenis_kelamin;
+      const mergedKotaId = kota_id || p.kota_id;
+      const mergedKecamatanId = kecamatan_id || p.kecamatan_id;
+      const mergedKelurahanId = kelurahan_id || p.kelurahan_id;
+
+      await db.query(
+        'UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?',
+        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, no_rm]
+      );
     }
     
     // 2. Insert or Update Registrasi

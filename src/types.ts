@@ -6,6 +6,37 @@ export interface User {
   created_at?: string;
 }
 
+export interface Kota {
+  id: number;
+  nama: string;
+}
+
+export interface Kecamatan {
+  id: number;
+  kota_id: number;
+  nama: string;
+}
+
+export interface Kelurahan {
+  id: number;
+  kecamatan_id: number;
+  nama: string;
+}
+
+export interface Pasien {
+  no_rm: string;
+  nama: string;
+  tanggal_lahir?: string;
+  alamat?: string;
+  jenis_kelamin?: 'L' | 'P';
+  kelurahan_id?: number;
+  kecamatan_id?: number;
+  kota_id?: number;
+  kelurahan?: Kelurahan;
+  kecamatan?: Kecamatan;
+  kota?: Kota;
+}
+
 export interface DbStatus {
   isVirtual: boolean;
   host: string;
