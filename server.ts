@@ -55,6 +55,18 @@ const roleGuard = (allowedRoles: string[]) => {
   };
 };
 
+// Activity Logging Helper
+async function logActivity(email: string, actionType: string, moduleName: string, description: string) {
+  try {
+    await db.query(
+      'INSERT INTO user_logs (email, action_type, module_name, description) VALUES (?, ?, ?, ?)',
+      [email || 'unknown', actionType, moduleName, description]
+    );
+  } catch (err: any) {
+    console.error('Failed to log activity:', err.message);
+  }
+}
+
 // Helper to extract role cleanly from Baserow multiple select or text fields
 function helperExtractRole(peranField: any, divisiField: any): string {
   let rolesStr = '';
@@ -995,6 +1007,13 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
       }
     }
 
+    await logActivity(
+      req.user?.email,
+      'CREATE',
+      'Rawat Jalan',
+      `Mendaftarkan/menyimpan kunjungan rawat jalan pasien ${nama_pasien} (RM: ${no_rm}) dengan No. Registrasi: ${no_registrasi}`
+    );
+
     res.json({ success: true, message: 'Data berhasil didaftarkan.', regId });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1845,6 +1864,13 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
       }
     }
 
+    await logActivity(
+      req.user?.email,
+      'UPDATE',
+      'Rawat Jalan',
+      `Memperbarui kunjungan rawat jalan pasien ${nama_pasien} (RM: ${no_rm}, ID: ${id})`
+    );
+
     res.json({ success: true, message: 'Data kunjungan berhasil diperbarui.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1855,8 +1881,19 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
 app.delete('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
   try {
+    const reg: any = await db.query('SELECT r.*, p.nama FROM registrasi_rawat_jalan r LEFT JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.id = ?', [Number(id)]);
+    const detail = reg && reg.length > 0 ? `pasien ${reg[0].nama} (RM: ${reg[0].pasien_no_rm}, Registrasi: ${reg[0].no_registrasi})` : `ID ${id}`;
+    
     // Both real MySQL (via foreign key rule count) and Virtual DB will delete related tindakan elements
     await db.query('DELETE FROM registrasi_rawat_jalan WHERE id = ?', [Number(id)]);
+    
+    await logActivity(
+      req.user?.email,
+      'DELETE',
+      'Rawat Jalan',
+      `Menghapus kunjungan rawat jalan ${detail}`
+    );
+
     res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2005,6 +2042,13 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
       }
     }
 
+    await logActivity(
+      req.user?.email,
+      'CREATE',
+      'IGD',
+      `Mendaftarkan/menyimpan kunjungan IGD pasien ${nama_pasien} (RM: ${no_rm}) dengan No. Registrasi: ${no_registrasi}`
+    );
+
     res.json({ success: true, message: 'Data berhasil didaftarkan.', regId });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2055,6 +2099,13 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
       }
     }
 
+    await logActivity(
+      req.user?.email,
+      'UPDATE',
+      'IGD',
+      `Memperbarui kunjungan IGD pasien ${nama_pasien} (RM: ${no_rm}, ID: ${id})`
+    );
+
     res.json({ success: true, message: 'Data kunjungan berhasil diperbarui.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2065,7 +2116,18 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
 app.delete('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
   try {
+    const reg: any = await db.query('SELECT r.*, p.nama FROM registrasi_igd r LEFT JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.id = ?', [Number(id)]);
+    const detail = reg && reg.length > 0 ? `pasien ${reg[0].nama} (RM: ${reg[0].pasien_no_rm}, Registrasi: ${reg[0].no_registrasi})` : `ID ${id}`;
+
     await db.query('DELETE FROM registrasi_igd WHERE id = ?', [Number(id)]);
+
+    await logActivity(
+      req.user?.email,
+      'DELETE',
+      'IGD',
+      `Menghapus kunjungan IGD ${detail}`
+    );
+
     res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2210,6 +2272,13 @@ app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat
       }
     }
 
+    await logActivity(
+      req.user?.email,
+      'CREATE',
+      'Rawat Inap',
+      `Mendaftarkan/menyimpan kunjungan rawat inap pasien ${nama_pasien} (RM: ${no_rm}) dengan No. Registrasi: ${no_registrasi}`
+    );
+
     res.json({ success: true, message: 'Data rawat inap berhasil didaftarkan.', regId });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2259,6 +2328,13 @@ app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'pera
       }
     }
 
+    await logActivity(
+      req.user?.email,
+      'UPDATE',
+      'Rawat Inap',
+      `Memperbarui kunjungan rawat inap pasien ${nama_pasien} (RM: ${no_rm}, ID: ${id})`
+    );
+
     res.json({ success: true, message: 'Data kunjungan berhasil diperbarui.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2268,7 +2344,18 @@ app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'pera
 app.delete('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
   try {
+    const reg: any = await db.query('SELECT r.*, p.nama FROM registrasi_ranap r LEFT JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.id = ?', [Number(id)]);
+    const detail = reg && reg.length > 0 ? `pasien ${reg[0].nama} (RM: ${reg[0].pasien_no_rm}, Registrasi: ${reg[0].no_registrasi})` : `ID ${id}`;
+
     await db.query('DELETE FROM registrasi_ranap WHERE id = ?', [Number(id)]);
+
+    await logActivity(
+      req.user?.email,
+      'DELETE',
+      'Rawat Inap',
+      `Menghapus kunjungan rawat inap ${detail}`
+    );
+
     res.json({ success: true, message: 'Data kunjungan berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -3331,6 +3418,31 @@ app.get('/api/obat/alert', authenticateToken, async (req, res) => {
     res.json(lowStockAlerts);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+
+/* ==================== LOGS / USER ACTIVITY SYSTEM ==================== */
+
+// Post a new activity log from frontend
+app.post('/api/logs', authenticateToken, async (req: any, res) => {
+  const { action_type, module_name, description } = req.body;
+  const email = req.user?.email || 'unknown';
+  if (!action_type || !module_name || !description) {
+    return res.status(400).json({ message: 'Data log tidak lengkap.' });
+  }
+  await logActivity(email, action_type, module_name, description);
+  res.json({ success: true });
+});
+
+// Get all activity logs for administration
+app.get('/api/admin/logs', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  try {
+    const logs = await db.query('SELECT * FROM user_logs ORDER BY created_at DESC');
+    res.json(logs || []);
+  } catch (err: any) {
+    console.error('Failed to fetch activity logs:', err.message);
+    res.status(500).json({ message: `Gagal mengambil log aktivitas: ${err.message}` });
   }
 });
 

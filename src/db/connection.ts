@@ -112,6 +112,7 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
     if (options.cleanReset) {
       console.log('Clean reset: Menghapus tabel lama yang berkonflik...');
       const drops = [
+        'DROP TABLE IF EXISTS user_logs',
         'DROP TABLE IF EXISTS tindakan_rawat_jalan',
         'DROP TABLE IF EXISTS master_tindakan',
         'DROP TABLE IF EXISTS registrasi_rawat_jalan',
@@ -202,6 +203,7 @@ async function runMigrationsIfRequired() {
     const tableList = tables.map((t: any) => Object.values(t)[0]);
 
     if (
+      !tableList.includes('user_logs') ||
       !tableList.includes('lab_parameter') || 
       !tableList.includes('obat_master') || 
       !tableList.includes('lab_data_harian') || 
@@ -465,6 +467,7 @@ export const COMMON_ICD10 = [
 
 interface VirtualDatabase {
   users: any[];
+  user_logs?: any[];
   lab_parameter: any[];
   lab_data_bulanan: any[];
   lab_data_harian?: any[];
@@ -691,6 +694,10 @@ export function readVirtualDb(): VirtualDatabase {
   }
   const data: VirtualDatabase = JSON.parse(fs.readFileSync(VIRTUAL_DB_FILE, 'utf8'));
   let updated = false;
+  if (!data.user_logs) {
+    data.user_logs = [];
+    updated = true;
+  }
   if (!data.kota) {
     data.kota = [
       { id: 1, nama: 'Jakarta Selatan' },
@@ -789,6 +796,29 @@ export const db = {
 function simulateSqlQuery(sqlText: string, params: any[]): any {
   const norm = sqlText.replace(/\s+/g, ' ').trim();
   const vdb = readVirtualDb();
+
+  // 0. USER LOGS SIMULATION
+  if (norm.startsWith('INSERT INTO user_logs')) {
+    const [email, action_type, module_name, description] = params;
+    const newLog = {
+      id: vdb.user_logs && vdb.user_logs.length > 0 ? Math.max(...vdb.user_logs.map((l: any) => l.id)) + 1 : 1,
+      email,
+      action_type,
+      module_name,
+      description,
+      created_at: new Date().toISOString()
+    };
+    if (!vdb.user_logs) vdb.user_logs = [];
+    vdb.user_logs.push(newLog);
+    writeVirtualDb(vdb);
+    return { insertId: newLog.id };
+  }
+
+  if (norm.startsWith('SELECT * FROM user_logs') || norm.startsWith('SELECT user_logs')) {
+    const logs = [...(vdb.user_logs || [])];
+    logs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return logs;
+  }
 
   // 1. SELECT USERS
   if (norm.startsWith('SELECT * FROM users WHERE email = ?')) {

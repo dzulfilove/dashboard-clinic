@@ -32,6 +32,14 @@ export default function Dashboard() {
   const currentYear = d.getFullYear() === 2026 ? 2026 : 2026; // Match the seed year (2026)
 
   useEffect(() => {
+    api.post('/logs', {
+      action_type: 'VIEW',
+      module_name: 'Dashboard',
+      description: 'Membuka Dashboard Terpadu'
+    }).catch(err => console.warn('Gagal mencatat log pembukaan halaman:', err));
+  }, []);
+
+  useEffect(() => {
     async function fetchDashboardStats() {
       try {
         setLoading(true);

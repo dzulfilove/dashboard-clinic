@@ -144,6 +144,15 @@ export default function RawatJalan() {
   const [records, setRecords] = useState<OutpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    api.post('/logs', {
+      action_type: 'VIEW',
+      module_name: 'Rawat Jalan',
+      description: 'Membuka modul pelayanan rawat jalan'
+    }).catch(err => console.warn('Gagal mencatat log pembukaan halaman:', err));
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [triageFilter, setTriageFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState<number>(1);

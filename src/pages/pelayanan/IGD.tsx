@@ -103,6 +103,15 @@ export default function IGD() {
   const [records, setRecords] = useState<IgdRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    api.post('/logs', {
+      action_type: 'VIEW',
+      module_name: 'IGD',
+      description: 'Membuka modul pelayanan IGD (Instalasi Gawat Darurat)'
+    }).catch(err => console.warn('Gagal mencatat log pembukaan halaman:', err));
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [triageFilter, setTriageFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState<number>(1);

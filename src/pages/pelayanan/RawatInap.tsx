@@ -107,6 +107,15 @@ export default function RawatInap() {
   const [records, setRecords] = useState<InpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    api.post('/logs', {
+      action_type: 'VIEW',
+      module_name: 'Rawat Inap',
+      description: 'Membuka modul pelayanan rawat inap (Ranap)'
+    }).catch(err => console.warn('Gagal mencatat log pembukaan halaman:', err));
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [triageFilter, setTriageFilter] = useState<string>('all');
   const [roomFilter, setRoomFilter] = useState<string>('all');

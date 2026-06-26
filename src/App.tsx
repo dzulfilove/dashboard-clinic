@@ -20,6 +20,7 @@ import InputKonsumsi from './pages/farmasi/InputKonsumsi.js';
 import Forecasting from './pages/farmasi/Forecasting.js';
 import AbcAnalysis from './pages/farmasi/AbcAnalysis.js';
 import UsersManagement from './pages/admin/Users.js';
+import ActivityLogs from './pages/admin/ActivityLogs.js';
 import DatabaseSettings from './pages/admin/DatabaseSettings.js';
 import RawatJalan from './pages/pelayanan/RawatJalan.js';
 import IGD from './pages/pelayanan/IGD.js';
@@ -230,6 +231,14 @@ function AppContent() {
                         element={
                           <ProtectedRoute allowedRoles={['admin']}>
                             <PageTransition><UsersManagement /></PageTransition>
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/logs" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <PageTransition><ActivityLogs /></PageTransition>
                           </ProtectedRoute>
                         } 
                       />

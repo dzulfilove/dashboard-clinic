@@ -93,6 +93,7 @@ export default function Sidebar() {
       icon: Database,
       items: [
         { name: 'Kelola Pengguna', path: '/admin/users', icon: Users, roles: ['admin'] },
+        { name: 'Log Aktivitas', path: '/admin/logs', icon: Activity, roles: ['admin'] },
         { name: 'Pengaturan Database', path: '/admin/db-settings', icon: Database, roles: ['admin'] }
       ]
     }
