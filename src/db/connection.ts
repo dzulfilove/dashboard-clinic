@@ -1592,10 +1592,19 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('INSERT INTO tindakan_rawat_jalan')) {
-    const [
-      registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
-      tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
-    ] = params;
+    let registrasi_id, tindakan_id, pelaksana = null, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal;
+    if (params.length === 11) {
+      [
+        registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+      ] = params;
+    } else {
+      [
+        registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+      ] = params;
+    }
     if (!vdb.tindakan_rawat_jalan) vdb.tindakan_rawat_jalan = [];
     const newId = vdb.tindakan_rawat_jalan.length > 0 ? Math.max(...vdb.tindakan_rawat_jalan.map(x => x.id)) + 1 : 1;
     const action = {
@@ -1619,20 +1628,28 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('UPDATE registrasi_rawat_jalan SET')) {
-    let pasien_no_rm, tanggal_pelayanan, triase, unit, id;
-    if (params.length === 5) {
-      [pasien_no_rm, tanggal_pelayanan, triase, unit, id] = params;
-    } else {
-      [pasien_no_rm, tanggal_pelayanan, triase, id] = params;
-    }
+    const id = Number(params[params.length - 1]);
+    const pasien_no_rm = params[0];
+    const tanggal_pelayanan = params[1];
+    const triase = params[2];
+    const unit = params[3];
+    const icd_kode = params.length >= 6 ? params[4] : null;
+    const dpjp = params.length >= 7 ? params[5] : null;
+
     if (!vdb.registrasi_rawat_jalan) vdb.registrasi_rawat_jalan = [];
-    const idx = vdb.registrasi_rawat_jalan.findIndex(r => r.id === Number(id));
+    const idx = vdb.registrasi_rawat_jalan.findIndex(r => r.id === id);
     if (idx !== -1) {
       vdb.registrasi_rawat_jalan[idx].pasien_no_rm = pasien_no_rm;
       vdb.registrasi_rawat_jalan[idx].tanggal_pelayanan = tanggal_pelayanan;
       vdb.registrasi_rawat_jalan[idx].triase = triase || 'hijau';
       if (unit !== undefined) {
         vdb.registrasi_rawat_jalan[idx].unit = unit;
+      }
+      if (icd_kode !== undefined) {
+        vdb.registrasi_rawat_jalan[idx].icd_kode = icd_kode;
+      }
+      if (dpjp !== undefined) {
+        vdb.registrasi_rawat_jalan[idx].dpjp = dpjp;
       }
       writeVirtualDb(vdb);
       return { affectedRows: 1 };
@@ -1723,10 +1740,19 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('INSERT INTO tindakan_igd')) {
-    const [
-      registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
-      tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
-    ] = params;
+    let registrasi_id, tindakan_id, pelaksana = null, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal;
+    if (params.length === 11) {
+      [
+        registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+      ] = params;
+    } else {
+      [
+        registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+      ] = params;
+    }
     if (!vdb.tindakan_igd) vdb.tindakan_igd = [];
     const newId = vdb.tindakan_igd.length > 0 ? Math.max(...vdb.tindakan_igd.map(x => x.id)) + 1 : 1;
     const action = {
@@ -1750,13 +1776,25 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('UPDATE registrasi_igd SET')) {
-    const [pasien_no_rm, tanggal_pelayanan, triase, id] = params;
+    const id = Number(params[params.length - 1]);
+    const pasien_no_rm = params[0];
+    const tanggal_pelayanan = params[1];
+    const triase = params[2];
+    const icd_kode = params.length >= 5 ? params[3] : null;
+    const dpjp = params.length >= 6 ? params[4] : null;
+
     if (!vdb.registrasi_igd) vdb.registrasi_igd = [];
-    const idx = vdb.registrasi_igd.findIndex(r => r.id === Number(id));
+    const idx = vdb.registrasi_igd.findIndex(r => r.id === id);
     if (idx !== -1) {
       vdb.registrasi_igd[idx].pasien_no_rm = pasien_no_rm;
       vdb.registrasi_igd[idx].tanggal_pelayanan = tanggal_pelayanan;
       vdb.registrasi_igd[idx].triase = triase || 'hijau';
+      if (icd_kode !== undefined) {
+        vdb.registrasi_igd[idx].icd_kode = icd_kode;
+      }
+      if (dpjp !== undefined) {
+        vdb.registrasi_igd[idx].dpjp = dpjp;
+      }
       writeVirtualDb(vdb);
       return { affectedRows: 1 };
     }
@@ -1861,10 +1899,19 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('INSERT INTO tindakan_ranap')) {
-    const [
-      registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
-      tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
-    ] = params;
+    let registrasi_id, tindakan_id, pelaksana = null, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal;
+    if (params.length === 11) {
+      [
+        registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+      ] = params;
+    } else {
+      [
+        registrasi_id, tindakan_id, pelaksana, tindakan_keterangan, tindakan_tanggal, tindakan_jam,
+        tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal
+      ] = params;
+    }
     if (!vdb.tindakan_ranap) vdb.tindakan_ranap = [];
     const newId = vdb.tindakan_ranap.length > 0 ? Math.max(...vdb.tindakan_ranap.map(x => x.id)) + 1 : 1;
     const action = {
@@ -1888,10 +1935,17 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('UPDATE registrasi_ranap SET')) {
-    // UPDATE registrasi_ranap SET pasien_no_rm = ?, tanggal_pelayanan = ?, triase = ?, icd_masuk = ?, icd_pulang = ?, kamar = ? WHERE id = ?
-    const [pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, id] = params;
+    const id = Number(params[params.length - 1]);
+    const pasien_no_rm = params[0];
+    const tanggal_pelayanan = params[1];
+    const triase = params[2];
+    const icd_masuk = params[3];
+    const icd_pulang = params[4];
+    const kamar = params[5];
+    const dpjp = params.length >= 8 ? params[6] : null;
+
     if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
-    const idx = vdb.registrasi_ranap.findIndex(r => r.id === Number(id));
+    const idx = vdb.registrasi_ranap.findIndex(r => r.id === id);
     if (idx !== -1) {
       vdb.registrasi_ranap[idx].pasien_no_rm = pasien_no_rm;
       vdb.registrasi_ranap[idx].tanggal_pelayanan = tanggal_pelayanan;
@@ -1899,6 +1953,9 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       vdb.registrasi_ranap[idx].icd_masuk = icd_masuk || '';
       vdb.registrasi_ranap[idx].icd_pulang = icd_pulang || '';
       vdb.registrasi_ranap[idx].kamar = kamar || '';
+      if (dpjp !== undefined) {
+        vdb.registrasi_ranap[idx].dpjp = dpjp;
+      }
       writeVirtualDb(vdb);
       return { affectedRows: 1 };
     }

@@ -651,7 +651,7 @@ export default function DemografiKunjungan() {
                     Insight Demografi Pasien
                   </h3>
                   <p className="text-xs text-slate-600 max-w-xl">
-                    Berdasarkan visualisasi sebaran pasien, kelompok umur <span className="text-teal-700 font-semibold">{byAgeGroup.sort((a,b) => b.jumlah - a.jumlah)[0]?.kelompok_usia || 'Tidak Diketahui'}</span> merupakan populasi pasien tertinggi di Klinik Puri Medika. Dominasi gender adalah <span className="text-teal-700 font-semibold">{byGender.sort((a,b) => b.jumlah - a.jumlah)[0]?.jenis_kelamin || 'Tidak Diketahui'}</span>.
+                    Berdasarkan visualisasi sebaran pasien, kelompok umur <span className="text-teal-700 font-semibold">{[...byAgeGroup].sort((a,b) => b.jumlah - a.jumlah)[0]?.kelompok_usia || 'Tidak Diketahui'}</span> merupakan populasi pasien tertinggi di Klinik Puri Medika. Dominasi gender adalah <span className="text-teal-700 font-semibold">{[...byGender].sort((a,b) => b.jumlah - a.jumlah)[0]?.jenis_kelamin || 'Tidak Diketahui'}</span>.
                   </p>
                 </div>
                 <div className="bg-white border border-teal-100 rounded-xl px-5 py-3 relative z-10 text-center flex-shrink-0 min-w-[160px] shadow-xs">

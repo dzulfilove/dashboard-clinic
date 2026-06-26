@@ -157,6 +157,8 @@ export default function RawatInap() {
   const [rawText, setRawText] = useState('');
   const [isParsed, setIsParsed] = useState(false);
   const [parsedData, setParsedData] = useState<any[]>([]);
+  const [duplicateMap, setDuplicateMap] = useState<{[key: string]: any}>({});
+  const [checkingBulkDuplicate, setCheckingBulkDuplicate] = useState(false);
 
   // Fetch inpatient records
   const fetchRecords = async () => {
@@ -256,7 +258,13 @@ export default function RawatInap() {
     setNoRegistrasi(rec.no_registrasi);
     setNoRm(rec.no_rm);
     setNamaPasien(rec.nama_pasien);
-    setTanggalPelayanan(rec.tanggal_pelayanan);
+    
+    // Ensure the date is clean YYYY-MM-DD format for <input type="date">
+    const cleanDate = rec.tanggal_pelayanan && rec.tanggal_pelayanan.includes('T')
+      ? rec.tanggal_pelayanan.split('T')[0]
+      : (rec.tanggal_pelayanan || '');
+    setTanggalPelayanan(cleanDate);
+
     setTriase(rec.triase || 'hijau');
     setKamar(rec.kamar || 'Kamar Sinta');
     setIcdMasuk(rec.icd_masuk || '');

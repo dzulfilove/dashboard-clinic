@@ -374,7 +374,13 @@ export default function IGD() {
     setNoRegistrasi(rec.no_registrasi);
     setNoRm(rec.no_rm);
     setNamaPasien(rec.nama_pasien);
-    setTanggalPelayanan(rec.tanggal_pelayanan);
+    
+    // Ensure the date is clean YYYY-MM-DD format for <input type="date">
+    const cleanDate = rec.tanggal_pelayanan && rec.tanggal_pelayanan.includes('T')
+      ? rec.tanggal_pelayanan.split('T')[0]
+      : (rec.tanggal_pelayanan || '');
+    setTanggalPelayanan(cleanDate);
+
     setTriase(rec.triase || 'hijau');
     setIcdKode(rec.icd_kode || '');
     setDpjp(rec.dpjp || '');
