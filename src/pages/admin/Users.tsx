@@ -181,15 +181,16 @@ export default function UsersManagement() {
 
       {/* Dynamic inline register form drawer */}
       {isFormOpen && (
-        <div className="bg-slate-900 text-slate-100 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h2 className="text-base font-extrabold text-teal-400">
-              {editId ? `Ubah Detail Akses` : 'Daftarkan Petugas Baru'}
+        <div className="bg-white text-slate-800 rounded-2xl p-6 border border-slate-200 shadow-md space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 className="text-base font-bold text-slate-950 flex items-center gap-2">
+              <Shield className="h-4.5 w-4.5 text-teal-600" />
+              <span>{editId ? `Ubah Detail Akses Petugas` : 'Daftarkan Petugas Baru'}</span>
             </h2>
             <button 
               id="close-user-form-btn"
               onClick={() => setIsFormOpen(false)} 
-              className="text-slate-400 hover:text-slate-200 p-1 rounded-md"
+              className="text-slate-400 hover:text-slate-700 p-1 rounded-md transition-colors"
               style={{ minHeight: '32px', minWidth: '32px' }}
             >
               <X className="h-5 w-5" />
@@ -198,7 +199,7 @@ export default function UsersManagement() {
 
           <form onSubmit={handleSaveUser} className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
-              <label htmlFor="fullname" className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Nama Lengkap</label>
+              <label htmlFor="fullname" className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Nama Lengkap</label>
               <input
                 id="fullname"
                 type="text"
@@ -206,12 +207,12 @@ export default function UsersManagement() {
                 placeholder="ex: Dr. Made Wardina"
                 value={nama}
                 onChange={(e) => setNama(e.target.value)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-teal-500/35"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
               />
             </div>
 
             <div>
-              <label htmlFor="useremail" className="block text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Email Login</label>
+              <label htmlFor="useremail" className="block text-xs font-bold text-slate-700 uppercase tracking-wide leading-relaxed">Email Login</label>
               <input
                 id="useremail"
                 type="email"
@@ -219,14 +220,14 @@ export default function UsersManagement() {
                 placeholder="clinician@puri.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-teal-500/35 font-mono"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono"
               />
             </div>
 
             {/* Password input displays on register only */}
             {!editId && (
               <div>
-                <label htmlFor="userpass" className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Kata Sandi Awal</label>
+                <label htmlFor="userpass" className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Kata Sandi Awal</label>
                 <input
                   id="userpass"
                   type="password"
@@ -234,33 +235,34 @@ export default function UsersManagement() {
                   placeholder="Minimal 6 karakter"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1.5 block w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-teal-500/35"
+                  className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
                 />
               </div>
             )}
 
             <div>
-              <label htmlFor="userrole" className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Hak Akses Modul (Role)</label>
+              <label htmlFor="userrole" className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Hak Akses Modul (Role)</label>
               <select
                 id="userrole"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:ring-2 focus:ring-teal-500/35 cursor-pointer"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer font-sans"
                 style={{ minHeight: '44px' }}
               >
                 <option value="analis">Analis Lab (Akses Laboratorium)</option>
-                <option value="perawat">Perawat (Akses Laboratorium)</option>
+                <option value="lab">Analis Lab (Akses Laboratorium - Lab)</option>
+                <option value="perawat">Perawat (Akses Pelayanan Klinik)</option>
                 <option value="farmasi">Petugas Farmasi (Akses Farmasi)</option>
                 <option value="admin">Sistem Admin (Semua Akses / Full Access)</option>
               </select>
             </div>
 
-            <div className="md:col-span-4 flex justify-end space-x-3 pt-3 border-t border-slate-800">
+            <div className="md:col-span-4 flex justify-end space-x-3 pt-3 border-t border-slate-100">
               <button
                 id="cancel-user-btn"
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors text-sm font-bold cursor-pointer"
+                className="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all text-sm font-bold cursor-pointer shadow-sm"
                 style={{ minHeight: '44px' }}
               >
                 Batalkan
@@ -268,7 +270,7 @@ export default function UsersManagement() {
               <button
                 id="submit-user-btn"
                 type="submit"
-                className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-550 text-white font-bold py-2.5 px-6 rounded-xl transition-colors text-sm cursor-pointer"
+                className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all text-sm cursor-pointer shadow-sm"
                 style={{ minHeight: '44px' }}
               >
                 <Save className="h-4.5 w-4.5" />
@@ -281,16 +283,16 @@ export default function UsersManagement() {
 
       {/* Password reset drawer block */}
       {isResetOpen && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl max-w-md">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-            <h3 className="text-sm font-extrabold text-amber-500 flex items-center space-x-2">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-md max-w-md space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <h3 className="text-sm font-bold text-amber-600 flex items-center space-x-2">
               <Key className="h-4.5 w-4.5" />
               <span>Atur Ulang Sandi Keamanan</span>
             </h3>
             <button 
               id="close-reset-dialog"
               onClick={() => setIsResetOpen(false)} 
-              className="text-slate-400 hover:text-white"
+              className="text-slate-400 hover:text-slate-700 transition-colors"
               style={{ minHeight: '32px', minWidth: '32px' }}
             >
               <X className="h-5 w-5" />
@@ -299,7 +301,7 @@ export default function UsersManagement() {
 
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label htmlFor="new-dialog-pass" className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Password Baru</label>
+              <label htmlFor="new-dialog-pass" className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Password Baru</label>
               <input
                 id="new-dialog-pass"
                 type="password"
@@ -307,7 +309,7 @@ export default function UsersManagement() {
                 placeholder="Masukkan password baru"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-2">
@@ -315,7 +317,7 @@ export default function UsersManagement() {
                 id="cancel-reset-password-btn"
                 type="button"
                 onClick={() => setIsResetOpen(false)}
-                className="px-4 py-2 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold hover:bg-slate-800"
+                className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all"
                 style={{ minHeight: '36px' }}
               >
                 Batal
@@ -323,7 +325,7 @@ export default function UsersManagement() {
               <button
                 id="submit-reset-password-btn"
                 type="submit"
-                className="bg-amber-600 hover:bg-amber-550 text-white text-xs font-bold px-4 py-2 rounded-xl"
+                className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
                 style={{ minHeight: '36px' }}
               >
                 Simpan Password
@@ -334,22 +336,22 @@ export default function UsersManagement() {
       )}
 
       {/* Accounts display catalog */}
-      <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-100 text-left">
+          <table className="min-w-full divide-y divide-slate-200 text-left">
             <thead className="bg-slate-50">
-              <tr>
-                <th scope="col" className="px-6 py-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">Nama Petugas</th>
-                <th scope="col" className="px-6 py-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">Kredensial</th>
-                <th scope="col" className="px-6 py-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">Fakultas / Role</th>
-                <th scope="col" className="px-6 py-4 text-xs font-extrabold uppercase tracking-widest text-slate-500">Terdaftar</th>
-                <th scope="col" className="px-6 py-4 text-right text-xs font-extrabold uppercase tracking-widest text-slate-500">Aksi Administrasi</th>
+              <tr className="text-slate-700 text-xs font-bold uppercase tracking-wider">
+                <th scope="col" className="px-6 py-4">Nama Petugas</th>
+                <th scope="col" className="px-6 py-4">Kredensial</th>
+                <th scope="col" className="px-6 py-4">Fakultas / Role</th>
+                <th scope="col" className="px-6 py-4">Terdaftar</th>
+                <th scope="col" className="px-6 py-4 text-right">Aksi Administrasi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700 text-sm font-semibold">
+            <tbody className="divide-y divide-slate-100 text-slate-800 text-xs font-normal">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-10 text-slate-400 font-medium">
+                  <td colSpan={5} className="text-center py-10 text-slate-500 font-medium">
                     <RefreshCw className="h-6 w-6 text-teal-600 animate-spin mx-auto mb-2" />
                     <span>Sinkronisasi database personil...</span>
                   </td>
@@ -363,36 +365,41 @@ export default function UsersManagement() {
                           {u.nama.substring(0, 2)}
                         </div>
                         <div>
-                          <h4 className="font-bold text-slate-900 text-sm">{u.nama}</h4>
+                          <h4 className="font-semibold text-slate-900 text-xs">{u.nama}</h4>
                           {u.id === currentUser?.id && (
                             <span className="text-xxs bg-teal-50 text-teal-700 border border-teal-100 px-1.5 py-0.5 rounded font-bold font-mono">AKUN ANDA SIKAS</span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-500">
+                    <td className="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-700">
                       {u.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-extrabold border uppercase tracking-wider rounded-lg ${
+                      <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-bold border uppercase tracking-wider rounded-lg ${
                         u.role === 'admin' ? 'bg-teal-50 border-teal-150 text-teal-700' :
                         u.role === 'perawat' ? 'bg-sky-50 border-sky-150 text-sky-700' :
                         u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 border-emerald-150 text-emerald-700' :
                         'bg-amber-50 border-amber-150 text-amber-700'
                       }`}>
                         {u.role === 'admin' ? <Shield className="h-3 w-3" /> : <UserCheck className="h-3 w-3" />}
-                        <span>{u.role}</span>
+                        <span>
+                          {u.role === 'admin' ? 'Sistem Admin' :
+                           u.role === 'perawat' ? 'Perawat (Pelayanan Klinik)' :
+                           u.role === 'analis' || u.role === 'lab' ? 'Analis Lab' :
+                           u.role === 'farmasi' ? 'Petugas Farmasi' : u.role}
+                        </span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-550">
+                    <td className="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-700">
                       {u.created_at ? new Date(u.created_at).toLocaleDateString('id-ID') : '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
                       <div className="flex items-center justify-end space-x-1.5">
                         <button
                           id={`user-edit-${u.id}`}
                           onClick={() => handleOpenEditForm(u)}
-                          className="p-1 px-2 border border-slate-200 bg-white text-slate-600 hover:text-teal-600 hover:bg-slate-50 rounded-lg text-xxs font-extrabold flex items-center space-x-1"
+                          className="p-1 px-2 border border-slate-200 bg-white text-slate-700 hover:text-teal-600 hover:bg-slate-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
                           title="Edit"
                           style={{ minHeight: '32px' }}
                         >
@@ -402,7 +409,7 @@ export default function UsersManagement() {
                         <button
                           id={`user-pass-reset-${u.id}`}
                           onClick={() => handleOpenResetForm(u)}
-                          className="p-1 px-2 border border-amber-200 bg-white text-amber-600 hover:bg-amber-50 rounded-lg text-xxs font-extrabold flex items-center space-x-1"
+                          className="p-1 px-2 border border-amber-250 bg-white text-amber-700 hover:bg-amber-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
                           title="Reset Password"
                           style={{ minHeight: '32px' }}
                         >
@@ -413,7 +420,7 @@ export default function UsersManagement() {
                           id={`user-delete-${u.id}`}
                           onClick={() => handleDeleteUser(u.id, u.nama)}
                           disabled={u.id === currentUser?.id}
-                          className="p-1 px-2 border border-rose-200 bg-white text-rose-600 hover:bg-rose-50 rounded-lg text-xxs font-extrabold flex items-center space-x-1 disabled:opacity-40"
+                          className="p-1 px-2 border border-rose-250 bg-white text-rose-700 hover:bg-rose-50 rounded-lg text-xxs font-bold flex items-center space-x-1 disabled:opacity-40 cursor-pointer transition-colors"
                           title="Hapus Akun"
                           style={{ minHeight: '32px' }}
                         >
