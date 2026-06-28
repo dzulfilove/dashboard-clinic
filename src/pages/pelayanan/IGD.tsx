@@ -131,6 +131,15 @@ export default function IGD() {
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
   const [dpjp, setDpjp] = useState('');
+
+  // New patient additional fields
+  const [isNewPatient, setIsNewPatient] = useState(false);
+  const [tanggalLahir, setTanggalLahir] = useState('');
+  const [jenisKelamin, setJenisKelamin] = useState('L');
+  const [alamat, setAlamat] = useState('');
+  const [kelurahan, setKelurahan] = useState('');
+  const [kecamatan, setKecamatan] = useState('');
+  const [kota, setKota] = useState('');
   const [startDate, setStartDate] = useState(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
@@ -195,7 +204,7 @@ export default function IGD() {
     };
     const fetchDokter = async () => {
       try {
-        const res = await api.get('/dokter');
+        const res = await api.get('/dokter', { params: { all: 'true' } });
         setDokterList(res.data);
       } catch (err) {
         console.error(err);
@@ -205,6 +214,35 @@ export default function IGD() {
     fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (isEditMode) {
+      setIsNewPatient(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      if (!noRm || noRm.trim().length < 2) {
+        setIsNewPatient(false);
+        return;
+      }
+      try {
+        const res = await api.get('/pasien', { params: { q: noRm.trim() } });
+        const exactMatch = res.data.find(
+          (p: any) => String(p.no_rm).toLowerCase() === noRm.trim().toLowerCase()
+        );
+        if (exactMatch) {
+          setNamaPasien(exactMatch.nama);
+          setIsNewPatient(false);
+        } else {
+          setIsNewPatient(true);
+        }
+      } catch (err) {
+        console.warn('Gagal memeriksa data pasien:', err);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [noRm, isEditMode]);
 
   useEffect(() => {
     if (!noRegistrasi || isEditMode) {
@@ -333,7 +371,13 @@ export default function IGD() {
           triase: triase,
           icd_kode: icdKode || null,
           dpjp: dpjp,
-          tindakan: manualTindakan
+          tindakan: manualTindakan,
+          tanggal_lahir: isNewPatient ? tanggalLahir : undefined,
+          jenis_kelamin: isNewPatient ? jenisKelamin : undefined,
+          alamat: isNewPatient ? alamat : undefined,
+          kelurahan: isNewPatient ? kelurahan : undefined,
+          kecamatan: isNewPatient ? kecamatan : undefined,
+          kota: isNewPatient ? kota : undefined
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil disimpan ke database.`);
       }
@@ -361,6 +405,13 @@ export default function IGD() {
     setTriase('hijau');
     setIcdKode('');
     setDpjp('');
+    setIsNewPatient(false);
+    setTanggalLahir('');
+    setJenisKelamin('L');
+    setAlamat('');
+    setKelurahan('');
+    setKecamatan('');
+    setKota('');
     setManualTindakan([
       {
         tindakan_nama: '',
@@ -1863,6 +1914,88 @@ export default function IGD() {
                           required
                         />
                       </div>
+
+                      {isNewPatient && !isEditMode && (
+                        <div className="col-span-1 md:col-span-2 bg-teal-50/40 border border-teal-100 rounded-2xl p-4.5 space-y-4 animate-fadeIn">
+                          <div className="flex items-center justify-between border-b border-teal-100/60 pb-2">
+                            <span className="text-[12px] font-bold text-teal-850 uppercase tracking-wider flex items-center">
+                              <span className="inline-block w-2 h-2 rounded-full bg-teal-500 mr-2 animate-pulse" />
+                              Data Pasien Baru (RM #{noRm} Belum Terdaftar)
+                            </span>
+                            <span className="text-[12px] text-slate-500">Lengkapi data rekam medis pasien baru</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Lahir</label>
+                              <input
+                                type="date"
+                                value={tanggalLahir}
+                                onChange={(e) => setTanggalLahir(e.target.value)}
+                                className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
+                                required={isNewPatient}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Jenis Kelamin</label>
+                              <select
+                                value={jenisKelamin}
+                                onChange={(e) => setJenisKelamin(e.target.value)}
+                                className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
+                                required={isNewPatient}
+                              >
+                                <option value="L">Laki-laki (L)</option>
+                                <option value="P">Perempuan (P)</option>
+                              </select>
+                            </div>
+
+                            <div className="col-span-1 md:col-span-2">
+                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Alamat Lengkap</label>
+                              <input
+                                type="text"
+                                placeholder="Nama jalan, RT/RW, Dusun"
+                                value={alamat}
+                                onChange={(e) => setAlamat(e.target.value)}
+                                className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Kelurahan / Desa</label>
+                              <input
+                                type="text"
+                                placeholder="Contoh: Gedong Meneng"
+                                value={kelurahan}
+                                onChange={(e) => setKelurahan(e.target.value)}
+                                className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none uppercase"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Kecamatan</label>
+                              <input
+                                type="text"
+                                placeholder="Contoh: Rajabasa"
+                                value={kecamatan}
+                                onChange={(e) => setKecamatan(e.target.value)}
+                                className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none uppercase"
+                              />
+                            </div>
+
+                            <div className="col-span-1 md:col-span-2">
+                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Kota / Kabupaten</label>
+                              <input
+                                type="text"
+                                placeholder="Contoh: Kota Bandar Lampung"
+                                value={kota}
+                                onChange={(e) => setKota(e.target.value)}
+                                className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none uppercase"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div>
                         <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>

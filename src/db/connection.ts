@@ -847,6 +847,30 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   const norm = sqlText.replace(/\s+/g, ' ').trim();
   const vdb = readVirtualDb();
 
+  // Generic handler for COUNT(*)
+  if (norm.toLowerCase().includes('select count(*)')) {
+    const aliasMatch = norm.match(/count\(\*\)\s+as\s+(\w+)/i);
+    const alias = aliasMatch ? aliasMatch[1] : 'count';
+    
+    // Extract table name
+    const tableMatch = norm.match(/from\s+(\w+)/i);
+    const tableName = tableMatch ? tableMatch[1] : null;
+
+    if (tableName) {
+      const data = (vdb as any)[tableName];
+      if (Array.isArray(data)) {
+        if (norm.includes('where pasien_no_rm = ?')) {
+          const pasienNoRm = params[0];
+          const count = data.filter(item => item.pasien_no_rm === pasienNoRm).length;
+          return [{ [alias]: count }];
+        }
+        return [{ [alias]: data.length }];
+      }
+    }
+    // Fallback if not found in virtual DB or not handled
+    return [{ [alias]: 0 }];
+  }
+
   // 0. USER LOGS SIMULATION
   if (norm.startsWith('INSERT INTO user_logs')) {
     const [email, action_type, module_name, description] = params;

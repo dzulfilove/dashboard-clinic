@@ -83,9 +83,9 @@ export default function MasterPasien() {
   const fetchWilayah = async () => {
     try {
       const [kR, kecR, kelR] = await Promise.all([
-        api.get('/kota'),
-        api.get('/kecamatan'),
-        api.get('/kelurahan')
+        api.get('/wilayah/kota'),
+        api.get('/wilayah/kecamatan'),
+        api.get('/wilayah/kelurahan')
       ]);
       setKotaList(kR.data);
       setKecamatanList(kecR.data);

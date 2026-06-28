@@ -27,7 +27,6 @@ interface ActivityLog {
 
 export default function ActivityLogs() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [filteredLogs, setFilteredLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,7 +58,28 @@ export default function ActivityLogs() {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.get('/admin/logs');
+
+      // Handle date filters based on selectedDateFilter
+      let dateFrom;
+      let dateTo;
+      if (selectedDateFilter === 'TODAY') {
+        const now = new Date();
+        dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      } else if (selectedDateFilter === 'WEEK') {
+        const now = new Date();
+        dateFrom = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString();
+      }
+
+      const res = await api.get('/admin/logs', {
+        params: {
+          search: searchQuery || undefined,
+          action_type: selectedAction === 'ALL' ? undefined : selectedAction,
+          module_name: selectedModule === 'ALL' ? undefined : selectedModule,
+          dateFrom: dateFrom || undefined,
+          dateTo: dateTo || undefined,
+          limit: 1000,
+        }
+      });
       setLogs(res.data || []);
     } catch (err: any) {
       console.error('Error fetching logs:', err);
@@ -71,49 +91,7 @@ export default function ActivityLogs() {
 
   useEffect(() => {
     fetchLogs();
-  }, []);
-
-  // Filter logs logic
-  useEffect(() => {
-    let result = [...logs];
-
-    // Filter by action
-    if (selectedAction !== 'ALL') {
-      result = result.filter(l => l.action_type.toUpperCase() === selectedAction);
-    }
-
-    // Filter by module
-    if (selectedModule !== 'ALL') {
-      result = result.filter(l => l.module_name.toLowerCase() === selectedModule.toLowerCase());
-    }
-
-    // Filter by search query (email, module/fitur, action/aksi, description)
-    if (searchQuery.trim() !== '') {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(l => 
-        l.email.toLowerCase().includes(q) || 
-        l.description.toLowerCase().includes(q) || 
-        l.module_name.toLowerCase().includes(q) ||
-        l.action_type.toLowerCase().includes(q)
-      );
-    }
-
-    // Filter by date
-    if (selectedDateFilter !== 'ALL') {
-      const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-      const sevenDaysAgo = todayStart - (7 * 24 * 60 * 60 * 1000);
-
-      if (selectedDateFilter === 'TODAY') {
-        result = result.filter(l => new Date(l.created_at).getTime() >= todayStart);
-      } else if (selectedDateFilter === 'WEEK') {
-        result = result.filter(l => new Date(l.created_at).getTime() >= sevenDaysAgo);
-      }
-    }
-
-    setFilteredLogs(result);
-    setCurrentPage(1);
-  }, [logs, searchQuery, selectedAction, selectedModule, selectedDateFilter]);
+  }, [searchQuery, selectedAction, selectedModule, selectedDateFilter]);
 
   // Format date helper
   const formatIndoDate = (dateStr: string) => {
@@ -151,11 +129,11 @@ export default function ActivityLogs() {
   // Group logs by user email to compute counts and percentages dynamically
   const userStats = React.useMemo(() => {
     const statsMap: { [email: string]: number } = {};
-    filteredLogs.forEach(log => {
+    logs.forEach(log => {
       const email = log.email || 'Sistem / Anonim';
       statsMap[email] = (statsMap[email] || 0) + 1;
     });
-    const total = filteredLogs.length;
+    const total = logs.length;
     return Object.entries(statsMap)
       .map(([email, count]) => ({
         email,
@@ -163,17 +141,17 @@ export default function ActivityLogs() {
         percentage: total > 0 ? ((count / total) * 100).toFixed(1) : '0'
       }))
       .sort((a, b) => b.count - a.count);
-  }, [filteredLogs]);
+  }, [logs]);
 
   // Get unique modules in the logs for filtering dropdown
   const uniqueModules = Array.from(new Set(logs.map(l => l.module_name))).filter(Boolean);
 
   // Pagination calculations
   const pageSize = 100;
-  const totalPages = Math.ceil(filteredLogs.length / pageSize) || 1;
+  const totalPages = Math.ceil(logs.length / pageSize) || 1;
   const paginatedLogs = React.useMemo(() => {
-    return filteredLogs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  }, [filteredLogs, currentPage]);
+    return logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  }, [logs, currentPage]);
 
   return (
     <div className="space-y-6">
@@ -208,11 +186,9 @@ export default function ActivityLogs() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
-              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{filteredLogs.length}</span>
+              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{logs.length}</span>
               <span className="text-xs text-slate-500 block">
-                {filteredLogs.length === logs.length 
-                  ? 'Seluruh aktivitas audit trail tersimpan' 
-                  : 'Log aktivitas tersaring dari pencarian'}
+                Seluruh aktivitas audit trail tersaring dari server
               </span>
             </div>
             <div className="bg-teal-50 border border-teal-100 p-3.5 rounded-2xl">
@@ -365,7 +341,7 @@ export default function ActivityLogs() {
               Coba Lagi
             </button>
           </div>
-        ) : filteredLogs.length === 0 ? (
+        ) : logs.length === 0 ? (
           <div className="py-20 text-center text-slate-400">
             <Clock className="h-10 w-10 mx-auto text-slate-300 mb-2" />
             <p className="text-xs font-semibold">Tidak ada log audit yang cocok dengan filter pencarian.</p>
@@ -416,10 +392,10 @@ export default function ActivityLogs() {
         )}
 
         {/* Pagination bar */}
-        {!loading && !error && filteredLogs.length > 0 && totalPages > 1 && (
+        {!loading && !error && logs.length > 0 && totalPages > 1 && (
           <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-slate-600 font-medium">
-              Menampilkan <span className="font-bold text-slate-800">{((currentPage - 1) * pageSize) + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, filteredLogs.length)}</span> dari <span className="font-bold text-slate-800">{filteredLogs.length}</span> log
+              Menampilkan <span className="font-bold text-slate-800">{((currentPage - 1) * pageSize) + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, logs.length)}</span> dari <span className="font-bold text-slate-800">{logs.length}</span> log
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -457,7 +433,7 @@ export default function ActivityLogs() {
               <span>Sistem pencatatan log aktivitas aktif secara real-time.</span>
             </div>
             <div className="font-mono">
-              Total Log: <span className="text-teal-700 font-extrabold">{filteredLogs.length}</span> baris
+              Total Log: <span className="text-teal-700 font-extrabold">{logs.length}</span> baris
             </div>
           </div>
         )}

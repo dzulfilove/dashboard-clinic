@@ -346,8 +346,8 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
       message: emailRes.messageUrl 
         ? `Kode OTP berhasil diperbarui & dikirimkan ke email simulasi.`
         : `Kode OTP berhasil dikirim ke email: ${email}`,
-      // debugOtp hanya tampil di development, JANGAN di production
-      ...(process.env.NODE_ENV !== 'production' && { debugOtp: otp }),
+      // debugOtp hanya tampil jika DEBUG_OTP=true, JANGAN di production
+      ...(process.env.DEBUG_OTP === 'true' && { debugOtp: otp }),
       emailPreviewUrl: emailRes.messageUrl || null
     });
 
@@ -1209,9 +1209,21 @@ app.get('/api/dokter', authenticateToken, async (req: any, res) => {
   }
 });
 
+function normalizeDokterStatus(status: any, fallback = 'aktif'): string {
+  if (!status) return fallback;
+  return String(status).toLowerCase().trim().replace(/-/g, '');
+}
+
+const VALID_DOKTER_STATUS = ['aktif', 'nonaktif'];
+
 app.post('/api/dokter', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { nama_dokter, status } = req.body;
-  const normalizedStatus = status ? String(status).toLowerCase().trim().replace('-', '') : 'aktif';
+  const normalizedStatus = normalizeDokterStatus(status);
+  
+  if (!VALID_DOKTER_STATUS.includes(normalizedStatus)) {
+    return res.status(400).json({ message: `Status tidak valid. Gunakan: ${VALID_DOKTER_STATUS.join(', ')}` });
+  }
+
   try {
     const result = await db.query(
       'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
@@ -1227,17 +1239,16 @@ app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin', 'perawat']), a
   const { id } = req.params;
   const { nama_dokter, status } = req.body;
 
-  const normalizedStatus = status ? String(status).toLowerCase().trim().replace('-', '') : status;
-
-  const validStatus = ['aktif', 'nonaktif'];
-  if (normalizedStatus && !validStatus.includes(normalizedStatus)) {
-    return res.status(400).json({ message: `Status tidak valid. Gunakan: ${validStatus.join(', ')}` });
+  const normalizedStatus = normalizeDokterStatus(status, undefined);
+  if (normalizedStatus && !VALID_DOKTER_STATUS.includes(normalizedStatus)) {
+    return res.status(400).json({ message: `Status tidak valid. Gunakan: ${VALID_DOKTER_STATUS.join(', ')}` });
   }
 
   try {
+    const updateParams = [nama_dokter, normalizedStatus, Number(id)];
     await db.query(
       'UPDATE dokter SET nama_dokter = ?, status = ? WHERE id = ?',
-      [nama_dokter, normalizedStatus, Number(id)]
+      updateParams
     );
     res.json({ success: true });
   } catch (err: any) {
@@ -1262,7 +1273,7 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
   try {
     for (const d of doctors) {
       if (d.nama_dokter) {
-        const normalizedStatus = d.status ? String(d.status).toLowerCase().trim().replace('-', '') : 'aktif';
+        const normalizedStatus = normalizeDokterStatus(d.status);
         await db.query(
           'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
           [d.nama_dokter, normalizedStatus]
@@ -1282,7 +1293,7 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
     let sql = 'SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id';
     const params: any[] = [];
     if (q) {
-      sql += ' WHERE p.nama LIKE ? OR p.no_rm LIKE ? OR p.alamat LIKE ?';
+      sql += ' WHERE (p.nama LIKE ? OR p.no_rm LIKE ? OR p.alamat LIKE ?)';
       params.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
     const rows = await db.query(sql, params);
@@ -1966,15 +1977,12 @@ app.get('/api/pelayanan/demografi/diagnosa', authenticateToken, async (req: any,
 });
 
 // Master Wilayah
-app.get('/api/kota', authenticateToken, async (req: any, res) => { try { const rows = await db.query('SELECT * FROM kota'); res.json(rows); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 app.post('/api/kota', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama } = req.body; if (!nama) throw new Error('Nama kota wajib diisi'); await db.query('INSERT INTO kota (nama) VALUES (?)', [nama]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
 app.delete('/api/kota/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kota WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 
-app.get('/api/kecamatan', authenticateToken, async (req: any, res) => { try { const rows = await db.query('SELECT kec.*, k.nama as kota_nama FROM kecamatan kec LEFT JOIN kota k ON kec.kota_id = k.id'); res.json(rows); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 app.post('/api/kecamatan', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama, kota_id } = req.body; if (!nama || !kota_id) throw new Error('Nama kecamatan dan kota ID wajib diisi'); await db.query('INSERT INTO kecamatan (nama, kota_id) VALUES (?, ?)', [nama, kota_id]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
 app.delete('/api/kecamatan/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kecamatan WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 
-app.get('/api/kelurahan', authenticateToken, async (req: any, res) => { try { const rows = await db.query('SELECT kel.*, kec.nama as kecamatan_nama FROM kelurahan kel LEFT JOIN kecamatan kec ON kel.kecamatan_id = kec.id'); res.json(rows); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 app.post('/api/kelurahan', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama, kecamatan_id } = req.body; if (!nama || !kecamatan_id) throw new Error('Nama kelurahan dan kecamatan ID wajib diisi'); await db.query('INSERT INTO kelurahan (nama, kecamatan_id) VALUES (?, ?)', [nama, kecamatan_id]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
 app.delete('/api/kelurahan/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kelurahan WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 
@@ -3323,12 +3331,27 @@ app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']
       });
     }
 
-    const sisa_stok = Number(stok_awal || 0) + Number(penerimaan || 0) - Number(pemakaian || 0) - Number(retur_hilang || 0);
+    // Ambil sisa stok hari sebelumnya sebagai stok_awal yang valid
+    const prevDate = new Date(dateObj);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const prevDateStr = prevDate.toISOString().split('T')[0];
+    
+    const prevHarian = await db.query(
+      'SELECT sisa_stok FROM obat_konsumsi_harian WHERE obat_id = ? AND tanggal = ?',
+      [Number(obat_id), prevDateStr]
+    );
+    
+    const derivedStokAwal = prevHarian.length > 0
+      ? Number(prevHarian[0].sisa_stok)
+      : Number(m.saldo_awal_nilai || 0);
+
+    const sisa_stok = derivedStokAwal + Number(penerimaan || 0) 
+                      - Number(pemakaian || 0) - Number(retur_hilang || 0);
 
     // 1. Insert/Update Harian
     await db.query(
       'INSERT INTO obat_konsumsi_harian (obat_id, tanggal, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
-      [Number(obat_id), String(tanggal), Number(stok_awal || 0), Number(penerimaan || 0), Number(pemakaian || 0), Number(retur_hilang || 0), sisa_stok, req.user.id]
+      [Number(obat_id), String(tanggal), derivedStokAwal, Number(penerimaan || 0), Number(pemakaian || 0), Number(retur_hilang || 0), sisa_stok, req.user.id]
     );
 
     // 2. Extract bulan & tahun from tanggal
@@ -3675,7 +3698,8 @@ app.post('/api/logs', authenticateToken, async (req: any, res) => {
 
 // Get all activity logs for administration
 app.get('/api/admin/logs', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
-  const { search, action_type, module_name, email, dateFrom, dateTo, limit = 500 } = req.query;
+  const { search, action_type, module_name, email, dateFrom, dateTo, limit } = req.query;
+  const safeLimit = Math.max(1, Math.min(5000, parseInt(String(limit || '500'), 10) || 500));
   
   let sql = 'SELECT * FROM user_logs WHERE 1=1';
   const params: any[] = [];
@@ -3691,7 +3715,7 @@ app.get('/api/admin/logs', authenticateToken, roleGuard(['admin']), async (req: 
   if (dateTo) { sql += ' AND DATE(created_at) <= ?'; params.push(dateTo); }
 
   sql += ' ORDER BY created_at DESC LIMIT ?';
-  params.push(Number(limit));
+  params.push(safeLimit);
 
   try {
     const rows = await db.query(sql, params);
@@ -4035,7 +4059,7 @@ app.get('/api/obat/export', authenticateToken, roleGuard(['admin']), async (req,
 
 // Setup Vite Dev server or static files depending on the environment
 async function startServer() {
-  const isDev = process.env.NODE_ENV !== 'production' || process.argv.some(arg => arg.includes('server.ts'));
+  const isDev = process.env.NODE_ENV !== 'production';
   if (isDev) {
     const vite = await createViteServer({
       server: { middlewareMode: true },

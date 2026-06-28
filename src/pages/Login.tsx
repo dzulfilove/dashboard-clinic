@@ -130,7 +130,7 @@ export default function Login() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="flex justify-center"
         >
-          <div className="max-w-[200px]">
+          <div className="max-w-[400px]">
             <img 
               src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png "
               alt="Logo Klinik Puri Medika" 
@@ -144,7 +144,7 @@ export default function Login() {
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.4 }}
-          className="mt-6 text-center text-2xl font-semibold text-slate-900 tracking-tight"
+          className=" text-center text-2xl font-semibold text-slate-900 tracking-tight"
         >
           Sistem Informasi Klinik
         </motion.h2>
