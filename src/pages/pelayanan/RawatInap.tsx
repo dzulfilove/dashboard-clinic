@@ -1528,7 +1528,7 @@ export default function RawatInap() {
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 border border-teal-100 text-teal-700">
                                   {rec.kamar}
                                 </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200 text-slate-600">
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-slate-600">
                                   DPJP: {rec.dpjp || '-'}
                                 </span>
                               </div>
@@ -1612,14 +1612,14 @@ export default function RawatInap() {
                               exit={{ opacity: 0, height: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="mt-3.5 px-4 py-3 border-t border-slate-200">
+                              <div className="mt-3.5 px-4 py-3 border-t border-slate-100">
                                 <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5 mb-3">
                                   <span>Tindakan Medis Ranap ({rec.tindakan.length})</span>
                                 </h4>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                   {rec.tindakan.map((t, tIdx) => (
-                                    <div key={tIdx} className="bg-white p-4.5 rounded-2xl border border-slate-150 shadow-xxs flex flex-col justify-between space-y-4">
+                                    <div key={tIdx} className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between space-y-4">
                                       {/* Header */}
                                       <div>
                                         <div className="flex items-start justify-between">
@@ -1678,7 +1678,7 @@ export default function RawatInap() {
               {/* Text Area Input Card */}
                <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div>
-                  <span className="text-[9px] bg-slate-100 border border-slate-200 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
+                  <span className="text-[9px] bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2 font-black">Impor Data Hasil Salinan Excel</h3>
                   <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini sesuai pola kolom rawat inap (mendukung format pendaftaran & Unit).</p>
                 </div>
@@ -1689,7 +1689,7 @@ export default function RawatInap() {
                     placeholder={`Contoh Format Kolom Excel:\nNo.\tNo. Pendaftaran\tNo. RM\tNama Pasien\tTanggal Lahir\tUmur\tJenis Kelamin\tAlamat\tKelurahan\tKecamatan\tKota\tNama Tindakan\tTanggal MRS\tTanggal KRS\tUnit\tJumlah\n1\tRJ19062026-00001\t002576\tADIS SHANDRA RACHMAZANI\t13 April 2001\t25 Tahun\tPerempuan\tAddress\tKel\tKec\tKota\tHOMECARE PERAWAT\t19 Juni 2026\t19 Juni 2026\tPOLI UMUM\t1`}
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
-                    className="w-full p-4 bg-slate-50 border border-slate-200 text-slate-755 font-mono leading-relaxed rounded-2xl focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 focus:outline-none"
+                    className="w-full p-4 bg-slate-50 border border-slate-100 text-slate-755 font-mono leading-relaxed rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-500/5 focus:outline-none"
                     style={{ fontSize: '11px', fontWeight: 'normal' }}
                     disabled={submitting}
                   />
@@ -1731,7 +1731,7 @@ export default function RawatInap() {
 
                     <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
                       {parsedData.map((p, idx) => (
-                        <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-2">
+                        <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100/60 font-sans space-y-2">
                           <div className="flex justify-between items-start">
                             <div>
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs block uppercase">{p.nama_pasien}</span>
@@ -1757,7 +1757,7 @@ export default function RawatInap() {
                           </div>
 
                           {duplicateMap[p.no_registrasi] ? (
-                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">⚠️</span>
                               <span>
                                 <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
@@ -1771,7 +1771,7 @@ export default function RawatInap() {
                           )}
 
                           {/* Extra Inputs: Room/Kamar Bed Code, ICD-10 admission/discharge */}
-                          <div className="grid grid-cols-4 gap-2 border-t border-slate-200/40 pt-2 text-[10px]">
+                          <div className="grid grid-cols-4 gap-2 border-t border-slate-100/40 pt-2 text-[10px]">
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
                               <select
@@ -1875,7 +1875,7 @@ export default function RawatInap() {
                     </div>
                   </div>
                 ) : (
-                  <div className="h-72 bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl border border-slate-200/70 border-dashed flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                  <div className="h-72 bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl border border-slate-100/70 border-dashed flex flex-col items-center justify-center text-center p-6 text-slate-400">
                     <Layers strokeWidth={1} className="h-10 w-10 mb-2 text-slate-300" />
                     <span className="text-xs font-bold uppercase tracking-widest block">Aesthetic Layout Stage Preview</span>
                     <p className="text-[11px] text-slate-400 max-w-xs mt-1">Lakukan pemrosesan teks di panel sebelah kiri untuk menampilkan pratinjau hasil penataan kolom pasien secara otomatis.</p>
@@ -1919,7 +1919,7 @@ export default function RawatInap() {
                       type="text"
                       required
                       readOnly
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-slate-800 focus:outline-none"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl font-mono text-slate-800 focus:outline-none"
                       value={noRegistrasi}
                     />
                   </div>
@@ -1944,7 +1944,7 @@ export default function RawatInap() {
                       type="text"
                       required
                       placeholder="Contoh: 002462"
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl font-mono focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl font-mono focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white"
                       value={noRm}
                       onChange={(e) => setNoRm(e.target.value)}
                     />
@@ -1956,7 +1956,7 @@ export default function RawatInap() {
                       type="text"
                       required
                       placeholder="Contoh: INDAH SARASWATI"
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl uppercase focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl uppercase focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white"
                       value={namaPasien}
                       onChange={(e) => setNamaPasien(e.target.value)}
                     />
@@ -2129,7 +2129,7 @@ export default function RawatInap() {
 
                   <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                     {manualTindakan.map((t, idx) => (
-                      <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-150 flex flex-col space-y-3 relative font-sans">
+                      <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex flex-col space-y-3 relative font-sans">
                         {manualTindakan.length > 1 && (
                           <button
                             type="button"
@@ -2151,7 +2151,7 @@ export default function RawatInap() {
                               type="text"
                               required
                               placeholder="Masukkan nama tindakan"
-                              className="mt-1.5 w-full px-3 py-2 bg-white border border-slate-200 rounded-xl outline-none text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
+                              className="mt-1.5 w-full px-3 py-2 bg-white border border-slate-100 rounded-xl outline-none text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none"
                               value={t.tindakan_nama}
                               onChange={(e) => updateTindakanField(idx, 'tindakan_nama', e.target.value)}
                             />
@@ -2162,7 +2162,7 @@ export default function RawatInap() {
                             <input
                               type="number"
                               required
-                              className="mt-1.5 w-full px-3 py-2 bg-white border border-slate-200 rounded-xl outline-none text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none font-mono"
+                              className="mt-1.5 w-full px-3 py-2 bg-white border border-slate-100 rounded-xl outline-none text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none font-mono"
                               value={t.jumlah}
                               onChange={(e) => updateTindakanField(idx, 'jumlah', e.target.value)}
                             />

@@ -405,13 +405,13 @@ export default function InputKonsumsi() {
         </div>
 
         {/* Tab Selection Navigation Header */}
-        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-100">
           <button
             id="tab-btn-input"
             onClick={() => setActiveTab('input')}
             className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'input' 
-                ? 'bg-white text-teal-700 shadow-xs' 
+                ? 'bg-white text-teal-700 shadow-sm scale-[1.02]' 
                 : 'text-slate-500 hover:text-slate-800'
             }`}
             style={{ minHeight: '36px' }}
@@ -453,7 +453,7 @@ export default function InputKonsumsi() {
       ) : activeTab === 'stats' ? (
         <div className="space-y-6">
           {/* Rentang Tanggal Filter UI Card */}
-          <div className="bg-white p-4.5 border border-slate-150 shadow-xs rounded-2xl">
+          <div className="bg-white p-4.5 border border-slate-100 shadow-sm rounded-2xl">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4 text-teal-600" />
               <span>Filter Rentang Tanggal Analisis</span>
@@ -471,7 +471,7 @@ export default function InputKonsumsi() {
                     id="stats-start-date"
                     value={statsStartDate}
                     onChange={(e) => setStatsStartDate(e.target.value)}
-                    className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-semibold"
+                    className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-100/80 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 text-xs font-semibold"
                     style={{ minHeight: '44px' }}
                   />
                 </div>
@@ -492,7 +492,7 @@ export default function InputKonsumsi() {
                     id="stats-end-date"
                     value={statsEndDate}
                     onChange={(e) => setStatsEndDate(e.target.value)}
-                    className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-semibold"
+                    className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-100/80 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 text-xs font-semibold"
                     style={{ minHeight: '44px' }}
                   />
                 </div>
@@ -514,7 +514,7 @@ export default function InputKonsumsi() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -537,7 +537,7 @@ export default function InputKonsumsi() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-indigo-50 text-indigo-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -560,7 +560,7 @@ export default function InputKonsumsi() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -583,7 +583,7 @@ export default function InputKonsumsi() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-rose-50 text-rose-750 rounded-xl group-hover:scale-105 transition-transform">
@@ -616,7 +616,7 @@ export default function InputKonsumsi() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   
                   {/* Chart 1: Tren Arus Logistik Obat Harian */}
-                  <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs lg:col-span-2 space-y-4">
+                  <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Arus Logistik Obat Harian</h3>
                       <p className="text-[10px] text-slate-400 font-medium mt-0.5">Laporan pemakaian dan penerimaan obat klinis (dalam satuan unit)</p>
@@ -639,7 +639,7 @@ export default function InputKonsumsi() {
                   </div>
 
                   {/* Chart 2: 5 Obat Berpengaruh Terbesar (PieChart distribution) */}
-                  <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                  <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Obat Berpengaruh Terbesar</h3>
                       <p className="text-[10px] text-slate-400 font-medium mt-0.5">Proporsi volume pemakaian obat kumulatif harian</p>
@@ -716,10 +716,10 @@ export default function InputKonsumsi() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-slate-100 text-left">
-                      <thead className="bg-slate-50">
+                    <table className="min-w-full divide-y divide-slate-100/70 text-left">
+                      <thead className="bg-slate-50/50">
                         <tr>
                           <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode &amp; Nama Obat</th>
                           <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Golongan</th>
@@ -729,7 +729,7 @@ export default function InputKonsumsi() {
                           <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Stok Akhir Terakhir</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
+                      <tbody className="divide-y divide-slate-100/70 text-slate-600 text-xs font-normal">
                         {filteredStatsMedicines.length === 0 ? (
                           <tr>
                             <td colSpan={6} className="text-center py-10 text-slate-400 font-medium">
@@ -776,7 +776,7 @@ export default function InputKonsumsi() {
       ) : (
         <div className="space-y-6">
           {/* Form input controls - Date Selector Panel */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border border-slate-150 shadow-xs rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border border-slate-100 shadow-sm rounded-2xl">
             <div className="flex items-center space-x-2">
               <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
               <span className="text-xs font-bold text-slate-505">Tanggal Laporan:</span>
@@ -785,7 +785,7 @@ export default function InputKonsumsi() {
                 id="input-tanggal-cons"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="text-xs font-bold bg-slate-100 px-3 py-1.5 rounded-lg border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-bold bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 cursor-pointer shadow-xs"
                 style={{ minHeight: '32px' }}
               />
             </div>
@@ -796,7 +796,7 @@ export default function InputKonsumsi() {
           </div>
 
           {/* Search Input Box */}
-          <div className="bg-white p-3.5 border border-slate-150 shadow-xs rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white p-3.5 border border-slate-100 shadow-sm rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="relative rounded-xl shadow-xs w-full md:max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-slate-400" />
@@ -807,7 +807,8 @@ export default function InputKonsumsi() {
                 placeholder="Cari obat berdasarkan nama, kode, atau golongan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-semibold"
+                className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-2xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 text-xs font-semibold placeholder-slate-400"
+                style={{ minHeight: '40px' }}
               />
             </div>
           </div>
@@ -828,10 +829,10 @@ export default function InputKonsumsi() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-slate-100 text-left">
-                    <thead className="bg-slate-50">
+                  <table className="min-w-full divide-y divide-slate-100/70 text-left">
+                    <thead className="bg-slate-50/50">
                       <tr>
                         <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode &amp; Nama Obat</th>
                         <th scope="col" className="px-5 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Stok Awal</th>
@@ -844,7 +845,7 @@ export default function InputKonsumsi() {
                         )}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
+                    <tbody className="divide-y divide-slate-100/70 text-slate-700 text-xs font-normal">
                       {filteredMedicines.length === 0 ? (
                         <tr>
                           <td colSpan={7} className="text-center py-10 text-slate-400 font-medium">

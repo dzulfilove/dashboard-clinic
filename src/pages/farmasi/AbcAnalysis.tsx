@@ -93,7 +93,7 @@ export default function AbcAnalysis() {
         </div>
 
         {/* Month Year Selector */}
-        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-xs">
+        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-100/80 rounded-2xl shadow-sm">
           <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
           <select 
             id="abc-month-select"
@@ -129,24 +129,24 @@ export default function AbcAnalysis() {
       )}
 
       {/* Methodological Explanation card */}
-      <div className="bg-slate-50/50 border border-slate-200 rounded-3xl p-6">
+      <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 shadow-sm">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-teal-600 flex-shrink-0" />
             <span className="font-bold text-slate-800">Panduan Pengendalian Stok Metode ABC:</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/60 shadow-sm relative overflow-hidden transition-all">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
               <span className="font-extrabold text-emerald-700 block text-xs">Kelas A (≥70% nilai)</span>
               <p className="mt-1 text-slate-600 text-xs text-justify">Prioritas utama monitoring & kontrol ketat.</p>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-500"></div>
             </div>
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/60 shadow-sm relative overflow-hidden transition-all">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
               <span className="font-extrabold text-amber-700 block text-xs">Kelas B (70-90%)</span>
               <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring reguler.</p>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
             </div>
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-white/60 shadow-sm relative overflow-hidden transition-all">
+            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
               <span className="font-extrabold text-slate-700 block text-xs">Kelas C (&lt;90%)</span>
               <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring rutin.</p>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
@@ -194,7 +194,7 @@ export default function AbcAnalysis() {
             <motion.div 
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                transition={{ duration: 0.2 }}
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm relative overflow-hidden transition-all"
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
               <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-2">
@@ -209,7 +209,7 @@ export default function AbcAnalysis() {
             <motion.div 
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                transition={{ duration: 0.2 }}
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm relative overflow-hidden transition-all"
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
               <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-2">
@@ -224,7 +224,7 @@ export default function AbcAnalysis() {
             <motion.div 
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                transition={{ duration: 0.2 }}
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 shadow-sm relative overflow-hidden transition-all"
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
               <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-2">
@@ -237,15 +237,15 @@ export default function AbcAnalysis() {
           </div>
 
           {/* Pareto Ranked Items List */}
-          <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hiddenUnderflow">
-            <div className="bg-slate-50 px-6 py-4.5 border-b border-slate-150">
+          <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
+            <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70">
               <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
                 Tabel Urutan Nilai Konsumsi (Pareto Decending)
               </h3>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-100 text-left">
+              <table className="min-w-full divide-y divide-slate-100/70 text-left">
                 <thead className="bg-slate-50/50">
                   <tr>
                     <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-400">Rank</th>
@@ -258,7 +258,7 @@ export default function AbcAnalysis() {
                     <th scope="col" className="px-6 py-4 text-center text-xs font-bold uppercase tracking-widest text-slate-400">Kelompok</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700 text-xs font-semibold">
+                <tbody className="divide-y divide-slate-100/70 text-slate-700 text-xs font-semibold">
                   {abcData.map((item, index) => (
                     <tr key={item.obat_id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-400">

@@ -171,7 +171,7 @@ export default function ActivityLogs() {
           id="btn-refresh-logs"
           onClick={fetchLogs}
           disabled={loading}
-          className="flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer text-xs"
+          className="flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 border border-slate-100 rounded-2xl shadow-sm transition-all disabled:opacity-50 cursor-pointer text-xs"
           style={{ minHeight: '44px' }}
         >
           <RefreshCw className={`h-4 w-4 text-teal-600 ${loading ? 'animate-spin' : ''}`} />
@@ -183,7 +183,7 @@ export default function ActivityLogs() {
       {!loading && !error && logs.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Stat Card - Total Logs */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between">
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
               <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{logs.length}</span>
@@ -197,7 +197,7 @@ export default function ActivityLogs() {
           </div>
 
           {/* User Distribution Widget (Full width on md, occupies 2 cols) */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm md:col-span-2 space-y-4">
+          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm md:col-span-2 space-y-4">
             <div className="flex items-center justify-between pb-2">
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4 text-teal-600" />
@@ -245,7 +245,7 @@ export default function ActivityLogs() {
       )}
 
       {/* Filter and search bar card */}
-      <div id="logs-filters-container" className="bg-white rounded-2xl p-5 shadow-sm space-y-4">
+      <div id="logs-filters-container" className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4">
         <div className="flex items-center space-x-2 pb-2">
           <Filter className="h-4 w-4 text-teal-600" />
           <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Filter &amp; Penelusuran</h2>
@@ -262,7 +262,7 @@ export default function ActivityLogs() {
                 placeholder="Cari email, fitur, aksi, deskripsi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 rounded-xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
+                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all font-sans"
                 style={{ minHeight: '38px' }}
               />
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
@@ -276,7 +276,7 @@ export default function ActivityLogs() {
               id="filter-action-select"
               value={selectedAction}
               onChange={(e) => setSelectedAction(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer font-sans"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2 px-3 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all cursor-pointer font-sans shadow-xs"
               style={{ minHeight: '38px' }}
             >
               <option value="ALL">Semua Aksi (CREATE/UPDATE/DELETE/VIEW)</option>
@@ -294,7 +294,7 @@ export default function ActivityLogs() {
               id="filter-module-select"
               value={selectedModule}
               onChange={(e) => setSelectedModule(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer font-sans"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2 px-3 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all cursor-pointer font-sans shadow-xs"
               style={{ minHeight: '38px' }}
             >
               <option value="ALL">Semua Fitur/Modul</option>
@@ -311,7 +311,7 @@ export default function ActivityLogs() {
               id="filter-date-select"
               value={selectedDateFilter}
               onChange={(e) => setSelectedDateFilter(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer font-sans"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl py-2 px-3 text-xs text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all cursor-pointer font-sans shadow-xs"
               style={{ minHeight: '38px' }}
             >
               <option value="ALL">Semua Waktu</option>
@@ -323,7 +323,7 @@ export default function ActivityLogs() {
       </div>
 
       {/* Main Logs Table Grid card */}
-      <div id="logs-list-card" className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div id="logs-list-card" className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">
             <RefreshCw className="h-8 w-8 text-teal-600 animate-spin" />
@@ -336,7 +336,7 @@ export default function ActivityLogs() {
             <button 
               id="btn-retry-logs"
               onClick={fetchLogs} 
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all cursor-pointer"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold border border-slate-100 rounded-2xl text-xs transition-all cursor-pointer shadow-xs"
             >
               Coba Lagi
             </button>
@@ -348,8 +348,8 @@ export default function ActivityLogs() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200 text-left">
-              <thead className="bg-slate-50">
+            <table className="min-w-full divide-y divide-slate-100/70 text-left">
+              <thead className="bg-slate-50/50">
                 <tr className="text-slate-700 text-xs font-bold uppercase tracking-wider font-display">
                   <th scope="col" className="px-6 py-4">Waktu Kejadian (WIB)</th>
                   <th scope="col" className="px-6 py-4">Email User</th>
@@ -358,7 +358,7 @@ export default function ActivityLogs() {
                   <th scope="col" className="px-6 py-4 max-w-md">Deskripsi Detail</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-800 text-xs font-normal">
+              <tbody className="divide-y divide-slate-100/70 text-slate-800 text-xs font-normal">
                 {paginatedLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-mono text-xs text-slate-700 whitespace-nowrap">
@@ -393,7 +393,7 @@ export default function ActivityLogs() {
 
         {/* Pagination bar */}
         {!loading && !error && logs.length > 0 && totalPages > 1 && (
-          <div className="px-6 py-4 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="px-6 py-4 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100/70">
             <div className="text-xs text-slate-600 font-medium">
               Menampilkan <span className="font-bold text-slate-800">{((currentPage - 1) * pageSize) + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, logs.length)}</span> dari <span className="font-bold text-slate-800">{logs.length}</span> log
             </div>
@@ -402,7 +402,7 @@ export default function ActivityLogs() {
                 id="prev-page-btn"
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="p-1 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center space-x-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+                className="p-1 px-2.5 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center space-x-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
                 style={{ minHeight: '36px' }}
               >
                 <ChevronLeft className="h-4 w-4 text-slate-500" />
@@ -415,7 +415,7 @@ export default function ActivityLogs() {
                 id="next-page-btn"
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="p-1 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center space-x-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
+                className="p-1 px-2.5 rounded-xl border border-slate-100 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center space-x-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-xs"
                 style={{ minHeight: '36px' }}
               >
                 <span>Selanjutnya</span>

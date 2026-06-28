@@ -556,10 +556,10 @@ export default function InteractiveGuide() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 24, stiffness: 180 }}
-              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-50 flex flex-col pointer-events-auto"
+              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-100/50 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header with Role Information */}
-              <div className="p-6 border-b border-slate-150 bg-slate-50 space-y-4">
+              <div className="p-6 border-b border-slate-100/60 bg-slate-50 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Compass className="h-5 w-5 text-teal-600" />

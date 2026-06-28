@@ -97,7 +97,7 @@ export default function MasterICD10() {
 
 
       {/* Search Input Bar */}
-      <div className="bg-white p-4 border border-slate-100 rounded-2xl shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="bg-white p-4 border border-slate-100 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:max-w-md">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -114,9 +114,9 @@ export default function MasterICD10() {
       </div>
 
       {/* Main Table view */}
-      <div className="bg-white rounded-2xl shadow-xs border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden">
         <table className="w-full">
-          <thead className="bg-slate-50/75 border-b border-slate-100 text-xs text-slate-500 uppercase font-black tracking-wider">
+          <thead className="bg-slate-50/50 border-b border-slate-100/70 text-xs text-slate-500 uppercase font-black tracking-wider">
             <tr>
               <th className="p-4 text-left w-1/4">Kode ICD-10</th>
               <th className="p-4 text-left">Nama Diagnosa / Deskripsi</th>
@@ -159,7 +159,7 @@ export default function MasterICD10() {
         </table>
 
         {/* Beautiful Pagination Footer */}
-        <div className="bg-slate-50/50 px-4 py-3.5 border-t border-slate-100 flex items-center justify-between">
+        <div className="bg-slate-50/30 px-4 py-3.5 border-t border-slate-100/70 flex items-center justify-between">
           <button
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
@@ -189,34 +189,34 @@ export default function MasterICD10() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs">
           <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl w-full max-w-sm shadow-xl border border-slate-100">
             <h3 className="font-bold text-lg mb-1 text-slate-850">{editingItem ? 'Edit ICD-10' : 'Tambah ICD-10'}</h3>
-            <p className="text-slate-500 text-xxs mb-5">Diagnosis WHO untuk standarisasi rekam medis.</p>
+            <p className="text-slate-500 text-[10px] font-medium mb-5 uppercase tracking-wider">Diagnosis WHO untuk standarisasi rekam medis.</p>
             
             <div className="space-y-4">
               <div>
-                <label className="text-xxs uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Kode ICD-10</label>
+                <label className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Kode ICD-10</label>
                 <input 
                   type="text" 
                   placeholder="Contoh: A09 atau J00" 
                   value={formData.kode_icd} 
                   onChange={e => setFormData({...formData, kode_icd: e.target.value.toUpperCase()})} 
-                  className="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-hidden" 
+                  className="w-full p-2.5 border border-slate-100 rounded-xl text-sm focus:ring-4 focus:ring-teal-500/5 focus:border-teal-300 outline-none font-medium" 
                   required 
                 />
               </div>
               <div>
-                <label className="text-xxs uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Nama Penyakit / Deskripsi</label>
+                <label className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Nama Penyakit / Deskripsi</label>
                 <input 
                   type="text" 
                   placeholder="Contoh: Gastrointestinal Acute" 
                   value={formData.deskripsi} 
                   onChange={e => setFormData({...formData, deskripsi: e.target.value})} 
-                  className="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-hidden" 
+                  className="w-full p-2.5 border border-slate-100 rounded-xl text-sm focus:ring-4 focus:ring-teal-500/5 focus:border-teal-300 outline-none font-medium" 
                   required 
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-slate-100">
+            <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-slate-100/70">
               <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 hover:bg-slate-50 rounded-xl text-sm text-slate-500 font-bold">Batal</button>
               <button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-bold cursor-pointer transition-colors shadow-xs">Simpan</button>
             </div>

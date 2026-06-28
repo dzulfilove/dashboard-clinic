@@ -121,9 +121,9 @@ export default function DatabaseSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Current Active DB Status diagnostic card */}
-        <div className="bg-white p-6 border border-slate-150 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between">
+        <div className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between">
           <div className="space-y-6">
-            <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100 pb-3">
+            <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
               Status Koneksi Saat Ini
             </h3>
 
@@ -137,9 +137,9 @@ export default function DatabaseSettings() {
                 
                 {/* Visual state monitor */}
                 <div className={`p-4 rounded-2xl border text-center ${
-                  dbStatus.status === 'ONLINE' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' :
-                  dbStatus.status === 'VIRTUAL' ? 'bg-amber-55 text-amber-805 text-amber-800 border-amber-200' :
-                  'bg-rose-50 border-rose-150 text-rose-800'
+                  dbStatus.status === 'ONLINE' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' :
+                  dbStatus.status === 'VIRTUAL' ? 'bg-amber-50 text-amber-800 border-amber-100' :
+                  'bg-rose-50 border-rose-100 text-rose-800'
                 }`}>
                   <Network className="h-8 w-8 mx-auto mb-2" />
                   <span className="text-xxs uppercase tracking-wider font-extrabold">STATUS ENGINE</span>
@@ -147,32 +147,32 @@ export default function DatabaseSettings() {
                 </div>
 
                 <div className="space-y-2.5 text-xs font-semibold">
-                  <div className="flex justify-between border-b border-slate-50 py-2">
+                  <div className="flex justify-between border-b border-slate-100/50 py-2">
                     <span className="text-slate-500">Mode Database</span>
                     <span className="text-slate-900 uppercase font-bold font-mono">
                       {dbStatus.isVirtual ? 'Virtual SQL (Lokal)' : 'VPS MySQL (Aktif)'}
                     </span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-50 py-2">
+                  <div className="flex justify-between border-b border-slate-100/50 py-2">
                     <span className="text-slate-500">Host VPS</span>
                     <span className="text-slate-900 font-mono">{dbStatus.host || 'localhost'}</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-50 py-2">
+                  <div className="flex justify-between border-b border-slate-100/50 py-2">
                     <span className="text-slate-500">Nama Database</span>
                     <span className="text-slate-900 font-mono">{dbStatus.database || 'mem_repo'}</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-50 py-2">
+                  <div className="flex justify-between border-b border-slate-100/50 py-2">
                     <span className="text-slate-500">Port</span>
                     <span className="text-slate-900 font-mono">{dbStatus.port || '3306'}</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-50 py-2">
+                  <div className="flex justify-between border-b border-slate-100/50 py-2">
                     <span className="text-slate-500">User Login</span>
                     <span className="text-slate-900 font-mono">{dbStatus.user || 'root'}</span>
                   </div>
                 </div>
 
                 {dbStatus.error && (
-                  <div className="p-3 bg-slate-50 border border-slate-200 text-slate-500 text-xxs font-mono leading-relaxed rounded-xl break-words">
+                  <div className="p-3 bg-slate-50 border border-slate-100 text-slate-500 text-xxs font-mono leading-relaxed rounded-xl break-words">
                     <strong>Log Diagnostik:</strong> {dbStatus.error}
                   </div>
                 )}
@@ -183,7 +183,7 @@ export default function DatabaseSettings() {
           <button
             id="refresh-db-status-btn"
             onClick={fetchDbStatus}
-            className="w-full mt-4 flex items-center justify-center space-x-2 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold py-2.5 rounded-xl cursor-pointer"
+            className="w-full mt-4 flex items-center justify-center space-x-2 bg-white border border-slate-100 hover:bg-slate-50 text-slate-700 text-xs font-bold py-2.5 rounded-xl cursor-pointer shadow-xs transition-all"
             style={{ minHeight: '44px' }}
           >
             <RefreshCw className="h-4 w-4" />
@@ -192,9 +192,9 @@ export default function DatabaseSettings() {
         </div>
 
         {/* Right: VPS MySQL Connection tester & Live Database schema Migration builder */}
-        <div className="bg-white p-6 border border-slate-150 rounded-2xl shadow-sm lg:col-span-2 space-y-6">
+        <div className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-2 space-y-6">
           <div>
-            <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100 pb-3">
+            <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
               Sistem Integrasi MySQL VPS
             </h3>
             <p className="text-xs text-slate-500 mt-2 leading-relaxed">
@@ -203,8 +203,8 @@ export default function DatabaseSettings() {
           </div>
 
           {/* Active Env Configuration Details Panel */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3.5">
-            <span className="text-xs font-bold text-slate-700 block border-b border-slate-100 pb-2">
+          <div className="bg-slate-50/50 border border-slate-100 rounded-xl p-4 space-y-3.5 shadow-xs">
+            <span className="text-xs font-bold text-slate-700 block border-b border-slate-100/70 pb-2">
               Konfigurasi Terbaca dari .env:
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium">
@@ -234,7 +234,7 @@ export default function DatabaseSettings() {
               </div>
             </div>
             
-            <div className="pt-2 text-xxs text-slate-400 border-t border-slate-150 leading-relaxed">
+            <div className="pt-2 text-xxs text-slate-400 border-t border-slate-100/70 leading-relaxed">
               * Keamanan Terjamin: Sandi database Anda diproses secara server-side dan tidak pernah dikirimkan atau dipaparkan ke sisi client/browser.
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function DatabaseSettings() {
                 id="test-connection-btn"
                 type="submit"
                 disabled={testing}
-                className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 px-5 rounded-xl shadow-xs transition-colors cursor-pointer"
+                className="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2.5 px-5 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
                 style={{ minHeight: '44px' }}
               >
                 <Plug className="h-4 w-4" />
@@ -263,10 +263,10 @@ export default function DatabaseSettings() {
           </div>
 
           {testResult && (
-            <div id="test-connection-result" className={`p-4 rounded-xl border text-xs leading-relaxed font-semibold flex items-start space-x-2 ${
+            <div id="test-connection-result" className={`p-4 rounded-2xl border text-xs leading-relaxed font-semibold flex items-start space-x-2 shadow-xs transition-all ${
               testResult.success 
-                ? 'bg-emerald-50 border-emerald-150 text-emerald-800' 
-                : 'bg-rose-50 border-rose-150 text-rose-800'
+                ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
+                : 'bg-rose-50 border-rose-100 text-rose-800'
             }`}>
               {testResult.success ? (
                 <CheckCircle className="h-4.5 w-4.5 text-emerald-600 flex-shrink-0 mt-0.5" />
@@ -278,7 +278,7 @@ export default function DatabaseSettings() {
           )}
 
           {/* AUTOMATED MIGRATIONS PANEL AND BUTTON */}
-          <div className="border-t border-slate-100 pt-6 space-y-4">
+          <div className="border-t border-slate-100/70 pt-6 space-y-4">
             <div>
               <h4 className="font-bold text-slate-800 text-sm">Pemicu Migrasi Skema Database</h4>
               <p className="text-xs text-slate-500 mt-1">
@@ -286,13 +286,13 @@ export default function DatabaseSettings() {
               </p>
             </div>
 
-            <div className="bg-amber-50/60 border border-amber-150 rounded-xl p-4 text-xs">
+            <div className="bg-amber-50/40 border border-amber-100 rounded-2xl p-4 text-xs shadow-xs">
               <label className="flex items-start space-x-2.5 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={cleanReset}
                   onChange={(e) => setCleanReset(e.target.checked)}
-                  className="mt-0.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 h-4 w-4"
+                  className="mt-0.5 rounded border-slate-200 text-teal-600 focus:ring-teal-500/20 h-4 w-4"
                 />
                 <div>
                   <span className="font-bold text-slate-800">Aktifkan Reset Bersih (Clean Reset)</span>
@@ -307,7 +307,7 @@ export default function DatabaseSettings() {
               id="run-migrations-btn"
               onClick={handleRunMigrations}
               disabled={dbStatus?.status !== 'ONLINE' || migrating}
-              className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold text-xs py-3 px-5 rounded-xl cursor-pointer"
+              className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white font-bold text-xs py-3 px-6 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
               style={{ minHeight: '44px' }}
             >
               <Terminal className="h-4.5 w-4.5" />
@@ -315,10 +315,10 @@ export default function DatabaseSettings() {
             </button>
 
             {migrationResult && (
-              <div id="migration-result-alert" className={`p-4 rounded-xl border text-xs leading-relaxed font-semibold flex items-start space-x-2 ${
+              <div id="migration-result-alert" className={`p-4 rounded-2xl border text-xs leading-relaxed font-semibold flex items-start space-x-2 shadow-xs transition-all ${
                 migrationResult.success 
-                  ? 'bg-emerald-50 border-emerald-150 text-emerald-800' 
-                  : 'bg-rose-50 border-rose-150 text-rose-800'
+                  ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
+                  : 'bg-rose-50 border-rose-100 text-rose-800'
               }`}>
                 {migrationResult.success ? (
                   <CheckCircle className="h-4.5 w-4.5 text-emerald-600 flex-shrink-0 mt-0.5" />

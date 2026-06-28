@@ -255,9 +255,9 @@ export default function MasterPasien() {
       </AnimatePresence>
 
       {/* Main card */}
-      <motion.div variants={itemVariants} className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden">
         {/* Controls header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+        <div className="p-4 sm:p-5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30">
           <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
@@ -266,7 +266,7 @@ export default function MasterPasien() {
               placeholder="Cari No. RM atau nama pasien..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl font-medium transition"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl font-medium transition"
             />
           </div>
           <p className="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono sm:text-right">
@@ -289,7 +289,7 @@ export default function MasterPasien() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/70 border-b border-slate-100">
+                <tr className="bg-slate-50/50 border-b border-slate-100/70">
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nomor Rekam Medis (RM)</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Lengkap Pasien</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Tanggal Lahir</th>
@@ -378,7 +378,7 @@ export default function MasterPasien() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white w-full max-w-2xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+            className="bg-white w-full max-w-2xl rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-extrabold text-slate-900 text-base">
@@ -520,7 +520,7 @@ export default function MasterPasien() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white w-full max-w-md rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+            className="bg-white w-full max-w-md rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-extrabold text-slate-900 text-base">
@@ -544,7 +544,7 @@ export default function MasterPasien() {
                   placeholder="Contoh: 001234"
                   value={formData.no_rm}
                   onChange={(e) => setFormData(prev => ({ ...prev, no_rm: e.target.value }))}
-                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white disabled:bg-slate-50 disabled:text-slate-450"
+                  className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white disabled:bg-slate-50/50 disabled:text-slate-450"
                 />
               </div>
 
@@ -556,7 +556,7 @@ export default function MasterPasien() {
                   placeholder="Contoh: Della Trisyanasari, Ny"
                   value={formData.nama}
                   onChange={(e) => setFormData(prev => ({ ...prev, nama: e.target.value }))}
-                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                  className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition"
                 />
               </div>
 
@@ -567,7 +567,7 @@ export default function MasterPasien() {
                     type="date"
                     value={formData.tanggal_lahir}
                     onChange={(e) => setFormData(prev => ({ ...prev, tanggal_lahir: e.target.value }))}
-                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                    className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition"
                   />
                 </div>
                 <div>
@@ -575,7 +575,7 @@ export default function MasterPasien() {
                   <select
                     value={formData.jenis_kelamin}
                     onChange={(e) => setFormData(prev => ({ ...prev, jenis_kelamin: e.target.value as 'L' | 'P' }))}
-                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                    className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value="L">Laki-laki</option>
                     <option value="P">Perempuan</option>
@@ -598,7 +598,7 @@ export default function MasterPasien() {
                   <select
                     value={formData.kota_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kota_id: parseInt(e.target.value) }))}
-                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                    className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value={0}>Pilih Kota</option>
                     {kotaList.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
@@ -609,7 +609,7 @@ export default function MasterPasien() {
                   <select
                     value={formData.kecamatan_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kecamatan_id: parseInt(e.target.value) }))}
-                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                    className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value={0}>Pilih Kecamatan</option>
                     {kecamatanList.filter(kec => kec.kota_id === formData.kota_id).map(kec => <option key={kec.id} value={kec.id}>{kec.nama}</option>)}
@@ -620,7 +620,7 @@ export default function MasterPasien() {
                   <select
                     value={formData.kelurahan_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kelurahan_id: parseInt(e.target.value) }))}
-                    className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                    className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value={0}>Pilih Kelurahan</option>
                     {kelurahanList.filter(kel => kel.kecamatan_id === formData.kecamatan_id).map(kel => <option key={kel.id} value={kel.id}>{kel.nama}</option>)}
@@ -628,7 +628,7 @@ export default function MasterPasien() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-50 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-slate-100/70 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}

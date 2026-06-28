@@ -176,7 +176,7 @@ export default function InputPemeriksaan() {
 
       <div className="space-y-4">
         {/* Daily Date Selector with Today Quick Option */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 border border-slate-200/80 rounded-2xl shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 border border-slate-100/80 rounded-2xl shadow-sm">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-teal-50 text-teal-700 rounded-xl">
               <Calendar className="h-4 w-4" />
@@ -233,7 +233,7 @@ export default function InputPemeriksaan() {
 
         {/* LOADING PROGRESS AND PARAMETERS DRAW */}
         {loadingParams || loadingData ? (
-          <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center text-slate-400 font-medium font-sans">
+          <div className="bg-white border border-slate-100/80 rounded-2xl p-16 text-center text-slate-400 font-medium font-sans shadow-sm">
             <RefreshCw className="h-6 w-6 text-teal-650 animate-spin mx-auto mb-2" />
             <span>Sinkronisasi antarmuka dan data lab harian...</span>
           </div>
@@ -244,8 +244,8 @@ export default function InputPemeriksaan() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.keys(categoriesMap).length > 0 ? (
                 Object.entries(categoriesMap).map(([category, params]) => (
-                  <div key={category} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
-                    <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-semibold uppercase tracking-wider font-mono text-[9px] border border-slate-200/50">
+                  <div key={category} className="bg-white border border-slate-100/80 rounded-2xl p-4 shadow-sm space-y-3">
+                    <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 rounded-lg font-semibold uppercase tracking-wider font-mono text-[9px] border border-teal-100">
                       {category}
                     </span>
                     
@@ -263,7 +263,7 @@ export default function InputPemeriksaan() {
                             placeholder="0"
                             value={quantities[p.id] || ''}
                             onChange={(e) => handleInputChange(p.id, e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-lg text-center w-16 font-mono text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:bg-white"
+                            className="bg-slate-50 border border-slate-200/70 rounded-xl text-center w-16 font-mono text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:bg-white focus:border-teal-300"
                             style={{ height: '28px' }}
                           />
                         </div>

@@ -118,7 +118,7 @@ export default function Dashboard() {
       <motion.div 
         variants={itemVariants}
         id="welcome-banner" 
-        className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-[0_4px_24px_rgba(15,23,42,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
@@ -150,7 +150,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
             <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -171,7 +171,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
             <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -192,7 +192,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'ring-2 ring-rose-500' : ''}`}
+          className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 border shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'border-rose-100 ring-2 ring-rose-500/10' : 'border-slate-100'}`}
         >
           <div className="flex items-center justify-between">
             <div className={`p-3 rounded-xl group-hover:scale-105 transition-transform ${criticalItems.length > 0 ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
@@ -215,7 +215,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
             <div className="p-3 bg-slate-50 text-slate-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -239,7 +239,7 @@ export default function Dashboard() {
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Critical Stock Alerts */}
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 lg:col-span-2">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-4.5 w-4.5 text-rose-600" />
@@ -302,7 +302,7 @@ export default function Dashboard() {
         </div>
 
         {/* Right: Quick Action Menu Shortcuts */}
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-white/60 shadow-sm p-6 flex flex-col justify-between">
+        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between">
           <div>
             <h2 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2 font-display">
               <Activity className="h-4.5 w-4.5 text-teal-600" />
@@ -314,7 +314,7 @@ export default function Dashboard() {
               {(user?.role === 'admin' || user?.role === 'lab') && (
                 <Link 
                   to="/lab/input" 
-                  className="flex items-center justify-between p-3.5 bg-teal-50/40 backdrop-blur-sm border border-teal-150/40 rounded-xl hover:bg-teal-50/80 hover:border-teal-300/60 transition-all text-left group"
+                  className="flex items-center justify-between p-3.5 bg-teal-50/40 backdrop-blur-sm border border-slate-100 rounded-xl hover:bg-teal-50/80 hover:border-teal-200 transition-all text-left group shadow-xs"
                 >
                   <div>
                     <h4 className="font-semibold text-teal-900 text-xs">Input Laboratorium</h4>
@@ -328,7 +328,7 @@ export default function Dashboard() {
               {(user?.role === 'admin' || user?.role === 'farmasi') && (
                 <Link 
                   to="/farmasi/input" 
-                  className="flex items-center justify-between p-3.5 bg-teal-50/40 backdrop-blur-sm border border-teal-150/40 rounded-xl hover:bg-teal-50/80 hover:border-teal-300/60 transition-all text-left group"
+                  className="flex items-center justify-between p-3.5 bg-teal-50/40 backdrop-blur-sm border border-slate-100 rounded-xl hover:bg-teal-50/80 hover:border-teal-200 transition-all text-left group shadow-xs"
                 >
                   <div>
                     <h4 className="font-semibold text-teal-900 text-xs">Konsumsi Obat</h4>
@@ -342,7 +342,7 @@ export default function Dashboard() {
               {(user?.role === 'admin' || user?.role === 'farmasi') && (
                 <Link 
                   to="/farmasi/abc" 
-                  className="flex items-center justify-between p-3.5 bg-slate-50/50 backdrop-blur-sm border border-slate-200/50 rounded-xl hover:bg-slate-100 hover:border-slate-350 transition-all text-left group"
+                  className="flex items-center justify-between p-3.5 bg-slate-50/50 backdrop-blur-sm border border-slate-100 rounded-xl hover:bg-slate-100 hover:border-slate-200 transition-all text-left group shadow-xs"
                 >
                   <div>
                     <h4 className="font-semibold text-slate-800 text-xs">Analisis ABC (Spend)</h4>
@@ -356,7 +356,7 @@ export default function Dashboard() {
               {user?.role === 'admin' && (
                 <Link 
                   to="/admin/users" 
-                  className="flex items-center justify-between p-3.5 bg-slate-100/45 backdrop-blur-sm border border-slate-200/50 rounded-xl hover:bg-slate-100 hover:border-slate-300/80 transition-all text-left group"
+                  className="flex items-center justify-between p-3.5 bg-slate-100/45 backdrop-blur-sm border border-slate-100 rounded-xl hover:bg-slate-100 hover:border-slate-200 transition-all text-left group shadow-xs"
                 >
                   <div>
                     <h4 className="font-semibold text-slate-800 text-xs">Kelola Petugas</h4>

@@ -193,7 +193,7 @@ export default function Sidebar() {
       {/* Sidebar Container */}
       <aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between z-45 transition-all duration-300
+        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between z-45 transition-all duration-300 border-r border-slate-100/50
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         `}

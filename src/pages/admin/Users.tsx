@@ -172,7 +172,7 @@ export default function UsersManagement() {
         <button
           id="add-user-btn"
           onClick={handleOpenAddForm}
-          className="flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 rounded-xl shadow-md transition-colors cursor-pointer"
+          className="flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
           style={{ minHeight: '44px' }}
         >
           <Plus className="h-5 w-5" />
@@ -191,7 +191,7 @@ export default function UsersManagement() {
 
       {/* Dynamic inline register form drawer */}
       {isFormOpen && (
-        <div className="bg-white text-slate-800 rounded-2xl p-6 shadow-md space-y-6">
+        <div className="bg-white text-slate-800 rounded-2xl p-6 border border-slate-100 shadow-sm space-y-6">
           <div className="flex items-center justify-between pb-3">
             <h2 className="text-base font-bold text-slate-950 flex items-center gap-2">
               <Shield className="h-4.5 w-4.5 text-teal-600" />
@@ -217,7 +217,7 @@ export default function UsersManagement() {
                 placeholder="ex: Dr. Made Wardina"
                 value={nama}
                 onChange={(e) => setNama(e.target.value)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all font-sans"
               />
             </div>
 
@@ -230,7 +230,7 @@ export default function UsersManagement() {
                 placeholder="clinician@puri.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all font-mono"
               />
             </div>
 
@@ -245,7 +245,7 @@ export default function UsersManagement() {
                   placeholder="Minimal 6 karakter"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
+                  className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all font-sans"
                 />
               </div>
             )}
@@ -256,7 +256,7 @@ export default function UsersManagement() {
                 id="userrole"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer font-sans"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all cursor-pointer font-sans shadow-xs"
                 style={{ minHeight: '44px' }}
               >
                 <option value="analis">Analis Lab (Akses Laboratorium)</option>
@@ -293,7 +293,7 @@ export default function UsersManagement() {
 
       {/* Password reset drawer block */}
       {isResetOpen && (
-        <div className="bg-white rounded-2xl p-6 shadow-md max-w-md space-y-4">
+        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm max-w-md space-y-4">
           <div className="flex items-center justify-between pb-3 mb-4">
             <h3 className="text-sm font-bold text-amber-600 flex items-center space-x-2">
               <Key className="h-4.5 w-4.5" />
@@ -319,7 +319,7 @@ export default function UsersManagement() {
                 placeholder="Masukkan password baru"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all font-sans"
               />
             </div>
             <div className="flex justify-end space-x-2 pt-2">
@@ -327,7 +327,7 @@ export default function UsersManagement() {
                 id="cancel-reset-password-btn"
                 type="button"
                 onClick={() => setIsResetOpen(false)}
-                className="px-4 py-2 bg-white text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all"
+                className="px-4 py-2 bg-white text-slate-700 border border-slate-100 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all shadow-xs"
                 style={{ minHeight: '36px' }}
               >
                 Batal
@@ -335,7 +335,7 @@ export default function UsersManagement() {
               <button
                 id="submit-reset-password-btn"
                 type="submit"
-                className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all"
+                className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm"
                 style={{ minHeight: '36px' }}
               >
                 Simpan Password
@@ -346,10 +346,10 @@ export default function UsersManagement() {
       )}
 
       {/* Accounts display catalog */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-200 text-left">
-            <thead className="bg-slate-50">
+          <table className="min-w-full divide-y divide-slate-100/70 text-left">
+            <thead className="bg-slate-50/50">
               <tr className="text-slate-700 text-xs font-bold uppercase tracking-wider">
                 <th scope="col" className="px-6 py-4">Nama Petugas</th>
                 <th scope="col" className="px-6 py-4">Kredensial</th>
@@ -358,7 +358,7 @@ export default function UsersManagement() {
                 <th scope="col" className="px-6 py-4 text-right">Aksi Administrasi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-800 text-xs font-normal">
+            <tbody className="divide-y divide-slate-100/70 text-slate-800 text-xs font-normal">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="text-center py-10 text-slate-500 font-medium">

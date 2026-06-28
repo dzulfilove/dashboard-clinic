@@ -903,7 +903,7 @@ export default function IGD() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Activity className="h-5 w-5 text-teal-600" />
@@ -988,7 +988,7 @@ export default function IGD() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -1011,7 +1011,7 @@ export default function IGD() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -1036,7 +1036,7 @@ export default function IGD() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -1062,7 +1062,7 @@ export default function IGD() {
               {/* Graphical trends */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Chart 1: Kunjungan & Pendapatan Harian */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs lg:col-span-2 space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian IGD</h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
@@ -1091,7 +1091,7 @@ export default function IGD() {
                 </div>
 
                 {/* Chart 2: Top 5 Procedures */}
-                <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan IGD Terbanyak</h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan Instalasi Gawat Darurat</p>
@@ -1301,7 +1301,7 @@ export default function IGD() {
                 </div>
 
                 {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
-                <div className="bg-white border border-slate-200/90 p-4 rounded-2xl flex flex-col justify-between">
+                <div className="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
                   <div className="text-left">
                     <span className="text-slate-400 text-[9px] font-extrabold uppercase tracking-widest block">Distribusi Persentase</span>
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase IGD</span>
@@ -1401,7 +1401,7 @@ export default function IGD() {
                     placeholder="Cari..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 placeholder-slate-405 focus:outline-none focus:ring-4 focus:ring-teal-500/5 focus:border-teal-300 transition-all"
                   />
                   {searchQuery && (
                     <button 
@@ -1418,14 +1418,14 @@ export default function IGD() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-4 focus:ring-teal-500/5 focus:border-teal-300 transition-all"
                   />
                   <span className="text-slate-400">-</span>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-4 focus:ring-teal-500/5 focus:border-teal-300 transition-all"
                   />
                 </div>
 
@@ -1436,17 +1436,17 @@ export default function IGD() {
 
               {/* Main Table Accordion */}
               {filteredRecords.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-slate-150 p-12 text-center">
+                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center">
                   <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-2" />
                   <h4 className="text-sm font-bold text-slate-700">Daftar Kunjungan IGD Kosong</h4>
                   <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Gunakan filter pencarian lain atau tambahkan pendaftaran pasien IGD baru.</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-3xl border border-slate-150/60 shadow-xs overflow-hidden">
+                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr className="bg-slate-50/75 border-b border-slate-150 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
+                        <thead>
+                          <tr className="bg-slate-50/50 border-b border-slate-100/70 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Diagnosis (ICD-10)</th>
@@ -1519,7 +1519,7 @@ export default function IGD() {
                                   <div className="flex items-center justify-center space-x-1.5">
                                     <button
                                       onClick={() => setExpandedId(isExpanded ? null : rec.id)}
-                                      className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-100 rounded-lg transition-all cursor-pointer"
                                       title="Detail Tindakan"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1527,7 +1527,7 @@ export default function IGD() {
                                     </button>
                                     <button
                                       onClick={() => handleEditClick(rec)}
-                                      className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 bg-amber-50 hover:shadow-xs border border-amber-150 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 bg-amber-50/50 hover:shadow-xs border border-amber-100 rounded-lg transition-all cursor-pointer"
                                       title="Koreksi Data"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1535,7 +1535,7 @@ export default function IGD() {
                                     </button>
                                     <button
                                       onClick={() => handleDeleteRecord(rec.id)}
-                                      className="p-1.5 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-150 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50/50 border border-rose-100 rounded-lg transition-all cursor-pointer"
                                       title="Hapus / Void"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1547,10 +1547,10 @@ export default function IGD() {
 
                               {/* Accordion inner tindakan rows */}
                               {isExpanded && (
-                                <tr className="bg-slate-50/70">
-                                  <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-150">
+                                <tr className="bg-slate-50/50">
+                                  <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100/80">
                                     <div className="space-y-4">
-                                      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                                         <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
                                           <span>Rincian Tindakan Pelayanan Medis IGD</span>
                                         </h4>
@@ -1559,7 +1559,7 @@ export default function IGD() {
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {rec.tindakan.map((t, index) => (
-                                          <div key={index} className="bg-white p-4.5 rounded-2xl border border-slate-150 shadow-xxs flex flex-col justify-between space-y-4">
+                                          <div key={index} className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between space-y-4">
                                             {/* Header */}
                                             <div>
                                               <div className="flex items-start justify-between">

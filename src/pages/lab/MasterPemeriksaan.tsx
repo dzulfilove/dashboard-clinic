@@ -391,7 +391,7 @@ export default function MasterPemeriksaan() {
 
       {/* KPI Stats Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 flex items-center space-x-3.5">
+        <div className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm">
           <div className="p-2.5 bg-teal-50 text-teal-700 rounded-xl">
             <Layers className="h-5 w-5" />
           </div>
@@ -401,7 +401,7 @@ export default function MasterPemeriksaan() {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 flex items-center space-x-3.5">
+        <div className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm">
           <div className="p-2.5 bg-sky-50 text-sky-700 rounded-xl">
             <BriefcaseMedical className="h-5 w-5" />
           </div>
@@ -411,7 +411,7 @@ export default function MasterPemeriksaan() {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 flex items-center space-x-3.5">
+        <div className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm">
           <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl">
             <RefreshCw className="h-5 w-5" />
           </div>
@@ -429,7 +429,7 @@ export default function MasterPemeriksaan() {
         <div className="lg:col-span-4 space-y-4">
           
           {/* 1. Quick Category Creator Widget */}
-          <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-4">
+          <div className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4">
             <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
               <FolderPlus className="h-4 w-4 text-emerald-600" />
               <span>Registrasi Kelompok Baru</span>
@@ -447,7 +447,7 @@ export default function MasterPemeriksaan() {
                   placeholder="Contoh: HISTOPATOLOGI"
                   value={quickCategoryName}
                   onChange={(e) => setQuickCategoryName(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 focus:ring-1 focus:ring-teal-500/20 focus:border-teal-500 focus:outline-none text-xxs font-semibold uppercase tracking-wider text-slate-850 placeholder-slate-400 flex-1"
+                  className="bg-slate-50 border border-slate-200/70 rounded-xl px-2.5 py-1.5 focus:ring-1 focus:ring-teal-500/20 focus:border-teal-300 focus:outline-none text-xxs font-semibold uppercase tracking-wider text-slate-850 placeholder-slate-400 flex-1"
                   style={{ minHeight: '34px' }}
                 />
                 <button
@@ -472,7 +472,7 @@ export default function MasterPemeriksaan() {
           </div>
 
           {/* 1b. CSV Data Import Card */}
-          <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-4">
+          <div className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4">
             <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <UploadCloud className="h-4 w-4 text-teal-600" />
@@ -494,10 +494,10 @@ export default function MasterPemeriksaan() {
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
-              className={`border border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+              className={`border border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all ${
                 hoverDrag 
                   ? 'border-teal-500 bg-teal-50/50 scale-[1.01]' 
-                  : 'border-slate-300 hover:border-slate-400 hover:bg-slate-50/55'
+                  : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/55 shadow-sm'
               }`}
             >
               <input
@@ -556,7 +556,7 @@ export default function MasterPemeriksaan() {
           </div>
 
           {/* 2. Category Sidebar List Picker */}
-          <div className="bg-white border border-slate-200 shadow-xs rounded-2xl p-4">
+          <div className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3 border-b border-slate-50 pb-2">
               <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <FolderOpen className="h-4 w-4 text-sky-650" />
@@ -576,9 +576,9 @@ export default function MasterPemeriksaan() {
               <button
                 id="filter-category-all"
                 onClick={() => setSelectedCategoryFilter(null)}
-                className={`w-full text-left px-2.5 py-2 rounded-xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full text-left px-2.5 py-2 rounded-2xl font-semibold flex items-center justify-between transition-all cursor-pointer ${
                   selectedCategoryFilter === null 
-                    ? 'bg-teal-50 text-teal-800' 
+                    ? 'bg-teal-50 text-teal-800 border border-teal-100 shadow-sm' 
                     : 'text-slate-600 hover:bg-slate-50'
                 }`}
                 style={{ minHeight: '34px' }}
@@ -617,7 +617,7 @@ export default function MasterPemeriksaan() {
         </div>
 
         {/* Right Side: Tabular Parameter Directory & Search */}
-        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="lg:col-span-8 bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-55/40 p-1 rounded-xl">
             {/* Search Bar Input */}
             <div className="relative flex-1">
@@ -628,7 +628,7 @@ export default function MasterPemeriksaan() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari jenis pemeriksaan atau nama kategori..."
-                className="w-full bg-slate-50 border border-slate-200/80 rounded-xl pl-9 pr-4 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500"
+                className="w-full bg-slate-50 border border-slate-200/70 rounded-2xl pl-9 pr-4 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                 style={{ minHeight: '36px' }}
               />
             </div>
@@ -645,11 +645,11 @@ export default function MasterPemeriksaan() {
               <span>Sinkronisasi database master...</span>
             </div>
           ) : (
-            <div className="border border-slate-150 rounded-xl overflow-hidden bg-white">
+            <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xxs">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200/60 font-semibold text-slate-700">
+                    <tr className="bg-slate-50/50 border-b border-slate-100/60 font-semibold text-slate-700">
                       <th className="px-3.5 py-2.5 w-10">No</th>
                       <th className="px-3.5 py-2.5">Kelompok Kategori</th>
                       <th className="px-3.5 py-2.5">Nama Jenis Pemeriksaan (Parameter)</th>
@@ -749,7 +749,7 @@ export default function MasterPemeriksaan() {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                className="relative w-full max-w-sm bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden"
+                className="relative w-full max-w-sm bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden"
               >
                 {/* Modal Header */}
                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
@@ -791,7 +791,7 @@ export default function MasterPemeriksaan() {
                         id="modal-category-select"
                         value={formKategori}
                         onChange={(e) => setFormKategori(e.target.value)}
-                        className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xxs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500"
+                        className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xxs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                         style={{ minHeight: '36px' }}
                       >
                         {uniqueCategories.map(cat => (
@@ -805,7 +805,7 @@ export default function MasterPemeriksaan() {
                         placeholder="Contoh: HISTOPATOLOGI"
                         value={formCustomKategori}
                         onChange={(e) => setFormCustomKategori(e.target.value)}
-                        className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500"
+                        className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                         style={{ minHeight: '36px' }}
                       />
                     )}
@@ -822,7 +822,7 @@ export default function MasterPemeriksaan() {
                       placeholder="Contoh: Darah Lengkap, Glukosa, Asam Urat"
                       value={formNamaParameter}
                       onChange={(e) => setFormNamaParameter(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500"
+                      className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                       required
                       style={{ minHeight: '36px' }}
                     />

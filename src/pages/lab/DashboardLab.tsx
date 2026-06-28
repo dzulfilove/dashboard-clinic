@@ -317,7 +317,7 @@ export default function DashboardLab() {
     >
       
       {/* 1. Header controls (High Density, Poppins) */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100/60 pb-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-teal-600" />
@@ -330,7 +330,7 @@ export default function DashboardLab() {
 
         {/* Date range period selector card */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center space-x-1.5 bg-white px-3 py-1 border border-slate-200 rounded-xl shadow-xs">
+          <div className="flex items-center space-x-1.5 bg-white px-3 py-1 border border-slate-100 rounded-2xl shadow-sm">
             <Calendar className="h-4 w-4 text-teal-605 flex-shrink-0" />
             <div className="flex items-center space-x-1">
               <span className="text-slate-400 font-normal text-[9px] uppercase">Dari:</span>
@@ -403,7 +403,7 @@ export default function DashboardLab() {
       </div>
 
       {feedback && (
-        <div id="anal-error-alert" className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 font-normal">
+        <div id="anal-error-alert" className="p-3 bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl flex items-center space-x-2 font-normal shadow-sm">
           <AlertCircle className="h-4 w-4 text-rose-600 flex-shrink-0" />
           <span>{feedback}</span>
         </div>
@@ -461,7 +461,7 @@ export default function DashboardLab() {
             <motion.div 
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
             >
               <div className="flex items-center justify-between">
                 <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -484,7 +484,7 @@ export default function DashboardLab() {
             <motion.div 
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
             >
               <div className="flex items-center justify-between">
                 <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -517,7 +517,7 @@ export default function DashboardLab() {
             <motion.div 
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
               transition={{ duration: 0.2 }}
-              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
             >
               <div className="flex items-center justify-between">
                 <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -558,7 +558,7 @@ export default function DashboardLab() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               
               {/* STK-1: Chart Perbandingan antar Kategori (Requested Feature) */}
-              <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-xs lg:col-span-2">
+              <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-2">
                 <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
                   <h3 className="font-medium text-slate-700 flex items-center gap-1.5 text-xxs tracking-wider uppercase">
                     <Layers className="h-4 w-4 text-teal-605" />
@@ -591,7 +591,7 @@ export default function DashboardLab() {
               </div>
 
               {/* STK-2: Distribution Pie Chart */}
-              <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-xs flex flex-col justify-between">
+              <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="border-b border-slate-100 pb-2 mb-3">
                     <h3 className="font-medium text-slate-700 text-xxs tracking-wider uppercase">
@@ -644,7 +644,7 @@ export default function DashboardLab() {
           )}
 
           {/* STK-3: Long-term stacked historical curves comparison */}
-          <div className="bg-white p-4 rounded-xl border border-slate-150 shadow-xs">
+          <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm">
             <h3 className="font-medium text-slate-700 text-xxs tracking-wider uppercase mb-3 flex items-center gap-1.5">
               <Activity className="h-4 w-4 text-slate-500" />
               <span>Analisis Tren &amp; Perkembangan Pengujian Lab (12 Bulan)</span>
@@ -688,7 +688,7 @@ export default function DashboardLab() {
         <div className="space-y-6">
           
           {/* Interactive Category Selector bar */}
-          <div className="bg-slate-50 border border-slate-200 p-3 rounded-2xl flex flex-wrap items-center gap-1.5">
+          <div className="bg-slate-50/50 border border-slate-100/60 p-3 rounded-2xl flex flex-wrap items-center gap-1.5 shadow-sm">
             <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mr-2 flex items-center gap-1">
               <Filter className="h-3.5 w-3.5 text-teal-600" />
               <span>Pilih Kategori:</span>
@@ -723,7 +723,7 @@ export default function DashboardLab() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -746,7 +746,7 @@ export default function DashboardLab() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -769,7 +769,7 @@ export default function DashboardLab() {
                 <motion.div 
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                   transition={{ duration: 0.2 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all sm:col-span-2"
+                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all sm:col-span-2"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-sky-50 text-sky-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -803,7 +803,7 @@ export default function DashboardLab() {
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                 
                 {/* 1. Bar chart comparing individual tests inside this category */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs lg:col-span-3">
+                <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-3">
                   <div className="border-b border-slate-100 pb-2 mb-3 flex items-center justify-between">
                     <span className="font-semibold text-slate-800 text-xxs uppercase tracking-wider">
                       Distribusi Volume Antar Jenis Pemeriksaan ({activeCategory})
@@ -845,17 +845,17 @@ export default function DashboardLab() {
                 </div>
 
                 {/* 2. Structured Table of all specific items in this category */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs lg:col-span-2 space-y-3">
+                <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-2 space-y-3">
                   <div className="border-b border-slate-100 pb-2">
                     <span className="font-semibold text-slate-800 text-xxs uppercase tracking-wider block">
                       Tabel Rincian parameter ({activeCategory})
                     </span>
                   </div>
 
-                  <div className="border border-slate-200 rounded-lg overflow-hidden max-h-64 overflow-y-auto">
+                  <div className="border border-slate-100 rounded-2xl overflow-hidden max-h-64 overflow-y-auto shadow-sm">
                     <table className="w-full text-left text-[10px]">
                       <thead>
-                        <tr className="bg-slate-50 font-semibold text-slate-605 border-b border-slate-150">
+                        <tr className="bg-slate-50 font-semibold text-slate-605 border-b border-slate-100/60">
                           <th className="px-3 py-2">Jenis Pemeriksaan</th>
                           <th className="px-3 py-2 text-right w-24">Jumlah Uji</th>
                         </tr>
@@ -893,7 +893,7 @@ export default function DashboardLab() {
       {/* ===================== VIEW 3: GRANULAR TELEMETRY PROGRESS BY PARAMETER ===================== */}
       {subTab === 'progress' && (
         <div id="view-parameter-progress" className="space-y-6">
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+          <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm">
             <h2 className="text-xs font-semibold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="h-4 w-4 text-teal-600 animate-pulse" />
               <span>Progres Data Pemeriksaan per Jenis Pemeriksaan (Parameter Klinis)</span>
@@ -906,7 +906,7 @@ export default function DashboardLab() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
             
             {/* LEFT SIDE: SEARCH & PARAMETER SELECTOR CARD */}
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3 lg:col-span-1">
+            <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm space-y-3 lg:col-span-1">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                 <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Pilih Jenis Pemeriksaan</span>
                 <span className="text-[10px] font-mono text-slate-400">Total: {getProgressList().length} Jenis</span>
@@ -920,7 +920,7 @@ export default function DashboardLab() {
                   placeholder="Cari nama pemeriksaan/parameter..."
                   value={progressSearch}
                   onChange={(e) => setProgressSearch(e.target.value)}
-                  className="w-full pl-3 pr-8 py-1.5 bg-slate-50 border border-slate-205 rounded-lg text-xxs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 font-normal shadow-2xs"
+                  className="w-full pl-3 pr-8 py-1.5 bg-slate-50 border border-slate-200/70 rounded-xl text-xxs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 font-normal shadow-sm"
                   style={{ minHeight: '32px' }}
                 />
               </div>
@@ -953,10 +953,10 @@ export default function DashboardLab() {
                         key={p.id}
                         id={`progress-param-btn-${p.id}`}
                         onClick={() => setSelectedProgressParam(p.id)}
-                        className={`w-full text-left p-2.5 rounded-lg border transition-all text-xxs cursor-pointer block ${
+                        className={`w-full text-left p-2.5 rounded-xl border transition-all text-xxs cursor-pointer block ${
                           isSelected
-                            ? 'bg-teal-50 border-teal-200 text-teal-800 shadow-xs'
-                            : 'bg-white border-slate-150 text-slate-700 hover:bg-slate-50'
+                            ? 'bg-teal-50 border-teal-200 text-teal-800 shadow-sm scale-[1.01]'
+                            : 'bg-white border-slate-100/80 text-slate-700 hover:bg-slate-50 hover:border-slate-200'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1.5">
@@ -998,7 +998,7 @@ export default function DashboardLab() {
 
                 if (!activeParam) {
                   return (
-                    <div className="bg-white p-12 text-center rounded-xl border border-slate-205 text-slate-400 text-xxs">
+                    <div className="bg-white p-12 text-center rounded-2xl border border-slate-100/80 text-slate-400 text-xxs shadow-sm">
                       Silakan pilih jenis pemeriksaan di panel sebelah kiri untuk memuat rekap analisis.
                     </div>
                   );

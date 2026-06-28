@@ -162,9 +162,9 @@ export default function MasterTindakan() {
       )}
 
       {/* Main card */}
-      <div className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden">
         {/* Controls header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+        <div className="p-4 sm:p-5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30">
           <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
@@ -173,7 +173,7 @@ export default function MasterTindakan() {
               placeholder="Cari nama atau jenis pelayanan (contoh: USG, Ralan)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl font-medium transition"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl font-medium transition"
             />
           </div>
           <p className="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono sm:text-right">
@@ -196,7 +196,7 @@ export default function MasterTindakan() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/70 border-b border-slate-100">
+                <tr className="bg-slate-50/50 border-b border-slate-100/70">
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">ID Kode</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Layanan Tindakan Medis</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Klasifikasi Jenis</th>
@@ -254,8 +254,8 @@ export default function MasterTindakan() {
       {/* Action modal dialog */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-md rounded-2xl border border-slate-150 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div className="bg-white w-full max-w-md rounded-2xl border border-slate-100 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="p-5 border-b border-slate-100/70 flex items-center justify-between bg-slate-50/50">
               <h3 className="font-extrabold text-slate-900 text-base">
                 {editingItem ? 'Perbarui Layanan Tindakan' : 'Daftarkan Tindakan Layanan Baru'}
               </h3>
@@ -276,7 +276,7 @@ export default function MasterTindakan() {
                   placeholder="Contoh: KONSULTASI + USG 4D"
                   value={formData.nama_tindakan}
                   onChange={(e) => setFormData(prev => ({ ...prev, nama_tindakan: e.target.value }))}
-                  className="w-full text-sm font-medium border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                  className="w-full text-sm font-medium border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                 />
               </div>
 
@@ -285,7 +285,7 @@ export default function MasterTindakan() {
                 <select
                   value={formData.jenis}
                   onChange={(e) => setFormData(prev => ({ ...prev, jenis: e.target.value as 'RALAN' | 'RANAP' }))}
-                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                  className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                 >
                   <option value="RALAN">Rawat Jalan (RALAN)</option>
                   <option value="RANAP">Rawat Inap (RANAP)</option>

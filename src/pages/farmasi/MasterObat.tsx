@@ -448,8 +448,8 @@ export default function MasterObat() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             id="obat-feedback-alert" 
-            className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-semibold ${
-              feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+            className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-semibold shadow-sm ${
+              feedback.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800'
             }`}
           >
             {feedback.type === 'success' ? <CheckCircle className="h-4 w-4 text-emerald-600" /> : <AlertCircle className="h-4 w-4 text-rose-600" />}
@@ -460,8 +460,8 @@ export default function MasterObat() {
 
       {/* Import module with tabs */}
       {(user?.role === 'admin' || user?.role === 'farmasi') && (
-        <motion.div variants={itemVariants} className="bg-white p-5 border border-slate-200 shadow-sm rounded-2xl space-y-4">
-          <div className="flex border-b border-slate-200 pb-2 space-x-4">
+        <motion.div variants={itemVariants} className="bg-white p-5 border border-slate-100/80 shadow-sm rounded-2xl space-y-4">
+          <div className="flex border-b border-slate-100 pb-2 space-x-4">
             <button
               id="tab-excel-btn"
               type="button"
@@ -497,10 +497,10 @@ export default function MasterObat() {
           {importTab === 'excel' && (
             <div 
               id="drug-import-dropzone"
-              className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
+              className={`border-2 border-dashed rounded-2xl p-4 text-center transition-all duration-200 ${
                 hoverDrag 
                   ? 'border-teal-500 bg-teal-50/50 text-teal-700' 
-                  : 'border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100/50'
+                  : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:bg-slate-100/50 hover:border-slate-200'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -567,10 +567,10 @@ export default function MasterObat() {
           {importTab === 'csv' && (
             <div 
               id="drug-import-csv-dropzone"
-              className={`border-2 border-dashed rounded-xl p-4 text-center transition-all duration-200 ${
+              className={`border-2 border-dashed rounded-2xl p-4 text-center transition-all duration-200 ${
                 hoverDrag 
                   ? 'border-teal-500 bg-teal-50/50 text-teal-700' 
-                  : 'border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100/50'
+                  : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:bg-slate-100/50 hover:border-slate-200'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -647,7 +647,7 @@ export default function MasterObat() {
                   value={pastedText}
                   onChange={(e) => setPastedText(e.target.value)}
                   placeholder="Contoh format:&#10;Kode Obat&#9;Nama Obat&#9;Satuan&#9;Harga Satuan&#9;Safety Stock&#10;OBT-001&#9;Paracetamol&#9;Tablet&#9;250&#9;100&#10;OBT-002&#9;Amoxicillin&#9;Kaplet&#9;600&#9;200"
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono text-slate-800 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200/70 rounded-xl text-xs font-mono text-slate-800 focus:ring-1 focus:ring-teal-500/20 focus:border-teal-300 focus:outline-none placeholder-slate-400"
                 />
               </div>
               <button
@@ -797,7 +797,7 @@ export default function MasterObat() {
       </AnimatePresence>
 
       {/* Searching & Filter tool rails */}
-      <motion.div variants={itemVariants} className="bg-white p-3.5 border border-slate-150 shadow-xs rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} className="bg-white p-3.5 border border-slate-100/80 shadow-sm rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative rounded-xl shadow-xs w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-slate-400" />
@@ -808,16 +808,17 @@ export default function MasterObat() {
             placeholder="Cari berdasarkan nama/kode..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/30 text-xs font-medium animate-none"
+            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200/70 rounded-2xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 text-xs font-medium animate-none placeholder-slate-400"
+            style={{ minHeight: '38px' }}
           />
         </div>
       </motion.div>
 
       {/* Catalog lists table */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden text-xs">
+      <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden text-xs">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-100 text-left">
-            <thead className="bg-slate-50">
+          <table className="min-w-full divide-y divide-slate-100/70 text-left">
+            <thead className="bg-slate-50/50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Kode Obat</th>
                 <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Nama Obat</th>
@@ -830,7 +831,7 @@ export default function MasterObat() {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700 text-xs font-semibold">
+            <tbody className="divide-y divide-slate-100/70 text-slate-700 text-xs font-semibold">
               <AnimatePresence mode="popLayout">
               {loading ? (
                 <motion.tr 

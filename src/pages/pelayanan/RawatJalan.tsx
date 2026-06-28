@@ -982,7 +982,7 @@ export default function RawatJalan() {
       className="space-y-6"
     >
       {/* Upper Module Heading */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <FileCheck className="h-5 w-5 text-teal-600" />
@@ -1022,7 +1022,7 @@ export default function RawatJalan() {
               setIsManualModalOpen(true);
             }}
             id="btn-registrasi-manual"
-            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-extrabold text-xs rounded-xl shadow-xs cursor-pointer"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-extrabold text-xs rounded-2xl shadow-sm cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Registrasi Manual</span>
@@ -1074,7 +1074,7 @@ export default function RawatJalan() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     
                     {/* 1. Kunjungan Pasien */}
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
                       <div className="flex items-center justify-between">
                         <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
                           <Users className="h-6 w-6" />
@@ -1093,7 +1093,7 @@ export default function RawatJalan() {
                     </div>
 
                     {/* 2. Tindakan Medis */}
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
                       <div className="flex items-center justify-between">
                         <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
                           <ClipboardList className="h-6 w-6" />
@@ -1112,7 +1112,7 @@ export default function RawatJalan() {
                     </div>
 
                     {/* 4. DPJP Teraktif */}
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
                       <div className="flex items-center justify-between">
                         <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
                           <TrendingUp className="h-6 w-6 text-amber-600" />
@@ -1137,7 +1137,7 @@ export default function RawatJalan() {
                   {/* Graphical trends */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Chart 1: Kunjungan & Pendapatan Harian */}
-                    <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs lg:col-span-2 space-y-4">
+                    <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4">
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian</h3>
                         <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
@@ -1195,7 +1195,7 @@ export default function RawatJalan() {
                     </div>
 
                     {/* Chart 2: Top 5 Procedures */}
-                    <div className="bg-white p-5 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                    <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4">
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan Terbanyak</h3>
                         <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan rawat jalan</p>
@@ -1246,7 +1246,7 @@ export default function RawatJalan() {
                   </div>
 
                   {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
-                  <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-100/70 shadow-sm space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
@@ -1341,7 +1341,7 @@ export default function RawatJalan() {
                   className="space-y-4"
                 >
               {/* Infografis Kunjungan Per Triase */}
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150">
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-2xl border border-slate-100/80">
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {triageStats.map((item) => {
@@ -1358,7 +1358,7 @@ export default function RawatJalan() {
                         className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
                           isActive 
                             ? 'bg-white border-teal-500 shadow-sm ring-2 ring-teal-500/10' 
-                            : 'bg-white border-slate-200 hover:border-slate-300 hover:shadow-2xs'
+                            : 'bg-white border-slate-100 hover:border-slate-200 hover:shadow-xs'
                         }`}
                       >
                         {/* Status tag/dot */}
@@ -1395,7 +1395,7 @@ export default function RawatJalan() {
                 </div>
 
                 {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
-                <div className="bg-white border border-slate-200/90 p-4 rounded-2xl flex flex-col justify-between">
+                <div className="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
                   <div className="text-left">
                     <span className="text-slate-400 text-[9px] font-extrabold uppercase tracking-widest block">Distribusi Persentase</span>
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase</span>
@@ -1452,14 +1452,14 @@ export default function RawatJalan() {
               </div>
 
               {/* Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
+              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-100 p-2.5 rounded-2xl">
                 <span className="text-slate-450 text-[10px] font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
                     triageFilter === 'all'
                       ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
-                      : 'bg-white text-slate-600 border-slate-205 hover:bg-slate-100'
+                      : 'bg-white text-slate-600 border-slate-100 hover:bg-slate-100'
                   }`}
                 >
                   Semua ({records.length})
@@ -1471,7 +1471,7 @@ export default function RawatJalan() {
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1.5 ${
                       triageFilter === item.key
                         ? 'text-white border-transparent shadow-xs'
-                        : 'bg-white text-slate-655 border-slate-205 hover:bg-slate-100'
+                        : 'bg-white text-slate-655 border-slate-100 hover:bg-slate-100'
                     }`}
                     style={{
                       backgroundColor: triageFilter === item.key ? item.color : undefined
@@ -1495,7 +1495,7 @@ export default function RawatJalan() {
                     placeholder="Cari..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 placeholder-slate-405 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 placeholder-slate-405 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all"
                   />
                   {searchQuery && (
                     <button 
@@ -1511,7 +1511,7 @@ export default function RawatJalan() {
                   <select
                     value={unitFilter}
                     onChange={(e) => setUnitFilter(e.target.value)}
-                    className="pl-4 pr-8 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="pl-4 pr-8 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all"
                   >
                     <option value="all">Semua Unit</option>
                     {TIPE_UNIT_RAWAT_JALAN.map(unit => (
@@ -1525,14 +1525,14 @@ export default function RawatJalan() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all"
                   />
                   <span className="text-slate-400">-</span>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all"
                   />
                 </div>
 
@@ -1543,17 +1543,17 @@ export default function RawatJalan() {
 
               {/* Main Table Accordion */}
               {filteredRecords.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-slate-150 p-12 text-center">
+                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center">
                   <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-2" />
                   <h4 className="text-sm font-bold text-slate-700">Daftar Kunjungan Kosong</h4>
                   <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Gunakan filter pencarian lain atau tambahkan pendaftaran pasien rawat jalan baru.</p>
                 </div>
               ) : (
-                <div className="bg-white rounded-3xl border border-slate-150/60 shadow-xs overflow-hidden">
+                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50/75 border-b border-slate-150 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
+                        <tr className="bg-slate-50/50 border-b border-slate-100/70 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Unit Pelayanan</th>
@@ -1596,7 +1596,7 @@ export default function RawatJalan() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-100">
                                     {rec.unit || 'Poli Umum'}
                                   </span>
                                 </td>
@@ -1617,7 +1617,7 @@ export default function RawatJalan() {
                                   <div className="flex items-center justify-center space-x-1.5">
                                     <button
                                       onClick={() => setExpandedId(isExpanded ? null : rec.id)}
-                                      className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-205 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-100 rounded-lg transition-all cursor-pointer"
                                       title="Detail Tindakan"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1625,7 +1625,7 @@ export default function RawatJalan() {
                                     </button>
                                     <button
                                       onClick={() => handleEditClick(rec)}
-                                      className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 bg-amber-50 hover:shadow-xs border border-amber-150 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 bg-amber-50/50 hover:shadow-xs border border-amber-100 rounded-lg transition-all cursor-pointer"
                                       title="Koreksi Data"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1633,7 +1633,7 @@ export default function RawatJalan() {
                                     </button>
                                     <button
                                       onClick={() => handleDeleteRecord(rec.id)}
-                                      className="p-1.5 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-150 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50/50 border border-rose-100 rounded-lg transition-all cursor-pointer"
                                       title="Hapus / Void"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1646,9 +1646,9 @@ export default function RawatJalan() {
                               {/* Accordion inner tindakan rows */}
                               {isExpanded && (
                                 <tr className="bg-slate-50/70">
-                                  <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-150">
+                                  <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100">
                                     <div className="space-y-4">
-                                      <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                                      <div className="flex items-center justify-between border-b border-slate-100/70 pb-2">
                                         <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
                                           <span>Rincian Tindakan Pelayanan Medis</span>
                                         </h4>
@@ -1657,7 +1657,7 @@ export default function RawatJalan() {
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {rec.tindakan.map((t, index) => (
-                                          <div key={index} className="bg-white p-4.5 rounded-2xl border border-slate-150 shadow-xxs flex flex-col justify-between space-y-4">
+                                          <div key={index} className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between space-y-4">
                                             {/* Header */}
                                             <div>
                                               <div className="flex items-start justify-between">
@@ -1689,7 +1689,7 @@ export default function RawatJalan() {
                   
                   {/* Pagination Controls */}
                   {totalPages > 1 && (
-                    <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-100 p-4 bg-slate-50/50 gap-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-100 p-4 bg-slate-50/30 gap-4">
                       <div className="text-xs text-slate-500 font-semibold pl-2">
                         Menampilkan <span className="font-bold text-slate-800">{Math.min(filteredRecords.length, (currentPage - 1) * itemsPerPage + 1)}-{Math.min(filteredRecords.length, currentPage * itemsPerPage)}</span> dari <span className="font-bold text-teal-700">{filteredRecords.length}</span> kunjungan {triageFilter !== 'all' ? `berdasarkan triase ${triageFilter}` : ''}
                       </div>
@@ -1697,7 +1697,7 @@ export default function RawatJalan() {
                         <button
                           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                           disabled={currentPage === 1}
-                          className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-slate-100 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                         >
                           Sebelumnya
                         </button>
@@ -1716,7 +1716,7 @@ export default function RawatJalan() {
                               className={`h-8 w-8 rounded-xl text-xs font-black transition-all cursor-pointer ${
                                 currentPage === page
                                   ? 'bg-teal-600 text-white shadow-xs'
-                                  : 'border border-slate-200 bg-white text-slate-650 hover:bg-slate-50'
+                                  : 'border border-slate-100 bg-white text-slate-650 hover:bg-slate-50'
                               }`}
                             >
                               {page}
@@ -1727,7 +1727,7 @@ export default function RawatJalan() {
                         <button
                           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                           disabled={currentPage === totalPages}
-                          className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-slate-100 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                         >
                           Selanjutnya
                         </button>
@@ -1750,9 +1750,9 @@ export default function RawatJalan() {
                   className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start"
                 >
               {/* Text Area Card */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4">
                 <div>
-                  <span className="text-[9px] bg-slate-100 border border-slate-205 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
+                  <span className="text-[9px] bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2">Impor Data Hasil Salinan Excel</h3>
                   <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini. Pastikan menyertakan baris header / judul kolom untuk memudahkan pembacaan.</p>
                 </div>
@@ -1763,7 +1763,7 @@ export default function RawatJalan() {
                     placeholder={`NO\tNO. REGISTRASI\tNO. RM\tPASIEN\tPELAKSANA\tTINDAKAN NAMA\tTINDAKAN TANGGAL\tTINDAKAN JAM\tTINDAKAN (Rp)\tJUMLAH\tSUBTOTAL (Rp)\n1\tRJ07062026-00001\t002502\tMADE YULIANA\tDea Oktarika\tKONSULTASI DOKTER\t07-06-2026\t10:09:57\t35.000\t1\t35.000`}
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 text-slate-700 font-mono leading-relaxed rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 focus:outline-none"
+                    className="w-full p-3 bg-slate-50/50 border border-slate-100 text-slate-700 font-mono leading-relaxed rounded-2xl focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 focus:outline-none transition-all"
                     style={{ fontSize: '12px', fontWeight: 'normal' }}
                     disabled={submitting}
                   />
@@ -1771,7 +1771,7 @@ export default function RawatJalan() {
                   <div className="flex items-center space-x-2.5">
                     <button
                       onClick={triggerParser}
-                      className="inline-flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 border-l-2 border-teal-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl transition-all cursor-pointer"
+                      className="inline-flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 border-l-2 border-teal-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl transition-all cursor-pointer shadow-sm"
                       disabled={submitting || !rawText.trim()}
                     >
                       <Upload className="h-4 w-4 text-teal-400" />
@@ -1789,11 +1789,11 @@ export default function RawatJalan() {
                 </div>
               </div>
 
-              {/* Parsed Result Preview */}
-              <div className="space-y-4">
-                {isParsed ? (
-                  <div className="bg-white p-6 rounded-3xl border border-teal-150 shadow-xs space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  {/* Parsed Result Preview */}
+                  <div className="space-y-4">
+                    {isParsed ? (
+                      <div className="bg-white p-6 rounded-2xl border border-teal-100/30 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
                       <div>
                         <h4 className="text-sm font-extrabold text-slate-850">Pratinjau Hasil Pembacaan</h4>
                         <p className="text-[10.5px] text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien rawat jalan</p>
@@ -1806,7 +1806,7 @@ export default function RawatJalan() {
                     {/* Preview patient block loop */}
                     <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
                       {parsedData.map((p, idx) => (
-                        <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-3">
+                          <div className="bg-slate-50/30 p-4 rounded-2xl border border-slate-100/40 font-sans space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
@@ -1816,26 +1816,26 @@ export default function RawatJalan() {
                           </div>
 
                           {duplicateMap[p.no_registrasi] ? (
-                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">⚠️</span>
                               <span>
                                 <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
                               </span>
                             </div>
                           ) : (
-                            <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-100 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">🆕</span>
                               <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
                             </div>
                           )}
 
                           {/* Controls Grid */}
-                          <div className="bg-white border border-slate-150 p-3 rounded-xl">
+                          <div className="bg-white border border-slate-100/50 p-3 rounded-2xl shadow-sm">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                               <div>
                                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Triase</label>
                                 <select 
-                                  className="text-[10px] font-bold border border-slate-200 rounded-lg p-1 w-full bg-white text-slate-800"
+                                  className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.triase || 'hijau'}
                                   onChange={(e) => {
                                     const newData = [...parsedData];
@@ -1853,7 +1853,7 @@ export default function RawatJalan() {
                               <div>
                                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Diagnosa (ICD-10)</label>
                                 <select 
-                                  className="text-[10px] font-bold border border-slate-200 rounded-lg p-1 w-full bg-white text-slate-800"
+                                  className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.icd_kode || ''}
                                   onChange={(e) => {
                                     const newData = [...parsedData];
@@ -1873,7 +1873,7 @@ export default function RawatJalan() {
                               <div>
                                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">DPJP</label>
                                 <select
-                                  className="text-[10px] font-bold border border-slate-200 rounded-lg p-1 w-full bg-white text-slate-800"
+                                  className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.dpjp || ''}
                                   onChange={(e) => {
                                     const newData = [...parsedData];
@@ -1891,7 +1891,7 @@ export default function RawatJalan() {
                           </div>
 
                           {/* Action list summary */}
-                          <div className="border-t border-slate-200/50 pt-2 space-y-1 text-[10px] font-semibold text-slate-600">
+                          <div className="border-t border-slate-100/50 pt-2 space-y-1 text-[10px] font-semibold text-slate-600">
                             {p.tindakan.map((t: any, tIdx: number) => (
                               <div key={tIdx} className="flex justify-between">
                                 <span className="truncate max-w-[15rem]">• {t.tindakan_nama}</span>
@@ -1909,7 +1909,7 @@ export default function RawatJalan() {
                         <select
                           value={bulkUnit}
                           onChange={(e) => setBulkUnit(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white transition-all"
                           required
                         >
                           <option value="" disabled>-- Pilih Unit --</option>
@@ -1921,7 +1921,7 @@ export default function RawatJalan() {
 
                       <button
                         onClick={handleBulkInsert}
-                        className="flex-1 inline-flex items-center justify-center w-full space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-md shadow-teal-700/10 cursor-pointer"
+                        className="flex-1 inline-flex items-center justify-center w-full space-x-2 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs py-3 rounded-xl transition-all shadow-sm cursor-pointer"
                         disabled={submitting}
                       >
                         {submitting ? (
@@ -1939,8 +1939,8 @@ export default function RawatJalan() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-slate-50 rounded-3xl border border-slate-200/70 p-12 text-center text-slate-400 space-y-3 py-20">
-                    <ClipboardList className="h-12 w-12 text-slate-300 mx-auto" />
+                  <div className="bg-slate-50/50 rounded-2xl border border-slate-100/70 p-12 text-center text-slate-400 space-y-3 py-20">
+                    <ClipboardList className="h-12 w-12 text-slate-200 mx-auto" />
                     <h4 className="text-xs font-extrabold uppercase text-slate-500">Menunggu Input Data</h4>
                     <p className="text-xxs leading-relaxed max-w-xs mx-auto">Silakan tempelkan data tindakan rawat jalan dari Excel Anda pada area teks di sebelah kiri, kemudian klik "Proses & Urai Data".</p>
                   </div>
@@ -1961,7 +1961,7 @@ export default function RawatJalan() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-white rounded-2xl border border-slate-100 shadow-xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
             >
                 {/* Modal Header */}
                 <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
@@ -1994,7 +1994,7 @@ export default function RawatJalan() {
                           placeholder="Contoh: RJ16062026-00001"
                           value={noRegistrasi}
                           onChange={(e) => setNoRegistrasi(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs placeholder-slate-405 focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
                           disabled={isEditMode}
                           required
                         />
@@ -2023,7 +2023,7 @@ export default function RawatJalan() {
                           placeholder="Contoh: 002502"
                           value={noRm}
                           onChange={(e) => setNoRm(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs placeholder-slate-405 focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white font-mono transition-all"
                           required
                         />
                       </div>
@@ -2035,7 +2035,7 @@ export default function RawatJalan() {
                           placeholder="Contoh: MADE YULIANA"
                           value={namaPasien}
                           onChange={(e) => setNamaPasien(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white uppercase"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs placeholder-slate-405 focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white uppercase transition-all"
                           required
                         />
                       </div>
@@ -2128,7 +2128,7 @@ export default function RawatJalan() {
                           type="date"
                           value={tanggalPelayanan}
                           onChange={(e) => setTanggalPelayanan(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
                           required
                         />
                       </div>
@@ -2138,7 +2138,7 @@ export default function RawatJalan() {
                         <select
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
                           required
                         >
                           <option value="hijau">Hijau - Non Darurat</option>
@@ -2153,7 +2153,7 @@ export default function RawatJalan() {
                         <select
                           value={unit}
                           onChange={(e) => setUnit(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
                           required
                         >
                           <option value="" disabled>-- Pilih Unit --</option>
@@ -2168,7 +2168,7 @@ export default function RawatJalan() {
                         <select
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
                           required
                         >
                           <option value="">-- Pilih Dokter --</option>
@@ -2183,7 +2183,7 @@ export default function RawatJalan() {
                         <select
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
                           required
                         >
                           <option value="">-- Pilih Diagnosis --</option>
@@ -2209,7 +2209,7 @@ export default function RawatJalan() {
 
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                       {manualTindakan.map((t, index) => (
-                        <div key={index} className="bg-slate-50 p-4 rounded-2xl border border-slate-150 flex flex-col space-y-3 relative font-sans">
+                        <div key={index} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 flex flex-col space-y-3 relative font-sans">
                           {/* Remove button */}
                           {manualTindakan.length > 1 && (
                             <button

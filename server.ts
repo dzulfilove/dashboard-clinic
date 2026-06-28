@@ -1025,8 +1025,9 @@ async function resolveWilayahIds(kotaNama?: string, kecamatanNama?: string, kelu
 
 // Create new outpatient record with bulk tindakan actions
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { 
-    no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
+  try {
+    const { 
+      no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
 
@@ -1102,8 +1103,10 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
 
       await db.query(
         'UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?',
-        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, no_rm]
+        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, final_no_rm]
       );
+    } catch (e) {
+      console.error('Update pasien error (Ralan):', e);
     }
     
     // 2. Insert or Update Registrasi
@@ -2210,8 +2213,9 @@ app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
 
 // Create new IGD record with bulk tindakan actions
 app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { 
-    no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan,
+  try {
+    const { 
+      no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
 
@@ -2287,8 +2291,10 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
 
       await db.query(
         'UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?',
-        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, no_rm]
+        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, final_no_rm]
       );
+    } catch (e) {
+      console.error('Update pasien error (IGD):', e);
     }
     
     // 2. Insert or Update Registrasi
@@ -2497,8 +2503,9 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
-  const { 
-    no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan,
+  try {
+    const { 
+      no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
 
@@ -2574,8 +2581,10 @@ app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat
 
       await db.query(
         'UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?',
-        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, no_rm]
+        [mergedNama, mergedDob, mergedAlamat, mergedJk, mergedKotaId, mergedKecamatanId, mergedKelurahanId, final_no_rm]
       );
+    } catch (e) {
+      console.error('Update pasien error (Ranap):', e);
     }
     
     // 2. Insert or Update Registrasi

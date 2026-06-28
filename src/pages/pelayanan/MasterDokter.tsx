@@ -271,9 +271,9 @@ export default function MasterDokter() {
       </AnimatePresence>
 
       {/* Main card */}
-      <motion.div variants={itemVariants} className="bg-white border border-slate-150 rounded-2xl shadow-sm overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white border border-slate-100/80 shadow-sm rounded-2xl overflow-hidden">
         {/* Controls header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50">
+        <div className="p-4 sm:p-5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30">
           <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
@@ -281,7 +281,7 @@ export default function MasterDokter() {
               placeholder="Cari nama dokter..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl font-medium transition"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl font-medium transition"
             />
           </div>
           <p className="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono sm:text-right">
@@ -303,13 +303,13 @@ export default function MasterDokter() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50/70 border-b border-slate-100">
+                <tr className="bg-slate-50/50 border-b border-slate-100/70">
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Dokter</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Status</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-100/70">
                 <AnimatePresence mode="popLayout">
                 {filteredData.map((item) => (
                   <motion.tr 
@@ -369,9 +369,9 @@ export default function MasterDokter() {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white w-full max-w-md rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+            className="bg-white w-full max-w-md rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
           >
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="p-5 border-b border-slate-100/70 flex items-center justify-between bg-slate-50/50">
               <h3 className="font-extrabold text-slate-900 text-base">
                 {editingItem ? 'Perbarui Data Dokter' : 'Registrasi Dokter Baru'}
               </h3>
@@ -392,7 +392,7 @@ export default function MasterDokter() {
                   placeholder="Contoh: dr. Budi Santoso"
                   value={formData.nama_dokter}
                   onChange={(e) => setFormData(prev => ({ ...prev, nama_dokter: e.target.value }))}
-                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                  className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                 />
               </div>
 
@@ -401,14 +401,14 @@ export default function MasterDokter() {
                 <select 
                   value={formData.status}
                   onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'aktif' | 'non-aktif' }))}
-                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition bg-white"
+                  className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                 >
                   <option value="aktif">AKTIF</option>
                   <option value="non-aktif">NON-AKTIF</option>
                 </select>
               </div>
 
-              <div className="pt-3 border-t border-slate-50 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-slate-100/70 flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}

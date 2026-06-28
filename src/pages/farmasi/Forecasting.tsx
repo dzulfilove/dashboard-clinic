@@ -97,7 +97,7 @@ export default function Forecasting() {
         </div>
 
         {/* Proyektif period selector */}
-        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-200 rounded-xl shadow-xs">
+        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-100/80 rounded-2xl shadow-sm">
           <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
           <span className="text-xs font-semibold text-slate-500">Proyeksi Target:</span>
           <select 
@@ -134,7 +134,7 @@ export default function Forecasting() {
       )}
 
       {/* Forecasting Explanation Banner */}
-      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-600">
+      <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-500 shadow-sm">
         <Info className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
         <div>
           <span className="font-bold text-slate-800 block mb-1">Rumus Perhitungan Peramalan Logistik & Kebutuhan Order:</span>
@@ -169,7 +169,7 @@ export default function Forecasting() {
             <motion.div 
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
                transition={{ duration: 0.2 }}
-               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm ${criticalItemsCount > 0 ? 'border-rose-150/60' : 'border-slate-150/60'}`}
+               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm ${criticalItemsCount > 0 ? 'border-rose-100' : 'border-slate-100'}`}
             >
               <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
                 <AlertTriangle className="h-6 w-6" />
@@ -185,7 +185,7 @@ export default function Forecasting() {
             <motion.div 
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
               transition={{ duration: 0.2 }}
-              className="p-5 bg-white/70 backdrop-blur-md border border-slate-150/60 rounded-3xl shadow-sm flex items-center space-x-4"
+              className="p-5 bg-white/70 backdrop-blur-md border border-slate-100 shadow-sm rounded-3xl flex items-center space-x-4"
             >
               <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl">
                 <CheckCircle className="h-6 w-6" />
@@ -200,7 +200,7 @@ export default function Forecasting() {
           </div>
 
           {/* Filters & Sorting Control Panel */}
-          <div className="bg-white p-4.5 rounded-2xl border border-slate-150 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             
             {/* Search Input */}
             <div className="relative flex-1 max-w-sm">
@@ -212,7 +212,7 @@ export default function Forecasting() {
                 placeholder="Cari nama atau kode obat..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                className="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                 style={{ minHeight: '40px' }}
               />
             </div>
@@ -221,29 +221,29 @@ export default function Forecasting() {
             <div className="flex flex-wrap items-center gap-3">
               
               {/* Status Filter */}
-              <div className="flex items-center space-x-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200">
+              <div className="flex items-center space-x-1.5 bg-slate-50 p-1 rounded-xl border border-slate-100">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-white text-slate-850 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-white text-slate-850 shadow-sm scale-[1.02]' : 'text-slate-500 hover:text-slate-800'}`}
                 >
                   Semua
                 </button>
                 <button
                   onClick={() => setStatusFilter('need_order')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'need_order' ? 'bg-rose-500 text-white shadow-xs' : 'text-slate-500 hover:text-rose-600'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'need_order' ? 'bg-rose-500 text-white shadow-sm scale-[1.02]' : 'text-slate-500 hover:text-rose-600'}`}
                 >
                   Perlu Order
                 </button>
                 <button
                   onClick={() => setStatusFilter('safe')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'safe' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-500 hover:text-emerald-600'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'safe' ? 'bg-emerald-600 text-white shadow-sm scale-[1.02]' : 'text-slate-500 hover:text-emerald-600'}`}
                 >
                   Aman
                 </button>
               </div>
 
               {/* Sort Dropdown */}
-              <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-200 rounded-xl hover:bg-slate-100/50 transition-colors">
+              <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors shadow-xs">
                 <ArrowUpDown className="h-4 w-4 text-slate-500" />
                 <select
                   value={sortBy}
@@ -264,10 +264,10 @@ export default function Forecasting() {
           </div>
 
           {/* Forecasting data table */}
-          <div className="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-100 text-left">
-                <thead className="bg-slate-50">
+              <table className="min-w-full divide-y divide-slate-100/70 text-left">
+                <thead className="bg-slate-50/50">
                   <tr>
                     <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode & Nama Obat</th>
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Kelas ABC</th>
@@ -277,11 +277,11 @@ export default function Forecasting() {
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Forecast Bln 1-3</th>
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Total Kebutuhan</th>
                     <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Stok Akhir</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 bg-teal-50/50">Qty Order</th>
+                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 bg-teal-50/30">Qty Order</th>
                     <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-600 text-xs font-normal">
+                <tbody className="divide-y divide-slate-100/70 text-slate-600 text-xs font-normal">
                   {forecasts
                     .filter((f) => {
                       const matchesSearch = 
