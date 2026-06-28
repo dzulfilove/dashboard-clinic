@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   Users, 
@@ -131,18 +132,27 @@ export default function UsersManagement() {
       return;
     }
 
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus permanen akses akun ${namaUser}?`)) {
-      return;
-    }
-
-    try {
-      await api.delete(`/admin/users/${id}`);
-      setFeedback({ type: 'success', msg: `Akses akun ${namaUser} berhasil dihapus.` });
-      loadUsersStore();
-    } catch (err: any) {
-      console.error(err);
-      setFeedback({ type: 'error', msg: 'Gagal menghapus user.' });
-    }
+    Swal.fire({
+      title: 'Hapus Akun?',
+      text: `Apakah Anda yakin ingin menghapus permanen akses akun ${namaUser}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/admin/users/${id}`);
+          setFeedback({ type: 'success', msg: `Akses akun ${namaUser} berhasil dihapus.` });
+          loadUsersStore();
+        } catch (err: any) {
+          console.error(err);
+          setFeedback({ type: 'error', msg: 'Gagal menghapus user.' });
+        }
+      }
+    });
   };
 
   return (

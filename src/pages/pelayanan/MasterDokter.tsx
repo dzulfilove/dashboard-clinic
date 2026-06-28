@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import Swal from 'sweetalert2';
 import { 
   Search, 
   Plus, 
@@ -75,17 +76,29 @@ export default function MasterDokter() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus data dokter ini?')) return;
-    try {
-      await api.delete(`/dokter/${id}`);
-      setFeedback({ type: 'success', message: 'Data dokter berhasil dihapus.' });
-      fetchDokters();
-    } catch (err: any) {
-      setFeedback({ 
-        type: 'error', 
-        message: err.response?.data?.message || 'Batas otorisasi: Hanya Administrator yang berhak menghapus master data.' 
-      });
-    }
+    Swal.fire({
+      title: 'Hapus Dokter?',
+      text: 'Apakah Anda yakin ingin menghapus data dokter ini?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/dokter/${id}`);
+          setFeedback({ type: 'success', message: 'Data dokter berhasil dihapus.' });
+          fetchDokters();
+        } catch (err: any) {
+          setFeedback({ 
+            type: 'error', 
+            message: err.response?.data?.message || 'Batas otorisasi: Hanya Administrator yang berhak menghapus master data.' 
+          });
+        }
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

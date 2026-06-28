@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -152,7 +153,7 @@ export default function RawatInap() {
       tindakan_nama: '',
       tindakan_keterangan: '',
       tindakan_tanggal: new Date().toISOString().split('T')[0],
-      tindakan_jam: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+      tindakan_jam: new Date().toTimeString().split(' ')[0],
       tarif_tindakan: 0,
       tarif_sarana: 0,
       tarif_pelayanan: 0,
@@ -250,7 +251,7 @@ export default function RawatInap() {
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
-        tindakan_jam: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+        tindakan_jam: new Date().toTimeString().split(' ')[0],
         tarif_tindakan: 0,
         tarif_sarana: 0,
         tarif_pelayanan: 0,
@@ -300,14 +301,26 @@ export default function RawatInap() {
   };
 
   const handleDeleteRecord = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus kunjungan pasien rawat inap ini secara permanen?')) return;
-    try {
-      await api.delete(`/pelayanan/ranap/${id}`);
-      showFeedback('success', 'Data kunjungan berhasil dihapus.');
-      fetchRecords();
-    } catch (err) {
-      showFeedback('error', 'Gagal menghapus data kunjungan.');
-    }
+    Swal.fire({
+      title: 'Hapus Kunjungan Ranap?',
+      text: 'Apakah Anda yakin ingin menghapus kunjungan pasien rawat inap ini secara permanen?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/pelayanan/ranap/${id}`);
+          showFeedback('success', 'Data kunjungan berhasil dihapus.');
+          fetchRecords();
+        } catch (err) {
+          showFeedback('error', 'Gagal menghapus data kunjungan.');
+        }
+      }
+    });
   };
 
   // Helper function to parse Indonesian date strings (e.g., "13 April 2001" or "19 Juni 2026") into YYYY-MM-DD
@@ -786,7 +799,7 @@ export default function RawatInap() {
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
-        tindakan_jam: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+        tindakan_jam: new Date().toTimeString().split(' ')[0],
         tarif_tindakan: 0,
         tarif_sarana: 0,
         tarif_pelayanan: 0,

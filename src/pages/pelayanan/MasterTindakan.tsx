@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { 
   Search, 
   Plus, 
@@ -66,17 +67,29 @@ export default function MasterTindakan() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus tindakan ini? Hal ini tidak dapat dibatalkan.')) return;
-    try {
-      await api.delete(`/master-tindakan/${id}`);
-      setFeedback({ type: 'success', message: 'Tindakan berhasil dihapus.' });
-      fetchTindakans();
-    } catch (err: any) {
-      setFeedback({ 
-        type: 'error', 
-        message: err.response?.data?.message || 'Batas otorisasi: Hanya Administrator yang berhak menghapus master data.' 
-      });
-    }
+    Swal.fire({
+      title: 'Hapus Tindakan?',
+      text: 'Apakah Anda yakin ingin menghapus tindakan ini? Hal ini tidak dapat dibatalkan.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/master-tindakan/${id}`);
+          setFeedback({ type: 'success', message: 'Tindakan berhasil dihapus.' });
+          fetchTindakans();
+        } catch (err: any) {
+          setFeedback({ 
+            type: 'error', 
+            message: err.response?.data?.message || 'Batas otorisasi: Hanya Administrator yang berhak menghapus master data.' 
+          });
+        }
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

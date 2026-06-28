@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   Package, 
@@ -529,7 +530,12 @@ export default function MasterObat() {
                         link.download = 'template_master_obat.xlsx';
                         link.click();
                       } catch (err) {
-                        alert('Gagal mengunduh template Excel. Silakan coba lagi.');
+                        Swal.fire({
+                          title: 'Unduh Gagal',
+                          text: 'Gagal mengunduh template Excel. Silakan coba lagi.',
+                          icon: 'error',
+                          confirmButtonColor: '#0d9488'
+                        });
                         console.error('Failed to download template excel', err);
                       }
                     }}
@@ -594,7 +600,12 @@ export default function MasterObat() {
                         link.download = 'template_master_obat.csv';
                         link.click();
                       } catch (err) {
-                        alert('Gagal mengunduh template CSV. Silakan coba lagi.');
+                        Swal.fire({
+                          title: 'Unduh Gagal',
+                          text: 'Gagal mengunduh template CSV. Silakan coba lagi.',
+                          icon: 'error',
+                          confirmButtonColor: '#0d9488'
+                        });
                         console.error('Failed to download template csv', err);
                       }
                     }}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { Plus, Trash2, Check, X, MapPin } from 'lucide-react';
 import api from '../../services/api';
 
@@ -96,14 +97,26 @@ export default function MasterWilayah() {
   };
 
   const handleDelete = async (type: string, id: number) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus data wilayah ini?')) return;
-    try {
-      setError(null);
-      await api.delete(`/${type}/${id}`);
-      await fetchData();
-    } catch (err: any) {
-      setError(err.response?.data?.message || `Gagal menghapus ${type}.`);
-    }
+    Swal.fire({
+      title: 'Hapus Wilayah?',
+      text: 'Apakah Anda yakin ingin menghapus data wilayah ini?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setError(null);
+          await api.delete(`/${type}/${id}`);
+          await fetchData();
+        } catch (err: any) {
+          setError(err.response?.data?.message || `Gagal menghapus ${type}.`);
+        }
+      }
+    });
   };
 
   return (

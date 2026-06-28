@@ -151,11 +151,11 @@ export default function ActivityLogs() {
   // Group logs by user email to compute counts and percentages dynamically
   const userStats = React.useMemo(() => {
     const statsMap: { [email: string]: number } = {};
-    logs.forEach(log => {
+    filteredLogs.forEach(log => {
       const email = log.email || 'Sistem / Anonim';
       statsMap[email] = (statsMap[email] || 0) + 1;
     });
-    const total = logs.length;
+    const total = filteredLogs.length;
     return Object.entries(statsMap)
       .map(([email, count]) => ({
         email,
@@ -163,7 +163,7 @@ export default function ActivityLogs() {
         percentage: total > 0 ? ((count / total) * 100).toFixed(1) : '0'
       }))
       .sort((a, b) => b.count - a.count);
-  }, [logs]);
+  }, [filteredLogs]);
 
   // Get unique modules in the logs for filtering dropdown
   const uniqueModules = Array.from(new Set(logs.map(l => l.module_name))).filter(Boolean);
@@ -208,8 +208,12 @@ export default function ActivityLogs() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
-              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{logs.length}</span>
-              <span className="text-xs text-slate-500 block">Seluruh aktivitas audit trail tersimpan</span>
+              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{filteredLogs.length}</span>
+              <span className="text-xs text-slate-500 block">
+                {filteredLogs.length === logs.length 
+                  ? 'Seluruh aktivitas audit trail tersimpan' 
+                  : 'Log aktivitas tersaring dari pencarian'}
+              </span>
             </div>
             <div className="bg-teal-50 border border-teal-100 p-3.5 rounded-2xl">
               <Activity className="h-6 w-6 text-teal-600" />

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   Database,
@@ -69,23 +70,32 @@ export default function DatabaseSettings() {
       ? 'PERINGATAN: Opsi reset bersih diaktifkan. Semua tabel Klinik Puri Medika lama di database Anda akan DIHAPUS dan dibuat ulang secara bersih. Apakah Anda yakin?'
       : 'Apakah Anda yakin ingin menjalankan migrasi tabel? Pastikan database baru Anda kosong.';
 
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    Swal.fire({
+      title: 'Jalankan Migrasi Database?',
+      text: confirmMessage,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: cleanReset ? '#e11d48' : '#0d9488',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Jalankan!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setMigrating(true);
+        setMigrationResult(null);
 
-    setMigrating(true);
-    setMigrationResult(null);
-
-    try {
-      const res = await api.post('/db/run-migrations', { cleanReset });
-      setMigrationResult(res.data);
-      // Refresh database status to see if it changed
-      fetchDbStatus();
-    } catch (err: any) {
-      setMigrationResult({ success: false, message: err.response?.data?.message || err.message });
-    } finally {
-      setMigrating(false);
-    }
+        try {
+          const res = await api.post('/db/run-migrations', { cleanReset });
+          setMigrationResult(res.data);
+          // Refresh database status to see if it changed
+          fetchDbStatus();
+        } catch (err: any) {
+          setMigrationResult({ success: false, message: err.response?.data?.message || err.message });
+        } finally {
+          setMigrating(false);
+        }
+      }
+    });
   };
 
   return (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   FlaskConical, 
@@ -175,7 +176,12 @@ export default function MasterPemeriksaan() {
       link.download = 'template_master_pemeriksaan.csv';
       link.click();
     } catch (err) {
-      alert('Gagal mengunduh template CSV. Silakan coba lagi.');
+      Swal.fire({
+        title: 'Unduh Gagal',
+        text: 'Gagal mengunduh template CSV. Silakan coba lagi.',
+        icon: 'error',
+        confirmButtonColor: '#0d9488'
+      });
       console.error('Failed to download lab parameter template csv', err);
     }
   };
@@ -205,7 +211,12 @@ export default function MasterPemeriksaan() {
       : formKategori.toUpperCase().trim();
 
     if (!finalKategori || !formNamaParameter) {
-      alert('Kategori dan nama parameter tidak boleh kosong.');
+      Swal.fire({
+        title: 'Validasi Gagal',
+        text: 'Kategori dan nama parameter tidak boleh kosong.',
+        icon: 'warning',
+        confirmButtonColor: '#0d9488'
+      });
       return;
     }
 
@@ -233,7 +244,12 @@ export default function MasterPemeriksaan() {
       setIsCustomKategori(false);
     } catch (err: any) {
       console.error(err);
-      alert('Gagal memproses parameter: ' + (err.response?.data?.message || err.message));
+      Swal.fire({
+        title: 'Gagal',
+        text: 'Gagal memproses parameter: ' + (err.response?.data?.message || err.message),
+        icon: 'error',
+        confirmButtonColor: '#0d9488'
+      });
     } finally {
       setSaving(false);
     }

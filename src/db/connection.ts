@@ -276,6 +276,28 @@ async function runMigrationsIfRequired() {
           await mysqlPool.query("ALTER TABLE registrasi_igd ADD COLUMN dpjp VARCHAR(250) AFTER icd_kode");
         }
 
+        // Drop foreign key constraint on registrasi_igd referencing master_icd10 for more flexibility (OPSI A)
+        try {
+          const [fkRows]: any = await mysqlPool.query(`
+            SELECT CONSTRAINT_NAME 
+            FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'registrasi_igd' 
+              AND COLUMN_NAME = 'icd_kode' 
+              AND REFERENCED_TABLE_NAME = 'master_icd10'
+          `);
+          if (fkRows.length > 0) {
+            for (const row of fkRows) {
+              const constraintName = row.CONSTRAINT_NAME;
+              console.log(`Dropping foreign key ${constraintName} on registrasi_igd...`);
+              await mysqlPool.query(`ALTER TABLE registrasi_igd DROP FOREIGN KEY ${constraintName}`);
+            }
+            console.log('Foreign key on registrasi_igd dropped successfully.');
+          }
+        } catch (err: any) {
+          console.warn('Failed to drop foreign key on registrasi_igd:', err.message);
+        }
+
         const [pelaksanaRalan]: any = await mysqlPool.query("SHOW COLUMNS FROM tindakan_rawat_jalan LIKE 'pelaksana'");
         if (pelaksanaRalan.length > 0) {
           await mysqlPool.query("ALTER TABLE tindakan_rawat_jalan DROP COLUMN pelaksana");
@@ -331,11 +353,39 @@ async function runMigrationsIfRequired() {
             CREATE TABLE IF NOT EXISTS dokter (
               id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
               nama_dokter VARCHAR(250) NOT NULL,
-              status ENUM('aktif', 'non-aktif') DEFAULT 'aktif',
+              status ENUM('aktif', 'nonaktif') DEFAULT 'aktif',
+              is_active TINYINT(1) NOT NULL DEFAULT 1,
               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
           `);
           console.log('Dokter table created successfully.');
+        }
+
+        // Alter dokter table to modify status enum to support 'aktif' and 'nonaktif'
+        try {
+          console.log('Fixing dokter table status enum on VPS MySQL...');
+          await mysqlPool.query("ALTER TABLE dokter MODIFY COLUMN status ENUM('aktif', 'nonaktif') DEFAULT 'aktif'");
+        } catch (err: any) {
+          console.warn('Failed to alter dokter status column:', err.message);
+        }
+
+        // Alter dokter table to ensure is_active column exists
+        try {
+          const [isActiveCol]: any = await mysqlPool.query("SHOW COLUMNS FROM dokter LIKE 'is_active'");
+          if (isActiveCol.length === 0) {
+            console.log('Adding is_active column to dokter table...');
+            await mysqlPool.query("ALTER TABLE dokter ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1");
+          }
+        } catch (err: any) {
+          console.warn('Failed to ensure is_active column on dokter:', err.message);
+        }
+
+        // Alter master_tindakan table to modify jenis column to VARCHAR(50)
+        try {
+          console.log('Fixing master_tindakan table jenis column on VPS MySQL...');
+          await mysqlPool.query("ALTER TABLE master_tindakan MODIFY COLUMN jenis VARCHAR(50) DEFAULT NULL");
+        } catch (err: any) {
+          console.warn('Failed to alter master_tindakan jenis column:', err.message);
         }
       } catch (colErr: any) {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);

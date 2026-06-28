@@ -41,6 +41,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchDashboardStats() {
+      const token = localStorage.getItem('clinic_token');
+      if (!token || !user) {
+        return;
+      }
+
       try {
         setLoading(true);
         // Fire parallel calls
@@ -61,8 +66,12 @@ export default function Dashboard() {
           const uRes = await api.get('/admin/users');
           setUserAccounts(uRes.data);
         }
-      } catch (err) {
-        console.error('Failed to load dashboard statistics', err);
+      } catch (err: any) {
+        if (err?.response?.status === 401) {
+          console.log('Dashboard stats fetch unauthenticated (session expired or missing token). Handled by interceptor.');
+        } else {
+          console.error('Failed to load dashboard statistics', err);
+        }
       } finally {
         setLoading(false);
       }

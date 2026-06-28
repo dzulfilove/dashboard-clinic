@@ -13,6 +13,21 @@ import axios from 'axios';
 import nodemailer from 'nodemailer';
 import { db, initializeDatabase, readVirtualDb, writeVirtualDb, runMigrationScript } from './src/db/connection.js';
 
+// Simple in-memory rate limiter untuk OTP (production: gunakan Redis)
+const otpRateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkOtpRateLimit(email: string): boolean {
+  const now = Date.now();
+  const entry = otpRateLimitMap.get(email);
+  if (!entry || entry.resetAt < now) {
+    otpRateLimitMap.set(email, { count: 1, resetAt: now + 60 * 1000 }); // 1 menit window
+    return true; // allowed
+  }
+  if (entry.count >= 3) return false; // max 3x per menit
+  entry.count++;
+  return true;
+}
+
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'klinik_puri_medika_fallback_secure_key_2026';
@@ -253,6 +268,10 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     return res.status(400).json({ message: 'Email wajib diisi.' });
   }
 
+  if (!checkOtpRateLimit(email)) {
+    return res.status(429).json({ message: 'Terlalu banyak permintaan OTP. Tunggu 1 menit sebelum mencoba lagi.' });
+  }
+
   if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
     return res.status(500).json({ 
       message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable (silakan definisikan BASEROW_API_TOKEN, BASEROW_TABLE_URL, dan BASEROW_BASE_URL).'
@@ -327,7 +346,8 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
       message: emailRes.messageUrl 
         ? `Kode OTP berhasil diperbarui & dikirimkan ke email simulasi.`
         : `Kode OTP berhasil dikirim ke email: ${email}`,
-      debugOtp: otp, // still included for easy fallback testing/verification
+      // debugOtp hanya tampil di development, JANGAN di production
+      ...(process.env.NODE_ENV !== 'production' && { debugOtp: otp }),
       emailPreviewUrl: emailRes.messageUrl || null
     });
 
@@ -443,7 +463,7 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
 
   } catch (err: any) {
     console.error('Baserow verify-otp error:', err);
-    res.status(550).json({ message: `Gagal memverifikasi OTP: ${err.message}` });
+    res.status(500).json({ message: `Gagal memverifikasi OTP: ${err.message}` });
   }
 });
 
@@ -695,18 +715,41 @@ app.get('/api/lab/parameter-harian', authenticateToken, async (req, res) => {
 
 // Get all outpatient visits with detailed actions
 app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, search, triase, unit, dpjp } = req.query;
   const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
 
   try {
-    const regs = await db.query(`
+    let sql = `
       SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit, r.icd_kode, r.dpjp
       FROM registrasi_rawat_jalan r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
       WHERE r.tanggal_pelayanan BETWEEN ? AND ?
-      ORDER BY r.tanggal_pelayanan DESC, r.id DESC
-    `, [start, end]);
+    `;
+    const params: any[] = [start, end];
+
+    let whereExtra = '';
+    if (search) {
+      whereExtra += ' AND (p.nama LIKE ? OR r.no_registrasi LIKE ? OR r.pasien_no_rm LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+    if (triase) {
+      whereExtra += ' AND r.triase = ?';
+      params.push(triase);
+    }
+    if (unit) {
+      whereExtra += ' AND r.unit LIKE ?';
+      params.push(`%${unit}%`);
+    }
+    if (dpjp) {
+      whereExtra += ' AND r.dpjp LIKE ?';
+      params.push(`%${dpjp}%`);
+    }
+
+    sql += whereExtra;
+    sql += ' ORDER BY r.tanggal_pelayanan DESC, r.id DESC';
+
+    const regs = await db.query(sql, params);
     
     const actions = await db.query(`
       SELECT t.registrasi_id, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
@@ -742,6 +785,65 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
     res.json(formatted);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Check single registration number duplicate across outpatient, igd, and inpatient
+app.get('/api/pelayanan/check-duplicate', authenticateToken, async (req, res) => {
+  const { no_registrasi } = req.query;
+  if (!no_registrasi) {
+    return res.status(400).json({ message: 'no_registrasi parameter wajib diisi.' });
+  }
+  const regNo = String(no_registrasi).trim();
+  try {
+    const ralan: any = await db.query('SELECT id FROM registrasi_rawat_jalan WHERE no_registrasi = ?', [regNo]);
+    if (ralan && ralan.length > 0) {
+      return res.json({ exists: true, table: 'registrasi_rawat_jalan' });
+    }
+
+    const igd: any = await db.query('SELECT id FROM registrasi_igd WHERE no_registrasi = ?', [regNo]);
+    if (igd && igd.length > 0) {
+      return res.json({ exists: true, table: 'registrasi_igd' });
+    }
+
+    const ranap: any = await db.query('SELECT id FROM registrasi_ranap WHERE no_registrasi = ?', [regNo]);
+    if (ranap && ranap.length > 0) {
+      return res.json({ exists: true, table: 'registrasi_ranap' });
+    }
+
+    return res.json({ exists: false, table: null });
+  } catch (err: any) {
+    return res.status(500).json({ message: err.message });
+  }
+});
+
+// Check bulk registration numbers duplicates across outpatient, igd, and inpatient
+app.post('/api/pelayanan/check-duplicates-bulk', authenticateToken, async (req, res) => {
+  const { no_registrasi_list } = req.body;
+  if (!Array.isArray(no_registrasi_list) || no_registrasi_list.length === 0) {
+    return res.json({ duplicates: [] });
+  }
+
+  const cleanList = no_registrasi_list.map((item: any) => String(item).trim()).filter(Boolean);
+  if (cleanList.length === 0) {
+    return res.json({ duplicates: [] });
+  }
+
+  try {
+    const placeholders = cleanList.map(() => '?').join(',');
+
+    const ralan: any = await db.query(`SELECT no_registrasi FROM registrasi_rawat_jalan WHERE no_registrasi IN (${placeholders})`, cleanList);
+    const igd: any = await db.query(`SELECT no_registrasi FROM registrasi_igd WHERE no_registrasi IN (${placeholders})`, cleanList);
+    const ranap: any = await db.query(`SELECT no_registrasi FROM registrasi_ranap WHERE no_registrasi IN (${placeholders})`, cleanList);
+
+    const dupSet = new Set<string>();
+    if (ralan) ralan.forEach((r: any) => dupSet.add(r.no_registrasi));
+    if (igd) igd.forEach((r: any) => dupSet.add(r.no_registrasi));
+    if (ranap) ranap.forEach((r: any) => dupSet.add(r.no_registrasi));
+
+    return res.json({ duplicates: Array.from(dupSet) });
+  } catch (err: any) {
+    return res.status(500).json({ message: err.message });
   }
 });
 
@@ -1022,8 +1124,19 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
 
 // Master Data Tindakan
 app.get('/api/master-tindakan', authenticateToken, async (req: any, res) => {
+  const { q, jenis } = req.query;
   try {
-    const rows = await db.query('SELECT * FROM master_tindakan');
+    let sql = 'SELECT * FROM master_tindakan WHERE 1=1';
+    const params: any[] = [];
+    if (q) {
+      sql += ' AND nama_tindakan LIKE ?';
+      params.push(`%${q}%`);
+    }
+    if (jenis) {
+      sql += ' AND jenis = ?';
+      params.push(jenis);
+    }
+    const rows = await db.query(sql, params);
     res.json(rows);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1042,8 +1155,8 @@ app.get('/api/debug/migrate', async (req: any, res) => {
 app.post('/api/master-tindakan', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { nama_tindakan, jenis } = req.body;
   try {
-    await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [nama_tindakan, jenis]);
-    res.json({ success: true });
+    const result = await db.query('INSERT INTO master_tindakan (nama_tindakan, jenis) VALUES (?, ?)', [nama_tindakan, jenis]);
+    res.json({ success: true, id: result.insertId });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -1072,8 +1185,24 @@ app.delete('/api/master-tindakan/:id', authenticateToken, roleGuard(['admin']), 
 
 // Master Data Dokter
 app.get('/api/dokter', authenticateToken, async (req: any, res) => {
+  const { q, status, all } = req.query;
+  const showAll = all === 'true';
   try {
-    const rows = await db.query('SELECT * FROM dokter ORDER BY nama_dokter ASC');
+    let sql = 'SELECT * FROM dokter WHERE 1=1';
+    const params: any[] = [];
+    if (!showAll) {
+      sql += ' AND is_active = 1';
+    }
+    if (q) {
+      sql += ' AND nama_dokter LIKE ?';
+      params.push(`%${q}%`);
+    }
+    if (status) {
+      sql += ' AND status = ?';
+      params.push(status);
+    }
+    sql += ' ORDER BY nama_dokter ASC';
+    const rows = await db.query(sql, params);
     res.json(rows);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1082,10 +1211,11 @@ app.get('/api/dokter', authenticateToken, async (req: any, res) => {
 
 app.post('/api/dokter', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { nama_dokter, status } = req.body;
+  const normalizedStatus = status ? String(status).toLowerCase().trim().replace('-', '') : 'aktif';
   try {
     const result = await db.query(
       'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
-      [nama_dokter, status || 'aktif']
+      [nama_dokter, normalizedStatus]
     );
     res.json({ success: true, id: result.insertId });
   } catch (err: any) {
@@ -1096,10 +1226,18 @@ app.post('/api/dokter', authenticateToken, roleGuard(['admin', 'perawat']), asyn
 app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
   const { nama_dokter, status } = req.body;
+
+  const normalizedStatus = status ? String(status).toLowerCase().trim().replace('-', '') : status;
+
+  const validStatus = ['aktif', 'nonaktif'];
+  if (normalizedStatus && !validStatus.includes(normalizedStatus)) {
+    return res.status(400).json({ message: `Status tidak valid. Gunakan: ${validStatus.join(', ')}` });
+  }
+
   try {
     await db.query(
       'UPDATE dokter SET nama_dokter = ?, status = ? WHERE id = ?',
-      [nama_dokter, status, Number(id)]
+      [nama_dokter, normalizedStatus, Number(id)]
     );
     res.json({ success: true });
   } catch (err: any) {
@@ -1110,8 +1248,8 @@ app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin', 'perawat']), a
 app.delete('/api/dokter/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
   const { id } = req.params;
   try {
-    await db.query('DELETE FROM dokter WHERE id = ?', [Number(id)]);
-    res.json({ success: true });
+    await db.query('UPDATE dokter SET is_active = 0, status = ? WHERE id = ?', ['nonaktif', Number(id)]);
+    res.json({ success: true, message: 'Dokter berhasil dinonaktifkan.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -1124,9 +1262,10 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
   try {
     for (const d of doctors) {
       if (d.nama_dokter) {
+        const normalizedStatus = d.status ? String(d.status).toLowerCase().trim().replace('-', '') : 'aktif';
         await db.query(
           'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
-          [d.nama_dokter, d.status || 'aktif']
+          [d.nama_dokter, normalizedStatus]
         );
       }
     }
@@ -1138,8 +1277,15 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
 
 // Master Data Pasien
 app.get('/api/pasien', authenticateToken, async (req: any, res) => {
+  const { q } = req.query;
   try {
-    const rows = await db.query('SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id');
+    let sql = 'SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id';
+    const params: any[] = [];
+    if (q) {
+      sql += ' WHERE p.nama LIKE ? OR p.no_rm LIKE ? OR p.alamat LIKE ?';
+      params.push(`%${q}%`, `%${q}%`, `%${q}%`);
+    }
+    const rows = await db.query(sql, params);
     const formatted = rows.map((r: any) => ({
         no_rm: r.no_rm,
         nama: r.nama,
@@ -1182,8 +1328,20 @@ app.put('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin', 'perawat'])
 app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
   const { no_rm } = req.params;
   try {
+    // Cek referensi di semua tabel kunjungan
+    const rj: any = await db.query('SELECT COUNT(*) as c FROM registrasi_rawat_jalan WHERE pasien_no_rm = ?', [no_rm]);
+    const igd: any = await db.query('SELECT COUNT(*) as c FROM registrasi_igd WHERE pasien_no_rm = ?', [no_rm]);
+    const ranap: any = await db.query('SELECT COUNT(*) as c FROM registrasi_ranap WHERE pasien_no_rm = ?', [no_rm]);
+    
+    const totalVisits = (rj[0]?.c || 0) + (igd[0]?.c || 0) + (ranap[0]?.c || 0);
+    if (totalVisits > 0) {
+      return res.status(409).json({
+        message: `Pasien tidak dapat dihapus karena masih memiliki ${totalVisits} riwayat kunjungan.`
+      });
+    }
+    
     await db.query('DELETE FROM pasien WHERE no_rm = ?', [no_rm]);
-    res.json({ success: true });
+    res.json({ success: true, message: 'Data pasien berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -1820,6 +1978,33 @@ app.get('/api/kelurahan', authenticateToken, async (req: any, res) => { try { co
 app.post('/api/kelurahan', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama, kecamatan_id } = req.body; if (!nama || !kecamatan_id) throw new Error('Nama kelurahan dan kecamatan ID wajib diisi'); await db.query('INSERT INTO kelurahan (nama, kecamatan_id) VALUES (?, ?)', [nama, kecamatan_id]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
 app.delete('/api/kelurahan/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kelurahan WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
 
+app.get('/api/wilayah/kota', authenticateToken, async (req: any, res) => {
+  try { const rows = await db.query('SELECT * FROM kota ORDER BY nama ASC'); res.json(rows); }
+  catch (err: any) { res.status(500).json({ message: err.message }); }
+});
+
+app.get('/api/wilayah/kecamatan', authenticateToken, async (req: any, res) => {
+  const { kota_id } = req.query;
+  try {
+    const sql = kota_id
+      ? 'SELECT kec.*, k.nama as kota_nama FROM kecamatan kec LEFT JOIN kota k ON kec.kota_id = k.id WHERE kec.kota_id = ?'
+      : 'SELECT kec.*, k.nama as kota_nama FROM kecamatan kec LEFT JOIN kota k ON kec.kota_id = k.id ORDER BY kec.nama ASC';
+    const rows = kota_id ? await db.query(sql, [Number(kota_id)]) : await db.query(sql);
+    res.json(rows);
+  } catch (err: any) { res.status(500).json({ message: err.message }); }
+});
+
+app.get('/api/wilayah/kelurahan', authenticateToken, async (req: any, res) => {
+  const { kecamatan_id } = req.query;
+  try {
+    const sql = kecamatan_id
+      ? 'SELECT kel.*, kec.nama as kecamatan_nama FROM kelurahan kel LEFT JOIN kecamatan kec ON kel.kecamatan_id = kec.id WHERE kel.kecamatan_id = ?'
+      : 'SELECT kel.*, kec.nama as kecamatan_nama FROM kelurahan kel LEFT JOIN kecamatan kec ON kel.kecamatan_id = kec.id ORDER BY kel.nama ASC';
+    const rows = kecamatan_id ? await db.query(sql, [Number(kecamatan_id)]) : await db.query(sql);
+    res.json(rows);
+  } catch (err: any) { res.status(500).json({ message: err.message }); }
+});
+
 // Update outpatient patient details & actions
 app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
@@ -1906,18 +2091,37 @@ app.delete('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admi
 
 // Get all IGD visits with detailed actions
 app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, search, triase, dpjp } = req.query;
   const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
 
   try {
-    const regs = await db.query(`
+    let sql = `
       SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode, r.dpjp
       FROM registrasi_igd r
       JOIN pasien p ON r.pasien_no_rm = p.no_rm
       WHERE r.tanggal_pelayanan BETWEEN ? AND ?
-      ORDER BY r.tanggal_pelayanan DESC, r.id DESC
-    `, [start, end]);
+    `;
+    const params: any[] = [start, end];
+
+    let whereExtra = '';
+    if (search) {
+      whereExtra += ' AND (p.nama LIKE ? OR r.no_registrasi LIKE ? OR r.pasien_no_rm LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+    if (triase) {
+      whereExtra += ' AND r.triase = ?';
+      params.push(triase);
+    }
+    if (dpjp) {
+      whereExtra += ' AND r.dpjp LIKE ?';
+      params.push(`%${dpjp}%`);
+    }
+
+    sql += whereExtra;
+    sql += ' ORDER BY r.tanggal_pelayanan DESC, r.id DESC';
+
+    const regs = await db.query(sql, params);
     
     const actions = await db.query(`
       SELECT t.registrasi_id, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, 
@@ -2136,15 +2340,32 @@ app.delete('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'per
 
 // --- Rawat Inap (Ranap) Endpoints ---
 app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
-  const { startDate, endDate } = req.query;
+  const { startDate, endDate, search, triase, dpjp } = req.query;
   const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
 
   try {
-    const registrations = await db.query(
-      'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ? ORDER BY r.tanggal_pelayanan DESC, r.id DESC',
-      [start, end]
-    );
+    let sql = 'SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.tanggal_pelayanan BETWEEN ? AND ?';
+    const params: any[] = [start, end];
+
+    let whereExtra = '';
+    if (search) {
+      whereExtra += ' AND (p.nama LIKE ? OR r.no_registrasi LIKE ? OR r.pasien_no_rm LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+    if (triase) {
+      whereExtra += ' AND r.triase = ?';
+      params.push(triase);
+    }
+    if (dpjp) {
+      whereExtra += ' AND r.dpjp LIKE ?';
+      params.push(`%${dpjp}%`);
+    }
+
+    sql += whereExtra;
+    sql += ' ORDER BY r.tanggal_pelayanan DESC, r.id DESC';
+
+    const registrations = await db.query(sql, params);
 
     const actions = await db.query(
       'SELECT t.registrasi_id, m.nama_tindakan, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal FROM tindakan_ranap t JOIN master_tindakan m ON t.tindakan_id = m.id'
@@ -2364,8 +2585,15 @@ app.delete('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'p
 
 // --- ICD-10 Master Data ---
 app.get('/api/pelayanan/icd10', authenticateToken, async (req, res) => {
+  const { q } = req.query;
   try {
-    const data = await db.query('SELECT * FROM master_icd10');
+    let sql = 'SELECT * FROM master_icd10';
+    const params: any[] = [];
+    if (q) {
+      sql += ' WHERE kode_icd LIKE ? OR deskripsi LIKE ?';
+      params.push(`%${q}%`, `%${q}%`);
+    }
+    const data = await db.query(sql, params);
     res.json(data);
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -2389,6 +2617,16 @@ app.put('/api/pelayanan/icd10/:id', authenticateToken, roleGuard(['admin', 'pera
   try {
     await db.query('UPDATE master_icd10 SET kode_icd = ?, deskripsi = ? WHERE id = ?', [kode_icd, deskripsi, id]);
     res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete('/api/pelayanan/icd10/:id', authenticateToken, roleGuard(['admin']), async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM master_icd10 WHERE id = ?', [Number(id)]);
+    res.json({ success: true, message: 'Data ICD10 berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -2571,7 +2809,7 @@ app.put('/api/obat/master/:id', authenticateToken, roleGuard(['admin', 'farmasi'
         Number(safety_stock || 0), 
         Number(stok_minimum || 0), 
         Number(reorder_point || 0), 
-        Number(is_active), 
+        is_active !== undefined ? Number(is_active) : 1, 
         Number(id)
       ]
     );
@@ -3437,19 +3675,35 @@ app.post('/api/logs', authenticateToken, async (req: any, res) => {
 
 // Get all activity logs for administration
 app.get('/api/admin/logs', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
-  try {
-    const logs = await db.query('SELECT * FROM user_logs ORDER BY created_at DESC');
-    res.json(logs || []);
-  } catch (err: any) {
-    console.error('Failed to fetch activity logs:', err.message);
-    res.status(500).json({ message: `Gagal mengambil log aktivitas: ${err.message}` });
+  const { search, action_type, module_name, email, dateFrom, dateTo, limit = 500 } = req.query;
+  
+  let sql = 'SELECT * FROM user_logs WHERE 1=1';
+  const params: any[] = [];
+
+  if (search) {
+    sql += ' AND (description LIKE ? OR email LIKE ?)';
+    params.push(`%${search}%`, `%${search}%`);
   }
+  if (action_type) { sql += ' AND action_type = ?'; params.push(action_type); }
+  if (module_name) { sql += ' AND module_name LIKE ?'; params.push(`%${module_name}%`); }
+  if (email) { sql += ' AND email LIKE ?'; params.push(`%${email}%`); }
+  if (dateFrom) { sql += ' AND DATE(created_at) >= ?'; params.push(dateFrom); }
+  if (dateTo) { sql += ' AND DATE(created_at) <= ?'; params.push(dateTo); }
+
+  sql += ' ORDER BY created_at DESC LIMIT ?';
+  params.push(Number(limit));
+
+  try {
+    const rows = await db.query(sql, params);
+    res.json(rows);
+  } catch (err: any) { res.status(500).json({ message: err.message }); }
 });
 
 
 /* ==================== 6. ADMINISTRATION ACCOUNTS ==================== */
 
 app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req, res) => {
+  const { q, role } = req.query;
   if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
     return res.status(500).json({ 
       message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
@@ -3465,7 +3719,7 @@ app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req,
     });
     const rows = response.data.results || [];
     const formattedUsers = rows.map((r: any) => {
-      const role = helperExtractRole(r.Peran, r.Divisi);
+      const uRole = helperExtractRole(r.Peran, r.Divisi);
       
       let divStr = '';
       if (r.Divisi) {
@@ -3484,12 +3738,29 @@ app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req,
         id: r.id,
         nama: r['Nama Karyawan'] || 'Karyawan Puri Medika',
         email: r.Email || '',
-        role: role,
+        role: uRole,
         divisi: divStr || 'IT',
         created_at: r['Created At'] || new Date().toISOString()
       };
     });
-    res.json(formattedUsers);
+
+    let filteredUsers = formattedUsers;
+    if (q) {
+      const queryStr = String(q).toLowerCase();
+      filteredUsers = filteredUsers.filter((u: any) => 
+        String(u.nama).toLowerCase().includes(queryStr) || 
+        String(u.email).toLowerCase().includes(queryStr) ||
+        String(u.divisi).toLowerCase().includes(queryStr)
+      );
+    }
+    if (role) {
+      const roleStr = String(role).toLowerCase();
+      filteredUsers = filteredUsers.filter((u: any) => 
+        String(u.role).toLowerCase() === roleStr
+      );
+    }
+
+    res.json(filteredUsers);
   } catch (err: any) {
     console.error('Failed to fetch users from Baserow:', err.message);
     res.status(500).json({ message: `Gagal mengambil data pengguna dari Baserow: ${err.message}` });
@@ -3764,7 +4035,8 @@ app.get('/api/obat/export', authenticateToken, roleGuard(['admin']), async (req,
 
 // Setup Vite Dev server or static files depending on the environment
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  const isDev = process.env.NODE_ENV !== 'production' || process.argv.some(arg => arg.includes('server.ts'));
+  if (isDev) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',

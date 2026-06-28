@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import { 
   Search, 
   Plus, 
@@ -132,17 +133,29 @@ export default function MasterPasien() {
   };
 
   const handleDelete = async (no_rm: string) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus pasien dengan No. RM: ${no_rm}?`)) return;
-    try {
-      await api.delete(`/pasien/${no_rm}`);
-      setFeedback({ type: 'success', message: 'Pasien berhasil dikosongkan dari riwayat.' });
-      fetchPasiens();
-    } catch (err: any) {
-      setFeedback({ 
-        type: 'error', 
-        message: err.response?.data?.message || 'Batas otorisasi: Hanya Administrator yang berhak menghapus master data pasien.' 
-      });
-    }
+    Swal.fire({
+      title: 'Hapus Pasien?',
+      text: `Apakah Anda yakin ingin menghapus pasien dengan No. RM: ${no_rm}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/pasien/${no_rm}`);
+          setFeedback({ type: 'success', message: 'Pasien berhasil dikosongkan dari riwayat.' });
+          fetchPasiens();
+        } catch (err: any) {
+          setFeedback({ 
+            type: 'error', 
+            message: err.response?.data?.message || 'Batas otorisasi: Hanya Administrator yang berhak menghapus master data pasien.' 
+          });
+        }
+      }
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

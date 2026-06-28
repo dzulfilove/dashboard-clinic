@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -141,7 +142,7 @@ export default function IGD() {
       tindakan_nama: '',
       tindakan_keterangan: '',
       tindakan_tanggal: new Date().toISOString().split('T')[0],
-      tindakan_jam: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+      tindakan_jam: new Date().toTimeString().split(' ')[0],
       tarif_tindakan: 0,
       tarif_sarana: 0,
       tarif_pelayanan: 0,
@@ -254,7 +255,7 @@ export default function IGD() {
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
-        tindakan_jam: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+        tindakan_jam: new Date().toTimeString().split(' ')[0],
         tarif_tindakan: 0,
         tarif_sarana: 0,
         tarif_pelayanan: 0,
@@ -304,9 +305,9 @@ export default function IGD() {
     }
 
     // Verify actions have name
-    const invalidAction = manualTindakan.some(t => !t.tindakan_nama || !t.pelaksana);
+    const invalidAction = manualTindakan.some(t => !t.tindakan_nama);
     if (invalidAction) {
-      showFeedback('error', 'Setiap rincian tindakan wajib menyertakan Nama Tindakan dan Pelaksana.');
+      showFeedback('error', 'Setiap rincian tindakan wajib menyertakan Nama Tindakan.');
       return;
     }
 
@@ -365,7 +366,7 @@ export default function IGD() {
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
-        tindakan_jam: new Date().toLocaleTimeString('id-ID', { hour12: false }),
+        tindakan_jam: new Date().toTimeString().split(' ')[0],
         tarif_tindakan: 0,
         tarif_sarana: 0,
         tarif_pelayanan: 0,
@@ -420,15 +421,27 @@ export default function IGD() {
   };
 
   const handleDeleteRecord = async (id: number) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus permanen data kunjungan IGD ini beserta riwayat tindakannya?')) return;
-    try {
-      await api.delete(`/pelayanan/igd/${id}`);
-      showFeedback('success', 'Riwayat kunjungan IGD berhasil dihapus.');
-      fetchRecords();
-    } catch (err: any) {
-      console.error(err);
-      showFeedback('error', 'Gagal menghapus kunjungan.');
-    }
+    Swal.fire({
+      title: 'Hapus Kunjungan IGD?',
+      text: 'Apakah Anda yakin ingin menghapus permanen data kunjungan IGD ini beserta riwayat tindakannya?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Ya, Hapus!',
+      cancelButtonText: 'Batal'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await api.delete(`/pelayanan/igd/${id}`);
+          showFeedback('success', 'Riwayat kunjungan IGD berhasil dihapus.');
+          fetchRecords();
+        } catch (err: any) {
+          console.error(err);
+          showFeedback('error', 'Gagal menghapus kunjungan.');
+        }
+      }
+    });
   };
 
   const handleIcdChange = async (id: number, code: string) => {
@@ -1791,7 +1804,7 @@ export default function IGD() {
                 </div>
 
                 {/* Modal Form Scrollable Wrapper */}
-                <form onSubmit={(e) => { e.preventDefault(); handleManualSubmit(); }} className="flex-1 overflow-y-auto p-6 space-y-6 text-xs text-slate-650">
+                <form onSubmit={handleManualSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 text-xs text-slate-650">
                   {/* Section A: Demography */}
                   <div className="space-y-4">
                     <div className="border-b border-slate-100 pb-2">

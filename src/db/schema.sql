@@ -267,8 +267,7 @@ CREATE TABLE IF NOT EXISTS registrasi_igd (
   triase VARCHAR(20) DEFAULT 'hijau',
   icd_kode VARCHAR(20),
   dpjp VARCHAR(250),
-  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm),
-  FOREIGN KEY (icd_kode) REFERENCES master_icd10(kode_icd)
+  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS tindakan_igd (
