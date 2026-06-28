@@ -74,7 +74,7 @@ function AppContent() {
                 <InteractiveGuide />
 
                 {/* Core Main Viewport Stage */}
-                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-auto max-h-screen">
+                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
                   <div className="max-w-7xl mx-auto">
                     <AnimatePresence mode="wait">
                       <Routes location={location} key={location.pathname}>
