@@ -181,8 +181,8 @@ export default function UsersManagement() {
       </div>
 
       {feedback && (
-        <div id="users-feedback-alert" className={`p-4 rounded-xl border flex items-center space-x-2 text-sm font-semibold ${
-          feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+        <div id="users-feedback-alert" className={`p-4 rounded-xl flex items-center space-x-2 text-sm font-semibold ${
+          feedback.type === 'success' ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
         }`}>
           {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
           <span>{feedback.msg}</span>
@@ -191,8 +191,8 @@ export default function UsersManagement() {
 
       {/* Dynamic inline register form drawer */}
       {isFormOpen && (
-        <div className="bg-white text-slate-800 rounded-2xl p-6 border border-slate-200 shadow-md space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="bg-white text-slate-800 rounded-2xl p-6 shadow-md space-y-6">
+          <div className="flex items-center justify-between pb-3">
             <h2 className="text-base font-bold text-slate-950 flex items-center gap-2">
               <Shield className="h-4.5 w-4.5 text-teal-600" />
               <span>{editId ? `Ubah Detail Akses Petugas` : 'Daftarkan Petugas Baru'}</span>
@@ -230,7 +230,7 @@ export default function UsersManagement() {
                 placeholder="clinician@puri.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono"
+                className="mt-1.5 block w-full px-3 py-2.5 bg-slate-50 rounded-xl text-slate-800 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-mono"
               />
             </div>
 
@@ -267,12 +267,12 @@ export default function UsersManagement() {
               </select>
             </div>
 
-            <div className="md:col-span-4 flex justify-end space-x-3 pt-3 border-t border-slate-100">
+            <div className="md:col-span-4 flex justify-end space-x-3 pt-3">
               <button
                 id="cancel-user-btn"
                 type="button"
                 onClick={() => setIsFormOpen(false)}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-all text-sm font-bold cursor-pointer shadow-sm"
+                className="px-5 py-2.5 rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition-all text-sm font-bold cursor-pointer shadow-sm"
                 style={{ minHeight: '44px' }}
               >
                 Batalkan
@@ -293,8 +293,8 @@ export default function UsersManagement() {
 
       {/* Password reset drawer block */}
       {isResetOpen && (
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-md max-w-md space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <div className="bg-white rounded-2xl p-6 shadow-md max-w-md space-y-4">
+          <div className="flex items-center justify-between pb-3 mb-4">
             <h3 className="text-sm font-bold text-amber-600 flex items-center space-x-2">
               <Key className="h-4.5 w-4.5" />
               <span>Atur Ulang Sandi Keamanan</span>
@@ -327,7 +327,7 @@ export default function UsersManagement() {
                 id="cancel-reset-password-btn"
                 type="button"
                 onClick={() => setIsResetOpen(false)}
-                className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all"
+                className="px-4 py-2 bg-white text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all"
                 style={{ minHeight: '36px' }}
               >
                 Batal
@@ -346,7 +346,7 @@ export default function UsersManagement() {
       )}
 
       {/* Accounts display catalog */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200 text-left">
             <thead className="bg-slate-50">
@@ -371,13 +371,13 @@ export default function UsersManagement() {
                   <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
-                        <div className="h-9 w-9 bg-slate-100 border border-teal-500 flex items-center justify-center font-bold text-teal-700 rounded-full uppercase flex-shrink-0">
+                        <div className="h-9 w-9 bg-slate-100 flex items-center justify-center font-bold text-teal-700 rounded-full uppercase flex-shrink-0">
                           {u.nama.substring(0, 2)}
                         </div>
                         <div>
                           <h4 className="font-semibold text-slate-900 text-xs">{u.nama}</h4>
                           {u.id === currentUser?.id && (
-                            <span className="text-xxs bg-teal-50 text-teal-700 border border-teal-100 px-1.5 py-0.5 rounded font-bold font-mono">AKUN ANDA SIKAS</span>
+                            <span className="text-xxs bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded font-bold font-mono">AKUN ANDA SIKAS</span>
                           )}
                         </div>
                       </div>
@@ -386,11 +386,11 @@ export default function UsersManagement() {
                       {u.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-bold border uppercase tracking-wider rounded-lg ${
-                        u.role === 'admin' ? 'bg-teal-50 border-teal-150 text-teal-700' :
-                        u.role === 'perawat' ? 'bg-sky-50 border-sky-150 text-sky-700' :
-                        u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 border-emerald-150 text-emerald-700' :
-                        'bg-amber-50 border-amber-150 text-amber-700'
+                      <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg ${
+                        u.role === 'admin' ? 'bg-teal-50 text-teal-700' :
+                        u.role === 'perawat' ? 'bg-sky-50 text-sky-700' :
+                        u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 text-emerald-700' :
+                        'bg-amber-50 text-amber-700'
                       }`}>
                         {u.role === 'admin' ? <Shield className="h-3 w-3" /> : <UserCheck className="h-3 w-3" />}
                         <span>
@@ -409,7 +409,7 @@ export default function UsersManagement() {
                         <button
                           id={`user-edit-${u.id}`}
                           onClick={() => handleOpenEditForm(u)}
-                          className="p-1 px-2 border border-slate-200 bg-white text-slate-700 hover:text-teal-600 hover:bg-slate-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
+                          className="p-1 px-2 bg-white text-slate-700 hover:text-teal-600 hover:bg-slate-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
                           title="Edit"
                           style={{ minHeight: '32px' }}
                         >
@@ -419,7 +419,7 @@ export default function UsersManagement() {
                         <button
                           id={`user-pass-reset-${u.id}`}
                           onClick={() => handleOpenResetForm(u)}
-                          className="p-1 px-2 border border-amber-250 bg-white text-amber-700 hover:bg-amber-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
+                          className="p-1 px-2 bg-white text-amber-700 hover:bg-amber-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
                           title="Reset Password"
                           style={{ minHeight: '32px' }}
                         >
@@ -430,7 +430,7 @@ export default function UsersManagement() {
                           id={`user-delete-${u.id}`}
                           onClick={() => handleDeleteUser(u.id, u.nama)}
                           disabled={u.id === currentUser?.id}
-                          className="p-1 px-2 border border-rose-250 bg-white text-rose-700 hover:bg-rose-50 rounded-lg text-xxs font-bold flex items-center space-x-1 disabled:opacity-40 cursor-pointer transition-colors"
+                          className="p-1 px-2 bg-white text-rose-700 hover:bg-rose-50 rounded-lg text-xxs font-bold flex items-center space-x-1 disabled:opacity-40 cursor-pointer transition-colors"
                           title="Hapus Akun"
                           style={{ minHeight: '32px' }}
                         >

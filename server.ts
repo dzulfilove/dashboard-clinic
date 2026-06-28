@@ -1026,36 +1026,76 @@ async function resolveWilayahIds(kotaNama?: string, kecamatanNama?: string, kelu
 // Create new outpatient record with bulk tindakan actions
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { 
-    no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
+    no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
+
+  const final_no_rm = pasien_no_rm || no_rm;
   
-  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
+  if (!no_registrasi || !final_no_rm || !nama_pasien || !tanggal_pelayanan || !unit) {
     return res.status(400).json({ message: 'Data wajib diisi (termasuk unit pelayanan).' });
   }
 
+  // Cek apakah pasien sudah ada di master pasien
+  const existingPasien = await db.query(
+    'SELECT * FROM pasien WHERE no_rm = ?',
+    [final_no_rm]
+  );
+
+  // Jika belum ada, buat otomatis
+  if (!existingPasien || existingPasien.length === 0) {
+    if (!nama_pasien) {
+      return res.status(400).json({ message: 'Nama pasien wajib diisi untuk pasien baru.' });
+    }
+
+    // Resolve kota_id, kecamatan_id, kelurahan_id dari nama (optional)
+    let kotaId = null, kecamatanId = null, kelurahanId = null;
+    if (kota) {
+      const kotaRow = await db.query('SELECT id FROM kota WHERE nama LIKE ? LIMIT 1', [`%${kota}%`]);
+      if (kotaRow.length > 0) kotaId = kotaRow[0].id;
+    }
+    if (kecamatan && kotaId) {
+      const kecRow = await db.query('SELECT id FROM kecamatan WHERE nama LIKE ? AND kota_id = ? LIMIT 1', [`%${kecamatan}%`, kotaId]);
+      if (kecRow.length > 0) kecamatanId = kecRow[0].id;
+    }
+    if (kelurahan && kecamatanId) {
+      const kelRow = await db.query('SELECT id FROM kelurahan WHERE nama LIKE ? AND kecamatan_id = ? LIMIT 1', [`%${kelurahan}%`, kecamatanId]);
+      if (kelRow.length > 0) kelurahanId = kelRow[0].id;
+    }
+
+    await db.query(
+      `INSERT INTO pasien 
+        (no_rm, nama, tanggal_lahir, jenis_kelamin, alamat, kota_id, kecamatan_id, kelurahan_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        final_no_rm,
+        nama_pasien,
+        tanggal_lahir || null,
+        jenis_kelamin || 'L',
+        alamat || null,
+        kotaId,
+        kecamatanId,
+        kelurahanId
+      ]
+    );
+
+    await logActivity(
+      req.user?.email,
+      'CREATE',
+      'Master Pasien',
+      `Pasien baru otomatis terdaftar: ${nama_pasien} (RM: ${final_no_rm}) via pendaftaran Rawat Jalan`
+    );
+  }
+
   try {
-    // Resolve Wilayah IDs
-    const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
-
-    // Clean gender and date of birth
-    const jkClean = jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('P') ? 'P' : (jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('L') ? 'L' : null);
-    const dobClean = cleanDateForDb(tanggal_lahir);
-
-    // 1. Cek pasien dengan no_rm yang sama
-    const existingPasien: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [no_rm]);
-    if (!existingPasien || existingPasien.length === 0) {
-      await db.query(
-        'INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-        [no_rm, nama_pasien, dobClean, alamat || null, jkClean, kota_id, kecamatan_id, kelurahan_id]
-      );
-    } else {
       // Merge properties
-      const p = existingPasien[0];
+      const p = existingPasien[0] || {};
       const mergedNama = nama_pasien || p.nama;
-      const mergedDob = dobClean || p.tanggal_lahir;
+      const mergedDob = tanggal_lahir || p.tanggal_lahir;
       const mergedAlamat = alamat || p.alamat;
-      const mergedJk = jkClean || p.jenis_kelamin;
+      const mergedJk = jenis_kelamin || p.jenis_kelamin;
+      
+      const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
       const mergedKotaId = kota_id || p.kota_id;
       const mergedKecamatanId = kecamatan_id || p.kecamatan_id;
       const mergedKelurahanId = kelurahan_id || p.kelurahan_id;
@@ -2171,36 +2211,76 @@ app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
 // Create new IGD record with bulk tindakan actions
 app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { 
-    no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan,
+    no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_kode, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
+
+  const final_no_rm = pasien_no_rm || no_rm;
   
-  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
+  if (!no_registrasi || !final_no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
   }
 
+  // Cek apakah pasien sudah ada di master pasien
+  const existingPasien = await db.query(
+    'SELECT no_rm FROM pasien WHERE no_rm = ?',
+    [final_no_rm]
+  );
+
+  // Jika belum ada, buat otomatis
+  if (!existingPasien || existingPasien.length === 0) {
+    if (!nama_pasien) {
+      return res.status(400).json({ message: 'Nama pasien wajib diisi untuk pasien baru.' });
+    }
+
+    // Resolve kota_id, kecamatan_id, kelurahan_id dari nama (optional)
+    let kotaId = null, kecamatanId = null, kelurahanId = null;
+    if (kota) {
+      const kotaRow = await db.query('SELECT id FROM kota WHERE nama LIKE ? LIMIT 1', [`%${kota}%`]);
+      if (kotaRow.length > 0) kotaId = kotaRow[0].id;
+    }
+    if (kecamatan && kotaId) {
+      const kecRow = await db.query('SELECT id FROM kecamatan WHERE nama LIKE ? AND kota_id = ? LIMIT 1', [`%${kecamatan}%`, kotaId]);
+      if (kecRow.length > 0) kecamatanId = kecRow[0].id;
+    }
+    if (kelurahan && kecamatanId) {
+      const kelRow = await db.query('SELECT id FROM kelurahan WHERE nama LIKE ? AND kecamatan_id = ? LIMIT 1', [`%${kelurahan}%`, kecamatanId]);
+      if (kelRow.length > 0) kelurahanId = kelRow[0].id;
+    }
+
+    await db.query(
+      `INSERT INTO pasien 
+        (no_rm, nama, tanggal_lahir, jenis_kelamin, alamat, kota_id, kecamatan_id, kelurahan_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        final_no_rm,
+        nama_pasien,
+        tanggal_lahir || null,
+        jenis_kelamin || 'L',
+        alamat || null,
+        kotaId,
+        kecamatanId,
+        kelurahanId
+      ]
+    );
+
+    await logActivity(
+      req.user?.email,
+      'CREATE',
+      'Master Pasien',
+      `Pasien baru otomatis terdaftar: ${nama_pasien} (RM: ${final_no_rm}) via pendaftaran IGD`
+    );
+  }
+
   try {
-    // Resolve Wilayah IDs
-    const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
-
-    // Clean gender and date of birth
-    const jkClean = jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('P') ? 'P' : (jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('L') ? 'L' : null);
-    const dobClean = cleanDateForDb(tanggal_lahir);
-
-    // 1. Cek pasien dengan no_rm yang sama
-    const existingPasien: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [no_rm]);
-    if (!existingPasien || existingPasien.length === 0) {
-      await db.query(
-        'INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-        [no_rm, nama_pasien, dobClean, alamat || null, jkClean, kota_id, kecamatan_id, kelurahan_id]
-      );
-    } else {
       // Merge properties
-      const p = existingPasien[0];
+      const p = existingPasien[0] || {};
       const mergedNama = nama_pasien || p.nama;
-      const mergedDob = dobClean || p.tanggal_lahir;
+      const mergedDob = tanggal_lahir || p.tanggal_lahir;
       const mergedAlamat = alamat || p.alamat;
-      const mergedJk = jkClean || p.jenis_kelamin;
+      const mergedJk = jenis_kelamin || p.jenis_kelamin;
+      
+      const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
       const mergedKotaId = kota_id || p.kota_id;
       const mergedKecamatanId = kecamatan_id || p.kecamatan_id;
       const mergedKelurahanId = kelurahan_id || p.kelurahan_id;
@@ -2418,36 +2498,76 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
 
 app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { 
-    no_registrasi, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan,
+    no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
+
+  const final_no_rm = pasien_no_rm || no_rm;
   
-  if (!no_registrasi || !no_rm || !nama_pasien || !tanggal_pelayanan) {
+  if (!no_registrasi || !final_no_rm || !nama_pasien || !tanggal_pelayanan) {
     return res.status(400).json({ message: 'Data wajib diisi.' });
   }
 
+  // Cek apakah pasien sudah ada di master pasien
+  const existingPasien = await db.query(
+    'SELECT no_rm FROM pasien WHERE no_rm = ?',
+    [final_no_rm]
+  );
+
+  // Jika belum ada, buat otomatis
+  if (!existingPasien || existingPasien.length === 0) {
+    if (!nama_pasien) {
+      return res.status(400).json({ message: 'Nama pasien wajib diisi untuk pasien baru.' });
+    }
+
+    // Resolve kota_id, kecamatan_id, kelurahan_id dari nama (optional)
+    let kotaId = null, kecamatanId = null, kelurahanId = null;
+    if (kota) {
+      const kotaRow = await db.query('SELECT id FROM kota WHERE nama LIKE ? LIMIT 1', [`%${kota}%`]);
+      if (kotaRow.length > 0) kotaId = kotaRow[0].id;
+    }
+    if (kecamatan && kotaId) {
+      const kecRow = await db.query('SELECT id FROM kecamatan WHERE nama LIKE ? AND kota_id = ? LIMIT 1', [`%${kecamatan}%`, kotaId]);
+      if (kecRow.length > 0) kecamatanId = kecRow[0].id;
+    }
+    if (kelurahan && kecamatanId) {
+      const kelRow = await db.query('SELECT id FROM kelurahan WHERE nama LIKE ? AND kecamatan_id = ? LIMIT 1', [`%${kelurahan}%`, kecamatanId]);
+      if (kelRow.length > 0) kelurahanId = kelRow[0].id;
+    }
+
+    await db.query(
+      `INSERT INTO pasien 
+        (no_rm, nama, tanggal_lahir, jenis_kelamin, alamat, kota_id, kecamatan_id, kelurahan_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        final_no_rm,
+        nama_pasien,
+        tanggal_lahir || null,
+        jenis_kelamin || 'L',
+        alamat || null,
+        kotaId,
+        kecamatanId,
+        kelurahanId
+      ]
+    );
+
+    await logActivity(
+      req.user?.email,
+      'CREATE',
+      'Master Pasien',
+      `Pasien baru otomatis terdaftar: ${nama_pasien} (RM: ${final_no_rm}) via pendaftaran Rawat Inap`
+    );
+  }
+
   try {
-    // Resolve Wilayah IDs
-    const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
-
-    // Clean gender and date of birth
-    const jkClean = jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('P') ? 'P' : (jenis_kelamin && String(jenis_kelamin).trim().toUpperCase().startsWith('L') ? 'L' : null);
-    const dobClean = cleanDateForDb(tanggal_lahir);
-
-    // 1. Cek pasien dengan no_rm yang sama
-    const existingPasien: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [no_rm]);
-    if (!existingPasien || existingPasien.length === 0) {
-      await db.query(
-        'INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-        [no_rm, nama_pasien, dobClean, alamat || null, jkClean, kota_id, kecamatan_id, kelurahan_id]
-      );
-    } else {
       // Merge properties
-      const p = existingPasien[0];
+      const p = existingPasien[0] || {};
       const mergedNama = nama_pasien || p.nama;
-      const mergedDob = dobClean || p.tanggal_lahir;
+      const mergedDob = tanggal_lahir || p.tanggal_lahir;
       const mergedAlamat = alamat || p.alamat;
-      const mergedJk = jkClean || p.jenis_kelamin;
+      const mergedJk = jenis_kelamin || p.jenis_kelamin;
+      
+      const { kota_id, kecamatan_id, kelurahan_id } = await resolveWilayahIds(kota, kecamatan, kelurahan);
       const mergedKotaId = kota_id || p.kota_id;
       const mergedKecamatanId = kecamatan_id || p.kecamatan_id;
       const mergedKelurahanId = kelurahan_id || p.kelurahan_id;

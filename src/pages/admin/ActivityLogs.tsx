@@ -115,14 +115,14 @@ export default function ActivityLogs() {
   const getActionBadge = (action: string) => {
     switch (action.toUpperCase()) {
       case 'CREATE':
-        return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+        return 'bg-emerald-500/10 text-emerald-400';
       case 'UPDATE':
-        return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        return 'bg-amber-500/10 text-amber-400';
       case 'DELETE':
-        return 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+        return 'bg-rose-500/10 text-rose-400';
       case 'VIEW':
       default:
-        return 'bg-sky-500/10 text-sky-400 border border-sky-500/20';
+        return 'bg-sky-500/10 text-sky-400';
     }
   };
 
@@ -171,7 +171,7 @@ export default function ActivityLogs() {
           id="btn-refresh-logs"
           onClick={fetchLogs}
           disabled={loading}
-          className="flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 rounded-xl shadow-sm border border-slate-200 transition-colors disabled:opacity-50 cursor-pointer text-xs"
+          className="flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 rounded-xl shadow-sm transition-colors disabled:opacity-50 cursor-pointer text-xs"
           style={{ minHeight: '44px' }}
         >
           <RefreshCw className={`h-4 w-4 text-teal-600 ${loading ? 'animate-spin' : ''}`} />
@@ -183,7 +183,7 @@ export default function ActivityLogs() {
       {!loading && !error && logs.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Stat Card - Total Logs */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-center justify-between">
+          <div className="bg-white rounded-2xl p-5 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
               <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{logs.length}</span>
@@ -191,14 +191,14 @@ export default function ActivityLogs() {
                 Seluruh aktivitas audit trail tersaring dari server
               </span>
             </div>
-            <div className="bg-teal-50 border border-teal-100 p-3.5 rounded-2xl">
+            <div className="bg-teal-50 p-3.5 rounded-2xl">
               <Activity className="h-6 w-6 text-teal-600" />
             </div>
           </div>
 
           {/* User Distribution Widget (Full width on md, occupies 2 cols) */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm md:col-span-2 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+          <div className="bg-white rounded-2xl p-5 shadow-sm md:col-span-2 space-y-4">
+            <div className="flex items-center justify-between pb-2">
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4 text-teal-600" />
                 <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Aktivitas &amp; Kontribusi per Petugas</h2>
@@ -210,7 +210,7 @@ export default function ActivityLogs() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {userStats.slice(0, 5).map((stat, idx) => (
-                <div key={idx} className="bg-slate-50/70 border border-slate-100 rounded-xl p-3 space-y-2">
+                <div key={idx} className="bg-slate-50/70 rounded-xl p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-slate-800 truncate max-w-[150px] sm:max-w-[180px]" title={stat.email}>
                       {stat.email}
@@ -245,8 +245,8 @@ export default function ActivityLogs() {
       )}
 
       {/* Filter and search bar card */}
-      <div id="logs-filters-container" className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-        <div className="flex items-center space-x-2 pb-2 border-b border-slate-100">
+      <div id="logs-filters-container" className="bg-white rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="flex items-center space-x-2 pb-2">
           <Filter className="h-4 w-4 text-teal-600" />
           <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Filter &amp; Penelusuran</h2>
         </div>
@@ -262,7 +262,7 @@ export default function ActivityLogs() {
                 placeholder="Cari email, fitur, aksi, deskripsi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
+                className="w-full bg-slate-50 rounded-xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-sans"
                 style={{ minHeight: '38px' }}
               />
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
@@ -323,7 +323,7 @@ export default function ActivityLogs() {
       </div>
 
       {/* Main Logs Table Grid card */}
-      <div id="logs-list-card" className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div id="logs-list-card" className="bg-white rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">
             <RefreshCw className="h-8 w-8 text-teal-600 animate-spin" />
@@ -336,7 +336,7 @@ export default function ActivityLogs() {
             <button 
               id="btn-retry-logs"
               onClick={fetchLogs} 
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all cursor-pointer border border-slate-200"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-all cursor-pointer"
             >
               Coba Lagi
             </button>
@@ -393,7 +393,7 @@ export default function ActivityLogs() {
 
         {/* Pagination bar */}
         {!loading && !error && logs.length > 0 && totalPages > 1 && (
-          <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="px-6 py-4 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-slate-600 font-medium">
               Menampilkan <span className="font-bold text-slate-800">{((currentPage - 1) * pageSize) + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, logs.length)}</span> dari <span className="font-bold text-slate-800">{logs.length}</span> log
             </div>
@@ -427,7 +427,7 @@ export default function ActivityLogs() {
 
         {/* Footer info banner */}
         {!loading && !error && (
-          <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-700 gap-2 font-semibold">
+          <div className="bg-slate-50 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-700 gap-2 font-semibold">
             <div className="flex items-center space-x-2">
               <CheckCircle2 className="h-4 w-4 text-teal-700" />
               <span>Sistem pencatatan log aktivitas aktif secara real-time.</span>
