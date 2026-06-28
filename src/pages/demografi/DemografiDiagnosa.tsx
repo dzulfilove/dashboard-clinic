@@ -173,7 +173,7 @@ export default function DemografiDiagnosa() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <HeartPulse className="h-5 w-5 text-teal-600 animate-pulse" />
@@ -185,7 +185,7 @@ export default function DemografiDiagnosa() {
         </div>
 
         {/* Date Filters */}
-        <div className="flex flex-wrap items-center gap-2.5 bg-slate-50 p-2 rounded-2xl border border-slate-100">
+        <div className="flex flex-wrap items-center gap-2.5 bg-slate-50 p-2 rounded-2xl border border-slate-50">
           <div className="flex items-center space-x-1.5 text-slate-500">
             <Calendar className="h-3.5 w-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider">Periode:</span>
@@ -207,7 +207,7 @@ export default function DemografiDiagnosa() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-100 shadow-xs">
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xs">
           <div className="relative flex items-center justify-center">
             <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600"></div>
             <Activity className="absolute h-4 w-4 text-teal-600 animate-pulse" />
@@ -220,7 +220,7 @@ export default function DemografiDiagnosa() {
           <span className="text-sm font-medium">{error}</span>
         </div>
       ) : topDiagnosa.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-150 p-12 text-center space-y-3">
+        <div className="bg-white rounded-2xl border border-slate-50 p-12 text-center space-y-3">
           <Stethoscope className="h-10 w-10 text-slate-300 mx-auto" />
           <h3 className="text-sm font-bold text-slate-800">Tidak Ada Data Diagnosa</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -237,7 +237,7 @@ export default function DemografiDiagnosa() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Box 1: Pie/Donut Share of Top 5 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-150 flex flex-col h-[320px]">
+              <div className="bg-white rounded-2xl p-5 flex flex-col h-[320px]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <PieIcon className="h-4 w-4 text-teal-600" />
@@ -279,7 +279,7 @@ export default function DemografiDiagnosa() {
               </div>
 
               {/* Box 2: Timeline Trend for Top 5 */}
-              <div className="bg-white rounded-2xl p-5 border border-slate-150 flex flex-col h-[320px]">
+              <div className="bg-white rounded-2xl p-5 flex flex-col h-[320px]">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="h-4 w-4 text-emerald-600" />
@@ -341,7 +341,7 @@ export default function DemografiDiagnosa() {
             </div>
 
             {/* List and Table Grid of all diagnoses */}
-            <div className="bg-white rounded-3xl border border-slate-150 p-6 space-y-4">
+            <div className="bg-white rounded-3xl p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-0.5">
                   <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -369,7 +369,7 @@ export default function DemografiDiagnosa() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-100 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                    <tr className="border-b border-slate-100/70 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
                       <th className="py-3 px-4">Kode ICD-10</th>
                       <th className="py-3 px-4">Nama Penyakit (Deskripsi)</th>
                       <th className="py-3 px-4 text-center">Total Kasus</th>
@@ -432,10 +432,10 @@ export default function DemografiDiagnosa() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 15 }}
-                  className="bg-white rounded-3xl border border-slate-150 p-6 shadow-xs space-y-6 sticky top-6"
+                  className="bg-white rounded-3xl p-6 shadow-xs space-y-6 sticky top-6"
                 >
                   {/* Diagnosis Header */}
-                  <div className="space-y-1 pb-4 border-b border-slate-150">
+                  <div className="space-y-1 pb-4 border-b border-slate-100/70">
                     <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-teal-50 text-teal-700 border border-teal-150">
                       Rincian Demografis Penderita
                     </span>
@@ -565,7 +565,7 @@ export default function DemografiDiagnosa() {
                   </div>
 
                   {/* Diagnostic details footer */}
-                  <div className="bg-slate-50 p-3 rounded-2xl flex items-start space-x-2 border border-slate-100">
+                  <div className="bg-slate-50 p-3 rounded-2xl flex items-start space-x-2 border border-slate-50">
                     <Info className="h-4 w-4 text-slate-400 flex-shrink-0 mt-0.5" />
                     <span className="text-[10px] leading-relaxed text-slate-500">
                       Data ini diperoleh secara otomatis berdasarkan penegakan diagnosa oleh DPJP pada rekam medis digital di unit Rawat Jalan, IGD, dan Rawat Inap.
