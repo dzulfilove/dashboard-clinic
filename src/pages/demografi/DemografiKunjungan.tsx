@@ -170,7 +170,7 @@ export default function DemografiKunjungan() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <BarChart2 className="h-5 w-5 text-teal-600" />
@@ -209,7 +209,7 @@ export default function DemografiKunjungan() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-100 shadow-xs">
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xs">
           <div className="relative flex items-center justify-center">
             <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600"></div>
             <Activity className="absolute h-4 w-4 text-teal-600 animate-pulse" />
@@ -234,7 +234,7 @@ export default function DemografiKunjungan() {
             >
               {/* Filter & Period Controls */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-150 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="lg:col-span-2 bg-white p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center space-x-3 text-slate-850">
                     <Filter className="h-4.5 w-4.5 text-teal-600" />
                     <div>
@@ -247,19 +247,19 @@ export default function DemografiKunjungan() {
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
+                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
                     />
                     <span className="text-xs text-slate-400 font-medium">s/d</span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
+                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
                     />
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-xs flex items-center space-x-4">
+                <div className="bg-white p-5 rounded-2xl shadow-xs flex items-center space-x-4">
                   <div className="p-3 rounded-xl bg-teal-50 text-teal-600">
                     <Sparkles className="h-5 w-5" />
                   </div>
@@ -274,8 +274,8 @@ export default function DemografiKunjungan() {
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* 1. All-Time Top 20 */}
-                <div className="bg-white rounded-2xl border border-slate-150 shadow-xs p-6 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="bg-white rounded-2xl shadow-xs p-6 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
                     <div className="flex items-center space-x-2.5">
                       <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
                         <Users className="h-4 w-4" />
@@ -294,7 +294,7 @@ export default function DemografiKunjungan() {
                         placeholder="Cari pasien..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-8 pr-3 py-1 text-xxs w-full rounded-lg border border-slate-200 outline-none focus:ring-1 focus:ring-teal-550 bg-slate-50 text-slate-800"
+                        className="pl-8 pr-3 py-1 text-xxs w-full rounded-lg border border-slate-100 outline-none focus:ring-1 focus:ring-teal-550 bg-slate-50 text-slate-800"
                       />
                     </div>
                   </div>
@@ -345,8 +345,8 @@ export default function DemografiKunjungan() {
                 </div>
 
                 {/* 2. Selected Period Top 20 */}
-                <div className="bg-white rounded-2xl border border-slate-150 shadow-xs p-6 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div className="bg-white rounded-2xl shadow-xs p-6 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
                     <div className="flex items-center space-x-2.5">
                       <div className="p-1.5 bg-teal-50 text-teal-600 rounded-lg">
                         <Calendar className="h-4 w-4" />
@@ -364,7 +364,7 @@ export default function DemografiKunjungan() {
                     ) : (
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="text-xxs font-bold text-slate-400 border-b border-slate-100 uppercase tracking-wider">
+                          <tr className="text-xxs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
                             <th className="py-2.5 pl-2">Pasien</th>
                             <th className="py-2.5">No. RM</th>
                             <th className="py-2.5">Alamat / Wilayah</th>
