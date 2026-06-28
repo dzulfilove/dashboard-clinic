@@ -118,7 +118,7 @@ export default function Dashboard() {
       <motion.div 
         variants={itemVariants}
         id="welcome-banner" 
-        className="bg-white/70 backdrop-blur-md rounded-2xl p-6 border border-white/60 shadow-[0_4px_24px_rgba(15,23,42,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-[0_4px_24px_rgba(15,23,42,0.02)] flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
@@ -130,7 +130,7 @@ export default function Dashboard() {
         </div>
 
         {/* Database Diagnostic health */}
-        <div className="flex items-center space-x-3 bg-white/55 border border-slate-200/50 px-4 py-2.5 rounded-xl text-slate-800 shadow-sm">
+        <div className="flex items-center space-x-3 bg-white/55 px-4 py-2.5 rounded-xl text-slate-800 shadow-sm">
           <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-emerald-500 animate-pulse' : 'text-amber-500 animate-pulse'}`} />
           <div>
             <div className="text-xxs font-medium flex items-center gap-1.5">
@@ -150,7 +150,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
             <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -171,7 +171,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
             <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
@@ -192,7 +192,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 border shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'border-rose-300 ring-2 ring-rose-500/5' : 'border-white/60'}`}
+          className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'ring-2 ring-rose-500' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div className={`p-3 rounded-xl group-hover:scale-105 transition-transform ${criticalItems.length > 0 ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
@@ -215,7 +215,7 @@ export default function Dashboard() {
         <motion.div 
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
           transition={{ duration: 0.2 }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
             <div className="p-3 bg-slate-50 text-slate-700 rounded-xl group-hover:scale-105 transition-transform">

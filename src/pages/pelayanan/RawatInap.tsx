@@ -929,7 +929,7 @@ export default function RawatInap() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-200 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Bed className="h-5 w-5 text-teal-600" />
@@ -1089,7 +1089,7 @@ export default function RawatInap() {
               {/* Graphical Charts Section */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* 1. REGISTRATION & EARNINGS TREND OVER TIME */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-150/60 lg:col-span-8 flex flex-col space-y-4">
+                <div className="bg-white p-6 rounded-3xl lg:col-span-8 flex flex-col space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Tren Volume Kunjungan & Pendapatan Rawat Inap</h3>
                     <p className="text-xs text-slate-400">Statistik harian untuk pendaftaran pasien ranap beserta perolehan nominal subtotal tindakan.</p>
@@ -1117,7 +1117,7 @@ export default function RawatInap() {
                 </div>
 
                 {/* 2. AREA DISTRIBUTION: CHAMBER SELECTION */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-150/60 lg:col-span-4 flex flex-col space-y-4">
+                <div className="bg-white p-6 rounded-3xl lg:col-span-4 flex flex-col space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Tingkat Okupansi Ruang Kamar</h3>
                     <p className="text-xs text-slate-400">Distribusi penempatan bed / kamar tidur pasien.</p>

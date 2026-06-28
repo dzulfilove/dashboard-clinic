@@ -109,7 +109,7 @@ export default function InteractiveGuide() {
   const roleData: Record<string, RoleMetadata> = {
     perawat: {
       roleName: 'Perawat / Pelayanan Medis',
-      badgeColor: 'bg-teal-50 text-teal-700 border-teal-150',
+      badgeColor: 'bg-teal-50 text-teal-700',
       textColor: 'text-teal-700',
       intro: 'Tugas utama Anda meliputi pendaftaran pasien, pengelolaan triase IGD, mutasi rawat inap, serta penginputan master rekam medis pendukung.',
       workflow: [
@@ -185,7 +185,7 @@ export default function InteractiveGuide() {
     },
     farmasi: {
       roleName: 'Apoteker / Farmasis',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-150',
+      badgeColor: 'bg-emerald-50 text-emerald-700',
       textColor: 'text-emerald-700',
       intro: 'Tugas utama Anda berfokus pada manajemen persediaan obat, pencatatan pengeluaran resep, analisis efisiensi investasi (ABC), dan prediksi peramalan stok.',
       workflow: [
@@ -257,7 +257,7 @@ export default function InteractiveGuide() {
     },
     analis: {
       roleName: 'Analis Laboratorium',
-      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-150',
+      badgeColor: 'bg-indigo-50 text-indigo-700',
       textColor: 'text-indigo-700',
       intro: 'Tugas utama Anda meliputi pengaturan jenis tes lab beserta rentang rujukan normalnya, memantau antrean permintaan tes dari poli, dan menginput hasil lab pasien.',
       workflow: [
@@ -316,7 +316,7 @@ export default function InteractiveGuide() {
     },
     admin: {
       roleName: 'System Administrator',
-      badgeColor: 'bg-slate-100 text-slate-800 border-slate-200',
+      badgeColor: 'bg-slate-100 text-slate-800',
       textColor: 'text-slate-800',
       intro: 'Anda memegang kendali penuh atas arsitektur sistem. Tanggung jawab Anda meliputi pengelolaan hak akses pengguna, pemeliharaan database, serta monitoring performa & statistik demografi.',
       workflow: [
@@ -448,7 +448,7 @@ export default function InteractiveGuide() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-teal-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-2xl shadow-md border border-teal-500/35 flex items-center space-x-1 max-w-[190px] mr-1"
+            className="bg-teal-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center space-x-1 max-w-[190px] mr-1"
           >
             <Lightbulb className="h-3.5 w-3.5 flex-shrink-0 animate-bounce" />
             <span>Butuh Panduan Peran? Klik di sini!</span>
@@ -480,7 +480,7 @@ export default function InteractiveGuide() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-md w-full overflow-hidden flex flex-col p-6 space-y-4"
+              className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col p-6 space-y-4"
             >
               {/* Step title */}
               <div className="flex items-center justify-between">
@@ -556,7 +556,7 @@ export default function InteractiveGuide() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 24, stiffness: 180 }}
-              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-200 flex flex-col pointer-events-auto"
+              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-50 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header with Role Information */}
               <div className="p-6 border-b border-slate-150 bg-slate-50 space-y-4">

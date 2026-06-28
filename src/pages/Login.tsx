@@ -164,13 +164,13 @@ export default function Login() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="bg-white/70 backdrop-blur-xl py-8 px-6 shadow-[0_20px_50px_rgba(15,23,42,0.08)] rounded-3xl border border-white/50 sm:px-10"
+          className="bg-white/70 backdrop-blur-xl py-8 px-6 shadow-[0_20px_50px_rgba(15,23,42,0.08)] rounded-3xl sm:px-10"
         >
           {error && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-5 bg-rose-50/80 backdrop-blur-sm border border-rose-200/60 text-rose-800 p-4 rounded-xl flex items-start space-x-2.5 text-sm leading-relaxed duration-200"
+              className="mb-5 bg-rose-50/80 backdrop-blur-sm text-rose-800 p-4 rounded-xl flex items-start space-x-2.5 text-sm leading-relaxed duration-200"
             >
               <AlertCircle className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />
               <span>{error}</span>
@@ -181,7 +181,7 @@ export default function Login() {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="mb-5 bg-emerald-50/80 backdrop-blur-sm border border-emerald-250/50 text-emerald-800 p-4 rounded-xl flex items-start space-x-2.5 text-sm leading-relaxed duration-200"
+              className="mb-5 bg-emerald-50/80 backdrop-blur-sm text-emerald-800 p-4 rounded-xl flex items-start space-x-2.5 text-sm leading-relaxed duration-200"
             >
               <Info className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
@@ -221,7 +221,7 @@ export default function Login() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-11 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 text-sm transition-all placeholder-slate-400 font-medium"
+                      className="pl-11 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm rounded-xl text-slate-900 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 text-sm transition-all placeholder-slate-400 font-medium"
                       placeholder="contoh: dzulfivector@gmail.com"
                     />
                   </div>
@@ -273,7 +273,7 @@ export default function Login() {
                       required
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="pl-11 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 text-sm font-bold tracking-widest font-mono text-center transition-all placeholder-slate-450"
+                      className="pl-11 block w-full px-4 py-3 bg-white/50 backdrop-blur-sm rounded-xl text-slate-900 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-500 text-sm font-bold tracking-widest font-mono text-center transition-all placeholder-slate-450"
                       placeholder="******"
                     />
                   </div>

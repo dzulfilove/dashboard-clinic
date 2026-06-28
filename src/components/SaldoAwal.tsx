@@ -95,7 +95,7 @@ export default function SaldoAwal() {
   return (
     <div className="space-y-6" id="saldo-awal-container">
       {/* Informative Header Guide Card */}
-      <div className="bg-gradient-to-r from-teal-50 to-emerald-50 p-5 rounded-2xl border border-teal-100 flex flex-col md:flex-row gap-4 items-start md:items-center">
+      <div className="bg-gradient-to-r from-teal-50 to-emerald-50 p-5 rounded-2xl flex flex-col md:flex-row gap-4 items-start md:items-center">
         <div className="p-3 bg-teal-600 rounded-xl text-white">
           <Layers className="h-6 w-6" />
         </div>
@@ -125,7 +125,7 @@ export default function SaldoAwal() {
       )}
 
       {/* Search and Controller Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-white p-4 rounded-2xl border border-slate-150 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-white p-4 rounded-2xl shadow-xs">
         <div className="relative flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-slate-400" />
@@ -152,16 +152,16 @@ export default function SaldoAwal() {
       </div>
 
       {loading ? (
-        <div className="bg-white p-12 text-center rounded-2xl border border-slate-150 flex flex-col items-center justify-center gap-3">
+        <div className="bg-white p-12 text-center rounded-2xl flex flex-col items-center justify-center gap-3">
           <RefreshCw className="h-8 w-8 text-teal-600 animate-spin" />
           <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Memuat stok obat &amp; saldo awal...</span>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-150 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-150">
+                <tr className="bg-slate-50 border-b border-slate-100">
                   <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">Info Obat</th>
                   <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">Golongan</th>
                   <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider text-center">Saldo Awal (A)</th>
@@ -204,7 +204,7 @@ export default function SaldoAwal() {
                               type="number"
                               value={editNilai}
                               onChange={(e) => setEditNilai(e.target.value)}
-                              className="w-24 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-center focus:ring-2 focus:ring-teal-500/20"
+                              className="w-24 px-2 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-center focus:ring-2 focus:ring-teal-500/20"
                               placeholder="0"
                             />
                           ) : (

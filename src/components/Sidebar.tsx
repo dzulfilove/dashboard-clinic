@@ -152,7 +152,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile Header with Glass Look */}
-      <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-slate-950/95 backdrop-blur-md text-white shadow-lg border-b border-slate-900 z-40">
+      <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-slate-950/95 backdrop-blur-md text-white shadow-lg z-40">
         <div className="flex items-center space-x-3">
           <div className="bg-white p-0.5 rounded-xl flex items-center justify-center shadow-md h-11 w-11 overflow-hidden flex-shrink-0">
             <img 
@@ -193,14 +193,14 @@ export default function Sidebar() {
       {/* Sidebar Container */}
       <aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between border-r border-slate-800/40 z-45 transition-all duration-300
+        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between z-45 transition-all duration-300
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         `}
       >
         {/* Upper Brand Section */}
         <div>
-          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-900 bg-slate-950/40 backdrop-blur-md">
+          <div className="flex items-center justify-between px-6 py-5 bg-slate-950/40 backdrop-blur-md">
             <div className="flex items-center space-x-3 overflow-hidden">
               {collapsed ? (
                 <div className="h-11 w-11 flex-shrink-0 bg-white p-0.5 rounded-xl flex items-center justify-center shadow-md overflow-hidden">
@@ -255,7 +255,7 @@ export default function Sidebar() {
                     className={`
                       relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 mt-1
                       ${isActive 
-                        ? 'bg-teal-700/85 text-white shadow-md shadow-teal-950/20 border border-teal-500/10' 
+                        ? 'bg-teal-700/85 text-white shadow-md shadow-teal-950/20' 
                         : 'text-slate-300 hover:bg-white/5 hover:text-slate-100'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
@@ -279,7 +279,7 @@ export default function Sidebar() {
                     onClick={() => toggleSection(item.title)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer group
                       ${isChildActive 
-                        ? 'bg-white/5 text-teal-400 border border-teal-500/10' 
+                        ? 'bg-white/5 text-teal-400' 
                         : 'text-slate-300 hover:bg-white/5 hover:text-slate-100'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
@@ -296,7 +296,7 @@ export default function Sidebar() {
 
                   <div className="overflow-hidden">
                     {isOpen && !collapsed && (
-                      <div className="pl-4 space-y-1 border-l border-slate-900 ml-5">
+                      <div className="pl-4 space-y-1 ml-5">
                         {item.items && item.items.map((subItem: any, subIdx: number) => {
                           const SubIcon = subItem.icon;
                           if (subItem.disabled) {
@@ -310,7 +310,7 @@ export default function Sidebar() {
                                   <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-650" />
                                   <span className="truncate">{subItem.name}</span>
                                 </div>
-                                <span className="text-[8px] leading-none bg-slate-900 text-teal-400/80 border border-teal-500/10 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">Segera</span>
+                                <span className="text-[8px] leading-none bg-slate-900 text-teal-400/80 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">Segera</span>
                               </div>
                             );
                           }
@@ -343,16 +343,16 @@ export default function Sidebar() {
         </div>
 
         {/* Lower User/Logout Section */}
-        <div className="p-4 border-t border-slate-900 bg-slate-950/40 backdrop-blur-md">
+        <div className="p-4 bg-slate-950/40 backdrop-blur-md">
           <div className="flex items-center justify-between gap-2">
             {!collapsed && user && (
               <div className="flex items-center space-x-3 overflow-hidden">
-                <div className="h-9 w-9 rounded-full bg-slate-900 border border-teal-500/30 flex items-center justify-center font-semibold text-teal-400 uppercase flex-shrink-0 text-xs">
+                <div className="h-9 w-9 rounded-full bg-slate-900 flex items-center justify-center font-semibold text-teal-400 uppercase flex-shrink-0 text-xs">
                   {user.nama.substring(0, 2)}
                 </div>
                 <div className="flex flex-col truncate">
                   <span className="text-xs font-semibold text-slate-200 truncate">{user.nama}</span>
-                  <span className="text-xxs font-mono uppercase bg-teal-950/60 text-teal-350 border border-teal-900/40 px-2 py-0.5 rounded self-start mt-0.5 tracking-wider font-medium">
+                  <span className="text-xxs font-mono uppercase bg-teal-950/60 text-teal-350 px-2 py-0.5 rounded self-start mt-0.5 tracking-wider font-medium">
                     {user.role}
                   </span>
                 </div>
@@ -362,7 +362,7 @@ export default function Sidebar() {
             <button
               id="sidebar-logout-btn"
               onClick={handleLogout}
-              className={`p-2 rounded-xl bg-slate-900/60 border border-slate-900 hover:bg-rose-500/10 hover:border-rose-550/30 hover:text-rose-400 text-slate-400 transition-all flex items-center justify-center cursor-pointer
+              className={`p-2 rounded-xl bg-slate-900/60 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 transition-all flex items-center justify-center cursor-pointer
                 ${collapsed ? 'w-full' : ''}
               `}
               title="Keluar dari Sistem"
