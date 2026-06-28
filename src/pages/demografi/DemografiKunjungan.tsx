@@ -417,7 +417,7 @@ export default function DemografiKunjungan() {
             >
               {/* Regional Cards Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-xs flex items-center space-x-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
                   <div className="p-3 rounded-xl bg-teal-50 text-teal-600">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -428,7 +428,7 @@ export default function DemografiKunjungan() {
                     </span>
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-xs flex items-center space-x-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
                   <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -439,7 +439,7 @@ export default function DemografiKunjungan() {
                     </span>
                   </div>
                 </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-150 shadow-xs flex items-center space-x-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
                   <div className="p-3 rounded-xl bg-sky-50 text-sky-600">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -454,7 +454,7 @@ export default function DemografiKunjungan() {
 
               {/* Chart Persebaran Pasien */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-150 shadow-xs space-y-4">
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h2 className="text-sm font-bold text-slate-850 font-display">Grafik Pasien & Kunjungan Berdasarkan Kota/Kabupaten</h2>
@@ -481,7 +481,7 @@ export default function DemografiKunjungan() {
                 </div>
 
                 {/* Table Data list */}
-                <div className="bg-white p-6 rounded-2xl border border-slate-150 shadow-xs space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Data Populasi Wilayah (Kota)</h3>
                     <p className="text-xxs text-slate-400">Detail rincian pasien per domisili kabupaten/kota.</p>
@@ -511,7 +511,7 @@ export default function DemografiKunjungan() {
 
               {/* Sub-Region Analysis by Kecamatan and Kelurahan */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-150 shadow-xs space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kecamatan</h3>
@@ -535,7 +535,7 @@ export default function DemografiKunjungan() {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-150 shadow-xs space-y-4">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kelurahan</h3>
@@ -573,7 +573,7 @@ export default function DemografiKunjungan() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Gender Distribution Pie Chart */}
-                <div className="bg-white p-6 rounded-2xl border border-slate-150 shadow-xs space-y-4 flex flex-col justify-between">
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4 flex flex-col justify-between">
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Proporsi Gender Pasien</h3>
                     <p className="text-xxs text-slate-400">Pembagian jumlah pasien terdaftar berdasarkan jenis kelamin.</p>
@@ -616,7 +616,7 @@ export default function DemografiKunjungan() {
                 </div>
 
                 {/* Age Group Distribution */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-150 shadow-xs space-y-4">
+                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Distribusi Berdasarkan Kelompok Usia</h3>
                     <p className="text-xxs text-slate-400">Pengelompokan usia klinis pasien terdaftar di database.</p>
@@ -686,7 +686,7 @@ export default function DemografiKunjungan() {
               className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-200 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header */}
-              <div className="p-6 border-b border-slate-150 bg-slate-50 flex items-center justify-between">
+              <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="h-10 w-10 rounded-full bg-teal-50 border border-teal-150 flex items-center justify-center font-bold text-teal-600">
                     <User className="h-5 w-5" />
@@ -706,7 +706,7 @@ export default function DemografiKunjungan() {
               </div>
 
               {/* Patient Basic Profile details */}
-              <div className="p-6 bg-slate-50/50 border-b border-slate-150 space-y-4">
+              <div className="p-6 bg-slate-50/50 border-b border-slate-200 space-y-4">
                 <h4 className="text-xxs uppercase tracking-wider text-teal-650 font-bold">Informasi Demografis</h4>
                 <div className="grid grid-cols-2 gap-4 text-xxs font-medium text-slate-550">
                   <div>
@@ -755,7 +755,7 @@ export default function DemografiKunjungan() {
                         {/* Timeline node */}
                         <div className="absolute left-1.5 top-1.5 h-3 w-3 rounded-full bg-white border-2 border-teal-500 group-hover:bg-teal-500 transition-colors" />
                         
-                        <div className="bg-slate-50 hover:bg-slate-100/70 transition-colors p-4 rounded-xl border border-slate-150/85 space-y-2">
+                        <div className="bg-slate-50 hover:bg-slate-100/70 transition-colors p-4 rounded-xl border border-slate-200/85 space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-mono font-medium text-slate-550 flex items-center gap-1">
                               <Clock className="h-3 w-3 text-slate-400" />
@@ -775,7 +775,7 @@ export default function DemografiKunjungan() {
                             <span className="text-slate-700 font-semibold">{item.dpjp}</span>
                           </div>
 
-                          <div className="text-xxs font-medium bg-white p-2 rounded-lg border border-slate-150/70">
+                          <div className="text-xxs font-medium bg-white p-2 rounded-lg border border-slate-200/70">
                             <span className="text-slate-400 block">Diagnosa ICD-10</span>
                             <span className="text-slate-600 font-mono font-bold">{item.icd}</span>
                           </div>
