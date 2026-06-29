@@ -446,8 +446,10 @@ export default function InteractiveGuide() {
         {/* Unread interactive hint bubble */}
         {hasUnreadGuide && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            initial={{ opacity: 0, scale: 0.95, y: 5 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-teal-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center space-x-1 max-w-[190px] mr-1"
           >
             <Lightbulb className="h-3.5 w-3.5 flex-shrink-0 animate-bounce" />
@@ -477,9 +479,11 @@ export default function InteractiveGuide() {
         {isTourActive && (
           <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              style={{ willChange: 'transform, opacity' }}
               className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col p-6 space-y-4"
             >
               {/* Step title */}
@@ -546,6 +550,8 @@ export default function InteractiveGuide() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{ willChange: 'opacity' }}
               onClick={() => setIsOpen(false)}
               className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 pointer-events-auto"
             />
@@ -555,7 +561,8 @@ export default function InteractiveGuide() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 24, stiffness: 180 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ willChange: 'transform' }}
               className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-100/50 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header with Role Information */}
@@ -625,9 +632,11 @@ export default function InteractiveGuide() {
                   {activeTab === 'tour' && (
                     <motion.div
                       key="tab-tour"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-5 text-center py-4"
                     >
                       <div className="h-16 w-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto border border-teal-150">
@@ -662,9 +671,11 @@ export default function InteractiveGuide() {
                   {activeTab === 'workflow' && (
                     <motion.div
                       key="tab-workflow"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">
@@ -720,6 +731,8 @@ export default function InteractiveGuide() {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2 }}
+                            style={{ willChange: 'height, opacity' }}
                             className="bg-teal-50/40 border border-teal-100 rounded-2xl p-4 space-y-3 overflow-hidden mt-2"
                           >
                             <h4 className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
@@ -750,9 +763,11 @@ export default function InteractiveGuide() {
                   {activeTab === 'tasks' && (
                     <motion.div
                       key="tab-tasks"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">
@@ -842,9 +857,11 @@ export default function InteractiveGuide() {
                   {activeTab === 'faq' && (
                     <motion.div
                       key="tab-faq"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">

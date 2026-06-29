@@ -31,3 +31,18 @@ html {
   overflow-y: scroll;
 }
 
+/* Force GPU compositing untuk semua animasi motion */
+[data-framer-component-type],
+.motion-div {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Kurangi animasi jika user prefer-reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

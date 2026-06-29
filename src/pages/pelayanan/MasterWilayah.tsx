@@ -121,11 +121,11 @@ export default function MasterWilayah() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 8 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { delay: i * 0.04, duration: 0.3, ease: 'easeOut' }
+      transition: { delay: Math.min(i * 0.02, 0.15), duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }
     })
   };
 
@@ -157,6 +157,8 @@ export default function MasterWilayah() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{ willChange: 'height, opacity' }}
             className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl text-red-700 text-sm font-medium flex justify-between items-center"
           >
             <span>{error}</span>
@@ -177,9 +179,10 @@ export default function MasterWilayah() {
           
           {/* COLUMN: KOTA */}
           <motion.div 
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
@@ -269,9 +272,10 @@ export default function MasterWilayah() {
 
           {/* COLUMN: KECAMATAN */}
           <motion.div 
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
@@ -375,9 +379,10 @@ export default function MasterWilayah() {
 
           {/* COLUMN: KELURAHAN */}
           <motion.div 
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.24 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">

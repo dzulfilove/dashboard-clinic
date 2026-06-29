@@ -125,8 +125,10 @@ export default function AbcAnalysis() {
 
       {feedback && (
         <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ willChange: 'transform, opacity' }}
           id="abc-error-alert" 
           className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold"
         >
@@ -137,9 +139,10 @@ export default function AbcAnalysis() {
 
       {/* Methodological Explanation card */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.08 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+        style={{ willChange: 'transform, opacity' }}
         className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 shadow-sm"
       >
         <div className="space-y-4">
@@ -196,10 +199,11 @@ export default function AbcAnalysis() {
             
             {/* KPI: Total drug spend */}
             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
+               initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.4, delay: 0.16 }}
-               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+               whileHover={{ y: -2 }}
+               style={{ willChange: 'transform, opacity' }}
                className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden"
             >
               <span className="text-[14px] font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
@@ -214,10 +218,11 @@ export default function AbcAnalysis() {
 
             {/* Class A summary */}
             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
+               initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.4, delay: 0.24 }}
-               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+               whileHover={{ y: -2 }}
+               style={{ willChange: 'transform, opacity' }}
                className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
@@ -231,10 +236,11 @@ export default function AbcAnalysis() {
 
             {/* Class B summary */}
             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
+               initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.4, delay: 0.32 }}
-               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
+               whileHover={{ y: -2 }}
+               style={{ willChange: 'transform, opacity' }}
                className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
@@ -248,10 +254,11 @@ export default function AbcAnalysis() {
 
             {/* Class C summary */}
             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
+               initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.4, delay: 0.4 }}
-               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+               whileHover={{ y: -2 }}
+               style={{ willChange: 'transform, opacity' }}
                className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
@@ -266,9 +273,10 @@ export default function AbcAnalysis() {
 
           {/* Pareto Ranked Items List */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.48 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden"
           >
             <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70">

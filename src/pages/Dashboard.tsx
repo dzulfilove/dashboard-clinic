@@ -142,10 +142,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* KPI 1 - Lab Volume */}
         <motion.div 
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          style={{ willChange: 'transform, opacity' }}
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
@@ -165,10 +166,11 @@ export default function Dashboard() {
 
         {/* KPI 2 - Medications Catalog */}
         <motion.div 
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          style={{ willChange: 'transform, opacity' }}
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
@@ -188,10 +190,11 @@ export default function Dashboard() {
 
         {/* KPI 3 - Low Stock Pharmacy alerts */}
         <motion.div 
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.24 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          style={{ willChange: 'transform, opacity' }}
           className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 border shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'border-rose-100 ring-2 ring-rose-500/10' : 'border-slate-100'}`}
         >
           <div className="flex items-center justify-between">
@@ -213,10 +216,11 @@ export default function Dashboard() {
 
         {/* KPI 4 - Staff / Accounts */}
         <motion.div 
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.32 }}
-          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          style={{ willChange: 'transform, opacity' }}
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
@@ -242,9 +246,10 @@ export default function Dashboard() {
         
         {/* Left: Critical Stock Alerts */}
         <motion.div 
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 }}
+          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+          style={{ willChange: 'transform, opacity' }}
           className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 lg:col-span-2"
         >
           <div className="flex items-center justify-between mb-4">
@@ -310,9 +315,10 @@ export default function Dashboard() {
 
         {/* Right: Quick Action Menu Shortcuts */}
         <motion.div 
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.48 }}
+          transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+          style={{ willChange: 'transform, opacity' }}
           className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between"
         >
           <div>

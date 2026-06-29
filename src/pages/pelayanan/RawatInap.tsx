@@ -896,7 +896,7 @@ export default function RawatInap() {
       icd_pulang: icdPulang || null,
       kamar,
       dpjp,
-      tindakan: manualTindakan.map(({ dpjp, ...rest }: any) => rest),
+      tindakan: manualTindakan,
       tanggal_lahir: isNewPatient ? tanggalLahir : undefined,
       jenis_kelamin: isNewPatient ? jenisKelamin : undefined,
       alamat: isNewPatient ? alamat : undefined,

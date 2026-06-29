@@ -454,9 +454,10 @@ export default function InputKonsumsi() {
         <div className="space-y-6">
           {/* Rentang Tanggal Filter UI Card */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-white p-4.5 border border-slate-100 shadow-sm rounded-2xl"
           >
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
@@ -517,10 +518,11 @@ export default function InputKonsumsi() {
                 
                 {/* 1. Total Pemakaian */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+                  whileHover={{ y: -2 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -542,10 +544,11 @@ export default function InputKonsumsi() {
 
                 {/* 2. Total Penerimaan */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+                  whileHover={{ y: -2 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -567,10 +570,11 @@ export default function InputKonsumsi() {
 
                 {/* 3. Total Retur/Hilang */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.24 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+                  whileHover={{ y: -2 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -592,10 +596,11 @@ export default function InputKonsumsi() {
 
                 {/* 4. Konsumsi Terbanyak */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.32 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
+                  whileHover={{ y: -2 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -622,9 +627,10 @@ export default function InputKonsumsi() {
               {/* Graphical trends exactly like Rawat Jalan (ComposedChart & PieChart) */}
               {statsSummary.timelineData.length === 0 ? (
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-150"
                 >
                   <FileSpreadsheet className="h-8 w-8 text-slate-300 mx-auto mb-2" />
@@ -632,9 +638,10 @@ export default function InputKonsumsi() {
                 </motion.div>
               ) : (
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 }}
+                  transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                 >
                   
@@ -805,9 +812,10 @@ export default function InputKonsumsi() {
         <div className="space-y-6">
           {/* Form input controls - Date Selector Panel */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0 }}
+            style={{ willChange: 'transform, opacity' }}
             className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border border-slate-100 shadow-sm rounded-2xl"
           >
             <div className="flex items-center space-x-2">
@@ -830,9 +838,10 @@ export default function InputKonsumsi() {
 
           {/* Search Input Box */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+            style={{ willChange: 'transform, opacity' }}
             className="bg-white p-3.5 border border-slate-100 shadow-sm rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
           >
             <div className="relative rounded-xl shadow-xs w-full md:max-w-md">
@@ -853,9 +862,10 @@ export default function InputKonsumsi() {
 
           {feedback && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.12 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+              style={{ willChange: 'transform, opacity' }}
               id="cons-feedback-alert"
               className={`p-4 rounded-xl border flex items-center space-x-2 text-sm font-semibold ${
                 feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
@@ -868,9 +878,10 @@ export default function InputKonsumsi() {
 
           {loading ? (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+              style={{ willChange: 'transform, opacity' }}
               className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500"
             >
               <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
@@ -878,9 +889,10 @@ export default function InputKonsumsi() {
             </motion.div>
           ) : (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+              style={{ willChange: 'transform, opacity' }}
               className="space-y-4"
             >
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">

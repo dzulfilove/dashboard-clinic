@@ -184,6 +184,8 @@ export default function Sidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ willChange: 'opacity' }}
             className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-30 pointer-events-auto" 
             onClick={() => setMobileOpen(false)} 
           />

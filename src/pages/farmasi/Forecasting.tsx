@@ -167,8 +167,9 @@ export default function Forecasting() {
           {/* Quick Stats overview panel */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <motion.div 
-               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+               whileHover={{ y: -2 }}
                transition={{ duration: 0.2 }}
+               style={{ willChange: 'transform' }}
                className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm ${criticalItemsCount > 0 ? 'border-rose-100' : 'border-slate-100'}`}
             >
               <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
@@ -183,8 +184,9 @@ export default function Forecasting() {
             </motion.div>
 
             <motion.div 
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+              whileHover={{ y: -2 }}
               transition={{ duration: 0.2 }}
+              style={{ willChange: 'transform' }}
               className="p-5 bg-white/70 backdrop-blur-md border border-slate-100 shadow-sm rounded-3xl flex items-center space-x-4"
             >
               <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl">

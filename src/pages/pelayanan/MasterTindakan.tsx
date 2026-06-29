@@ -131,11 +131,11 @@ export default function MasterTindakan() {
   );
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 8 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { delay: i * 0.05, duration: 0.3, ease: 'easeOut' }
+      transition: { delay: Math.min(i * 0.02, 0.15), duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }
     })
   };
 
@@ -170,6 +170,8 @@ export default function MasterTindakan() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{ willChange: 'height, opacity' }}
             className={`p-4 rounded-xl flex items-center gap-3 border ${
               feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
             }`}
@@ -182,9 +184,10 @@ export default function MasterTindakan() {
 
       {/* Main card */}
       <motion.div 
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+        style={{ willChange: 'transform, opacity' }}
         className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden"
       >
         {/* Controls header */}

@@ -76,11 +76,11 @@ export default function MasterICD10() {
   const paginatedData = data;
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 8 },
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { delay: i * 0.05, duration: 0.3, ease: 'easeOut' }
+      transition: { delay: Math.min(i * 0.02, 0.15), duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }
     })
   };
 
@@ -112,9 +112,10 @@ export default function MasterICD10() {
 
       {/* Search Input Bar */}
       <motion.div 
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+        style={{ willChange: 'transform, opacity' }}
         className="bg-white p-4 border border-slate-100 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between"
       >
         <div className="relative w-full md:max-w-md">
@@ -134,9 +135,10 @@ export default function MasterICD10() {
 
       {/* Main Table view */}
       <motion.div 
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+        style={{ willChange: 'transform, opacity' }}
         className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden"
       >
         <table className="w-full">

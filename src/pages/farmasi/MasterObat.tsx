@@ -464,6 +464,8 @@ export default function MasterObat() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            style={{ willChange: 'height, opacity' }}
             id="obat-feedback-alert" 
             className={`p-3 rounded-xl border flex items-center space-x-2 text-xs font-semibold shadow-sm ${
               feedback.type === 'success' ? 'bg-emerald-50 border-emerald-100 text-emerald-800' : 'bg-rose-50 border-rose-100 text-rose-800'
@@ -877,9 +879,11 @@ export default function MasterObat() {
                 filteredMedicines.map((m) => (
                   <motion.tr 
                     key={m.id} 
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                    style={{ willChange: 'transform, opacity' }}
                     className="hover:bg-slate-50/70 transition-colors"
                   >
                     <td className="px-6 py-3.5 whitespace-nowrap">
