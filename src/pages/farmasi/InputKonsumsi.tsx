@@ -615,7 +615,7 @@ export default function InputKonsumsi() {
                     <h3 className="text-sm font-bold text-slate-900 tracking-tight font-display truncate" title={statsSummary.topMedInfo.name}>
                       {statsSummary.topMedInfo.name || '-'}
                     </h3>
-                    <p className="text-xxs font-mono text-rose-600 font-extrabold mt-1">
+                    <p className="text-xxs font-mono text-rose-600 font-semibold mt-1">
                       {statsSummary.topMedInfo.qty.toLocaleString('id-ID')} Unit Terpakai
                     </p>
                   </div>
@@ -648,7 +648,7 @@ export default function InputKonsumsi() {
                   {/* Chart 1: Tren Arus Logistik Obat Harian */}
                   <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Arus Logistik Obat Harian</h3>
+                      <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">Grafik Tren Arus Logistik Obat Harian</h3>
                       <p className="text-[10px] text-slate-400 font-medium mt-0.5">Laporan pemakaian dan penerimaan obat klinis (dalam satuan unit)</p>
                     </div>
 
@@ -671,7 +671,7 @@ export default function InputKonsumsi() {
                   {/* Chart 2: 5 Obat Berpengaruh Terbesar (PieChart distribution) */}
                   <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Obat Berpengaruh Terbesar</h3>
+                      <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">5 Obat Berpengaruh Terbesar</h3>
                       <p className="text-[10px] text-slate-400 font-medium mt-0.5">Proporsi volume pemakaian obat kumulatif harian</p>
                     </div>
 
@@ -937,7 +937,7 @@ export default function InputKonsumsi() {
                                   <p className="text-xxs text-slate-400 font-medium mt-0.5 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
                                   {hasNoSaldoAwal && (
                                     <div className="mt-1.5">
-                                      <span className="inline-flex items-center gap-1 text-[9px] font-extrabold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
                                         <AlertCircle className="h-3 w-3 text-rose-500" />
                                         Saldo {inputYear} Belum Diinput
                                       </span>

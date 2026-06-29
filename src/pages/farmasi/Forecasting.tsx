@@ -177,7 +177,7 @@ export default function Forecasting() {
               </div>
               <div className="flex-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Kekurangan Stok Terdeteksi</span>
-                <span className={`text-sm font-black font-display block mt-1 ${criticalItemsCount > 0 ? 'text-rose-700' : 'text-slate-800'}`}>
+                <span className={`text-sm font-semibold font-display block mt-1 ${criticalItemsCount > 0 ? 'text-rose-700' : 'text-slate-800'}`}>
                   {criticalItemsCount} item obat perlu pemesanan kembali (Qty Order &gt; 0)
                 </span>
               </div>
@@ -194,7 +194,7 @@ export default function Forecasting() {
               </div>
               <div className="flex-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Total Obat Diproyeksikan</span>
-                <span className="text-sm font-black font-display text-slate-800 block mt-1">
+                <span className="text-sm font-semibold font-display text-slate-800 block mt-1">
                   {forecasts.length} item aktif
                 </span>
               </div>
@@ -335,7 +335,7 @@ export default function Forecasting() {
                         {/* Kelas ABC */}
                         <td className="px-4 py-3.5 text-center whitespace-nowrap">
                           {f.kelas_abc ? (
-                            <span className={`inline-flex items-center justify-center font-black text-[11px] h-6 px-2.5 rounded-lg ${
+                            <span className={`inline-flex items-center justify-center font-semibold text-xs h-6 px-2.5 rounded-lg ${
                               f.kelas_abc === 'A' 
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
                                 : f.kelas_abc === 'B' 

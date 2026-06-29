@@ -488,7 +488,7 @@ export default function InteractiveGuide() {
             >
               {/* Step title */}
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-extrabold uppercase bg-teal-50 text-teal-700 border border-teal-150 px-2.5 py-0.5 rounded-md">
+                <span className="text-[10px] font-medium uppercase bg-teal-50 text-teal-700 border border-teal-150 px-2.5 py-0.5 rounded-md">
                   Langkah {tourStep + 1} dari {tourSteps.length}
                 </span>
                 <button
@@ -500,7 +500,7 @@ export default function InteractiveGuide() {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-slate-900 tracking-tight flex items-center gap-1.5">
                   <Sparkles className="h-4.5 w-4.5 text-teal-600 animate-pulse" />
                   {tourSteps[tourStep].title}
                 </h3>
@@ -570,7 +570,7 @@ export default function InteractiveGuide() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Compass className="h-5 w-5 text-teal-600" />
-                    <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Pusat Panduan</span>
+                    <span className="text-xs font-medium uppercase tracking-widest text-slate-400">Pusat Panduan</span>
                   </div>
                   <button
                     onClick={() => setIsOpen(false)}
@@ -583,11 +583,11 @@ export default function InteractiveGuide() {
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase border ${currentMeta.badgeColor}`}>
+                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-medium uppercase border ${currentMeta.badgeColor}`}>
                       Role: {currentMeta.roleName}
                     </span>
                   </div>
-                  <h2 className="text-base font-black text-slate-900 tracking-tight">
+                  <h2 className="text-base font-semibold text-slate-900 tracking-tight">
                     Panduan Interaktif Staf
                   </h2>
                   <p className="text-xxs text-slate-500 leading-relaxed">
@@ -712,7 +712,7 @@ export default function InteractiveGuide() {
                                   : 'bg-white border-slate-150 hover:bg-slate-50/50'
                               }`}
                             >
-                              <h4 className="text-xxs font-extrabold uppercase tracking-wider text-slate-900 flex items-center justify-between">
+                              <h4 className="text-xxs font-semibold uppercase tracking-wider text-slate-900 flex items-center justify-between">
                                 {node.label}
                                 <ChevronRight className="h-3 w-3 text-slate-400" />
                               </h4>
@@ -877,7 +877,7 @@ export default function InteractiveGuide() {
                       <div className="space-y-3">
                         {currentMeta.faqs.map((faq, idx) => (
                           <div key={idx} className="bg-slate-50 border border-slate-150 rounded-2xl p-4 space-y-2">
-                            <h4 className="text-xs font-extrabold text-slate-800 flex items-start gap-1.5 leading-snug">
+                            <h4 className="text-xs font-semibold text-slate-800 flex items-start gap-1.5 leading-snug">
                               <AlertCircle className="h-4 w-4 text-teal-600 flex-shrink-0 mt-0.5" />
                               {faq.q}
                             </h4>

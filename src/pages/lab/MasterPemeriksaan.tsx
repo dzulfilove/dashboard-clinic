@@ -502,7 +502,7 @@ export default function MasterPemeriksaan() {
               </span>
               <button 
                 onClick={handleDownloadTemplateCSV}
-                className="text-[9px] hover:underline text-teal-600 font-extrabold cursor-pointer"
+                className="text-[9px] hover:underline text-teal-600 font-semibold cursor-pointer"
               >
                 Unduh Template
               </button>
@@ -592,7 +592,7 @@ export default function MasterPemeriksaan() {
               {selectedCategoryFilter && (
                 <button
                   onClick={() => setSelectedCategoryFilter(null)}
-                  className="text-[9px] font-extrabold text-teal-600 hover:text-teal-800 cursor-pointer"
+                  className="text-[9px] font-semibold text-teal-600 hover:text-teal-800 cursor-pointer"
                 >
                   Reset Filter
                 </button>
@@ -786,7 +786,7 @@ export default function MasterPemeriksaan() {
               >
                 {/* Modal Header */}
                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                  <h3 className="text-xxs font-extrabold text-slate-900 tracking-tight uppercase flex items-center gap-1.5">
+                  <h3 className="text-xxs font-semibold text-slate-900 tracking-tight uppercase flex items-center gap-1.5">
                     <BriefcaseMedical className="h-4 w-4 text-teal-600" />
                     <span>{modalMode === 'add' ? 'Tambah Jenis Pemeriksaan' : 'Ubah Detail Pemeriksaan'}</span>
                   </h3>

@@ -488,7 +488,7 @@ export default function ActivityLogs() {
               <span>Sistem pencatatan log aktivitas aktif secara real-time.</span>
             </div>
             <div className="font-mono">
-              Total Log: <span className="text-teal-700 font-extrabold">{allFilteredLogs.length}</span> baris
+              Total Log: <span className="text-teal-700 font-semibold">{allFilteredLogs.length}</span> baris
             </div>
           </div>
         )}

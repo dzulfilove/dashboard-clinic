@@ -386,7 +386,7 @@ export default function DemografiDiagnosa() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-100/70 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                    <tr className="border-b border-slate-100/70 text-[10px] font-medium uppercase text-slate-500 tracking-wider">
                       <th className="py-3 px-4">Kode ICD-10</th>
                       <th className="py-3 px-4">Nama Penyakit (Deskripsi)</th>
                       <th className="py-3 px-4 text-center">Total Kasus</th>
@@ -453,10 +453,10 @@ export default function DemografiDiagnosa() {
                 >
                   {/* Diagnosis Header */}
                   <div className="space-y-1 pb-4 border-b border-slate-100/70">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-teal-50 text-teal-700 border border-teal-150">
+                    <span className="px-2.5 py-0.5 rounded text-[10px] font-medium uppercase bg-teal-50 text-teal-700 border border-teal-150">
                       Rincian Demografis Penderita
                     </span>
-                    <h2 className="text-base font-black text-slate-900 tracking-tight flex items-baseline gap-2 mt-2">
+                    <h2 className="text-base font-semibold text-slate-900 tracking-tight flex items-baseline gap-2 mt-2">
                       <span className="font-mono text-teal-650">{selectedDiag.icd_kode}</span>
                       <span className="text-slate-550 font-normal text-xs">|</span>
                       <span className="text-slate-800 line-clamp-1">{selectedDiag.deskripsi}</span>
@@ -471,7 +471,7 @@ export default function DemografiDiagnosa() {
                     <div className="bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-4 space-y-3">
                       <div className="flex items-center space-x-1.5 text-teal-900">
                         <Sparkles className="h-4 w-4 text-teal-600 animate-pulse" />
-                        <span className="text-[10px] font-extrabold uppercase tracking-wider">Statistik Insight</span>
+                        <span className="text-[10px] font-medium uppercase tracking-wider">Statistik Insight</span>
                       </div>
                       <div className="space-y-1.5 text-slate-650 text-xs">
                         <p>
@@ -489,7 +489,7 @@ export default function DemografiDiagnosa() {
 
                   {/* Gender Distribution Pie Chart */}
                   <div className="space-y-2">
-                    <h4 className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-[10px] font-medium uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                       <Users className="h-3.5 w-3.5 text-slate-500" />
                       Perbandingan Gender
                     </h4>
@@ -556,7 +556,7 @@ export default function DemografiDiagnosa() {
 
                   {/* Age Group Distribution Chart */}
                   <div className="space-y-2.5">
-                    <h4 className="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-[10px] font-medium uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                       <BarChart3 className="h-3.5 w-3.5 text-slate-500" />
                       Sebaran Kelompok Usia Pasien
                     </h4>

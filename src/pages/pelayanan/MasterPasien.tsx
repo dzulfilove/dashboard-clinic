@@ -287,7 +287,7 @@ export default function MasterPasien() {
               className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl font-medium transition"
             />
           </div>
-          <p className="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono sm:text-right">
+          <p className="text-xs font-medium text-slate-400 tracking-wider uppercase font-mono sm:text-right">
             Menampilkan {filteredData.length} dari {totalItems} pasien
           </p>
         </div>
@@ -300,7 +300,7 @@ export default function MasterPasien() {
         ) : filteredData.length === 0 ? (
           <div className="py-16 text-center text-slate-400">
             <Search className="h-10 w-10 mx-auto mb-3 opacity-40 text-slate-500" />
-            <p className="font-extrabold text-sm text-slate-600">Tidak ada pasien ditemukan</p>
+            <p className="font-semibold text-sm text-slate-600">Tidak ada pasien ditemukan</p>
             <p className="text-xs text-slate-400 mt-1">Coba sesuaikan rekam medis pencarian Anda atau daftarkan baru.</p>
           </div>
         ) : (
@@ -430,7 +430,7 @@ export default function MasterPasien() {
             className="bg-white w-full max-w-2xl rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="font-extrabold text-slate-900 text-base">
+              <h3 className="font-semibold text-slate-900 text-base">
                 Detail Pasien: {selectedPasien.nama}
               </h3>
               <button 
@@ -444,11 +444,11 @@ export default function MasterPasien() {
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">No Rekam Medis</p>
+                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">No Rekam Medis</p>
                   <p className="font-mono font-semibold text-slate-800">{selectedPasien.no_rm}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Nama Pasien</p>
+                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Nama Pasien</p>
                   <p className="font-semibold text-slate-800">{selectedPasien.nama}</p>
                 </div>
               </div>
@@ -499,7 +499,7 @@ export default function MasterPasien() {
             className="bg-white w-full max-w-xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="font-extrabold text-slate-900 text-base">
+              <h3 className="font-semibold text-slate-900 text-base">
                 Detail Kunjungan: {selectedVisit.no_registrasi}
               </h3>
               <button 
@@ -513,19 +513,19 @@ export default function MasterPasien() {
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Tanggal</p>
+                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Tanggal</p>
                   <p className="font-semibold text-slate-800">{selectedVisit.tanggal_pelayanan}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Unit</p>
+                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Unit</p>
                   <p className="font-semibold text-slate-800">{selectedVisit.unit}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Triase</p>
+                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Triase</p>
                   <p className="font-semibold text-slate-800 capitalize">{selectedVisit.triase || 'Hijau'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 tracking-wider uppercase">Diagnosis (ICD-10)</p>
+                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Diagnosis (ICD-10)</p>
                   <p className="font-semibold text-slate-800">{selectedVisit.icd_kode || '-'}</p>
                 </div>
               </div>
@@ -576,7 +576,7 @@ export default function MasterPasien() {
             className="bg-white w-full max-w-md rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="font-extrabold text-slate-900 text-base">
+              <h3 className="font-semibold text-slate-900 text-base">
                 {editingItem ? 'Perbarui Profil Pasien Ny / Tuan' : 'Pendaftaran Nomor Rekam Medis'}
               </h3>
               <button 
@@ -589,7 +589,7 @@ export default function MasterPasien() {
 
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               <div>
-                <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">No. Rekam Medis (No RM)</label>
+                <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">No. Rekam Medis (No RM)</label>
                 <input
                   type="text"
                   required
@@ -602,7 +602,7 @@ export default function MasterPasien() {
               </div>
 
               <div>
-                <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Nama Lengkap Pasien</label>
+                <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Nama Lengkap Pasien</label>
                 <input
                   type="text"
                   required
@@ -615,7 +615,7 @@ export default function MasterPasien() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Tanggal Lahir</label>
+                  <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Tanggal Lahir</label>
                   <input
                     type="date"
                     value={formData.tanggal_lahir}
@@ -624,7 +624,7 @@ export default function MasterPasien() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Jenis Kelamin</label>
+                  <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Jenis Kelamin</label>
                   <select
                     value={formData.jenis_kelamin}
                     onChange={(e) => setFormData(prev => ({ ...prev, jenis_kelamin: e.target.value as 'L' | 'P' }))}
@@ -637,7 +637,7 @@ export default function MasterPasien() {
               </div>
 
               <div>
-                <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Alamat</label>
+                <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Alamat</label>
                 <textarea
                   value={formData.alamat}
                   onChange={(e) => setFormData(prev => ({ ...prev, alamat: e.target.value }))}
@@ -647,7 +647,7 @@ export default function MasterPasien() {
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Kota</label>
+                  <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Kota</label>
                   <select
                     value={formData.kota_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kota_id: parseInt(e.target.value) }))}
@@ -658,7 +658,7 @@ export default function MasterPasien() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Kecamatan</label>
+                  <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Kecamatan</label>
                   <select
                     value={formData.kecamatan_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kecamatan_id: parseInt(e.target.value) }))}
@@ -669,7 +669,7 @@ export default function MasterPasien() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Kelurahan</label>
+                  <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Kelurahan</label>
                   <select
                     value={formData.kelurahan_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kelurahan_id: parseInt(e.target.value) }))}
@@ -692,7 +692,7 @@ export default function MasterPasien() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 active:scale-97 disabled:opacity-50 rounded-xl transition shadow-sm flex items-center gap-1.5"
+                  className="px-4 py-2 text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 active:scale-97 disabled:opacity-50 rounded-xl transition shadow-sm flex items-center gap-1.5"
                 >
                   {submitting && <RefreshCw className="h-3.5 w-3.5 animate-spin" />}
                   <span>{editingItem ? 'Simpan Pembaruan' : 'Daftarkan Pasien'}</span>

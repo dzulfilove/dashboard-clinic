@@ -693,7 +693,7 @@ export default function MasterObat() {
             className="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4 text-xs"
           >
           <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h2 className="text-xs font-extrabold text-teal-450">
+            <h2 className="text-xs font-semibold text-teal-450">
               {editId ? `Ubah Data Obat: ${kodeObat}` : 'Tambah Katalog Obat Baru'}
             </h2>
             <button 
@@ -708,7 +708,7 @@ export default function MasterObat() {
 
           <form onSubmit={handleSaveObat} className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label htmlFor="kode" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kode Obat</label>
+              <label htmlFor="kode" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Kode Obat</label>
               <input
                 id="kode"
                 type="text"
@@ -720,7 +720,7 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="nama" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Nama Obat</label>
+              <label htmlFor="nama" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Nama Obat</label>
               <input
                 id="nama"
                 type="text"
@@ -733,7 +733,7 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="satuan" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Satuan</label>
+              <label htmlFor="satuan" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Satuan</label>
               <input
                 id="satuan"
                 type="text"
@@ -745,7 +745,7 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="harga" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Harga Satuan (Rp)</label>
+              <label htmlFor="harga" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Harga Satuan (Rp)</label>
               <div className="relative mt-1 rounded-xl shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span className="text-slate-500 text-xs font-mono">Rp</span>
@@ -764,7 +764,7 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="safetystock" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Safety Stock (Unit)</label>
+              <label htmlFor="safetystock" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Safety Stock (Unit)</label>
               <input
                 id="safetystock"
                 type="number"
@@ -777,7 +777,7 @@ export default function MasterObat() {
             </div>
 
             <div>
-              <label htmlFor="status" className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status Diaktifkan</label>
+              <label htmlFor="status" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Status Diaktifkan</label>
               <select
                 id="status"
                 value={isActive}

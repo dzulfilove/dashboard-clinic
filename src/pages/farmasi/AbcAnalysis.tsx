@@ -143,17 +143,17 @@ export default function AbcAnalysis() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
-              <span className="font-extrabold text-emerald-700 block text-xs">Kelas A (≥70% nilai)</span>
+              <span className="font-semibold text-emerald-700 block text-xs">Kelas A (≥70% nilai)</span>
               <p className="mt-1 text-slate-600 text-xs text-justify">Prioritas utama monitoring & kontrol ketat.</p>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-500"></div>
             </div>
             <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
-              <span className="font-extrabold text-amber-700 block text-xs">Kelas B (70-90%)</span>
+              <span className="font-semibold text-amber-700 block text-xs">Kelas B (70-90%)</span>
               <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring reguler.</p>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
             </div>
             <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
-              <span className="font-extrabold text-slate-700 block text-xs">Kelas C (&lt;90%)</span>
+              <span className="font-semibold text-slate-700 block text-xs">Kelas C (&lt;90%)</span>
               <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring rutin.</p>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
             </div>
@@ -188,7 +188,7 @@ export default function AbcAnalysis() {
             <div 
                className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden anim-fade-up anim-delay-1 transition-transform duration-150 ease-out hover:-translate-y-0.5"
             >
-              <span className="text-[14px] font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block">Nilai Total Pengeluaran Obat</span>
               <h3 className="text-2xl font-black font-mono block mt-2">
                 Rp {totalInvestasi.toLocaleString('id-ID', { minimumFractionDigits: 0 })}
               </h3>
@@ -243,7 +243,7 @@ export default function AbcAnalysis() {
             className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden anim-fade-up anim-delay-5"
           >
             <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70">
-              <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
+              <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
                 Tabel Urutan Nilai Konsumsi (Pareto Decending)
               </h3>
             </div>
@@ -287,7 +287,7 @@ export default function AbcAnalysis() {
                       </td>
 
                       {/* Spend calculation */}
-                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-extrabold text-xs text-slate-900">
+                      <td className="px-6 py-4 text-right whitespace-nowrap font-mono font-medium text-xs text-slate-800">
                         Rp {item.total_nilai.toLocaleString('id-ID')}
                       </td>
 
@@ -303,7 +303,7 @@ export default function AbcAnalysis() {
 
                       {/* ABC class representation tag */}
                       <td className="px-6 py-4 text-center whitespace-nowrap">
-                        <span className={`inline-flex items-center justify-center h-7 w-7 text-xs font-black rounded-lg ${
+                        <span className={`inline-flex items-center justify-center h-7 w-7 text-xs font-semibold rounded-lg ${
                           item.klasifikasi === 'A' ? 'bg-emerald-100 text-emerald-800 border-2 border-emerald-300' :
                           item.klasifikasi === 'B' ? 'bg-amber-100 text-amber-800 border border-amber-250' :
                           'bg-slate-100 text-slate-500 border border-slate-200'

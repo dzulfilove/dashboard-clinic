@@ -125,7 +125,7 @@ export default function DatabaseSettings() {
           className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between anim-fade-up"
         >
           <div className="space-y-6">
-            <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
+            <h3 className="font-semibold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
               Status Koneksi Saat Ini
             </h3>
 
@@ -144,8 +144,8 @@ export default function DatabaseSettings() {
                   'bg-rose-50 border-rose-100 text-rose-800'
                 }`}>
                   <Network className="h-8 w-8 mx-auto mb-2" />
-                  <span className="text-xxs uppercase tracking-wider font-extrabold">STATUS ENGINE</span>
-                  <p className="text-lg font-black font-mono mt-0.5">{dbStatus.status}</p>
+                  <span className="text-xxs uppercase tracking-wider font-medium">STATUS ENGINE</span>
+                  <p className="text-lg font-semibold font-mono mt-0.5">{dbStatus.status}</p>
                 </div>
 
                 <div className="space-y-2.5 text-xs font-semibold">
@@ -198,7 +198,7 @@ export default function DatabaseSettings() {
           className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-2 space-y-6 anim-fade-up anim-delay-1"
         >
           <div>
-            <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
+            <h3 className="font-semibold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
               Sistem Integrasi MySQL VPS
             </h3>
             <p className="text-xs text-slate-500 mt-2 leading-relaxed">

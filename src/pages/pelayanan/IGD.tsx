@@ -1090,7 +1090,7 @@ export default function IGD() {
                   className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4"
                 >
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian IGD</h3>
+                    <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian IGD</h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
                   </div>
 
@@ -1124,7 +1124,7 @@ export default function IGD() {
                   className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4"
                 >
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan IGD Terbanyak</h3>
+                    <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">5 Jenis Tindakan IGD Terbanyak</h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan Instalasi Gawat Darurat</p>
                   </div>
 
@@ -1193,7 +1193,7 @@ export default function IGD() {
               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display flex items-center gap-2">
                       <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
                       <span>10 Diagnosa Terbanyak (ICD-10) - IGD</span>
                     </h3>
@@ -1220,7 +1220,7 @@ export default function IGD() {
                             </span>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="font-extrabold text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
+                                <span className="font-medium text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
                                   {item.kode}
                                 </span>
                                 <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
@@ -1237,7 +1237,7 @@ export default function IGD() {
                           </div>
                           
                           <div className="text-right shrink-0">
-                            <span className="text-xs font-black text-slate-800 font-mono">
+                            <span className="text-xs font-medium text-slate-800 font-mono">
                               {item.count}
                             </span>
                             <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
@@ -1331,7 +1331,7 @@ export default function IGD() {
 
                         {/* Interactive footer indicating click-to-filter */}
                         <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className={`text-[9px] font-extrabold ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
+                          <span className={`text-[9px] font-medium ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
                             {isActive ? '✓ Aktif Memfilter' : 'Klik Untuk Filter'}
                           </span>
                           <ArrowRight className={`h-2.5 w-2.5 transition-all ${isActive ? 'text-teal-500 translate-x-1' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'}`} />
@@ -1344,7 +1344,7 @@ export default function IGD() {
                 {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
                 <div className="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
                   <div className="text-left">
-                    <span className="text-slate-400 text-[9px] font-extrabold uppercase tracking-widest block">Distribusi Persentase</span>
+                    <span className="text-slate-400 text-[9px] font-medium uppercase tracking-widest block">Distribusi Persentase</span>
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase IGD</span>
                   </div>
                   
@@ -1377,7 +1377,7 @@ export default function IGD() {
                         <span className="text-base font-black text-slate-800 font-mono tracking-tight leading-none">
                           {records.length}
                         </span>
-                        <span className="text-[7px] text-slate-400 font-extrabold uppercase tracking-wider mt-0.5">
+                        <span className="text-[7px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
                           Total
                         </span>
                       </div>
@@ -1389,7 +1389,7 @@ export default function IGD() {
                     {triageStats.map((item) => (
                       <div key={item.key} className="flex flex-col items-center">
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                        <span className="text-[9px] font-black text-slate-700 mt-0.5 font-mono">
+                        <span className="text-[9px] font-medium text-slate-700 mt-0.5 font-mono">
                           {item.count}
                         </span>
                       </div>
@@ -1400,7 +1400,7 @@ export default function IGD() {
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
-                <span className="text-slate-450 text-[10px] font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
+                <span className="text-slate-450 text-[10px] font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
@@ -1929,11 +1929,11 @@ export default function IGD() {
                   {/* Section A: Demography */}
                   <div className="space-y-4">
                     <div className="border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-black uppercase text-teal-600 tracking-wide">Identitas & Demutasi Kunjungan</h4>
+                      <h4 className="text-xs font-semibold uppercase text-teal-600 tracking-wide">Identitas & Demutasi Kunjungan</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Registrasi</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">No. Registrasi</label>
                         <input
                           type="text"
                           placeholder="Contoh: IGD16062026-00001"
@@ -1962,7 +1962,7 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">No. Rekam Medis (RM)</label>
                         <input
                           type="text"
                           placeholder="Contoh: 002494"
@@ -1974,7 +1974,7 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Nama Pasien</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Nama Pasien</label>
                         <input
                           type="text"
                           placeholder="Contoh: RONDIYAH"
@@ -1997,7 +1997,7 @@ export default function IGD() {
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Lahir</label>
+                              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Tanggal Lahir</label>
                               <input
                                 type="date"
                                 value={tanggalLahir}
@@ -2008,7 +2008,7 @@ export default function IGD() {
                             </div>
 
                             <div>
-                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Jenis Kelamin</label>
+                              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Jenis Kelamin</label>
                               <select
                                 value={jenisKelamin}
                                 onChange={(e) => setJenisKelamin(e.target.value)}
@@ -2021,7 +2021,7 @@ export default function IGD() {
                             </div>
 
                             <div className="col-span-1 md:col-span-2">
-                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Alamat Lengkap</label>
+                              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Alamat Lengkap</label>
                               <input
                                 type="text"
                                 placeholder="Nama jalan, RT/RW, Dusun"
@@ -2032,7 +2032,7 @@ export default function IGD() {
                             </div>
 
                             <div>
-                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Kelurahan / Desa</label>
+                              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Kelurahan / Desa</label>
                               <input
                                 type="text"
                                 placeholder="Contoh: Gedong Meneng"
@@ -2043,7 +2043,7 @@ export default function IGD() {
                             </div>
 
                             <div>
-                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Kecamatan</label>
+                              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Kecamatan</label>
                               <input
                                 type="text"
                                 placeholder="Contoh: Rajabasa"
@@ -2054,7 +2054,7 @@ export default function IGD() {
                             </div>
 
                             <div className="col-span-1 md:col-span-2">
-                              <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Kota / Kabupaten</label>
+                              <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Kota / Kabupaten</label>
                               <input
                                 type="text"
                                 placeholder="Contoh: Kota Bandar Lampung"
@@ -2068,7 +2068,7 @@ export default function IGD() {
                       )}
 
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Pelayanan</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Tanggal Pelayanan</label>
                         <input
                           type="date"
                           value={tanggalPelayanan}
@@ -2079,7 +2079,7 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
                         <select
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
@@ -2094,7 +2094,7 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
                         <select
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}
@@ -2109,7 +2109,7 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosis (ICD-10)</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Diagnosis (ICD-10)</label>
                         <select
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}

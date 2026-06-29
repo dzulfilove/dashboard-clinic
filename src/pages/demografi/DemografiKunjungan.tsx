@@ -833,7 +833,7 @@ export default function DemografiKunjungan() {
                               <Clock className="h-3 w-3 text-slate-400" />
                               {item.tanggal_pelayanan}
                             </span>
-                            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded border ${
+                            <span className={`text-[9px] font-medium px-2 py-0.5 rounded border ${
                               item.tipe === 'Rawat Jalan' ? 'bg-teal-50 text-teal-700 border-teal-150' :
                               item.tipe === 'IGD' ? 'bg-amber-50 text-amber-700 border-amber-150' :
                               'bg-indigo-50 text-indigo-700 border-indigo-150'
@@ -849,7 +849,7 @@ export default function DemografiKunjungan() {
 
                           <div className="text-xxs font-medium bg-white p-2 rounded-lg border border-slate-200/70">
                             <span className="text-slate-400 block">Diagnosa ICD-10</span>
-                            <span className="text-slate-600 font-mono font-bold">{item.icd}</span>
+                            <span className="text-slate-600 font-mono font-medium">{item.icd}</span>
                           </div>
                         </div>
                       </div>
