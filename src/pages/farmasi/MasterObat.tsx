@@ -433,7 +433,7 @@ export default function MasterObat() {
       className="space-y-4"
     >
       {/* Header controls */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Package className="h-5 w-5 text-teal-600" />
@@ -456,7 +456,7 @@ export default function MasterObat() {
             <span>Tambah Obat Baru</span>
           </button>
         )}
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {feedback && (

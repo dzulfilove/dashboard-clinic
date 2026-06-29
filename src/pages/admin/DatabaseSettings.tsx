@@ -102,11 +102,7 @@ export default function DatabaseSettings() {
   return (
     <div className="space-y-6">
       {/* Upper header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
+      <div>
         <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
           <Database className="h-5 w-5 text-teal-600" />
           <span>Pengaturan & Diagnostik Sinkronisasi Database VPS</span>
@@ -114,7 +110,7 @@ export default function DatabaseSettings() {
         <p className="text-slate-500 text-xs mt-1">
           Konfigurasikan integrasi MySQL VPS eksternal, validasi status socket server, dan jalankan migrasi schema otomatis.
         </p>
-      </motion.div>
+      </div>
 
       {feedback && (
         <div className="p-4 bg-rose-50 border border-rose-150 text-rose-800 rounded-xl">

@@ -363,10 +363,7 @@ export default function MasterPemeriksaan() {
   return (
     <div className="space-y-5 font-sans max-w-7xl mx-auto text-xs">
       {/* Page Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div 
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3"
       >
         <div>
@@ -387,7 +384,7 @@ export default function MasterPemeriksaan() {
           <Plus className="h-4 w-4" />
           <span>Tambah Parameter Baru</span>
         </button>
-      </motion.div>
+      </div>
 
       {/* KPI Stats Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

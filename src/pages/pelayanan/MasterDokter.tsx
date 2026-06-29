@@ -201,10 +201,7 @@ export default function MasterDokter() {
   return (
     <div className="space-y-6">
       {/* Upper header */}
-      <motion.div 
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+      <div 
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
@@ -246,7 +243,7 @@ export default function MasterDokter() {
             <span>Tambah Dokter</span>
           </button>
         </div>
-      </motion.div>
+      </div>
 
       <AnimatePresence>
         {feedback && (

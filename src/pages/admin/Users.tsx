@@ -159,10 +159,7 @@ export default function UsersManagement() {
   return (
     <div className="space-y-6">
       {/* Header controls layout */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div 
         className="flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
@@ -184,7 +181,7 @@ export default function UsersManagement() {
           <Plus className="h-5 w-5" />
           <span>Daftarkan Petugas</span>
         </button>
-      </motion.div>
+      </div>
 
       {feedback && (
         <motion.div 

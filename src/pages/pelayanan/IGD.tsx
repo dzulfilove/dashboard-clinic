@@ -916,10 +916,7 @@ export default function IGD() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div 
         className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
       >
         <div>
@@ -967,7 +964,7 @@ export default function IGD() {
             <span>Registrasi Manual</span>
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Floating feedback portal */}
       <AnimatePresence>

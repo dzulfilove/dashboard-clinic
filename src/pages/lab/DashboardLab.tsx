@@ -312,10 +312,7 @@ export default function DashboardLab() {
     <div className="space-y-6 font-sans text-xs">
       
         {/* 1. Header controls (High Density, Poppins) */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+        <div 
           className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100/60 pb-3"
         >
         <div>
@@ -400,7 +397,7 @@ export default function DashboardLab() {
             </button>
           )}
         </div>
-        </motion.div>
+        </div>
 
       {feedback && (
         <div id="anal-error-alert" className="p-3 bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl flex items-center space-x-2 font-normal shadow-sm">

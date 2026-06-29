@@ -138,10 +138,7 @@ export default function InputPemeriksaan() {
   return (
     <div className="space-y-4 font-sans max-w-7xl mx-auto text-xs">
       {/* Upper Title */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+      <div 
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3"
       >
         <div>
@@ -153,7 +150,7 @@ export default function InputPemeriksaan() {
             Halaman pencatatan kuantitas harian pemeriksaan sampel klinik Puri Medika per tanggal pelayanan.
           </p>
         </div>
-      </motion.div>
+      </div>
 
       {feedback && (
         <motion.div 
