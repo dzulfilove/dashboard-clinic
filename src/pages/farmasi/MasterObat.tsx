@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Package, 
   Search, 
@@ -15,7 +16,9 @@ import {
   Save, 
   X,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { ObatMaster } from '../../types.js';
@@ -23,9 +26,35 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export default function MasterObat() {
   const { user } = useAuthStore();
-  const [medicines, setMedicines] = useState<ObatMaster[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Reset to page 1 on search
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const { data: resData, isLoading: loading } = useQuery<{ data: ObatMaster[]; pagination: any }>({
+    queryKey: ['obat-master', searchQuery, currentPage],
+    queryFn: async () => {
+      try {
+        const res = await api.get('/obat/master', {
+          params: { q: searchQuery, page: currentPage, limit: 50 }
+        });
+        return res.data;
+      } catch (err: any) {
+        console.error('Failed to load medicines list', err);
+        setFeedback({ type: 'error', msg: 'Gagal mendownload data master obat dari server.' });
+        throw err;
+      }
+    },
+  });
+
+  const medicines = resData?.data || [];
+  const pagination = resData?.pagination || { page: 1, limit: 50, total: 0, totalPages: 1 };
+
   const [selectedGolongan, setSelectedGolongan] = useState('Semua');
 
   // Form states (Add/Edit)
@@ -277,32 +306,20 @@ export default function MasterObat() {
 
   // Load medicines catalog
   const loadMedicines = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/obat/master');
-      setMedicines(Array.isArray(res.data) ? res.data : []);
-    } catch (err: any) {
-      console.error('Failed to load medicines list', err);
-      setFeedback({ type: 'error', msg: 'Gagal mendownload data master obat dari server.' });
-    } finally {
-      setLoading(false);
-    }
+    await queryClient.invalidateQueries({ queryKey: ['obat-master'] });
   };
 
-  useEffect(() => {
-    loadMedicines();
-  }, []);
 
   // Filter medicines
   const filteredMedicines = (Array.isArray(medicines) ? medicines : []).filter(med => {
-    const matchesSearch = (med.nama_obat || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (med.kode_obat || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGolongan = selectedGolongan === 'Semua' || med.golongan === selectedGolongan;
-    return matchesSearch && matchesGolongan;
+    return matchesGolongan;
   });
 
   // Extract distinct drug classes for filters
-  const golonganOptions = ['Semua', ...Array.from(new Set((Array.isArray(medicines) ? medicines : []).map(m => m.golongan).filter(Boolean)))];
+  const staticGolongan = ['Semua', 'Obat Bebas', 'Obat Bebas Terbatas', 'Obat Keras', 'Psikotropika', 'Narkotika'];
+  const dynamicGolongan = Array.from(new Set((Array.isArray(medicines) ? medicines : []).map(m => m.golongan).filter(Boolean)));
+  const golonganOptions = Array.from(new Set([...staticGolongan, ...dynamicGolongan]));
 
   const handleOpenAddForm = () => {
     setEditId(null);
@@ -928,6 +945,31 @@ export default function MasterObat() {
               </AnimatePresence>
             </tbody>
           </table>
+        </div>
+
+        {/* Beautiful Pagination Footer */}
+        <div className="bg-slate-50/30 px-4 py-3.5 border-t border-slate-100/70 flex items-center justify-between">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+          >
+            <ChevronLeft className="h-3.5 w-3.5" />
+            <span>Sebelumnya</span>
+          </button>
+          
+          <span className="text-xs font-bold text-slate-500">
+            Halaman {currentPage} dari {pagination.totalPages} (Total {pagination.total} obat)
+          </span>
+
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, pagination.totalPages))}
+            disabled={currentPage === pagination.totalPages}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+          >
+            <span>Selanjutnya</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </motion.div>
     </motion.div>

@@ -30,6 +30,8 @@ export default function ActivityLogs() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +39,7 @@ export default function ActivityLogs() {
   const [selectedModule, setSelectedModule] = useState('ALL');
   const [selectedDateFilter, setSelectedDateFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 50;
 
   // Trigger page open log on mount
   useEffect(() => {
@@ -78,10 +81,13 @@ export default function ActivityLogs() {
           module_name: selectedModule === 'ALL' ? undefined : selectedModule,
           dateFrom: dateFrom || undefined,
           dateTo: dateTo || undefined,
-          limit: 1000,
+          page: currentPage,
+          limit: pageSize,
         }
       });
-      setLogs(res.data || []);
+      setLogs(res.data?.data || []);
+      setTotalPages(res.data?.pagination?.totalPages || 1);
+      setTotalItems(res.data?.pagination?.total || 0);
     } catch (err: any) {
       console.error('Error fetching logs:', err);
       setError('Gagal memuat log aktivitas user dari database.');
@@ -92,6 +98,10 @@ export default function ActivityLogs() {
 
   useEffect(() => {
     fetchLogs();
+  }, [currentPage, searchQuery, selectedAction, selectedModule, selectedDateFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1);
   }, [searchQuery, selectedAction, selectedModule, selectedDateFilter]);
 
   // Format date helper
@@ -145,14 +155,10 @@ export default function ActivityLogs() {
   }, [logs]);
 
   // Get unique modules in the logs for filtering dropdown
-  const uniqueModules = Array.from(new Set(logs.map(l => l.module_name))).filter(Boolean);
+  const staticModules = ['Dashboard', 'Rawat Jalan', 'IGD', 'Rawat Inap', 'Katalog ICD-10', 'Master Pasien', 'Master Obat', 'Konsumsi Harian', 'Peramalan Stok (Forecasting)', 'Analisis ABC', 'Kasir & Pembayaran'];
+  const uniqueModules = Array.from(new Set([...staticModules, ...logs.map(l => l.module_name).filter(Boolean)]));
 
-  // Pagination calculations
-  const pageSize = 100;
-  const totalPages = Math.ceil(logs.length / pageSize) || 1;
-  const paginatedLogs = React.useMemo(() => {
-    return logs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  }, [logs, currentPage]);
+  const paginatedLogs = logs;
 
   return (
     <div className="space-y-6">
@@ -423,7 +429,7 @@ export default function ActivityLogs() {
         {!loading && !error && logs.length > 0 && totalPages > 1 && (
           <div className="px-6 py-4 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100/70">
             <div className="text-xs text-slate-600 font-medium">
-              Menampilkan <span className="font-bold text-slate-800">{((currentPage - 1) * pageSize) + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, logs.length)}</span> dari <span className="font-bold text-slate-800">{logs.length}</span> log
+              Menampilkan <span className="font-bold text-slate-800">{((currentPage - 1) * pageSize) + 1}</span> - <span className="font-bold text-slate-800">{Math.min(currentPage * pageSize, totalItems)}</span> dari <span className="font-bold text-slate-800">{totalItems}</span> log
             </div>
             <div className="flex items-center space-x-2">
               <button
@@ -461,7 +467,7 @@ export default function ActivityLogs() {
               <span>Sistem pencatatan log aktivitas aktif secara real-time.</span>
             </div>
             <div className="font-mono">
-              Total Log: <span className="text-teal-700 font-extrabold">{logs.length}</span> baris
+              Total Log: <span className="text-teal-700 font-extrabold">{totalItems}</span> baris
             </div>
           </div>
         )}

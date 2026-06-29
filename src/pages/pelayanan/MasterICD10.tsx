@@ -19,14 +19,24 @@ export default function MasterICD10() {
   // Search and Pagination States
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const [dbStatus, setDbStatus] = useState<{ isVirtual: boolean; status: string } | null>(null);
-  const itemsPerPage = 10;
+  const itemsPerPage = 50;
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await api.get('/pelayanan/icd10');
-      setData(Array.isArray(res.data) ? res.data : []);
+      const res = await api.get('/pelayanan/icd10', {
+        params: {
+          q: searchQuery,
+          page: currentPage,
+          limit: itemsPerPage
+        }
+      });
+      setData(res.data?.data || []);
+      setTotalPages(res.data?.pagination?.totalPages || 1);
+      setTotalItems(res.data?.pagination?.total || 0);
       
       const statusRes = await api.get('/db/status');
       setDbStatus(statusRes.data);
@@ -39,7 +49,11 @@ export default function MasterICD10() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage, searchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,21 +71,9 @@ export default function MasterICD10() {
     }
   };
 
-  // Filter & Search Logic
-  const filteredData = data.filter(item => 
-    (item.kode_icd || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (item.deskripsi || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Pagination Logic
-  const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  // Pagination index calculation
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
+  const paginatedData = data;
 
   const itemVariants = {
     hidden: { opacity: 0, y: 16 },

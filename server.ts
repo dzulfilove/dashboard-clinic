@@ -1331,15 +1331,49 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
 
 // Master Data Pasien
 app.get('/api/pasien', authenticateToken, async (req: any, res) => {
-  const { q } = req.query;
+  const { q, page, limit } = req.query;
   try {
-    let sql = 'SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id';
+    let whereClause = '';
     const params: any[] = [];
     if (q) {
-      sql += ' WHERE (p.nama LIKE ? OR p.no_rm LIKE ? OR p.alamat LIKE ?)';
+      whereClause += ' WHERE (p.nama LIKE ? OR p.no_rm LIKE ? OR p.alamat LIKE ?)';
       params.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
-    const rows = await db.query(sql, params);
+
+    if (page === undefined && limit === undefined && req.query.all !== 'false') {
+      // Return raw array for backward compatibility
+      let sql = 'SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id';
+      sql += whereClause;
+      const rows = await db.query(sql, params);
+      const formatted = rows.map((r: any) => ({
+          no_rm: r.no_rm,
+          nama: r.nama,
+          tanggal_lahir: r.tanggal_lahir,
+          alamat: r.alamat,
+          jenis_kelamin: r.jenis_kelamin,
+          kota: { id: r.kota_id, nama: r.kota_nama },
+          kecamatan: { id: r.kecamatan_id, nama: r.kecamatan_nama },
+          kelurahan: { id: r.kelurahan_id, nama: r.kelurahan_nama }
+      }));
+      return res.json(formatted);
+    }
+
+    const p = Number(page) || 1;
+    const lim = Number(limit) || 50;
+    const offset = (p - 1) * lim;
+
+    // Count query for pagination
+    const countSql = 'SELECT COUNT(*) as total FROM pasien p' + whereClause;
+    const countResult = await db.query(countSql, params);
+    const total = countResult[0]?.total || 0;
+
+    let sql = 'SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id';
+    sql += whereClause;
+    sql += ' ORDER BY p.nama ASC LIMIT ? OFFSET ?';
+    
+    const pageParams = [...params, lim, offset];
+    const rows = await db.query(sql, pageParams);
+
     const formatted = rows.map((r: any) => ({
         no_rm: r.no_rm,
         nama: r.nama,
@@ -1350,7 +1384,16 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
         kecamatan: { id: r.kecamatan_id, nama: r.kecamatan_nama },
         kelurahan: { id: r.kelurahan_id, nama: r.kelurahan_nama }
     }));
-    res.json(formatted);
+
+    res.json({
+      data: formatted,
+      pagination: {
+        page: p,
+        limit: lim,
+        total,
+        totalPages: Math.ceil(total / lim)
+      }
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -2722,16 +2765,45 @@ app.delete('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'p
 
 // --- ICD-10 Master Data ---
 app.get('/api/pelayanan/icd10', authenticateToken, async (req, res) => {
-  const { q } = req.query;
+  const { q, page, limit } = req.query;
   try {
-    let sql = 'SELECT * FROM master_icd10';
+    let whereClause = '';
     const params: any[] = [];
     if (q) {
-      sql += ' WHERE kode_icd LIKE ? OR deskripsi LIKE ?';
+      whereClause += ' WHERE kode_icd LIKE ? OR deskripsi LIKE ?';
       params.push(`%${q}%`, `%${q}%`);
     }
-    const data = await db.query(sql, params);
-    res.json(data);
+
+    if (page === undefined && limit === undefined && req.query.all !== 'false') {
+      // Return raw array for backward compatibility
+      let sql = 'SELECT * FROM master_icd10' + whereClause;
+      const data = await db.query(sql, params);
+      return res.json(data);
+    }
+
+    const p = Number(page) || 1;
+    const lim = Number(limit) || 50;
+    const offset = (p - 1) * lim;
+
+    const countSql = 'SELECT COUNT(*) as total FROM master_icd10' + whereClause;
+    const countResult = await db.query(countSql, params);
+    const total = countResult[0]?.total || 0;
+
+    let sql = 'SELECT * FROM master_icd10' + whereClause;
+    sql += ' ORDER BY kode_icd ASC LIMIT ? OFFSET ?';
+
+    const pageParams = [...params, lim, offset];
+    const data = await db.query(sql, pageParams);
+
+    res.json({
+      data,
+      pagination: {
+        page: p,
+        limit: lim,
+        total,
+        totalPages: Math.ceil(total / lim)
+      }
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -2834,9 +2906,94 @@ async function fetchMedicinesWithStock(q?: string) {
 
 app.get('/api/obat/master', authenticateToken, async (req, res) => {
   const q = req.query.q ? String(req.query.q) : '';
+  const { page, limit } = req.query;
   try {
-    const resData = await fetchMedicinesWithStock(q);
-    res.json(resData);
+    if (page === undefined && limit === undefined && req.query.all !== 'false') {
+      const resData = await fetchMedicinesWithStock(q);
+      return res.json(resData);
+    }
+
+    const p = Number(page) || 1;
+    const lim = Number(limit) || 50;
+    const offset = (p - 1) * lim;
+
+    let countSql = 'SELECT COUNT(*) as total FROM obat_master WHERE is_active = 1';
+    const params: any[] = [];
+    if (q) {
+      countSql += ' AND (nama_obat LIKE ? OR kode_obat LIKE ?)';
+      params.push(`%${q}%`, `%${q}%`);
+    }
+    const countResult = await db.query(countSql, params);
+    const total = countResult[0]?.total || 0;
+
+    let sql = 'SELECT * FROM obat_master WHERE is_active = 1';
+    if (q) {
+      sql += ' AND (nama_obat LIKE ? OR kode_obat LIKE ?)';
+    }
+    sql += ' ORDER BY nama_obat ASC LIMIT ? OFFSET ?';
+    const pageParams = [...params, lim, offset];
+    
+    const medicines = await db.query(sql, pageParams);
+
+    // Calculate stock only for the current page's medicines to be super fast
+    let harian: any[] = [];
+    try {
+      if (medicines.length > 0) {
+        const ids = medicines.map((m: any) => m.id);
+        harian = await db.query(`SELECT * FROM obat_konsumsi_harian WHERE obat_id IN (${ids.map(() => '?').join(',')})`, ids) || [];
+      }
+    } catch (err) {
+      console.warn('Error reading harian logs:', err);
+    }
+
+    const data = medicines.map((m: any) => {
+      const saldo_tahun = m.saldo_awal_tahun ? Number(m.saldo_awal_tahun) : null;
+      const saldo_bulan = m.saldo_awal_bulan ? Number(m.saldo_awal_bulan) : null;
+      const saldo_nilai = Number(m.saldo_awal_nilai || 0);
+
+      let total_penerimaan = 0;
+      let total_pemakaian = 0;
+      let total_retur_hilang = 0;
+
+      if (saldo_tahun && saldo_bulan) {
+        const startingDateStr = `${saldo_tahun}-${String(saldo_bulan).padStart(2, '0')}-01`;
+        
+        const relevantLogs = harian.filter((h: any) => {
+          return h.obat_id === m.id && h.tanggal >= startingDateStr;
+        });
+
+        relevantLogs.forEach((h: any) => {
+          total_penerimaan += Number(h.penerimaan || 0);
+          total_pemakaian += Number(h.pemakaian || 0);
+          total_retur_hilang += Number(h.retur_hilang || 0);
+        });
+      }
+
+      const stok_akhir = (saldo_tahun && saldo_bulan)
+        ? (saldo_nilai + total_penerimaan - total_pemakaian - total_retur_hilang)
+        : 0;
+
+      return {
+        ...m,
+        saldo_awal_tahun: saldo_tahun,
+        saldo_awal_bulan: saldo_bulan,
+        saldo_awal_nilai: saldo_nilai,
+        total_penerimaan,
+        total_pemakaian,
+        total_retur_hilang,
+        stok_akhir
+      };
+    });
+
+    res.json({
+      data,
+      pagination: {
+        page: p,
+        limit: lim,
+        total,
+        totalPages: Math.ceil(total / lim)
+      }
+    });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -3827,28 +3984,54 @@ app.post('/api/logs', authenticateToken, async (req: any, res) => {
 
 // Get all activity logs for administration
 app.get('/api/admin/logs', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
-  const { search, action_type, module_name, email, dateFrom, dateTo, limit } = req.query;
-  const safeLimit = Math.max(1, Math.min(5000, parseInt(String(limit || '500'), 10) || 500));
+  const { search, action_type, module_name, email, dateFrom, dateTo, page, limit } = req.query;
   
-  let sql = 'SELECT * FROM user_logs WHERE 1=1';
+  let whereClause = ' WHERE 1=1';
   const params: any[] = [];
 
   if (search) {
-    sql += ' AND (description LIKE ? OR email LIKE ?)';
+    whereClause += ' AND (description LIKE ? OR email LIKE ?)';
     params.push(`%${search}%`, `%${search}%`);
   }
-  if (action_type) { sql += ' AND action_type = ?'; params.push(action_type); }
-  if (module_name) { sql += ' AND module_name LIKE ?'; params.push(`%${module_name}%`); }
-  if (email) { sql += ' AND email LIKE ?'; params.push(`%${email}%`); }
-  if (dateFrom) { sql += ' AND DATE(created_at) >= ?'; params.push(dateFrom); }
-  if (dateTo) { sql += ' AND DATE(created_at) <= ?'; params.push(dateTo); }
-
-  sql += ' ORDER BY created_at DESC LIMIT ?';
-  params.push(safeLimit);
+  if (action_type) { whereClause += ' AND action_type = ?'; params.push(action_type); }
+  if (module_name) { whereClause += ' AND module_name LIKE ?'; params.push(`%${module_name}%`); }
+  if (email) { whereClause += ' AND email LIKE ?'; params.push(`%${email}%`); }
+  if (dateFrom) { whereClause += ' AND DATE(created_at) >= ?'; params.push(dateFrom); }
+  if (dateTo) { whereClause += ' AND DATE(created_at) <= ?'; params.push(dateTo); }
 
   try {
-    const rows = await db.query(sql, params);
-    res.json(rows);
+    if (page === undefined && limit === undefined && req.query.all !== 'false') {
+      const safeLimit = Math.max(1, Math.min(5000, parseInt(String(req.query.limit || '500'), 10) || 500));
+      let sql = 'SELECT * FROM user_logs' + whereClause;
+      sql += ' ORDER BY created_at DESC LIMIT ?';
+      const pageParams = [...params, safeLimit];
+      const rows = await db.query(sql, pageParams);
+      return res.json(rows);
+    }
+
+    const p = Number(page) || 1;
+    const lim = Number(limit) || 50;
+    const offset = (p - 1) * lim;
+
+    const countSql = 'SELECT COUNT(*) as total FROM user_logs' + whereClause;
+    const countResult = await db.query(countSql, params);
+    const total = countResult[0]?.total || 0;
+
+    let sql = 'SELECT * FROM user_logs' + whereClause;
+    sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    
+    const pageParams = [...params, lim, offset];
+    const rows = await db.query(sql, pageParams);
+
+    res.json({
+      data: rows,
+      pagination: {
+        page: p,
+        limit: lim,
+        total,
+        totalPages: Math.ceil(total / lim)
+      }
+    });
   } catch (err: any) { res.status(500).json({ message: err.message }); }
 });
 

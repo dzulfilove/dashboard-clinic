@@ -10,7 +10,9 @@ import {
   Check, 
   AlertCircle,
   RefreshCw,
-  Users2
+  Users2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import api from '../../services/api';
 import { motion, AnimatePresence } from 'motion/react';
@@ -29,6 +31,11 @@ export default function MasterPasien() {
   const [selectedVisit, setSelectedVisit] = useState<any | null>(null);
   const [visits, setVisits] = useState<any[]>([]);
   const [data, setData] = useState<Pasien[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 50;
+
   const [kotaList, setKotaList] = useState<any[]>([]);
   const [kecamatanList, setKecamatanList] = useState<any[]>([]);
   const [kelurahanList, setKelurahanList] = useState<any[]>([]);
@@ -70,8 +77,16 @@ export default function MasterPasien() {
   const fetchPasiens = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/pasien');
-      setData(res.data);
+      const res = await api.get('/pasien', {
+        params: {
+          q: search,
+          page: currentPage,
+          limit: itemsPerPage
+        }
+      });
+      setData(res.data?.data || []);
+      setTotalPages(res.data?.pagination?.totalPages || 1);
+      setTotalItems(res.data?.pagination?.total || 0);
     } catch (err: any) {
       console.error(err);
       setFeedback({ type: 'error', message: 'Gagal mengambil data pasien.' });
@@ -97,6 +112,13 @@ export default function MasterPasien() {
 
   useEffect(() => {
     fetchPasiens();
+  }, [currentPage, search]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  useEffect(() => {
     fetchWilayah();
   }, []);
 
@@ -190,10 +212,7 @@ export default function MasterPasien() {
     }
   };
 
-  const filteredData = data.filter(p => 
-    (p.nama || '').toLowerCase().includes(search.toLowerCase()) || 
-    (p.no_rm || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredData = data;
 
   const itemVariants = {
     hidden: { opacity: 0, y: 16 },
@@ -269,7 +288,7 @@ export default function MasterPasien() {
             />
           </div>
           <p className="text-xs font-bold text-slate-400 tracking-wider uppercase font-mono sm:text-right">
-            Menampilkan {filteredData.length} dari {data.length} pasien
+            Menampilkan {filteredData.length} dari {totalItems} pasien
           </p>
         </div>
 
@@ -285,7 +304,8 @@ export default function MasterPasien() {
             <p className="text-xs text-slate-400 mt-1">Coba sesuaikan rekam medis pencarian Anda atau daftarkan baru.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100/70">
@@ -368,7 +388,33 @@ export default function MasterPasien() {
               </tbody>
             </table>
           </div>
-        )}
+          
+          {/* Beautiful Pagination Footer */}
+          <div className="bg-slate-50/30 px-4 py-3.5 border-t border-slate-100/70 flex items-center justify-between">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              <span>Sebelumnya</span>
+            </button>
+            
+            <span className="text-xs font-bold text-slate-500">
+              Halaman {currentPage} dari {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+            >
+              <span>Selanjutnya</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </>
+      )}
       </motion.div>
 
       {/* Detail modal dialog */}
