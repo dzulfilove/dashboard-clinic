@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { Plus, Trash2, Check, X, MapPin } from 'lucide-react';
+import { Plus, Trash2, Check, X, Map } from 'lucide-react';
 import api from '../../services/api';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -130,17 +130,17 @@ export default function MasterWilayah() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="space-y-6">
       <div 
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-teal-600" />
-            Manajemen Master Data Wilayah
+          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+            <Map className="h-5 w-5 text-teal-600" />
+            Master Data Wilayah
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Kelola data administratif wilayah (Kota, Kecamatan, dan Kelurahan) untuk penunjang rekam medis pasien.
+          <p className="text-xs text-slate-400 mt-1 font-normal">
+            Kelola data kota, kecamatan, dan kelurahan untuk registrasi pasien.
           </p>
         </div>
         <button 
@@ -159,10 +159,10 @@ export default function MasterWilayah() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             style={{ willChange: 'height, opacity' }}
-            className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl text-red-700 text-sm font-medium flex justify-between items-center"
+            className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-center justify-between gap-2 text-sm text-rose-700"
           >
             <span>{error}</span>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
+            <button onClick={() => setError(null)} className="text-rose-500 hover:text-rose-700">
               <X className="w-4 h-4" />
             </button>
           </motion.div>
@@ -175,7 +175,7 @@ export default function MasterWilayah() {
           <span className="text-slate-500 text-sm font-medium">Memuat data wilayah...</span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* COLUMN: KOTA */}
           <motion.div 
@@ -207,7 +207,7 @@ export default function MasterWilayah() {
                     placeholder="Contoh: Jakarta Selatan"
                     value={newKotaNama}
                     onChange={(e) => setNewKotaNama(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-lg p-2 transition"
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-300 rounded-xl p-2 transition"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
@@ -298,7 +298,7 @@ export default function MasterWilayah() {
                     required
                     value={newKecamatanKotaId}
                     onChange={(e) => setNewKecamatanKotaId(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-lg p-2 transition"
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-300 rounded-xl p-2 transition"
                   >
                     <option value="">Pilih Kota Induk</option>
                     {kota.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
@@ -312,7 +312,7 @@ export default function MasterWilayah() {
                     placeholder="Contoh: Kebayoran Baru"
                     value={newKecamatanNama}
                     onChange={(e) => setNewKecamatanNama(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-lg p-2 transition"
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-300 rounded-xl p-2 transition"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
@@ -405,7 +405,7 @@ export default function MasterWilayah() {
                     required
                     value={newKelurahanKecamatanId}
                     onChange={(e) => setNewKelurahanKecamatanId(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-lg p-2 transition"
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-300 rounded-xl p-2 transition"
                   >
                     <option value="">Pilih Kecamatan Induk</option>
                     {kecamatan.map(k => <option key={k.id} value={k.id}>{k.nama} ({k.kota_nama})</option>)}
@@ -419,7 +419,7 @@ export default function MasterWilayah() {
                     placeholder="Contoh: Senayan"
                     value={newKelurahanNama}
                     onChange={(e) => setNewKelurahanNama(e.target.value)}
-                    className="w-full text-xs font-semibold bg-white border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-lg p-2 transition"
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-300 rounded-xl p-2 transition"
                   />
                 </div>
                 <div className="flex justify-end gap-2">
