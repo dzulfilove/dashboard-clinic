@@ -28,6 +28,7 @@ interface ActivityLog {
 
 export default function ActivityLogs() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [allFilteredLogs, setAllFilteredLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalPages, setTotalPages] = useState(1);
@@ -96,6 +97,42 @@ export default function ActivityLogs() {
     }
   };
 
+  const fetchAllForStats = async () => {
+    try {
+      let dateFrom;
+      let dateTo;
+      if (selectedDateFilter === 'TODAY') {
+        const now = new Date();
+        dateFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+      } else if (selectedDateFilter === 'WEEK') {
+        const now = new Date();
+        dateFrom = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000)).toISOString();
+      }
+
+      const res = await api.get('/admin/logs', {
+        params: {
+          search: searchQuery || undefined,
+          action_type: selectedAction === 'ALL' ? undefined : selectedAction,
+          module_name: selectedModule === 'ALL' ? undefined : selectedModule,
+          dateFrom: dateFrom || undefined,
+          dateTo: dateTo || undefined,
+          limit: 9999,  // ambil semua untuk keperluan statistik
+        }
+      });
+
+      // Backend returns array langsung jika tidak ada pagination,
+      // atau ambil dari .data jika ada wrapper
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      setAllFilteredLogs(data);
+    } catch (err) {
+      console.error('Gagal fetch stats logs:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllForStats();
+  }, [searchQuery, selectedAction, selectedModule, selectedDateFilter]);
+
   useEffect(() => {
     fetchLogs();
   }, [currentPage, searchQuery, selectedAction, selectedModule, selectedDateFilter]);
@@ -140,11 +177,11 @@ export default function ActivityLogs() {
   // Group logs by user email to compute counts and percentages dynamically
   const userStats = React.useMemo(() => {
     const statsMap: { [email: string]: number } = {};
-    logs.forEach(log => {
+    allFilteredLogs.forEach(log => {
       const email = log.email || 'Sistem / Anonim';
       statsMap[email] = (statsMap[email] || 0) + 1;
     });
-    const total = logs.length;
+    const total = allFilteredLogs.length;
     return Object.entries(statsMap)
       .map(([email, count]) => ({
         email,
@@ -152,11 +189,11 @@ export default function ActivityLogs() {
         percentage: total > 0 ? ((count / total) * 100).toFixed(1) : '0'
       }))
       .sort((a, b) => b.count - a.count);
-  }, [logs]);
+  }, [allFilteredLogs]);
 
   // Get unique modules in the logs for filtering dropdown
   const staticModules = ['Dashboard', 'Rawat Jalan', 'IGD', 'Rawat Inap', 'Katalog ICD-10', 'Master Pasien', 'Master Obat', 'Konsumsi Harian', 'Peramalan Stok (Forecasting)', 'Analisis ABC', 'Kasir & Pembayaran'];
-  const uniqueModules = Array.from(new Set([...staticModules, ...logs.map(l => l.module_name).filter(Boolean)]));
+  const uniqueModules = Array.from(new Set([...staticModules, ...allFilteredLogs.map(l => l.module_name).filter(Boolean)]));
 
   const paginatedLogs = logs;
 
@@ -189,7 +226,7 @@ export default function ActivityLogs() {
       </div>
 
       {/* Statistics Cards */}
-      {!loading && !error && logs.length > 0 && (
+      {!loading && !error && allFilteredLogs.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Stat Card - Total Logs */}
           <motion.div 
@@ -200,7 +237,7 @@ export default function ActivityLogs() {
           >
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
-              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{logs.length}</span>
+              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{allFilteredLogs.length}</span>
               <span className="text-xs text-slate-500 block">
                 Seluruh aktivitas audit trail tersaring dari server
               </span>
@@ -464,7 +501,7 @@ export default function ActivityLogs() {
               <span>Sistem pencatatan log aktivitas aktif secara real-time.</span>
             </div>
             <div className="font-mono">
-              Total Log: <span className="text-teal-700 font-extrabold">{totalItems}</span> baris
+              Total Log: <span className="text-teal-700 font-extrabold">{allFilteredLogs.length}</span> baris
             </div>
           </div>
         )}
