@@ -38,8 +38,38 @@ html {
   backface-visibility: hidden;
 }
 
-/* Kurangi animasi jika user prefer-reduce-motion */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+/* Utility classes dengan stagger delay */
+.anim-fade-up {
+  animation: fadeUp 0.22s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.anim-delay-1 { animation-delay: 0.04s; }
+.anim-delay-2 { animation-delay: 0.08s; }
+.anim-delay-3 { animation-delay: 0.12s; }
+.anim-delay-4 { animation-delay: 0.16s; }
+.anim-delay-5 { animation-delay: 0.20s; }
+.anim-delay-6 { animation-delay: 0.24s; }
+
+/* Untuk user yang prefer reduce motion */
 @media (prefers-reduced-motion: reduce) {
+  .anim-fade-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
   * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;

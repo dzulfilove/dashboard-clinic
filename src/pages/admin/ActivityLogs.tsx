@@ -14,7 +14,6 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import api from '../../services/api.js';
 
 interface ActivityLog {
@@ -229,11 +228,8 @@ export default function ActivityLogs() {
       {!loading && !error && allFilteredLogs.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Stat Card - Total Logs */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.08 }}
-            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between"
+          <div 
+            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between anim-fade-up"
           >
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
@@ -245,14 +241,11 @@ export default function ActivityLogs() {
             <div className="bg-teal-50 p-3.5 rounded-2xl">
               <Activity className="h-6 w-6 text-teal-600" />
             </div>
-          </motion.div>
+          </div>
 
           {/* User Distribution Widget (Full width on md, occupies 2 cols) */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.16 }}
-            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm md:col-span-2 space-y-4"
+          <div 
+            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm md:col-span-2 space-y-4 anim-fade-up anim-delay-1"
           >
             <div className="flex items-center justify-between pb-2">
               <div className="flex items-center gap-2">
@@ -296,17 +289,14 @@ export default function ActivityLogs() {
                 </div>
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
 
       {/* Filter and search bar card */}
-      <motion.div 
+      <div 
         id="logs-filters-container" 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.24 }}
-        className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4"
+        className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4 anim-fade-up anim-delay-2"
       >
         <div className="flex items-center space-x-2 pb-2">
           <Filter className="h-4 w-4 text-teal-600" />
@@ -382,15 +372,12 @@ export default function ActivityLogs() {
             </select>
           </div>
         </div>
-      </motion.div>
+      </div >
 
       {/* Main Logs Table Grid card */}
-      <motion.div 
+      <div 
         id="logs-list-card" 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.32 }}
-        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden anim-fade-up anim-delay-3"
       >
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">
@@ -505,7 +492,7 @@ export default function ActivityLogs() {
             </div>
           </div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -11,7 +11,6 @@ import {
   PieChart,
   ArrowRight
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import api from '../../services/api.js';
 import { AbcItem, AbcResult } from '../../types.js';
 
@@ -124,26 +123,18 @@ export default function AbcAnalysis() {
       </div>
 
       {feedback && (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{ willChange: 'transform, opacity' }}
+        <div 
           id="abc-error-alert" 
-          className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold"
+          className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold anim-fade-up"
         >
           <AlertTriangle className="h-5 w-5 text-rose-600" />
           <span>{feedback}</span>
-        </motion.div>
+        </div>
       )}
 
       {/* Methodological Explanation card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
-        style={{ willChange: 'transform, opacity' }}
-        className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 shadow-sm"
+      <div 
+        className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 shadow-sm anim-fade-up"
       >
         <div className="space-y-4">
           <div className="flex items-center gap-2">
@@ -168,29 +159,25 @@ export default function AbcAnalysis() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {loading ? (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-white rounded-2xl border border-slate-250 p-24 text-center"
+        <div 
+          className="bg-white rounded-2xl border border-slate-250 p-24 text-center anim-fade-up"
         >
           <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
           <span>Meganalisis pengeluaran obat pasca Pareto...</span>
-        </motion.div>
+        </div>
       ) : abcData.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150"
+        <div 
+          className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150 anim-fade-up"
         >
           <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-2" />
           <p className="font-bold">Tidak ada jurnal log konsumsi.</p>
           <p className="text-xs text-slate-400 mt-1">
             Harap pastikan petugas telah mengisikan volume konsumsi obat bulanan untuk periode {months.find(m => m.value === selectedMonth)?.name} {selectedYear} di Modul Farmasi.
           </p>
-        </motion.div>
+        </div>
       ) : (
         <div className="space-y-6">
           
@@ -198,13 +185,8 @@ export default function AbcAnalysis() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             
             {/* KPI: Total drug spend */}
-            <motion.div 
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
-               whileHover={{ y: -2 }}
-               style={{ willChange: 'transform, opacity' }}
-               className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden"
+            <div 
+               className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden anim-fade-up anim-delay-1 transition-transform duration-150 ease-out hover:-translate-y-0.5"
             >
               <span className="text-[14px] font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
               <h3 className="text-2xl font-black font-mono block mt-2">
@@ -214,16 +196,11 @@ export default function AbcAnalysis() {
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <DollarSign className="w-16 h-16"/>
               </div>
-            </motion.div>
+            </div>
 
             {/* Class A summary */}
-            <motion.div 
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
-               whileHover={{ y: -2 }}
-               style={{ willChange: 'transform, opacity' }}
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
+            <div 
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-2 transition-transform duration-150 ease-out hover:-translate-y-0.5"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
               <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-2">
@@ -232,16 +209,11 @@ export default function AbcAnalysis() {
               <p className="text-[14px] font-bold text-slate-600 mt-2">
                 Anggaran: Rp {classASpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classASpend/totalInvestasi)*100) : 0}%)
               </p>
-            </motion.div>
+            </div>
 
             {/* Class B summary */}
-            <motion.div 
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
-               whileHover={{ y: -2 }}
-               style={{ willChange: 'transform, opacity' }}
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
+            <div 
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-3 transition-transform duration-150 ease-out hover:-translate-y-0.5"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
               <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-2">
@@ -250,16 +222,11 @@ export default function AbcAnalysis() {
               <p className="text-[14px] font-bold text-slate-600 mt-2">
                 Anggaran: Rp {classBSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classBSpend/totalInvestasi)*100) : 0}%)
               </p>
-            </motion.div>
+            </div>
 
             {/* Class C summary */}
-            <motion.div 
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
-               whileHover={{ y: -2 }}
-               style={{ willChange: 'transform, opacity' }}
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
+            <div 
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-4 transition-transform duration-150 ease-out hover:-translate-y-0.5"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
               <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-2">
@@ -268,16 +235,12 @@ export default function AbcAnalysis() {
               <p className="text-[14px] font-bold text-slate-600 mt-2">
                 Anggaran: Rp {classCSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classCSpend/totalInvestasi)*100) : 0}%)
               </p>
-            </motion.div>
+            </div>
           </div>
 
           {/* Pareto Ranked Items List */}
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
-            style={{ willChange: 'transform, opacity' }}
-            className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden"
+          <div 
+            className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden anim-fade-up anim-delay-5"
           >
             <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70">
               <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
@@ -353,7 +316,7 @@ export default function AbcAnalysis() {
                 </tbody>
               </table>
             </div>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

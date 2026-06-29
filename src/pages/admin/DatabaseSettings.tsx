@@ -14,7 +14,6 @@ import {
   Plug,
   Info
 } from 'lucide-react';
-import { motion } from 'motion/react';
 import api from '../../services/api.js';
 import { DbStatus } from '../../types.js';
 
@@ -122,11 +121,8 @@ export default function DatabaseSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Current Active DB Status diagnostic card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.08 }}
-          className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between"
+        <div 
+          className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between anim-fade-up"
         >
           <div className="space-y-6">
             <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
@@ -195,14 +191,11 @@ export default function DatabaseSettings() {
             <RefreshCw className="h-4 w-4" />
             <span>Pindai Ulang Port</span>
           </button>
-        </motion.div>
+        </div>
 
         {/* Right: VPS MySQL Connection tester & Live Database schema Migration builder */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.16 }}
-          className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-2 space-y-6"
+        <div 
+          className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-2 space-y-6 anim-fade-up anim-delay-1"
         >
           <div>
             <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
@@ -340,7 +333,7 @@ export default function DatabaseSettings() {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

@@ -368,11 +368,8 @@ export default function UsersManagement() {
       </AnimatePresence>
 
       {/* Accounts display catalog */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.16 }}
-        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+      <div 
+        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden anim-fade-up anim-delay-1"
       >
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-100/70 text-left">
@@ -472,7 +469,7 @@ export default function UsersManagement() {
             </tbody>
           </table>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
