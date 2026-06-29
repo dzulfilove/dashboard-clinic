@@ -926,10 +926,28 @@ export default function RawatInap() {
     }
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.4,
+        ease: 'easeOut',
+      },
+    }),
+  };
+
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Bed className="h-5 w-5 text-teal-600" />
@@ -971,7 +989,7 @@ export default function RawatInap() {
             <span>Registrasi Manual</span>
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Interactive Floating Feedback Screen */}
       <AnimatePresence>
@@ -1014,8 +1032,10 @@ export default function RawatInap() {
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -1037,8 +1057,10 @@ export default function RawatInap() {
 
                 {/* 2. Tindakan Medis */}
                 <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.16 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -1062,8 +1084,10 @@ export default function RawatInap() {
 
                 {/* 4. Kamar Teraktif */}
                 <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.24 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -1089,7 +1113,12 @@ export default function RawatInap() {
               {/* Graphical Charts Section */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* 1. REGISTRATION & EARNINGS TREND OVER TIME */}
-                <div className="bg-white p-6 rounded-3xl lg:col-span-8 flex flex-col space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="bg-white p-6 rounded-3xl lg:col-span-8 flex flex-col space-y-4"
+                >
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Tren Volume Kunjungan & Pendapatan Rawat Inap</h3>
                     <p className="text-xs text-slate-400">Statistik harian untuk pendaftaran pasien ranap beserta perolehan nominal subtotal tindakan.</p>
@@ -1114,10 +1143,15 @@ export default function RawatInap() {
                       </ResponsiveContainer>
                     )}
                   </div>
-                </div>
+                </motion.div>
 
                 {/* 2. AREA DISTRIBUTION: CHAMBER SELECTION */}
-                <div className="bg-white p-6 rounded-3xl lg:col-span-4 flex flex-col space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  className="bg-white p-6 rounded-3xl lg:col-span-4 flex flex-col space-y-4"
+                >
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Tingkat Okupansi Ruang Kamar</h3>
                     <p className="text-xs text-slate-400">Distribusi penempatan bed / kamar tidur pasien.</p>
@@ -1158,7 +1192,7 @@ export default function RawatInap() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               {/* Infography distribution details */}
@@ -1288,7 +1322,12 @@ export default function RawatInap() {
           {activeTab === 'kunjungan' && (
             <div className="space-y-6">
               {/* Infografis Kunjungan Per Triase */}
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 }}
+                className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150"
+              >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {triageStats.map((item) => {
@@ -1396,7 +1435,7 @@ export default function RawatInap() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
@@ -1434,7 +1473,12 @@ export default function RawatInap() {
               </div>
 
               {/* Search utility and count banner */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.16 }}
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
@@ -1489,10 +1533,15 @@ export default function RawatInap() {
                 <div className="text-slate-500 text-xs font-semibold">
                   Menampilkan <span className="text-teal-700 font-bold">{filteredRecords.length}</span> dari {records.length} registrasi pelayanan
                 </div>
-              </div>
+              </motion.div>
 
               {/* Main Content Card Container */}
-              <div className="space-y-4 bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.24 }}
+                className="space-y-4 bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs"
+              >
 
               {/* Patient List Content Table */}
               {paginatedRecords.length === 0 ? (
@@ -1505,13 +1554,22 @@ export default function RawatInap() {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto pr-1">
+                  <AnimatePresence>
                   {paginatedRecords.map((rec, idx) => {
                     const isExpanded = expandedId === rec.id;
                     const triageStyle = getTriageStyle(rec.triase);
                     const costTotal = rec.tindakan.reduce((sum, act) => sum + act.subtotal, 0);
 
                     return (
-                      <div key={rec.id} className="py-4">
+                      <motion.div 
+                        key={rec.id} 
+                        variants={itemVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        custom={idx}
+                        className="py-4"
+                      >
                         {/* Summary Header of element */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 font-sans">
                           {/* Left patient identity columns */}
@@ -1642,11 +1700,12 @@ export default function RawatInap() {
                             </motion.div>
                           )}
                         </AnimatePresence>
-                      </div>
+                      </motion.div>
                     );
                   })}
-                </div>
-              )}
+                </AnimatePresence>
+              </div>
+            )}
 
               {/* Interactive Pagination Buttons footer row */}
               {totalPages > 1 && (
@@ -1668,7 +1727,7 @@ export default function RawatInap() {
                   </button>
                 </div>
               )}
-              </div>
+              </motion.div>
             </div>
           )}
 

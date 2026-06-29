@@ -81,7 +81,12 @@ export default function AbcAnalysis() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Layers className="h-5 w-5 text-teal-600" />
@@ -119,17 +124,27 @@ export default function AbcAnalysis() {
             ))}
           </select>
         </div>
-      </div>
+      </motion.div>
 
       {feedback && (
-        <div id="abc-error-alert" className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          id="abc-error-alert" 
+          className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold"
+        >
           <AlertTriangle className="h-5 w-5 text-rose-600" />
           <span>{feedback}</span>
-        </div>
+        </motion.div>
       )}
 
       {/* Methodological Explanation card */}
-      <div className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 shadow-sm">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.08 }}
+        className="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 shadow-sm"
+      >
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-teal-600 flex-shrink-0" />
@@ -153,21 +168,29 @@ export default function AbcAnalysis() {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-250 p-24 text-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="bg-white rounded-2xl border border-slate-250 p-24 text-center"
+        >
           <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
           <span>Meganalisis pengeluaran obat pasca Pareto...</span>
-        </div>
+        </motion.div>
       ) : abcData.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150"
+        >
           <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-2" />
           <p className="font-bold">Tidak ada jurnal log konsumsi.</p>
           <p className="text-xs text-slate-400 mt-1">
             Harap pastikan petugas telah mengisikan volume konsumsi obat bulanan untuk periode {months.find(m => m.value === selectedMonth)?.name} {selectedYear} di Modul Farmasi.
           </p>
-        </div>
+        </motion.div>
       ) : (
         <div className="space-y-6">
           
@@ -176,8 +199,10 @@ export default function AbcAnalysis() {
             
             {/* KPI: Total drug spend */}
             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.4, delay: 0.16 }}
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
-               transition={{ duration: 0.2 }}
                className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden"
             >
               <span className="text-[14px] font-extrabold text-slate-400 uppercase tracking-widest block">Nilai Total Pengeluaran Obat</span>
@@ -192,8 +217,10 @@ export default function AbcAnalysis() {
 
             {/* Class A summary */}
             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.4, delay: 0.24 }}
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-               transition={{ duration: 0.2 }}
                className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
@@ -207,8 +234,10 @@ export default function AbcAnalysis() {
 
             {/* Class B summary */}
             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.4, delay: 0.32 }}
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-               transition={{ duration: 0.2 }}
                className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
@@ -222,8 +251,10 @@ export default function AbcAnalysis() {
 
             {/* Class C summary */}
             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ duration: 0.4, delay: 0.4 }}
                whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-               transition={{ duration: 0.2 }}
                className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
@@ -237,7 +268,12 @@ export default function AbcAnalysis() {
           </div>
 
           {/* Pareto Ranked Items List */}
-          <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.48 }}
+            className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden"
+          >
             <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70">
               <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wider">
                 Tabel Urutan Nilai Konsumsi (Pareto Decending)
@@ -312,7 +348,7 @@ export default function AbcAnalysis() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>

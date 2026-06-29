@@ -108,15 +108,12 @@ export default function Dashboard() {
   };
 
   return (
-    <motion.div 
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="space-y-8 font-sans"
-    >
+    <div className="space-y-8 font-sans">
       {/* Welcome Banner */}
       <motion.div 
-        variants={itemVariants}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
         id="welcome-banner" 
         className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4"
       >
@@ -145,11 +142,13 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Main KPI Grid */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* KPI 1 - Lab Volume */}
         <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-          transition={{ duration: 0.2 }}
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
@@ -169,8 +168,10 @@ export default function Dashboard() {
 
         {/* KPI 2 - Medications Catalog */}
         <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-          transition={{ duration: 0.2 }}
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
@@ -190,8 +191,10 @@ export default function Dashboard() {
 
         {/* KPI 3 - Low Stock Pharmacy alerts */}
         <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.24 }}
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-          transition={{ duration: 0.2 }}
           className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 border shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'border-rose-100 ring-2 ring-rose-500/10' : 'border-slate-100'}`}
         >
           <div className="flex items-center justify-between">
@@ -213,8 +216,10 @@ export default function Dashboard() {
 
         {/* KPI 4 - Staff / Accounts */}
         <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.32 }}
           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-          transition={{ duration: 0.2 }}
           className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
         >
           <div className="flex items-center justify-between">
@@ -233,13 +238,18 @@ export default function Dashboard() {
           </div>
           <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-600"></div>
         </motion.div>
-      </motion.div>
+      </div>
 
       {/* Critical Stock Notification and Actions block */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Critical Stock Alerts */}
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 lg:col-span-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 }}
+          className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 lg:col-span-2"
+        >
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-4.5 w-4.5 text-rose-600" />
@@ -299,10 +309,15 @@ export default function Dashboard() {
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right: Quick Action Menu Shortcuts */}
-        <div className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between">
+        <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.48 }}
+          className="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between"
+        >
           <div>
             <h2 className="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2 font-display">
               <Activity className="h-4.5 w-4.5 text-teal-600" />
@@ -371,8 +386,9 @@ export default function Dashboard() {
           <div className="mt-4 pt-4 border-t border-slate-100/50 text-center">
             <span className="text-xxs text-slate-400 font-mono tracking-wider">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
           </div>
-        </div>
-      </motion.div>
-    </motion.div>
+        </motion.div>
+      </div>
+    </div>
   );
+
 }

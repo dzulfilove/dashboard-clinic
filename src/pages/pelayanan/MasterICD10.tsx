@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api.js';
 import { Plus, Trash2, Edit2, X, Check, Search, ChevronLeft, ChevronRight, Database, CheckCircle, Info, ClipboardList } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface ICD10 {
   id: number;
@@ -72,10 +73,24 @@ export default function MasterICD10() {
     setCurrentPage(1);
   }, [searchQuery]);
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.05, duration: 0.3, ease: 'easeOut' }
+    })
+  };
+
   return (
     <div className="space-y-6">
       {/* Upper header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <ClipboardList className="h-5 w-5 text-teal-600" />
@@ -92,12 +107,17 @@ export default function MasterICD10() {
         >
           <Plus className="h-3.5 w-3.5" /> Tambah ICD-10
         </button>
-      </div>
+      </motion.div>
 
 
 
       {/* Search Input Bar */}
-      <div className="bg-white p-4 border border-slate-100 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+        className="bg-white p-4 border border-slate-100 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between"
+      >
         <div className="relative w-full md:max-w-md">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -111,10 +131,15 @@ export default function MasterICD10() {
         <div className="text-xs font-semibold text-slate-500">
           Menampilkan {startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalItems)} dari {totalItems} hasil pencarian
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Table view */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+        className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden"
+      >
         <table className="w-full">
           <thead className="bg-slate-50/50 border-b border-slate-100/70 text-xs text-slate-500 uppercase font-black tracking-wider">
             <tr>
@@ -139,8 +164,15 @@ export default function MasterICD10() {
                 </td>
               </tr>
             ) : (
-              paginatedData.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+              paginatedData.map((item, i) => (
+                <motion.tr 
+                  key={item.id} 
+                  custom={i}
+                  initial="hidden"
+                  animate="visible"
+                  variants={itemVariants}
+                  className="hover:bg-slate-50/50 transition-colors"
+                >
                   <td className="p-4 text-sm font-semibold font-mono text-teal-700">{item.kode_icd}</td>
                   <td className="p-4 text-sm font-medium">{item.deskripsi}</td>
                   <td className="p-4 text-right">
@@ -152,7 +184,7 @@ export default function MasterICD10() {
                       <Edit2 className="h-4 w-4" />
                     </button>
                   </td>
-                </tr>
+                </motion.tr>
               ))
             )}
           </tbody>
@@ -182,7 +214,7 @@ export default function MasterICD10() {
             <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Edit/Create Popup Modal */}
       {isModalOpen && (

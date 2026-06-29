@@ -173,7 +173,12 @@ export default function DemografiDiagnosa() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <HeartPulse className="h-5 w-5 text-teal-600 animate-pulse" />
@@ -204,7 +209,7 @@ export default function DemografiDiagnosa() {
             className="text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-teal-500 font-medium"
           />
         </div>
-      </div>
+      </motion.div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xs">
@@ -237,7 +242,12 @@ export default function DemografiDiagnosa() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
               {/* Box 1: Pie/Donut Share of Top 5 */}
-              <div className="bg-white rounded-2xl p-5 flex flex-col h-[320px]">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 }}
+                className="bg-white rounded-2xl p-5 flex flex-col h-[320px]"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <PieIcon className="h-4 w-4 text-teal-600" />
@@ -276,10 +286,15 @@ export default function DemografiDiagnosa() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Box 2: Timeline Trend for Top 5 */}
-              <div className="bg-white rounded-2xl p-5 flex flex-col h-[320px]">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.16 }}
+                className="bg-white rounded-2xl p-5 flex flex-col h-[320px]"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="h-4 w-4 text-emerald-600" />
@@ -336,12 +351,17 @@ export default function DemografiDiagnosa() {
                     </ResponsiveContainer>
                   )}
                 </div>
-              </div>
+              </motion.div>
 
             </div>
 
             {/* List and Table Grid of all diagnoses */}
-            <div className="bg-white rounded-3xl p-6 space-y-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.24 }}
+              className="bg-white rounded-3xl p-6 space-y-4"
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-0.5">
                   <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
@@ -419,7 +439,7 @@ export default function DemografiDiagnosa() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </motion.div>
 
           </div>
 

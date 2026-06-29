@@ -884,13 +884,8 @@ export default function RawatJalan() {
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  const itemsPerPage = 100;
-  const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+    const itemsPerPage = 100;
+    const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
   
   const paginatedRecords = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -974,15 +969,28 @@ export default function RawatJalan() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.4,
+        ease: 'easeOut',
+      },
+    }),
+  };
+
   return (
-    <motion.div 
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       {/* Upper Module Heading */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <FileCheck className="h-5 w-5 text-teal-600" />
@@ -1074,7 +1082,12 @@ export default function RawatJalan() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     
                     {/* 1. Kunjungan Pasien */}
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.08 }}
+                      className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
                           <Users className="h-6 w-6" />
@@ -1090,10 +1103,15 @@ export default function RawatJalan() {
                         <p className="text-xxs font-normal text-slate-500 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
-                    </div>
+                    </motion.div>
 
                     {/* 2. Tindakan Medis */}
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.16 }}
+                      className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
                           <ClipboardList className="h-6 w-6" />
@@ -1109,10 +1127,15 @@ export default function RawatJalan() {
                         <p className="text-xxs font-normal text-slate-500 mt-1">Total Tindakan Medis Dilakukan</p>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
-                    </div>
+                    </motion.div>
 
                     {/* 4. DPJP Teraktif */}
-                    <div className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.24 }}
+                      className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md"
+                    >
                       <div className="flex items-center justify-between">
                         <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
                           <TrendingUp className="h-6 w-6 text-amber-600" />
@@ -1130,14 +1153,19 @@ export default function RawatJalan() {
                         </p>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
-                    </div>
+                    </motion.div>
                     
                   </div>
 
                   {/* Graphical trends */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Chart 1: Kunjungan & Pendapatan Harian */}
-                    <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.32 }}
+                      className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4"
+                    >
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian</h3>
                         <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
@@ -1192,10 +1220,15 @@ export default function RawatJalan() {
                           ))}
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
 
                     {/* Chart 2: Top 5 Procedures */}
-                    <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.4 }}
+                      className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4"
+                    >
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan Terbanyak</h3>
                         <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan rawat jalan</p>
@@ -1242,11 +1275,16 @@ export default function RawatJalan() {
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
-                  <div className="bg-white p-6 rounded-2xl border border-slate-100/70 shadow-sm space-y-4">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.48 }}
+                    className="bg-white p-6 rounded-2xl border border-slate-100/70 shadow-sm space-y-4"
+                  >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       <div>
                         <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
@@ -1305,10 +1343,15 @@ export default function RawatJalan() {
                         })}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Sample Pasted Output references */}
-                  <div className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.56 }}
+                    className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md"
+                  >
                     <div className="absolute top-[-20%] right-[-10%] w-[20rem] h-[20rem] bg-teal-500/10 rounded-full blur-[80px]" />
                     <div className="flex items-center space-x-2.5 z-10 relative">
                       <FileText className="h-5 w-5 text-teal-400" />
@@ -1326,22 +1369,20 @@ export default function RawatJalan() {
                         <ArrowRight className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               )}
 
               {/* TAB 2: DETAILED RECORDS GRID */}
               {activeTab === 'kunjungan' && (
-                <motion.div 
-                  key="visits"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-4"
-                >
-              {/* Infografis Kunjungan Per Triase */}
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-2xl border border-slate-100/80">
+                <div className="space-y-4">
+                  {/* Infografis Kunjungan Per Triase */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.08 }}
+                    className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-2xl border border-slate-100/80"
+                  >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {triageStats.map((item) => {
@@ -1449,10 +1490,15 @@ export default function RawatJalan() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-100 p-2.5 rounded-2xl">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.16 }}
+                className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-100 p-2.5 rounded-2xl"
+              >
                 <span className="text-slate-450 text-[10px] font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
@@ -1484,10 +1530,15 @@ export default function RawatJalan() {
                     <span>{item.name} ({item.count})</span>
                   </button>
                 ))}
-              </div>
+              </motion.div>
 
               {/* Search utility and count banner */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.24 }}
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
@@ -1539,17 +1590,27 @@ export default function RawatJalan() {
                 <div className="text-slate-500 text-xs font-semibold">
                   Menampilkan <span className="text-teal-700 font-bold">{filteredRecords.length}</span> dari {records.length} registrasi pelayanan
                 </div>
-              </div>
+              </motion.div>
 
               {/* Main Table Accordion */}
               {filteredRecords.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center"
+                >
                   <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-2" />
                   <h4 className="text-sm font-bold text-slate-700">Daftar Kunjungan Kosong</h4>
                   <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Gunakan filter pencarian lain atau tambahkan pendaftaran pasien rawat jalan baru.</p>
-                </div>
+                </motion.div>
               ) : (
-                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden"
+                >
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
@@ -1564,13 +1625,21 @@ export default function RawatJalan() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                        {paginatedRecords.map((rec) => {
-                          const isExpanded = expandedId === rec.id;
-                          const totalCost = rec.tindakan.reduce((sum, t) => sum + t.subtotal, 0);
+                        <AnimatePresence>
+                          {paginatedRecords.map((rec, i) => {
+                            const isExpanded = expandedId === rec.id;
+                            const totalCost = rec.tindakan.reduce((sum, t) => sum + t.subtotal, 0);
 
-                          return (
-                            <React.Fragment key={rec.id}>
-                              <tr className="hover:bg-slate-50/30 transition-all">
+                            return (
+                              <React.Fragment key={rec.id}>
+                                <motion.tr 
+                                  variants={itemVariants}
+                                  initial="hidden"
+                                  animate="visible"
+                                  exit="hidden"
+                                  custom={i}
+                                  className="hover:bg-slate-50/30 transition-all"
+                                >
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
                                     <span className="font-medium text-slate-900 font-mono text-[11.5px]">{rec.no_registrasi}</span>
@@ -1641,11 +1710,16 @@ export default function RawatJalan() {
                                     </button>
                                   </div>
                                 </td>
-                              </tr>
+                                </motion.tr>
 
                               {/* Accordion inner tindakan rows */}
                               {isExpanded && (
-                                <tr className="bg-slate-50/70">
+                                <motion.tr 
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="bg-slate-50/70"
+                                >
                                   <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-100/70 pb-2">
@@ -1678,11 +1752,12 @@ export default function RawatJalan() {
                                       </div>
                                     </div>
                                   </td>
-                                </tr>
+                                </motion.tr>
                               )}
                             </React.Fragment>
                           );
                         })}
+                        </AnimatePresence>
                       </tbody>
                     </table>
                   </div>
@@ -1734,9 +1809,9 @@ export default function RawatJalan() {
                       </div>
                     </div>
                   )}
-                </div>
+                </motion.div>
               )}
-            </motion.div>
+            </div>
           )}
 
               {/* TAB 3: PASTE TEXT BULK IMPORTER */}
@@ -2307,6 +2382,6 @@ export default function RawatJalan() {
             </div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

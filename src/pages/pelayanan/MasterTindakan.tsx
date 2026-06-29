@@ -12,6 +12,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import api from '../../services/api';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Tindakan {
   id: number;
@@ -35,7 +36,7 @@ export default function MasterTindakan() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const fetchTindakans = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       const res = await api.get('/master-tindakan');
@@ -49,7 +50,7 @@ export default function MasterTindakan() {
   };
 
   useEffect(() => {
-    fetchTindakans();
+    fetchData();
   }, []);
 
   const handleOpenAddModal = () => {
@@ -81,7 +82,7 @@ export default function MasterTindakan() {
         try {
           await api.delete(`/master-tindakan/${id}`);
           setFeedback({ type: 'success', message: 'Tindakan berhasil dihapus.' });
-          fetchTindakans();
+          fetchData();
         } catch (err: any) {
           setFeedback({ 
             type: 'error', 
@@ -113,7 +114,7 @@ export default function MasterTindakan() {
         setFeedback({ type: 'success', message: 'Tindakan baru berhasil didaftarkan.' });
       }
       setIsModalOpen(false);
-      fetchTindakans();
+      fetchData();
     } catch (err: any) {
       setFeedback({ 
         type: 'error', 
@@ -129,10 +130,24 @@ export default function MasterTindakan() {
     (t.jenis || '').toLowerCase().includes(search.toLowerCase())
   );
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.05, duration: 0.3, ease: 'easeOut' }
+    })
+  };
+
   return (
     <div className="space-y-6">
       {/* Upper header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Activity className="h-5 w-5 text-teal-600" />
@@ -150,19 +165,31 @@ export default function MasterTindakan() {
           <Plus className="h-3 w-3" />
           <span>Tambah</span>
         </button>
-      </div>
+      </motion.div>
 
-      {feedback && (
-        <div className={`p-4 rounded-xl flex items-center gap-3 border ${
-          feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
-        }`}>
-          {feedback.type === 'success' ? <Check className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
-          <span className="text-sm font-semibold">{feedback.message}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {feedback && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className={`p-4 rounded-xl flex items-center gap-3 border ${
+              feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+            }`}
+          >
+            {feedback.type === 'success' ? <Check className="h-5 w-5 shrink-0" /> : <AlertCircle className="h-5 w-5 shrink-0" />}
+            <span className="text-sm font-semibold">{feedback.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main card */}
-      <div className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+        className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden"
+      >
         {/* Controls header */}
         <div className="p-4 sm:p-5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30">
           <div className="relative w-full sm:max-w-md">
@@ -204,8 +231,17 @@ export default function MasterTindakan() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filteredData.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/50 transition">
+                <AnimatePresence mode="popLayout">
+                {filteredData.map((t, i) => (
+                  <motion.tr 
+                    key={t.id} 
+                    custom={i}
+                    initial="hidden"
+                    animate="visible"
+                    variants={itemVariants}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    className="hover:bg-slate-50/50 transition"
+                  >
                     <td className="py-3 px-5 text-xs text-slate-600 font-mono">
                       #{String(t.id).padStart(4, '0')}
                     </td>
@@ -243,13 +279,14 @@ export default function MasterTindakan() {
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* Action modal dialog */}
       {isModalOpen && (

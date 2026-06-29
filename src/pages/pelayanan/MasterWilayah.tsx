@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { Plus, Trash2, Check, X, MapPin } from 'lucide-react';
 import api from '../../services/api';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function MasterWilayah() {
   const [kota, setKota] = useState<any[]>([]);
@@ -119,9 +120,23 @@ export default function MasterWilayah() {
     });
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.04, duration: 0.3, ease: 'easeOut' }
+    })
+  };
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6"
+      >
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <MapPin className="w-6 h-6 text-teal-600" />
@@ -137,16 +152,23 @@ export default function MasterWilayah() {
         >
           Refresh Data
         </button>
-      </div>
+      </motion.div>
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl text-red-700 text-sm font-medium flex justify-between items-center">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+      <AnimatePresence>
+        {error && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl text-red-700 text-sm font-medium flex justify-between items-center"
+          >
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {loading ? (
         <div className="py-20 flex flex-col items-center justify-center">
@@ -157,7 +179,12 @@ export default function MasterWilayah() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
           {/* COLUMN: KOTA */}
-          <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]">
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+            className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <h2 className="font-bold text-slate-800 text-base">Kota ({kota.length})</h2>
               {!showAddKota && (
@@ -213,8 +240,17 @@ export default function MasterWilayah() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {kota.map(k => (
-                      <tr key={k.id} className="hover:bg-slate-50/50 group">
+                    <AnimatePresence mode="popLayout">
+                    {kota.map((k, i) => (
+                      <motion.tr 
+                        key={k.id} 
+                        custom={i}
+                        initial="hidden"
+                        animate="visible"
+                        variants={itemVariants}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        className="hover:bg-slate-50/50 group"
+                      >
                         <td className="py-2.5 font-medium text-slate-700">{k.nama}</td>
                         <td className="py-2.5 text-right">
                           <button 
@@ -225,16 +261,22 @@ export default function MasterWilayah() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
+                    </AnimatePresence>
                   </tbody>
                 </table>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* COLUMN: KECAMATAN */}
-          <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]">
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+            className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <h2 className="font-bold text-slate-800 text-base">Kecamatan ({kecamatan.length})</h2>
               {!showAddKecamatan && (
@@ -303,8 +345,17 @@ export default function MasterWilayah() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {kecamatan.map(k => (
-                      <tr key={k.id} className="hover:bg-slate-50/50 group">
+                    <AnimatePresence mode="popLayout">
+                    {kecamatan.map((k, i) => (
+                      <motion.tr 
+                        key={k.id} 
+                        custom={i}
+                        initial="hidden"
+                        animate="visible"
+                        variants={itemVariants}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        className="hover:bg-slate-50/50 group"
+                      >
                         <td className="py-2.5 font-medium text-slate-700">{k.nama}</td>
                         <td className="py-2.5 text-slate-500">{k.kota_nama || <span className="italic text-slate-400">Tidak ada</span>}</td>
                         <td className="py-2.5 text-right">
@@ -316,16 +367,22 @@ export default function MasterWilayah() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
+                    </AnimatePresence>
                   </tbody>
                 </table>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* COLUMN: KELURAHAN */}
-          <div className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]">
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.24 }}
+            className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
+          >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <h2 className="font-bold text-slate-800 text-base">Kelurahan ({kelurahan.length})</h2>
               {!showAddKelurahan && (
@@ -394,8 +451,17 @@ export default function MasterWilayah() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
-                    {kelurahan.map(k => (
-                      <tr key={k.id} className="hover:bg-slate-50/50 group">
+                    <AnimatePresence mode="popLayout">
+                    {kelurahan.map((k, i) => (
+                      <motion.tr 
+                        key={k.id} 
+                        custom={i}
+                        initial="hidden"
+                        animate="visible"
+                        variants={itemVariants}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        className="hover:bg-slate-50/50 group"
+                      >
                         <td className="py-2.5 font-medium text-slate-700">{k.nama}</td>
                         <td className="py-2.5 text-slate-500">{k.kecamatan_nama || <span className="italic text-slate-400">Tidak ada</span>}</td>
                         <td className="py-2.5 text-right">
@@ -407,13 +473,14 @@ export default function MasterWilayah() {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
+                    </AnimatePresence>
                   </tbody>
                 </table>
               )}
             </div>
-          </div>
+          </motion.div>
 
         </div>
       )}

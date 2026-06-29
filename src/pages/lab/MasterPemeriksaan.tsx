@@ -361,14 +361,14 @@ export default function MasterPemeriksaan() {
   });
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-5 font-sans max-w-7xl mx-auto text-xs"
-    >
+    <div className="space-y-5 font-sans max-w-7xl mx-auto text-xs">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <FlaskConical className="h-5 w-5 text-teal-600" />
@@ -387,11 +387,16 @@ export default function MasterPemeriksaan() {
           <Plus className="h-4 w-4" />
           <span>Tambah Parameter Baru</span>
         </button>
-      </div>
+      </motion.div>
 
       {/* KPI Stats Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.08 }}
+          className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm"
+        >
           <div className="p-2.5 bg-teal-50 text-teal-700 rounded-xl">
             <Layers className="h-5 w-5" />
           </div>
@@ -399,9 +404,14 @@ export default function MasterPemeriksaan() {
             <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Total Kategori</span>
             <span className="text-lg font-bold text-slate-800 block leading-tight mt-0.5">{activeCategoriesCount} Kelompok</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.16 }}
+          className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm"
+        >
           <div className="p-2.5 bg-sky-50 text-sky-700 rounded-xl">
             <BriefcaseMedical className="h-5 w-5" />
           </div>
@@ -409,9 +419,14 @@ export default function MasterPemeriksaan() {
             <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Jenis Pemeriksaan (Aktif)</span>
             <span className="text-lg font-bold text-slate-800 block leading-tight mt-0.5">{activeParametersCount} / {totalParametersCount} Item</span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.24 }}
+          className="bg-white border border-slate-100/80 rounded-2xl p-4 flex items-center space-x-3.5 shadow-sm"
+        >
           <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl">
             <RefreshCw className="h-5 w-5" />
           </div>
@@ -419,17 +434,22 @@ export default function MasterPemeriksaan() {
             <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Pembaruan DB Terakhir</span>
             <span className="text-xs font-semibold text-slate-600 block leading-tight mt-0.5">Sinkronisasi Realtime</span>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Main Grid: Left Side Directory / Creator, Right Side List table */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         
-        {/* Left Side: Directory Controls */}
+            {/* Left Side: Directory Controls */}
         <div className="lg:col-span-4 space-y-4">
           
           {/* 1. Quick Category Creator Widget */}
-          <div className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.32 }}
+            className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
+          >
             <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
               <FolderPlus className="h-4 w-4 text-emerald-600" />
               <span>Registrasi Kelompok Baru</span>
@@ -469,10 +489,15 @@ export default function MasterPemeriksaan() {
                 </p>
               )}
             </form>
-          </div>
+          </motion.div>
 
           {/* 1b. CSV Data Import Card */}
-          <div className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+            className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
+          >
             <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <UploadCloud className="h-4 w-4 text-teal-600" />
@@ -553,10 +578,15 @@ export default function MasterPemeriksaan() {
                 </button>
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* 2. Category Sidebar List Picker */}
-          <div className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.48 }}
+            className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
+          >
             <div className="flex items-center justify-between mb-3 border-b border-slate-50 pb-2">
               <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <FolderOpen className="h-4 w-4 text-sky-650" />
@@ -612,12 +642,17 @@ export default function MasterPemeriksaan() {
                 );
               })}
             </div>
-          </div>
+          </motion.div>
 
         </div>
 
         {/* Right Side: Tabular Parameter Directory & Search */}
-        <div className="lg:col-span-8 bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm space-y-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.56 }}
+          className="lg:col-span-8 bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm space-y-4"
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-55/40 p-1 rounded-xl">
             {/* Search Bar Input */}
             <div className="relative flex-1">
@@ -726,11 +761,12 @@ export default function MasterPemeriksaan() {
                       </tr>
                     )}
                   </tbody>
+                  {/* Table Closure */}
                 </table>
               </div>
             </div>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* ADAPTIVE CREATE/EDIT PARAMETER MODAL DIALOG */}
@@ -875,6 +911,6 @@ export default function MasterPemeriksaan() {
           </div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

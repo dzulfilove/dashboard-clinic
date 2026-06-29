@@ -14,6 +14,7 @@ import {
   Plug,
   Info
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import api from '../../services/api.js';
 import { DbStatus } from '../../types.js';
 
@@ -101,7 +102,11 @@ export default function DatabaseSettings() {
   return (
     <div className="space-y-6">
       {/* Upper header */}
-      <div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
           <Database className="h-5 w-5 text-teal-600" />
           <span>Pengaturan & Diagnostik Sinkronisasi Database VPS</span>
@@ -109,7 +114,7 @@ export default function DatabaseSettings() {
         <p className="text-slate-500 text-xs mt-1">
           Konfigurasikan integrasi MySQL VPS eksternal, validasi status socket server, dan jalankan migrasi schema otomatis.
         </p>
-      </div>
+      </motion.div>
 
       {feedback && (
         <div className="p-4 bg-rose-50 border border-rose-150 text-rose-800 rounded-xl">
@@ -121,7 +126,12 @@ export default function DatabaseSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left: Current Active DB Status diagnostic card */}
-        <div className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.08 }}
+          className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-1 flex flex-col justify-between"
+        >
           <div className="space-y-6">
             <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
               Status Koneksi Saat Ini
@@ -189,10 +199,15 @@ export default function DatabaseSettings() {
             <RefreshCw className="h-4 w-4" />
             <span>Pindai Ulang Port</span>
           </button>
-        </div>
+        </motion.div>
 
         {/* Right: VPS MySQL Connection tester & Live Database schema Migration builder */}
-        <div className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-2 space-y-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.16 }}
+          className="bg-white p-6 border border-slate-100 rounded-2xl shadow-sm lg:col-span-2 space-y-6"
+        >
           <div>
             <h3 className="font-extrabold text-slate-900 text-sm tracking-wider uppercase border-b border-slate-100/70 pb-3">
               Sistem Integrasi MySQL VPS
@@ -329,7 +344,7 @@ export default function DatabaseSettings() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

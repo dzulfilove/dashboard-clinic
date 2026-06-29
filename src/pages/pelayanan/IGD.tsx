@@ -900,10 +900,28 @@ export default function IGD() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.05,
+        duration: 0.4,
+        ease: 'easeOut',
+      },
+    }),
+  };
+
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Activity className="h-5 w-5 text-teal-600" />
@@ -949,7 +967,7 @@ export default function IGD() {
             <span>Registrasi Manual</span>
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Floating feedback portal */}
       <AnimatePresence>
@@ -986,8 +1004,10 @@ export default function IGD() {
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -1009,8 +1029,10 @@ export default function IGD() {
 
                 {/* 2. Tindakan Medis */}
                 <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.16 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -1034,8 +1056,10 @@ export default function IGD() {
 
                 {/* 4. DPJP Teraktif */}
                 <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.24 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -1062,7 +1086,12 @@ export default function IGD() {
               {/* Graphical trends */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Chart 1: Kunjungan & Pendapatan Harian */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4"
+                >
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian IGD</h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
@@ -1088,10 +1117,15 @@ export default function IGD() {
                       </ResponsiveContainer>
                     )}
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Chart 2: Top 5 Procedures */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4"
+                >
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Jenis Tindakan IGD Terbanyak</h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan Instalasi Gawat Darurat</p>
@@ -1155,7 +1189,7 @@ export default function IGD() {
                       ))}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
@@ -1221,7 +1255,12 @@ export default function IGD() {
               </div>
 
               {/* Sample Pasted Output references */}
-              <div className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.48 }}
+                className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md"
+              >
                 <div className="absolute top-[-20%] right-[-10%] w-[20rem] h-[20rem] bg-teal-500/10 rounded-full blur-[80px]" />
                 <div className="flex items-center space-x-2.5 z-10 relative">
                   <FileText className="h-5 w-5 text-teal-400" />
@@ -1239,7 +1278,7 @@ export default function IGD() {
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
 
@@ -1247,7 +1286,12 @@ export default function IGD() {
           {activeTab === 'kunjungan' && (
             <div className="space-y-4">
               {/* Infografis Kunjungan Per Triase */}
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.08 }}
+                className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150"
+              >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {triageStats.map((item) => {
@@ -1355,7 +1399,7 @@ export default function IGD() {
                     ))}
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
@@ -1393,7 +1437,12 @@ export default function IGD() {
               </div>
 
               {/* Search utility and date selection */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.16 }}
+                className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
+              >
                 <div className="relative flex-1 max-w-sm">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <input
@@ -1432,17 +1481,27 @@ export default function IGD() {
                 <div className="text-slate-500 text-xs font-semibold">
                   Menampilkan <span className="text-teal-700 font-bold">{filteredRecords.length}</span> dari {records.length} registrasi pelayanan IGD
                 </div>
-              </div>
+              </motion.div>
 
               {/* Main Table Accordion */}
               {filteredRecords.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.24 }}
+                  className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center"
+                >
                   <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-2" />
                   <h4 className="text-sm font-bold text-slate-700">Daftar Kunjungan IGD Kosong</h4>
                   <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Gunakan filter pencarian lain atau tambahkan pendaftaran pasien IGD baru.</p>
-                </div>
+                </motion.div>
               ) : (
-                <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.24 }}
+                  className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden"
+                >
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -1457,13 +1516,21 @@ export default function IGD() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                        {paginatedRecords.map((rec) => {
-                          const isExpanded = expandedId === rec.id;
-                          const totalCost = rec.tindakan.reduce((sum, t) => sum + t.subtotal, 0);
+                        <AnimatePresence>
+                          {paginatedRecords.map((rec, i) => {
+                            const isExpanded = expandedId === rec.id;
+                            const totalCost = rec.tindakan.reduce((sum, t) => sum + t.subtotal, 0);
 
-                          return (
-                            <React.Fragment key={rec.id}>
-                              <tr className="hover:bg-slate-50/30 transition-all">
+                            return (
+                              <React.Fragment key={rec.id}>
+                                <motion.tr 
+                                  variants={itemVariants}
+                                  initial="hidden"
+                                  animate="visible"
+                                  exit="hidden"
+                                  custom={i}
+                                  className="hover:bg-slate-50/30 transition-all"
+                                >
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
                                     <span className="font-medium text-slate-900 font-mono text-[11.5px]">{rec.no_registrasi}</span>
@@ -1543,11 +1610,16 @@ export default function IGD() {
                                     </button>
                                   </div>
                                 </td>
-                              </tr>
+                                </motion.tr>
 
                               {/* Accordion inner tindakan rows */}
                               {isExpanded && (
-                                <tr className="bg-slate-50/50">
+                                <motion.tr 
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="bg-slate-50/50"
+                                >
                                   <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100/80">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -1580,11 +1652,12 @@ export default function IGD() {
                                       </div>
                                     </div>
                                   </td>
-                                </tr>
+                                </motion.tr>
                               )}
                             </React.Fragment>
                           );
                         })}
+                        </AnimatePresence>
                       </tbody>
                     </table>
                   </div>
@@ -1636,7 +1709,7 @@ export default function IGD() {
                       </div>
                     </div>
                   )}
-                </div>
+                </motion.div>
               )}
             </div>
           )}

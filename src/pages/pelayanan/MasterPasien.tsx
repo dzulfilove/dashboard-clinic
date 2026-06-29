@@ -195,30 +195,24 @@ export default function MasterPasien() {
     (p.no_rm || '').toLowerCase().includes(search.toLowerCase())
   );
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
   const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 }
+    hidden: { opacity: 0, y: 16 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.05, duration: 0.3, ease: 'easeOut' }
+    })
   };
 
   return (
-    <motion.div 
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-6"
-    >
+    <div className="space-y-6">
       {/* Upper header */}
-      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <Users2 className="h-5 w-5 text-teal-600" />
@@ -255,7 +249,12 @@ export default function MasterPasien() {
       </AnimatePresence>
 
       {/* Main card */}
-      <motion.div variants={itemVariants} className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+        className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden"
+      >
         {/* Controls header */}
         <div className="p-4 sm:p-5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30">
           <div className="relative w-full sm:max-w-md">
@@ -302,11 +301,13 @@ export default function MasterPasien() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 <AnimatePresence mode="popLayout">
-                {filteredData.map((p) => (
+                {filteredData.map((p, i) => (
                   <motion.tr 
                     key={p.no_rm} 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    custom={i}
+                    initial="hidden"
+                    animate="visible"
+                    variants={itemVariants}
                     exit={{ opacity: 0, scale: 0.98 }}
                     className="hover:bg-slate-50/50 transition"
                   >
@@ -650,6 +651,6 @@ export default function MasterPasien() {
         </div>
       )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

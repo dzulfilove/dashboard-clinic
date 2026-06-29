@@ -170,7 +170,12 @@ export default function DemografiKunjungan() {
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <BarChart2 className="h-5 w-5 text-teal-600" />
@@ -206,7 +211,7 @@ export default function DemografiKunjungan() {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xs">
@@ -234,7 +239,12 @@ export default function DemografiKunjungan() {
             >
               {/* Filter & Period Controls */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 }}
+                  className="lg:col-span-2 bg-white p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
                   <div className="flex items-center space-x-3 text-slate-850">
                     <Filter className="h-4.5 w-4.5 text-teal-600" />
                     <div>
@@ -257,9 +267,14 @@ export default function DemografiKunjungan() {
                       className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
                     />
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="bg-white p-5 rounded-2xl shadow-xs flex items-center space-x-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.16 }}
+                  className="bg-white p-5 rounded-2xl shadow-xs flex items-center space-x-4"
+                >
                   <div className="p-3 rounded-xl bg-teal-50 text-teal-600">
                     <Sparkles className="h-5 w-5" />
                   </div>
@@ -269,12 +284,17 @@ export default function DemografiKunjungan() {
                       {topAllTime.reduce((sum, p) => sum + p.total_visits, 0)} Kunjungan
                     </span>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* 1. All-Time Top 20 */}
-                <div className="bg-white rounded-2xl shadow-xs p-6 space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.24 }}
+                  className="bg-white rounded-2xl shadow-xs p-6 space-y-4"
+                >
                   <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
                     <div className="flex items-center space-x-2.5">
                       <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
@@ -342,10 +362,15 @@ export default function DemografiKunjungan() {
                       </table>
                     )}
                   </div>
-                </div>
+                </motion.div>
 
                 {/* 2. Selected Period Top 20 */}
-                <div className="bg-white rounded-2xl shadow-xs p-6 space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="bg-white rounded-2xl shadow-xs p-6 space-y-4"
+                >
                   <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
                     <div className="flex items-center space-x-2.5">
                       <div className="p-1.5 bg-teal-50 text-teal-600 rounded-lg">
@@ -401,7 +426,7 @@ export default function DemografiKunjungan() {
                       </table>
                     )}
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           )}
@@ -417,7 +442,12 @@ export default function DemografiKunjungan() {
             >
               {/* Regional Cards Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 }}
+                  className="bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center space-x-4"
+                >
                   <div className="p-3 rounded-xl bg-teal-50 text-teal-600">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -427,8 +457,13 @@ export default function DemografiKunjungan() {
                       {byKota.filter(c => c.kota !== 'Tidak Diketahui').length} Kota/Kab
                     </span>
                   </div>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.16 }}
+                  className="bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center space-x-4"
+                >
                   <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -438,8 +473,13 @@ export default function DemografiKunjungan() {
                       {byKecamatan.filter(k => k.kecamatan !== 'Tidak Diketahui').length} Kecamatan
                     </span>
                   </div>
-                </div>
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
+                </motion.div>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.24 }}
+                  className="bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center space-x-4"
+                >
                   <div className="p-3 rounded-xl bg-sky-50 text-sky-600">
                     <MapPin className="h-5 w-5" />
                   </div>
@@ -449,12 +489,17 @@ export default function DemografiKunjungan() {
                       {byKelurahan.filter(k => k.kelurahan !== 'Tidak Diketahui').length} Kelurahan
                     </span>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               {/* Chart Persebaran Pasien */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.32 }}
+                  className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h2 className="text-sm font-bold text-slate-850 font-display">Grafik Pasien & Kunjungan Berdasarkan Kota/Kabupaten</h2>
@@ -478,10 +523,15 @@ export default function DemografiKunjungan() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Table Data list */}
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Data Populasi Wilayah (Kota)</h3>
                     <p className="text-xxs text-slate-400">Detail rincian pasien per domisili kabupaten/kota.</p>
@@ -506,12 +556,17 @@ export default function DemografiKunjungan() {
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               {/* Sub-Region Analysis by Kecamatan and Kelurahan */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.48 }}
+                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kecamatan</h3>
@@ -533,9 +588,14 @@ export default function DemografiKunjungan() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.56 }}
+                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kelurahan</h3>
@@ -557,7 +617,7 @@ export default function DemografiKunjungan() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.div>
           )}
@@ -573,7 +633,12 @@ export default function DemografiKunjungan() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Gender Distribution Pie Chart */}
-                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4 flex flex-col justify-between">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.08 }}
+                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4 flex flex-col justify-between"
+                >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Proporsi Gender Pasien</h3>
                     <p className="text-xxs text-slate-400">Pembagian jumlah pasien terdaftar berdasarkan jenis kelamin.</p>
@@ -613,10 +678,15 @@ export default function DemografiKunjungan() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Age Group Distribution */}
-                <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.16 }}
+                  className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Distribusi Berdasarkan Kelompok Usia</h3>
                     <p className="text-xxs text-slate-400">Pengelompokan usia klinis pasien terdaftar di database.</p>
@@ -640,11 +710,16 @@ export default function DemografiKunjungan() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                </div>
+                </motion.div>
               </div>
 
               {/* Patient Insight Summary Banner */}
-              <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.24 }}
+                className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
+              >
                 <div className="space-y-1 relative z-10">
                   <h3 className="text-sm font-bold text-teal-900 flex items-center gap-2">
                     <Sparkles className="h-4.5 w-4.5 text-teal-600 animate-pulse" />
@@ -658,7 +733,7 @@ export default function DemografiKunjungan() {
                   <span className="text-xxs text-slate-400 block uppercase font-bold tracking-wider">Total Pasien Terdaftar</span>
                   <span className="text-2xl font-black text-teal-600">{totalPatients} Jiwa</span>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

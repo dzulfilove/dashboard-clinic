@@ -16,6 +16,7 @@ import {
   Shield,
   Save
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import api from '../../services/api.js';
 import { User } from '../../types.js';
 
@@ -158,7 +159,12 @@ export default function UsersManagement() {
   return (
     <div className="space-y-6">
       {/* Header controls layout */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
             <Users className="h-5 w-5 text-teal-600" />
@@ -178,20 +184,31 @@ export default function UsersManagement() {
           <Plus className="h-5 w-5" />
           <span>Daftarkan Petugas</span>
         </button>
-      </div>
+      </motion.div>
 
       {feedback && (
-        <div id="users-feedback-alert" className={`p-4 rounded-xl flex items-center space-x-2 text-sm font-semibold ${
-          feedback.type === 'success' ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
-        }`}>
+        <motion.div 
+          id="users-feedback-alert" 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className={`p-4 rounded-xl flex items-center space-x-2 text-sm font-semibold ${
+            feedback.type === 'success' ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'
+          }`}
+        >
           {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
           <span>{feedback.msg}</span>
-        </div>
+        </motion.div>
       )}
 
       {/* Dynamic inline register form drawer */}
-      {isFormOpen && (
-        <div className="bg-white text-slate-800 rounded-2xl p-6 border border-slate-100 shadow-sm space-y-6">
+      <AnimatePresence>
+        {isFormOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-white text-slate-800 rounded-2xl p-6 border border-slate-100 shadow-sm space-y-6 overflow-hidden"
+          >
           <div className="flex items-center justify-between pb-3">
             <h2 className="text-base font-bold text-slate-950 flex items-center gap-2">
               <Shield className="h-4.5 w-4.5 text-teal-600" />
@@ -288,12 +305,19 @@ export default function UsersManagement() {
               </button>
             </div>
           </form>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Password reset drawer block */}
-      {isResetOpen && (
-        <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm max-w-md space-y-4">
+      <AnimatePresence>
+        {isResetOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm max-w-md space-y-4"
+          >
           <div className="flex items-center justify-between pb-3 mb-4">
             <h3 className="text-sm font-bold text-amber-600 flex items-center space-x-2">
               <Key className="h-4.5 w-4.5" />
@@ -342,11 +366,17 @@ export default function UsersManagement() {
               </button>
             </div>
           </form>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Accounts display catalog */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.16 }}
+        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+      >
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-100/70 text-left">
             <thead className="bg-slate-50/50">
@@ -445,7 +475,7 @@ export default function UsersManagement() {
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import api from '../../services/api.js';
 
 interface ActivityLog {
@@ -156,7 +157,12 @@ export default function ActivityLogs() {
   return (
     <div className="space-y-6">
       {/* Header controls layout */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
             <Activity className="h-5 w-5 text-teal-600" />
@@ -177,13 +183,18 @@ export default function ActivityLogs() {
           <RefreshCw className={`h-4 w-4 text-teal-600 ${loading ? 'animate-spin' : ''}`} />
           <span>Muat Ulang Log</span>
         </button>
-      </div>
+      </motion.div>
 
       {/* Statistics Cards */}
       {!loading && !error && logs.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Main Stat Card - Total Logs */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08 }}
+            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between"
+          >
             <div className="space-y-1">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Log Tercatat</span>
               <span className="text-3xl font-extrabold text-slate-900 tracking-tight">{logs.length}</span>
@@ -194,10 +205,15 @@ export default function ActivityLogs() {
             <div className="bg-teal-50 p-3.5 rounded-2xl">
               <Activity className="h-6 w-6 text-teal-600" />
             </div>
-          </div>
+          </motion.div>
 
           {/* User Distribution Widget (Full width on md, occupies 2 cols) */}
-          <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm md:col-span-2 space-y-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.16 }}
+            className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm md:col-span-2 space-y-4"
+          >
             <div className="flex items-center justify-between pb-2">
               <div className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4 text-teal-600" />
@@ -240,12 +256,18 @@ export default function ActivityLogs() {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* Filter and search bar card */}
-      <div id="logs-filters-container" className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4">
+      <motion.div 
+        id="logs-filters-container" 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.24 }}
+        className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4"
+      >
         <div className="flex items-center space-x-2 pb-2">
           <Filter className="h-4 w-4 text-teal-600" />
           <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Filter &amp; Penelusuran</h2>
@@ -320,10 +342,16 @@ export default function ActivityLogs() {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Logs Table Grid card */}
-      <div id="logs-list-card" className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      <motion.div 
+        id="logs-list-card" 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.32 }}
+        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+      >
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">
             <RefreshCw className="h-8 w-8 text-teal-600 animate-spin" />
@@ -437,7 +465,7 @@ export default function ActivityLogs() {
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

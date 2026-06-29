@@ -136,14 +136,14 @@ export default function InputPemeriksaan() {
   const grandTotal = Object.values(quantities).reduce((sum, q) => sum + (q ? Number(q) : 0), 0);
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="space-y-4 font-sans max-w-7xl mx-auto text-xs"
-    >
+    <div className="space-y-4 font-sans max-w-7xl mx-auto text-xs">
       {/* Upper Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3"
+      >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
             <FlaskConical className="h-5 w-5 text-teal-600" />
@@ -153,7 +153,7 @@ export default function InputPemeriksaan() {
             Halaman pencatatan kuantitas harian pemeriksaan sampel klinik Puri Medika per tanggal pelayanan.
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {feedback && (
         <motion.div 
@@ -176,7 +176,12 @@ export default function InputPemeriksaan() {
 
       <div className="space-y-4">
         {/* Daily Date Selector with Today Quick Option */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 border border-slate-100/80 rounded-2xl shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.08 }}
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 border border-slate-100/80 rounded-2xl shadow-sm"
+        >
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-teal-50 text-teal-700 rounded-xl">
               <Calendar className="h-4 w-4" />
@@ -229,7 +234,7 @@ export default function InputPemeriksaan() {
               Besok ▶
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* LOADING PROGRESS AND PARAMETERS DRAW */}
         {loadingParams || loadingData ? (
@@ -243,8 +248,14 @@ export default function InputPemeriksaan() {
             {/* Grid of clinical categories */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.keys(categoriesMap).length > 0 ? (
-                Object.entries(categoriesMap).map(([category, params]) => (
-                  <div key={category} className="bg-white border border-slate-100/80 rounded-2xl p-4 shadow-sm space-y-3">
+                Object.entries(categoriesMap).map(([category, params], i) => (
+                  <motion.div 
+                    key={category} 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.16 + (i * 0.05) }}
+                    className="bg-white border border-slate-100/80 rounded-2xl p-4 shadow-sm space-y-3"
+                  >
                     <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 rounded-lg font-semibold uppercase tracking-wider font-mono text-[9px] border border-teal-100">
                       {category}
                     </span>
@@ -269,7 +280,7 @@ export default function InputPemeriksaan() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
                 ))
               ) : (
                 <div className="col-span-full bg-slate-50 border border-slate-200 rounded-2xl p-12 text-center text-slate-400">
@@ -279,7 +290,12 @@ export default function InputPemeriksaan() {
             </div>
 
             {/* Total bottom accumulation bar */}
-            <div className="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+              className="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-teal-600 rounded-xl text-white flex-shrink-0">
                   <Calculator className="h-5 w-5" />
@@ -304,10 +320,10 @@ export default function InputPemeriksaan() {
                   <span>{saving ? 'Menyimpan...' : 'Simpan Transaksi Harian'}</span>
                 </button>
               </div>
-            </div>
+            </motion.div>
           </form>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
