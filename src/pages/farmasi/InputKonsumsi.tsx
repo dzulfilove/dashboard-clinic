@@ -453,7 +453,12 @@ export default function InputKonsumsi() {
       ) : activeTab === 'stats' ? (
         <div className="space-y-6">
           {/* Rentang Tanggal Filter UI Card */}
-          <div className="bg-white p-4.5 border border-slate-100 shadow-sm rounded-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+            className="bg-white p-4.5 border border-slate-100 shadow-sm rounded-2xl"
+          >
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4 text-teal-600" />
               <span>Filter Rentang Tanggal Analisis</span>
@@ -498,7 +503,7 @@ export default function InputKonsumsi() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {statsLoading ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
@@ -512,8 +517,10 @@ export default function InputKonsumsi() {
                 
                 {/* 1. Total Pemakaian */}
                 <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -535,8 +542,10 @@ export default function InputKonsumsi() {
 
                 {/* 2. Total Penerimaan */}
                 <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -558,8 +567,10 @@ export default function InputKonsumsi() {
 
                 {/* 3. Total Retur/Hilang */}
                 <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.24 }}
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -581,8 +592,10 @@ export default function InputKonsumsi() {
 
                 {/* 4. Konsumsi Terbanyak */}
                 <motion.div 
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.32 }}
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)', transition: { duration: 0.2 } }}
                   className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
@@ -608,12 +621,22 @@ export default function InputKonsumsi() {
 
               {/* Graphical trends exactly like Rawat Jalan (ComposedChart & PieChart) */}
               {statsSummary.timelineData.length === 0 ? (
-                <div className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-150">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 }}
+                  className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-150"
+                >
                   <FileSpreadsheet className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-xs font-semibold">Tidak ditemukan riwayat log konsumsi pada rentang tanggal ini.</p>
-                </div>
+                </motion.div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.4 }}
+                  className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                >
                   
                   {/* Chart 1: Tren Arus Logistik Obat Harian */}
                   <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
@@ -687,11 +710,16 @@ export default function InputKonsumsi() {
                     </div>
                   </div>
 
-                </div>
+                </motion.div>
               )}
 
               {/* Detailed range compilation table */}
-              <div className="space-y-3.5">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: 'easeOut', delay: 0.48 }}
+                className="space-y-3.5"
+              >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h3 className="text-sm font-bold text-slate-800">
@@ -769,14 +797,19 @@ export default function InputKonsumsi() {
                     </table>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
           )}
         </div>
       ) : (
         <div className="space-y-6">
           {/* Form input controls - Date Selector Panel */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border border-slate-100 shadow-sm rounded-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0 }}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 border border-slate-100 shadow-sm rounded-2xl"
+          >
             <div className="flex items-center space-x-2">
               <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
               <span className="text-xs font-bold text-slate-505">Tanggal Laporan:</span>
@@ -793,10 +826,15 @@ export default function InputKonsumsi() {
             <div className="text-xxs font-medium text-slate-400">
               Menampilkan {filteredMedicines.length} dari {medicines.length} master obat aktif
             </div>
-          </div>
+          </motion.div>
 
           {/* Search Input Box */}
-          <div className="bg-white p-3.5 border border-slate-100 shadow-sm rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+            className="bg-white p-3.5 border border-slate-100 shadow-sm rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4"
+          >
             <div className="relative rounded-xl shadow-xs w-full md:max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-slate-400" />
@@ -811,24 +849,40 @@ export default function InputKonsumsi() {
                 style={{ minHeight: '40px' }}
               />
             </div>
-          </div>
+          </motion.div>
 
           {feedback && (
-            <div id="cons-feedback-alert" className={`p-4 rounded-xl border flex items-center space-x-2 text-sm font-semibold ${
-              feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
-            }`}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.12 }}
+              id="cons-feedback-alert"
+              className={`p-4 rounded-xl border flex items-center space-x-2 text-sm font-semibold ${
+                feedback.type === 'success' ? 'bg-emerald-50 border-emerald-150 text-emerald-800' : 'bg-rose-50 border-rose-150 text-rose-800'
+              }`}
+            >
               {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
               <span>{feedback.msg}</span>
-            </div>
+            </motion.div>
           )}
 
           {loading ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+              className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500"
+            >
               <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
               <span>Sinkronisasi jurnal konsumsi logistik...</span>
-            </div>
+            </motion.div>
           ) : (
-            <div className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.16 }}
+              className="space-y-4"
+            >
               <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-slate-100/70 text-left">
@@ -991,7 +1045,7 @@ export default function InputKonsumsi() {
                   </button>
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
       )}

@@ -840,7 +840,6 @@ export default function RawatInap() {
     setManualTindakan([
       ...manualTindakan,
       {
-        dpjp: '',
         tindakan_nama: '',
         tindakan_keterangan: '',
         tindakan_tanggal: new Date().toISOString().split('T')[0],
@@ -897,7 +896,7 @@ export default function RawatInap() {
       icd_pulang: icdPulang || null,
       kamar,
       dpjp,
-      tindakan: manualTindakan,
+      tindakan: manualTindakan.map(({ dpjp, ...rest }: any) => rest),
       tanggal_lahir: isNewPatient ? tanggalLahir : undefined,
       jenis_kelamin: isNewPatient ? jenisKelamin : undefined,
       alamat: isNewPatient ? alamat : undefined,
