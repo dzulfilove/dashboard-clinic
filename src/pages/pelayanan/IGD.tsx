@@ -569,6 +569,14 @@ export default function IGD() {
       return dateStr.trim() || new Date().toISOString().split('T')[0];
     };
 
+    const parseJenisKelamin = (jkStr: string): string => {
+      if (!jkStr) return '';
+      const j = jkStr.toLowerCase().trim();
+      if (j.startsWith('l') || j === 'pria') return 'L';
+      if (j.startsWith('p') || j === 'wanita') return 'P';
+      return jkStr;
+    };
+
     for (let line of lines) {
       line = line.trim();
       if (!line) continue;
@@ -598,8 +606,8 @@ export default function IGD() {
       const noReg = cols[1];
       const noRmCode = cols[2];
       const pName = cols[3];
-      const tglLahir = cols[4] || '';
-      const jk = cols[6] || '';
+      const tglLahir = cols[4] ? parseIndoDate(cols[4]) : '';
+      const jk = cols[6] ? parseJenisKelamin(cols[6]) : '';
       const alamat = cols[7] || '';
       const kelurahan = cols[8] || '';
       const kecamatan = cols[9] || '';

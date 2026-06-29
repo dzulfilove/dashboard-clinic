@@ -426,6 +426,14 @@ export default function RawatInap() {
     return new Date().toISOString().split('T')[0];
   };
 
+  const parseJenisKelamin = (jkStr: string): string => {
+    if (!jkStr) return '';
+    const j = jkStr.toLowerCase().trim();
+    if (j.startsWith('l') || j === 'pria') return 'L';
+    if (j.startsWith('p') || j === 'wanita') return 'P';
+    return jkStr;
+  };
+
   // Paste Text Parser Suite
   const triggerParser = () => {
     if (!rawText.trim()) {
@@ -479,9 +487,9 @@ export default function RawatInap() {
         const noReg = cols[1];
         const noRmCode = cols[2];
         const pName = cols[3];
-        const tBirth = cols[4] || '';
+        const tBirth = cols[4] ? parseIndoDate(cols[4]) : '';
         const tAge = cols[5] || '';
-        const tGender = cols[6] || '';
+        const tGender = cols[6] ? parseJenisKelamin(cols[6]) : '';
         const tAddress = cols[7] || '';
         const tKel = cols[8] || '';
         const tKec = cols[9] || '';

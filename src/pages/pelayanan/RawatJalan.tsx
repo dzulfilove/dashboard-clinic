@@ -557,6 +557,14 @@ export default function RawatJalan() {
       return dateStr.trim() || new Date().toISOString().split('T')[0];
     };
 
+    const parseJenisKelamin = (jkStr: string): string => {
+      if (!jkStr) return '';
+      const j = jkStr.toLowerCase().trim();
+      if (j.startsWith('l') || j === 'pria') return 'L';
+      if (j.startsWith('p') || j === 'wanita') return 'P';
+      return jkStr;
+    };
+
     const matchUnit = (unitStr: string): string | null => {
       if (!unitStr) return null;
       const cleaned = unitStr.toUpperCase().trim();
@@ -653,8 +661,8 @@ export default function RawatJalan() {
         noReg = cols[1];
         noRmCode = cols[2];
         pName = cols[3];
-        tglLahir = cols[4];
-        jk = cols[6];
+        tglLahir = parseIndoDate(cols[4]);
+        jk = parseJenisKelamin(cols[6]);
         alamat = cols[7];
         kelurahan = cols[8];
         kecamatan = cols[9];
@@ -1878,7 +1886,7 @@ export default function RawatJalan() {
                     {/* Preview patient block loop */}
                     <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
                       {parsedData.map((p, idx) => (
-                          <div className="bg-slate-50/30 p-4 rounded-2xl border border-slate-100/40 font-sans space-y-3">
+                          <div key={idx} className="bg-slate-50/30 p-4 rounded-2xl border border-slate-100/40 font-sans space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Search, RefreshCw, CheckCircle, AlertCircle, Edit2, X, Info, Layers, TrendingUp, HelpCircle } from 'lucide-react';
+import { Save, Search, RefreshCw, CheckCircle, AlertCircle, Edit2, X, Info, Layers, TrendingUp, HelpCircle, ClipboardPaste, ArrowRight, Play } from 'lucide-react';
 import api from '../services/api.js';
 
 interface Medicine {
@@ -37,6 +37,14 @@ export default function SaldoAwal() {
   const [editTahun, setEditTahun] = useState<number>(new Date().getFullYear());
   const [editBulan, setEditBulan] = useState<number>(new Date().getMonth() + 1);
   const [editNilai, setEditNilai] = useState<string>('');
+
+  // Import states
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importPreview, setImportPreview] = useState<any[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [importMonth, setImportMonth] = useState<number>(new Date().getMonth() + 1);
+  const [importYear, setImportYear] = useState<number>(new Date().getFullYear());
 
   const loadData = async () => {
     try {
@@ -86,6 +94,124 @@ export default function SaldoAwal() {
     }
   };
 
+  const handleParseImport = () => {
+    if (!importText.trim()) {
+      setFeedback({ type: 'error', msg: 'Teks import kosong.' });
+      return;
+    }
+
+    setFeedback(null);
+    const lines = importText.split('\n');
+    let headerLineIdx = -1;
+    let headers: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const lowerLine = lines[i].toLowerCase();
+      if ((lowerLine.includes('kode barang') || lowerLine.includes('kode obat') || lowerLine.includes('kode')) && 
+          (lowerLine.includes('jumlah') || lowerLine.includes('qty') || lowerLine.includes('saldo'))) {
+        headerLineIdx = i;
+        break;
+      }
+    }
+
+    if (headerLineIdx === -1) {
+      setFeedback({ type: 'error', msg: 'Format tidak dikenali. Baris header dengan "Kode Barang" dan "Jumlah" tidak ditemukan.' });
+      return;
+    }
+
+    // Detect separator: Tab is preferred
+    const isTab = lines[headerLineIdx].includes('\t');
+    if (isTab) {
+      headers = lines[headerLineIdx].split('\t').map(h => h.trim().toLowerCase());
+    } else {
+      // try multi-space
+      headers = lines[headerLineIdx].split(/\s{2,}/).map(h => h.trim().toLowerCase());
+      if (headers.length < 2) {
+        // fallback to single space
+        headers = lines[headerLineIdx].split(/\s+/).map(h => h.trim().toLowerCase());
+      }
+    }
+
+    const kodeIdx = headers.findIndex(h => h === 'kode barang' || h === 'kode obat' || h === 'kode' || h === 'kode_barang');
+    const jumlahIdx = headers.findIndex(h => h === 'jumlah' || h === 'qty' || h === 'kuantitas' || h === 'saldo' || h === 'stok');
+    const namaIdx = headers.findIndex(h => h === 'nama barang' || h === 'nama obat' || h === 'nama' || h === 'barang nama');
+
+    if (kodeIdx === -1 || jumlahIdx === -1) {
+      setFeedback({ type: 'error', msg: `Gagal mendeteksi kolom (Kode: ${kodeIdx}, Jumlah: ${jumlahIdx}). Pastikan kolom bernama "Kode Barang" dan "Jumlah".` });
+      return;
+    }
+
+    const preview = [];
+    for (let i = headerLineIdx + 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line || line.toUpperCase() === 'APOTEK') continue;
+
+      let cols: string[] = [];
+      if (isTab) {
+        cols = line.split('\t');
+      } else {
+        cols = line.split(/\s{2,}/);
+        if (cols.length < Math.max(kodeIdx, jumlahIdx) + 1) {
+          cols = line.split(/\s+/);
+        }
+      }
+
+      if (cols.length > Math.max(kodeIdx, jumlahIdx)) {
+        const kode = cols[kodeIdx]?.trim();
+        const rawJumlah = cols[jumlahIdx]?.trim() || '0';
+        const jumlah = parseInt(rawJumlah.replace(/\./g, ''), 10);
+        const nama = namaIdx !== -1 ? cols[namaIdx]?.trim() : '-';
+
+        if (kode && !isNaN(jumlah)) {
+          const matchedMed = medicines.find(m => m.kode_obat.toLowerCase() === kode.toLowerCase() || m.nama_obat.toLowerCase() === nama.toLowerCase());
+          preview.push({
+            kode,
+            nama,
+            jumlah,
+            rawJumlah,
+            matched: !!matchedMed,
+            medicine: matchedMed
+          });
+        }
+      }
+    }
+    setImportPreview(preview);
+  };
+
+  const processImport = async () => {
+    const validItems = importPreview.filter(p => p.matched && p.medicine);
+    if (validItems.length === 0) {
+      setFeedback({ type: 'error', msg: 'Tidak ada data valid yang bisa diproses.' });
+      return;
+    }
+
+    setIsProcessing(true);
+    setFeedback(null);
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const item of validItems) {
+      try {
+        await api.post('/obat/saldo-awal', {
+          obat_id: item.medicine.id,
+          tahun: importYear,
+          bulan: importMonth,
+          saldo_awal_nilai: item.jumlah
+        });
+        successCount++;
+      } catch (e) {
+        errorCount++;
+      }
+    }
+
+    setIsProcessing(false);
+    setShowImportModal(false);
+    setImportText('');
+    setImportPreview([]);
+    setFeedback({ type: 'success', msg: `Import selesai: ${successCount} berhasil, ${errorCount} gagal.` });
+    loadData();
+  };
+
   const filteredMedicines = medicines.filter(m =>
     m.nama_obat.toLowerCase().includes(search.toLowerCase()) ||
     m.kode_obat.toLowerCase().includes(search.toLowerCase()) ||
@@ -93,7 +219,8 @@ export default function SaldoAwal() {
   );
 
   return (
-    <div className="space-y-6" id="saldo-awal-container">
+    <>
+      <div className="space-y-6" id="saldo-awal-container">
       {/* Informative Header Guide Card */}
       <div className="bg-gradient-to-r from-teal-50 to-emerald-50 p-5 rounded-2xl flex flex-col md:flex-row gap-4 items-start md:items-center">
         <div className="p-3 bg-teal-600 rounded-xl text-white">
@@ -148,6 +275,14 @@ export default function SaldoAwal() {
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh Data
+        </button>
+        <button
+          onClick={() => setShowImportModal(true)}
+          className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+          style={{ minHeight: '40px' }}
+        >
+          <ClipboardPaste className="h-4 w-4" />
+          Import Excel
         </button>
       </div>
 
@@ -306,5 +441,148 @@ export default function SaldoAwal() {
         </div>
       )}
     </div>
+    
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <ClipboardPaste className="h-5 w-5 text-teal-600" />
+                Import Saldo Awal dari Excel
+              </h3>
+              <button 
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportPreview([]);
+                  setImportText('');
+                }}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="p-5 overflow-y-auto flex-1 space-y-5">
+              <div className="bg-blue-50 text-blue-800 p-4 rounded-2xl text-xs space-y-2 border border-blue-100">
+                <p className="font-semibold flex items-center gap-1.5"><Info className="h-4 w-4" /> Panduan Import</p>
+                <ul className="list-disc pl-5 space-y-1 text-blue-700">
+                  <li>Pastikan Anda menyalin (Copy) langsung dari tabel Excel.</li>
+                  <li>Tabel <strong>wajib</strong> memiliki kolom dengan nama <strong>Kode Barang</strong> (atau Kode Obat) dan <strong>Jumlah</strong> (atau Saldo).</li>
+                  <li>Sistem akan mencocokkan obat berdasarkan Kode Barang.</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-4 mb-2">
+                <div className="flex-1">
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bulan Saldo</label>
+                  <select 
+                    value={importMonth}
+                    onChange={e => setImportMonth(Number(e.target.value))}
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  >
+                    {MONTHS.map((m, idx) => (
+                      <option key={idx} value={idx + 1}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tahun Saldo</label>
+                  <select 
+                    value={importYear}
+                    onChange={e => setImportYear(Number(e.target.value))}
+                    className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  >
+                    {YEARS.map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {importPreview.length === 0 ? (
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Paste Text dari Excel</label>
+                  <textarea
+                    rows={8}
+                    className="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                    placeholder="Barang Nama	Kode Barang	Satuan	...	Jumlah&#10;Abocath No. 16	10A0320	PCS	...	47"
+                    value={importText}
+                    onChange={(e) => setImportText(e.target.value)}
+                  />
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      onClick={handleParseImport}
+                      className="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 transition-colors"
+                    >
+                      Parse Data <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-slate-700">Preview Import ({importPreview.length} baris dibaca)</h4>
+                    <button
+                      onClick={() => setImportPreview([])}
+                      className="text-[10px] font-bold text-slate-500 hover:text-slate-700 underline"
+                    >
+                      Edit Teks
+                    </button>
+                  </div>
+                  
+                  <div className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden max-h-[40vh] overflow-y-auto">
+                    <table className="w-full text-left">
+                      <thead className="bg-slate-100 sticky top-0">
+                        <tr>
+                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500">Status</th>
+                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500">Kode Barang</th>
+                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500">Nama (di sistem)</th>
+                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500 text-right">Saldo Awal</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {importPreview.map((item, idx) => (
+                          <tr key={idx} className={item.matched ? 'bg-white' : 'bg-rose-50/50'}>
+                            <td className="px-3 py-2">
+                              {item.matched ? (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                                  <CheckCircle className="h-3 w-3" /> MATCH
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
+                                  <X className="h-3 w-3" /> NOT FOUND
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-3 py-2 text-xs font-mono">{item.kode}</td>
+                            <td className="px-3 py-2 text-xs font-medium text-slate-700">{item.medicine?.nama_obat || item.nama}</td>
+                            <td className="px-3 py-2 text-xs font-bold text-slate-900 text-right">{item.jumlah}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="text-xs text-slate-500">
+                      <span className="font-bold text-emerald-600">{importPreview.filter(p => p.matched).length} valid</span> siap di-import
+                    </div>
+                    <button
+                      onClick={processImport}
+                      disabled={isProcessing || importPreview.filter(p => p.matched).length === 0}
+                      className="bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 transition-colors"
+                    >
+                      {isProcessing ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                      Mulai Proses Import
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
