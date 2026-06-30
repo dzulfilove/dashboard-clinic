@@ -3759,7 +3759,11 @@ app.get('/api/obat/forecast', authenticateToken, async (req, res) => {
         .filter((c: any) => c.obat_id === medicine.id)
         .sort((a: any, b: any) => (b.tahun * 12 + b.bulan) - (a.tahun * 12 + a.bulan))[0];
       
-      const stok_akhir = lastRec ? lastRec.sisa_stok : 0;
+      // Jika ada riwayat konsumsi → pakai sisa_stok terakhir
+      // Jika tidak ada → fallback ke saldo_awal_nilai dari master obat
+      // Jika saldo_awal juga kosong → 0
+      const saldoAwalFallback = Number(medicine.saldo_awal_nilai || 0);
+      const stok_akhir = lastRec ? Number(lastRec.sisa_stok) : saldoAwalFallback;
 
       // 5. Qty Order = Total Kebutuhan + Safety Stock - Stok Akhir
       const qty_order = Math.max(0, total_kebutuhan + safety_stock - stok_akhir);
@@ -3806,7 +3810,9 @@ app.get('/api/obat/forecast', authenticateToken, async (req, res) => {
         total_kebutuhan,
         stok_akhir,
         qty_order,
-        kelas_abc: 'C' // default placeholder
+        kelas_abc: 'C', // default placeholder
+        saldo_awal: saldoAwalFallback,
+        stok_source: lastRec ? 'konsumsi' : (saldoAwalFallback > 0 ? 'saldo_awal' : 'tidak_ada')
       });
     }
 
