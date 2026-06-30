@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -460,6 +461,7 @@ export default function RawatJalan() {
     setTriase(rec.triase || 'hijau');
     setUnit(rec.unit || 'Poli Umum');
     setDpjp(rec.dpjp || '');
+    setIcdKode(rec.icd_kode || '');
     
     // map tindakan
     setManualTindakan(rec.tindakan.map((t: any) => ({
@@ -1624,6 +1626,7 @@ export default function RawatJalan() {
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Unit Pelayanan</th>
                           <th className="px-6 py-4.5">DPJP</th>
+                          <th className="px-6 py-4.5">Diagnosa</th>
                           <th className="px-6 py-4.5">Tanggal Kunjungan</th>
                           <th className="px-6 py-4.5 text-center">Jumlah Tindakan</th>
                           <th className="px-6 py-4.5 text-center">Aksi</th>
@@ -1678,6 +1681,20 @@ export default function RawatJalan() {
                                   <span className="text-[11px] font-medium text-slate-700">
                                     {rec.dpjp || '-'}
                                   </span>
+                                </td>
+                                <td className="px-6 py-4.5">
+                                  {(() => {
+                                    const diag = rec.icd_kode;
+                                    const icdInfo = icdList.find(i => i.kode_icd === diag);
+                                    return diag ? (
+                                      <div className="flex flex-col">
+                                        <span className="font-semibold text-slate-800 text-[11px]">{diag}</span>
+                                        {icdInfo && <span className="text-slate-400 text-[10px] truncate max-w-[150px]">{icdInfo.deskripsi}</span>}
+                                      </div>
+                                    ) : (
+                                      <span className="text-[11px] text-slate-400">-</span>
+                                    );
+                                  })()}
                                 </td>
                                 <td className="px-6 py-4.5 font-normal text-slate-650">
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -2034,9 +2051,10 @@ export default function RawatJalan() {
   </div>
 
       {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
-      <AnimatePresence>
-        {isManualModalOpen && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      {createPortal(
+        <AnimatePresence>
+          {isManualModalOpen && (
+            <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-10 pb-10 px-4">
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -2386,7 +2404,9 @@ export default function RawatJalan() {
               </motion.div>
             </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </div>
   );
 }

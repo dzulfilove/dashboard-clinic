@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -1951,9 +1952,10 @@ export default function RawatInap() {
       )}
 
       {/* MODAL: MANUAL INSCRIPTION / EDIT SHEET FORM */}
-      <AnimatePresence>
-        {isManualModalOpen && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      {createPortal(
+        <AnimatePresence>
+          {isManualModalOpen && (
+            <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-10 pb-10 px-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -2257,7 +2259,9 @@ export default function RawatInap() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+    )}
     </div>
   );
 }

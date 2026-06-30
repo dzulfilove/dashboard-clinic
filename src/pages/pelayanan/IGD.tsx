@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -1561,18 +1562,18 @@ export default function IGD() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
-                                  <select
-                                    value={rec.icd_kode || ''}
-                                    onChange={(e) => handleIcdChange(rec.id, e.target.value)}
-                                    className="p-1 px-2 max-w-[12rem] bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-705 focus:outline-none focus:ring-1 focus:ring-teal-500/20"
-                                  >
-                                    <option value="">-- Diagnosis --</option>
-                                    {icdList.map(icd => (
-                                      <option key={icd.id} value={icd.kode_icd}>
-                                        {icd.kode_icd} - {icd.deskripsi}
-                                      </option>
-                                    ))}
-                                  </select>
+                                  {(() => {
+                                    const diag = rec.icd_kode;
+                                    const icdInfo = icdList.find(i => i.kode_icd === diag);
+                                    return diag ? (
+                                      <div className="flex flex-col">
+                                        <span className="font-semibold text-slate-800 text-[11px]">{diag}</span>
+                                        {icdInfo && <span className="text-slate-400 text-[10px] truncate max-w-[150px]">{icdInfo.deskripsi}</span>}
+                                      </div>
+                                    ) : (
+                                      <span className="text-[11px] text-slate-400">-</span>
+                                    );
+                                  })()}
                                 </td>
                                 <td className="px-6 py-4.5">
                                   <span className="text-[11px] font-medium text-slate-700">
@@ -1908,8 +1909,10 @@ export default function IGD() {
           )}
 
           {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
-          {isManualModalOpen && (
-            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          {createPortal(
+            <AnimatePresence>
+              {isManualModalOpen && (
+                <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-10 pb-10 px-4">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -2262,6 +2265,9 @@ export default function IGD() {
                 </form>
               </motion.div>
             </div>
+              )}
+            </AnimatePresence>,
+            document.body
           )}
         </>
       )}
