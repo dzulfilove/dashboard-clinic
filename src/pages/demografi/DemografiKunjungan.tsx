@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -737,6 +738,7 @@ export default function DemografiKunjungan() {
       )}
 
       {/* Patient History Modal Side-Drawer */}
+      {createPortal(
       <AnimatePresence>
         {selectedPatient && (
           <>
@@ -746,7 +748,7 @@ export default function DemografiKunjungan() {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedPatient(null)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 pointer-events-auto"
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[9999] pointer-events-auto"
             />
             
             {/* Drawer Container */}
@@ -755,7 +757,7 @@ export default function DemografiKunjungan() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-200 flex flex-col pointer-events-auto"
+              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-[10000] border-l border-slate-200 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header */}
               <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
@@ -860,7 +862,9 @@ export default function DemografiKunjungan() {
             </motion.div>
           </>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </div>
   );
 }

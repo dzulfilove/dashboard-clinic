@@ -52,7 +52,7 @@ export default function MasterWilayah() {
     if (!newKotaNama.trim()) return;
     try {
       setError(null);
-      await api.post('/kota', { nama: newKotaNama.trim() });
+      await api.post('/wilayah/kota', { nama: newKotaNama.trim() });
       setNewKotaNama('');
       setShowAddKota(false);
       await fetchData();
@@ -66,7 +66,7 @@ export default function MasterWilayah() {
     if (!newKecamatanNama.trim() || !newKecamatanKotaId) return;
     try {
       setError(null);
-      await api.post('/kecamatan', { 
+      await api.post('/wilayah/kecamatan', { 
         nama: newKecamatanNama.trim(), 
         kota_id: parseInt(newKecamatanKotaId) 
       });
@@ -84,7 +84,7 @@ export default function MasterWilayah() {
     if (!newKelurahanNama.trim() || !newKelurahanKecamatanId) return;
     try {
       setError(null);
-      await api.post('/kelurahan', { 
+      await api.post('/wilayah/kelurahan', { 
         nama: newKelurahanNama.trim(), 
         kecamatan_id: parseInt(newKelurahanKecamatanId) 
       });
@@ -111,7 +111,7 @@ export default function MasterWilayah() {
       if (result.isConfirmed) {
         try {
           setError(null);
-          await api.delete(`/${type}/${id}`);
+          await api.delete(`/wilayah/${type}/${id}`);
           await fetchData();
         } catch (err: any) {
           setError(err.response?.data?.message || `Gagal menghapus ${type}.`);

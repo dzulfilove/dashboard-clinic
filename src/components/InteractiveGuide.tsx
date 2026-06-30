@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
@@ -475,9 +476,10 @@ export default function InteractiveGuide() {
       </div>
 
       {/* TOUR DIALOG MODAL SYSTEM */}
+      {createPortal(
       <AnimatePresence>
         {isTourActive && (
-          <div className="fixed inset-0 z-55 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -539,9 +541,12 @@ export default function InteractiveGuide() {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
 
       {/* DETAILED INTERACTIVE GUIDE DRAWER PANEL */}
+      {createPortal(
       <AnimatePresence>
         {isOpen && (
           <>
@@ -553,7 +558,7 @@ export default function InteractiveGuide() {
               transition={{ duration: 0.2 }}
               style={{ willChange: 'opacity' }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 pointer-events-auto"
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[9999] pointer-events-auto"
             />
 
             {/* Slide-in Drawer Container */}
@@ -563,7 +568,7 @@ export default function InteractiveGuide() {
               exit={{ x: '100%' }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
               style={{ willChange: 'transform' }}
-              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-55 border-l border-slate-100/50 flex flex-col pointer-events-auto"
+              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-[10000] border-l border-slate-100/50 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header with Role Information */}
               <div className="p-6 border-b border-slate-100/60 bg-slate-50 space-y-4">
@@ -906,7 +911,9 @@ export default function InteractiveGuide() {
             </motion.div>
           </>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </>
   );
 }

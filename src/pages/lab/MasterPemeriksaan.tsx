@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
@@ -767,9 +768,10 @@ export default function MasterPemeriksaan() {
       </div>
 
       {/* ADAPTIVE CREATE/EDIT PARAMETER MODAL DIALOG */}
+      {createPortal(
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 overflow-y-auto font-sans text-xs">
+          <div className="fixed inset-0 z-[9999] overflow-y-auto font-sans text-xs">
             {/* Backdrop */}
             <div 
               className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs"
@@ -907,7 +909,9 @@ export default function MasterPemeriksaan() {
             </div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </div>
   );
 }

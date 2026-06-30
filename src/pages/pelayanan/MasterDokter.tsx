@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { 
   Search, 
@@ -363,9 +364,10 @@ export default function MasterDokter() {
       </motion.div>
 
       {/* Action modal dialog */}
+      {createPortal(
       <AnimatePresence>
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <motion.div 
             initial={{ opacity: 0, scale: 0.98, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -432,7 +434,9 @@ export default function MasterDokter() {
           </motion.div>
         </div>
       )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body
+      )}
     </div>
   );
 }

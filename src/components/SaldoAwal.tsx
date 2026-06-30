@@ -43,6 +43,7 @@ export default function SaldoAwal() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState('');
   const [importPreview, setImportPreview] = useState<any[]>([]);
+  const [previewFilter, setPreviewFilter] = useState<'all' | 'not_found' | 'matched'>('all');
   const [isProcessing, setIsProcessing] = useState(false);
   const [importMonth, setImportMonth] = useState<number>(new Date().getMonth() + 1);
   const [importYear, setImportYear] = useState<number>(new Date().getFullYear());
@@ -535,8 +536,30 @@ export default function SaldoAwal() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-slate-700">Preview Import ({importPreview.length} baris dibaca)</h4>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <h4 className="text-xs font-bold text-slate-700">Preview Import ({importPreview.length} baris)</h4>
+                      <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
+                        <button
+                          onClick={() => setPreviewFilter('all')}
+                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${previewFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          Semua
+                        </button>
+                        <button
+                          onClick={() => setPreviewFilter('matched')}
+                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${previewFilter === 'matched' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          {importPreview.filter(p => p.matched).length} Match
+                        </button>
+                        <button
+                          onClick={() => setPreviewFilter('not_found')}
+                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${previewFilter === 'not_found' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        >
+                          {importPreview.filter(p => !p.matched).length} Not Found
+                        </button>
+                      </div>
+                    </div>
                     <button
                       onClick={() => setImportPreview([])}
                       className="text-[10px] font-bold text-slate-500 hover:text-slate-700 underline"
@@ -556,7 +579,9 @@ export default function SaldoAwal() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {importPreview.map((item, idx) => (
+                        {importPreview
+                          .filter(item => previewFilter === 'all' ? true : previewFilter === 'matched' ? item.matched : !item.matched)
+                          .map((item, idx) => (
                           <tr key={idx} className={item.matched ? 'bg-white' : 'bg-rose-50/50'}>
                             <td className="px-3 py-2">
                               {item.matched ? (

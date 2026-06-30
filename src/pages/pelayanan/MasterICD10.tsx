@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import api from '../../services/api.js';
 import { Plus, Trash2, Edit2, X, Check, Search, ChevronLeft, ChevronRight, Database, CheckCircle, Info, ClipboardList } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -218,8 +219,8 @@ export default function MasterICD10() {
       </motion.div>
 
       {/* Edit/Create Popup Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs">
+      {isModalOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/50 backdrop-blur-xs">
           <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl w-full max-w-sm shadow-xl border border-slate-100">
             <h3 className="font-bold text-lg mb-1 text-slate-850">{editingItem ? 'Edit ICD-10' : 'Tambah ICD-10'}</h3>
             <p className="text-slate-500 text-[10px] font-medium mb-5 uppercase tracking-wider">Diagnosis WHO untuk standarisasi rekam medis.</p>
@@ -254,7 +255,8 @@ export default function MasterICD10() {
               <button type="submit" className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2 rounded-xl text-sm font-bold cursor-pointer transition-colors shadow-xs">Simpan</button>
             </div>
           </form>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
