@@ -24,6 +24,13 @@ import {
   Lightbulb
 } from 'lucide-react';
 
+interface TourStep {
+  title: string;
+  desc: string;
+  targetSelector?: string;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+}
+
 interface WorkflowNode {
   id: string;
   label: string;
@@ -392,31 +399,31 @@ export default function InteractiveGuide() {
   const currentMeta = roleData[user.role] || roleData.admin;
 
   // Tour steps definition
-  const tourSteps = [
+  const tourSteps: TourStep[] = [
     {
       title: `Selamat Datang, ${user.nama || 'Pengguna'}!`,
-      content: `Ini adalah Sistem Manajemen Klinik Puri Medika. Peran Anda saat ini adalah: ${currentMeta.roleName}. Mari kita ikuti tur singkat untuk memahami letak fitur-fitur utama.`,
-      target: 'body'
+      desc: `Ini adalah Sistem Manajemen Klinik Puri Medika. Peran Anda saat ini adalah: ${currentMeta.roleName}. Mari kita ikuti tur singkat untuk memahami letak fitur-fitur utama.`,
+      targetSelector: undefined
     },
     {
       title: 'Menu Navigasi Sidebar',
-      content: 'Di sisi kiri layar (atau tombol menu di ponsel), Anda dapat menemukan seluruh modul yang diizinkan sesuai dengan peran klinis Anda. Klik kategori menu untuk membuka sub-fitur di dalamnya.',
-      target: '#mobile-menu-toggle, nav'
+      desc: 'Di sisi kiri layar (atau tombol menu di ponsel), Anda dapat menemukan seluruh modul yang diizinkan sesuai dengan peran klinis Anda. Klik kategori menu untuk membuka sub-fitur di dalamnya.',
+      targetSelector: 'nav'
     },
     {
       title: 'Pusat Demografi Kunjungan',
-      content: 'Pada menu "Demografi Kunjungan", kami telah menyediakan visualisasi sebaran pasien ("Demografi Pasien") dan analisis tren jenis penyakit terbanyak ("Demografi Diagnosa") secara komprehensif.',
-      target: 'nav'
+      desc: 'Pada menu "Demografi Kunjungan", kami telah menyediakan visualisasi sebaran pasien ("Demografi Pasien") dan analisis tren jenis penyakit terbanyak ("Demografi Diagnosa") secara komprehensif.',
+      targetSelector: 'nav'
     },
     {
       title: 'Status Sinkronisasi Database',
-      content: 'Di sudut kiri bawah layar (di dalam sidebar), terdapat indikator status database. Hijau menandakan koneksi MySQL aktif, sedangkan Kuning menunjukkan Virtual Sandboxed Mode.',
-      target: 'footer'
+      desc: 'Di sudut kiri bawah layar (di dalam sidebar), terdapat indikator status database. Hijau menandakan koneksi MySQL aktif, sedangkan Kuning menunjukkan Virtual Sandboxed Mode.',
+      targetSelector: 'footer'
     },
     {
       title: 'Pusat Bantuan & Panduan Interaktif',
-      content: 'Kapan saja Anda merasa bingung, klik tombol tanda tanya (?) ini untuk membuka kembali peta alur kerja, checklist misi pengenalan, serta tanya jawab spesifik untuk peran Anda.',
-      target: '#guide-floating-btn'
+      desc: 'Kapan saja Anda merasa bingung, klik tombol tanda tanya (?) ini untuk membuka kembali peta alur kerja, checklist misi pengenalan, serta tanya jawab spesifik untuk peran Anda.',
+      targetSelector: '#guide-floating-btn'
     }
   ];
 
@@ -425,6 +432,34 @@ export default function InteractiveGuide() {
     setIsTourActive(true);
     setTourStep(0);
   };
+
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+
+  // Update highlight saat step berubah
+  useEffect(() => {
+    if (!isTourActive) {
+      setHighlightRect(null);
+      return;
+    }
+    const step = tourSteps[tourStep];
+    if (!step?.targetSelector) {
+      setHighlightRect(null);
+      return;
+    }
+
+    const updateRect = () => {
+      const el = document.querySelector(step.targetSelector!);
+      if (el) {
+        setHighlightRect(el.getBoundingClientRect());
+      } else {
+        setHighlightRect(null);
+      }
+    };
+
+    updateRect();
+    window.addEventListener('resize', updateRect);
+    return () => window.removeEventListener('resize', updateRect);
+  }, [isTourActive, tourStep]);
 
   const handleNextTour = () => {
     if (tourStep < tourSteps.length - 1) {
@@ -438,6 +473,132 @@ export default function InteractiveGuide() {
     if (tourStep > 0) {
       setTourStep(tourStep - 1);
     }
+  };
+
+  const PADDING = 8;
+
+  const SpotlightOverlay = () => {
+    if (!isTourActive) return null;
+
+    const step = tourSteps[tourStep];
+
+    return createPortal(
+      <div className="fixed inset-0 z-[9998] pointer-events-none">
+        {highlightRect ? (
+          // SVG overlay dengan lubang transparan di posisi elemen
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-auto"
+            style={{ cursor: 'default' }}
+            onClick={() => {}} // tangkap click di luar
+          >
+            <defs>
+              <mask id="spotlight-mask">
+                {/* Area putih = terlihat (gelap) */}
+                <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                {/* Area hitam = transparan (lubang/spotlight) */}
+                <rect
+                  x={highlightRect.left - PADDING}
+                  y={highlightRect.top - PADDING}
+                  width={highlightRect.width + PADDING * 2}
+                  height={highlightRect.height + PADDING * 2}
+                  rx="12"
+                  fill="black"
+                />
+              </mask>
+            </defs>
+            {/* Overlay gelap dengan lubang */}
+            <rect
+              x="0" y="0"
+              width="100%" height="100%"
+              fill="rgba(0,0,0,0.65)"
+              mask="url(#spotlight-mask)"
+            />
+            {/* Border highlight di sekitar elemen */}
+            <rect
+              x={highlightRect.left - PADDING}
+              y={highlightRect.top - PADDING}
+              width={highlightRect.width + PADDING * 2}
+              height={highlightRect.height + PADDING * 2}
+              rx="12"
+              fill="none"
+              stroke="#0d9488"
+              strokeWidth="2"
+              strokeDasharray="6 3"
+            />
+          </svg>
+        ) : (
+          // Fallback: overlay gelap biasa tanpa lubang
+          <div className="absolute inset-0 bg-black/60 pointer-events-auto" />
+        )}
+
+        {/* Tooltip */}
+        <div
+          className="absolute z-[9999] pointer-events-auto"
+          style={
+            highlightRect
+              ? {
+                  // Posisi tooltip di bawah elemen highlight
+                  top: highlightRect.bottom + PADDING + 12,
+                  left: Math.max(16, Math.min(
+                    highlightRect.left,
+                    window.innerWidth - 320
+                  )),
+                }
+              : {
+                  // Fallback: tengah layar
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                }
+          }
+        >
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-5 w-[300px]">
+            <p className="text-xs font-semibold text-teal-600 uppercase tracking-wider mb-1">
+              Langkah {tourStep + 1} dari {tourSteps.length}
+            </p>
+            <h3 className="text-sm font-semibold text-slate-900 mb-2">
+              {step.title}
+            </h3>
+            <p className="text-xs text-slate-500 font-normal leading-relaxed">
+              {step.desc}
+            </p>
+
+            {/* Progress bar */}
+            <div className="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-teal-500 rounded-full transition-all duration-300"
+                style={{ width: `${((tourStep + 1) / tourSteps.length) * 100}%` }}
+              />
+            </div>
+
+            {/* Navigasi */}
+            <div className="flex justify-between items-center mt-4">
+              <button
+                onClick={() => setTourStep(s => Math.max(0, s - 1))}
+                disabled={tourStep === 0}
+                className="text-xs text-slate-400 hover:text-slate-700 disabled:opacity-30 font-medium"
+              >
+                ← Kembali
+              </button>
+              <button
+                onClick={() => {
+                  if (tourStep < tourSteps.length - 1) {
+                    setTourStep(s => s + 1);
+                  } else {
+                    setIsTourActive(false);
+                    setTourStep(0);
+                  }
+                }}
+                className="bg-teal-600 text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors"
+              >
+                {tourStep < tourSteps.length - 1 ? 'Lanjut →' : 'Selesai ✓'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>,
+      document.body
+    );
   };
 
   return (
@@ -475,75 +636,7 @@ export default function InteractiveGuide() {
         </button>
       </div>
 
-      {/* TOUR DIALOG MODAL SYSTEM */}
-      {createPortal(
-      <AnimatePresence>
-        {isTourActive && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.2 }}
-              style={{ willChange: 'transform, opacity' }}
-              className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col p-6 space-y-4"
-            >
-              {/* Step title */}
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-medium uppercase bg-teal-50 text-teal-700 border border-teal-150 px-2.5 py-0.5 rounded-md">
-                  Langkah {tourStep + 1} dari {tourSteps.length}
-                </span>
-                <button
-                  onClick={() => setIsTourActive(false)}
-                  className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-slate-900 tracking-tight flex items-center gap-1.5">
-                  <Sparkles className="h-4.5 w-4.5 text-teal-600 animate-pulse" />
-                  {tourSteps[tourStep].title}
-                </h3>
-                <p className="text-xs text-slate-550 leading-relaxed">
-                  {tourSteps[tourStep].content}
-                </p>
-              </div>
-
-              {/* Navigation Actions */}
-              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                <button
-                  onClick={handlePrevTour}
-                  disabled={tourStep === 0}
-                  className="text-xxs font-bold text-slate-400 hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  Sebelumnya
-                </button>
-
-                <div className="flex items-center space-x-1.5">
-                  {tourSteps.map((_, idx) => (
-                    <span 
-                      key={idx} 
-                      className={`w-1.5 h-1.5 rounded-full transition-all ${idx === tourStep ? 'bg-teal-600 w-3' : 'bg-slate-250'}`}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  onClick={handleNextTour}
-                  className="bg-slate-900 text-white text-xxs font-bold px-4 py-2 rounded-xl hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1"
-                >
-                  {tourStep === tourSteps.length - 1 ? 'Selesai' : 'Lanjut'}
-                  <ChevronRight className="h-3 w-3" />
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>,
-      document.body
-      )}
+      <SpotlightOverlay />
 
       {/* DETAILED INTERACTIVE GUIDE DRAWER PANEL */}
       {createPortal(
