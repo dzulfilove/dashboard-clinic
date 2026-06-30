@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Save, Search, RefreshCw, CheckCircle, AlertCircle, Edit2, X, Info, Layers, TrendingUp, HelpCircle, ClipboardPaste, ArrowRight, Play } from 'lucide-react';
 import api from '../services/api.js';
 
@@ -141,37 +142,50 @@ export default function SaldoAwal() {
       return;
     }
 
-    const preview = [];
+    const preview: any[] = [];
     for (let i = headerLineIdx + 1; i < lines.length; i++) {
       const line = lines[i].trim();
-      if (!line || line.toUpperCase() === 'APOTEK') continue;
+      if (!line) continue;
+      
+      // Skip lines that might just be unit names (e.g. APOTEK, INVENTORY)
+      if (line.toUpperCase() === 'APOTEK' || line.toUpperCase() === 'INVENTORY' || line.toUpperCase() === 'GUDANG') continue;
 
       let cols: string[] = [];
       if (isTab) {
         cols = line.split('\t');
+        // If it's just a single string without tabs in a tab-separated data, it's likely a unit name or header.
+        if (cols.length === 1) continue; 
       } else {
         cols = line.split(/\s{2,}/);
         if (cols.length < Math.max(kodeIdx, jumlahIdx) + 1) {
           cols = line.split(/\s+/);
         }
+        if (cols.length === 1) continue;
       }
 
       if (cols.length > Math.max(kodeIdx, jumlahIdx)) {
         const kode = cols[kodeIdx]?.trim();
         const rawJumlah = cols[jumlahIdx]?.trim() || '0';
-        const jumlah = parseInt(rawJumlah.replace(/\./g, ''), 10);
+        const jumlah = parseInt(rawJumlah.replace(/\./g, '').replace(/,/g, ''), 10);
         const nama = namaIdx !== -1 ? cols[namaIdx]?.trim() : '-';
 
         if (kode && !isNaN(jumlah)) {
-          const matchedMed = medicines.find(m => m.kode_obat.toLowerCase() === kode.toLowerCase() || m.nama_obat.toLowerCase() === nama.toLowerCase());
-          preview.push({
-            kode,
-            nama,
-            jumlah,
-            rawJumlah,
-            matched: !!matchedMed,
-            medicine: matchedMed
-          });
+          const matchedMed = medicines.find(m => m.kode_obat.toLowerCase() === kode.toLowerCase() || (nama !== '-' && m.nama_obat.toLowerCase() === nama.toLowerCase()));
+          
+          const existing = preview.find(p => p.kode.toLowerCase() === kode.toLowerCase());
+          if (existing) {
+            existing.jumlah += jumlah;
+            existing.rawJumlah = existing.jumlah.toString();
+          } else {
+            preview.push({
+              kode,
+              nama,
+              jumlah,
+              rawJumlah: jumlah.toString(),
+              matched: !!matchedMed,
+              medicine: matchedMed
+            });
+          }
         }
       }
     }
@@ -282,7 +296,7 @@ export default function SaldoAwal() {
           style={{ minHeight: '40px' }}
         >
           <ClipboardPaste className="h-4 w-4" />
-          Import Excel
+          Paste Data Excel
         </button>
       </div>
 
@@ -443,8 +457,8 @@ export default function SaldoAwal() {
     </div>
     
       {/* Import Modal */}
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+      {showImportModal && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -581,7 +595,8 @@ export default function SaldoAwal() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
