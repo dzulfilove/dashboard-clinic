@@ -20,7 +20,8 @@ import {
   Package,
   Layers,
   AlertTriangle,
-  Bed
+  Bed,
+  Stethoscope
 } from 'lucide-react';
 import api from '../services/api.js';
 import { DbStatus } from '../types.js';
@@ -56,6 +57,7 @@ export default function Sidebar() {
       title: 'Pelayanan Klinik',
       icon: Activity,
       items: [
+        { name: 'Dashboard Dokter', path: '/pelayanan/dashboard-dokter', icon: Stethoscope, roles: ['admin', 'perawat'] },
         { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat'] },
         { name: 'IGD', path: '/pelayanan/igd', icon: Activity, roles: ['admin', 'perawat'] },
         { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat'] },

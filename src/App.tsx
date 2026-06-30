@@ -32,6 +32,7 @@ const MasterDokter = lazy(() => import('./pages/pelayanan/MasterDokter.js'));
 const MasterWilayah = lazy(() => import('./pages/pelayanan/MasterWilayah.js'));
 const DemografiKunjungan = lazy(() => import('./pages/demografi/DemografiKunjungan.js'));
 const DemografiDiagnosa = lazy(() => import('./pages/demografi/DemografiDiagnosa.js'));
+const DashboardDokter = lazy(() => import('./pages/pelayanan/DashboardDokter.js'));
 
 export default function App() {
   const { initialize } = useAuthStore();
@@ -153,6 +154,14 @@ function AppContent() {
                             element={
                               <ProtectedRoute allowedRoles={['admin', 'perawat']}>
                                 <PageTransition><MasterWilayah /></PageTransition>
+                              </ProtectedRoute>
+                            } 
+                          />
+                          <Route 
+                            path="/pelayanan/dashboard-dokter" 
+                            element={
+                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                                <PageTransition><DashboardDokter /></PageTransition>
                               </ProtectedRoute>
                             } 
                           />

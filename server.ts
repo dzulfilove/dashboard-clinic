@@ -2062,6 +2062,167 @@ app.get('/api/pelayanan/demografi/diagnosa', authenticateToken, async (req: any,
   }
 });
 
+// Dashboard Dokter
+app.get('/api/laporan/dokter', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  try {
+    const { startDate, endDate, dokter } = req.query;
+
+    const now = new Date();
+    const from = startDate || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+    const to   = endDate   || now.toISOString().split('T')[0];
+
+    const ralanStats = await db.query(`
+      SELECT
+        COALESCE(dpjp, 'Tidak Diisi') AS nama_dokter,
+        COUNT(*) AS total_ralan,
+        COUNT(CASE WHEN triase = 'merah'  THEN 1 END) AS triase_merah,
+        COUNT(CASE WHEN triase = 'kuning' THEN 1 END) AS triase_kuning,
+        COUNT(CASE WHEN triase = 'hijau'  THEN 1 END) AS triase_hijau
+      FROM registrasi_rawat_jalan
+      WHERE tanggal_pelayanan BETWEEN ? AND ?
+        ${dokter ? "AND dpjp = ?" : "AND dpjp IS NOT NULL AND dpjp != ''"}
+      GROUP BY dpjp
+      ORDER BY total_ralan DESC
+    `, dokter ? [from, to, dokter] : [from, to]);
+
+    const igdStats = await db.query(`
+      SELECT
+        COALESCE(dpjp, 'Tidak Diisi') AS nama_dokter,
+        COUNT(*) AS total_igd,
+        COUNT(CASE WHEN triase = 'merah'  THEN 1 END) AS triase_merah,
+        COUNT(CASE WHEN triase = 'kuning' THEN 1 END) AS triase_kuning,
+        COUNT(CASE WHEN triase = 'hijau'  THEN 1 END) AS triase_hijau,
+        COUNT(CASE WHEN triase = 'hitam'  THEN 1 END) AS triase_hitam
+      FROM registrasi_igd
+      WHERE tanggal_pelayanan BETWEEN ? AND ?
+        ${dokter ? "AND dpjp = ?" : "AND dpjp IS NOT NULL AND dpjp != ''"}
+      GROUP BY dpjp
+      ORDER BY total_igd DESC
+    `, dokter ? [from, to, dokter] : [from, to]);
+
+    const ranapStats = await db.query(`
+      SELECT
+        COALESCE(dpjp, 'Tidak Diisi') AS nama_dokter,
+        COUNT(*) AS total_ranap
+      FROM registrasi_ranap
+      WHERE tanggal_pelayanan BETWEEN ? AND ?
+        ${dokter ? "AND dpjp = ?" : "AND dpjp IS NOT NULL AND dpjp != ''"}
+      GROUP BY dpjp
+      ORDER BY total_ranap DESC
+    `, dokter ? [from, to, dokter] : [from, to]);
+
+    const diagnosaDokter = await db.query(`
+      SELECT
+        r.dpjp AS nama_dokter,
+        r.icd_kode,
+        i.deskripsi AS icd_deskripsi,
+        COUNT(*) AS jumlah
+      FROM registrasi_rawat_jalan r
+      LEFT JOIN master_icd10 i ON r.icd_kode = i.kode_icd
+      WHERE r.tanggal_pelayanan BETWEEN ? AND ?
+        AND r.dpjp IS NOT NULL AND r.dpjp != ''
+        AND r.icd_kode IS NOT NULL
+        ${dokter ? "AND r.dpjp = ?" : ""}
+      GROUP BY r.dpjp, r.icd_kode
+      ORDER BY r.dpjp, jumlah DESC
+    `, dokter ? [from, to, dokter] : [from, to]);
+
+    const trenHarian = await db.query(`
+      SELECT
+        dpjp AS nama_dokter,
+        tanggal_pelayanan AS tanggal,
+        COUNT(*) AS jumlah
+      FROM registrasi_rawat_jalan
+      WHERE tanggal_pelayanan BETWEEN ? AND ?
+        AND dpjp IS NOT NULL AND dpjp != ''
+        ${dokter ? "AND dpjp = ?" : ""}
+      GROUP BY dpjp, tanggal_pelayanan
+      ORDER BY tanggal_pelayanan ASC
+    `, dokter ? [from, to, dokter] : [from, to]);
+
+    const dokterMap = new Map();
+
+    for (const r of ralanStats) {
+      dokterMap.set(r.nama_dokter, {
+        nama_dokter: r.nama_dokter,
+        total_ralan: Number(r.total_ralan),
+        total_igd: 0,
+        total_ranap: 0,
+        total_semua: Number(r.total_ralan),
+        triase_ralan: {
+          merah: Number(r.triase_merah),
+          kuning: Number(r.triase_kuning),
+          hijau: Number(r.triase_hijau),
+        },
+        triase_igd: { merah: 0, kuning: 0, hijau: 0, hitam: 0 },
+        diagnosa_terbanyak: [],
+        tren_harian: [],
+      });
+    }
+
+    for (const r of igdStats) {
+      const existing = dokterMap.get(r.nama_dokter) || {
+        nama_dokter: r.nama_dokter,
+        total_ralan: 0, total_igd: 0, total_ranap: 0, total_semua: 0,
+        triase_ralan: { merah: 0, kuning: 0, hijau: 0 },
+        triase_igd: { merah: 0, kuning: 0, hijau: 0, hitam: 0 },
+        diagnosa_terbanyak: [], tren_harian: [],
+      };
+      existing.total_igd    = Number(r.total_igd);
+      existing.total_semua += Number(r.total_igd);
+      existing.triase_igd   = {
+        merah: Number(r.triase_merah), kuning: Number(r.triase_kuning),
+        hijau: Number(r.triase_hijau), hitam: Number(r.triase_hitam),
+      };
+      dokterMap.set(r.nama_dokter, existing);
+    }
+
+    for (const r of ranapStats) {
+      const existing = dokterMap.get(r.nama_dokter);
+      if (existing) {
+        existing.total_ranap  = Number(r.total_ranap);
+        existing.total_semua += Number(r.total_ranap);
+      }
+    }
+
+    for (const d of diagnosaDokter) {
+      const existing = dokterMap.get(d.nama_dokter);
+      if (existing && existing.diagnosa_terbanyak.length < 5) {
+        existing.diagnosa_terbanyak.push({
+          kode: d.icd_kode,
+          deskripsi: d.icd_deskripsi || d.icd_kode,
+          jumlah: Number(d.jumlah),
+        });
+      }
+    }
+
+    for (const t of trenHarian) {
+      const existing = dokterMap.get(t.nama_dokter);
+      if (existing) {
+        existing.tren_harian.push({
+          tanggal: t.tanggal,
+          jumlah: Number(t.jumlah),
+        });
+      }
+    }
+
+    const result = Array.from(dokterMap.values())
+      .sort((a: any, b: any) => b.total_semua - a.total_semua);
+
+    logActivity(req.user.id, 'VIEW', 'Dashboard Dokter', 'Melihat analitik kunjungan dokter');
+
+    res.json({
+      periode: { from, to },
+      dokter: result,
+      total_dokter_aktif: result.length,
+      total_kunjungan: result.reduce((s: number, d: any) => s + d.total_semua, 0),
+    });
+
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Master Wilayah
 app.post('/api/wilayah/kota', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama } = req.body; if (!nama) throw new Error('Nama kota wajib diisi'); await db.query('INSERT INTO kota (nama) VALUES (?)', [nama]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
 app.delete('/api/wilayah/kota/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kota WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });
