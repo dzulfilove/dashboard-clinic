@@ -2059,6 +2059,7 @@ export default function RawatJalan() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className="bg-white rounded-2xl border border-slate-100 shadow-xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
             >
                 {/* Modal Header */}
