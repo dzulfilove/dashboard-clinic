@@ -186,7 +186,7 @@ export default function AbcAnalysis() {
             
             {/* KPI: Total drug spend */}
             <div 
-               className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden anim-fade-up anim-delay-1 transition-transform duration-150 ease-out hover:-translate-y-0.5"
+               className="bg-slate-900 text-white rounded-3xl p-6 shadow-lg relative overflow-hidden anim-fade-up anim-delay-1 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
               <span className="text-xs font-medium text-slate-400 uppercase tracking-wider block">Nilai Total Pengeluaran Obat</span>
               <h3 className="text-2xl font-black font-mono block mt-2">
@@ -200,7 +200,7 @@ export default function AbcAnalysis() {
 
             {/* Class A summary */}
             <div 
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-2 transition-transform duration-150 ease-out hover:-translate-y-0.5"
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-2 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
               <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-2">
@@ -213,7 +213,7 @@ export default function AbcAnalysis() {
 
             {/* Class B summary */}
             <div 
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-3 transition-transform duration-150 ease-out hover:-translate-y-0.5"
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-3 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
               <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-2">
@@ -226,7 +226,7 @@ export default function AbcAnalysis() {
 
             {/* Class C summary */}
             <div 
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-4 transition-transform duration-150 ease-out hover:-translate-y-0.5"
+               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-4 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
               <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
               <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-2">
@@ -264,7 +264,7 @@ export default function AbcAnalysis() {
                 </thead>
                 <tbody className="divide-y divide-slate-100/70 text-slate-700 text-xs font-semibold">
                   {abcData.map((item, index) => (
-                    <tr key={item.obat_id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={item.obat_id} className="hover:bg-slate-50/70 transition-colors anim-fade-up" style={{ animationDelay: `${0.4 + (index * 0.05)}s` }}>
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-400">
                         #{index + 1}
                       </td>

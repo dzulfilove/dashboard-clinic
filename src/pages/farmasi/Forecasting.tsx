@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   TrendingUp, 
@@ -134,7 +133,7 @@ export default function Forecasting() {
       )}
 
       {/* Forecasting Explanation Banner */}
-      <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-500 shadow-sm">
+      <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-500 shadow-sm anim-fade-up">
         <Info className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
         <div>
           <span className="font-bold text-slate-800 block mb-1">Rumus Perhitungan Peramalan Logistik & Kebutuhan Order:</span>
@@ -166,11 +165,8 @@ export default function Forecasting() {
           
           {/* Quick Stats overview panel */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div 
-               whileHover={{ y: -2 }}
-               transition={{ duration: 0.2 }}
-               style={{ willChange: 'transform' }}
-               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm ${criticalItemsCount > 0 ? 'border-rose-100' : 'border-slate-100'}`}
+            <div 
+               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm anim-fade-up anim-delay-1 ${criticalItemsCount > 0 ? 'border-rose-100' : 'border-slate-100'} transition-transform duration-200 hover:-translate-y-1`}
             >
               <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
                 <AlertTriangle className="h-6 w-6" />
@@ -181,13 +177,10 @@ export default function Forecasting() {
                   {criticalItemsCount} item obat perlu pemesanan kembali (Qty Order &gt; 0)
                 </span>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div 
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-              style={{ willChange: 'transform' }}
-              className="p-5 bg-white/70 backdrop-blur-md border border-slate-100 shadow-sm rounded-3xl flex items-center space-x-4"
+            <div 
+              className="p-5 bg-white/70 backdrop-blur-md border border-slate-100 shadow-sm rounded-3xl flex items-center space-x-4 anim-fade-up anim-delay-2 transition-transform duration-200 hover:-translate-y-1"
             >
               <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl">
                 <CheckCircle className="h-6 w-6" />
@@ -198,11 +191,11 @@ export default function Forecasting() {
                   {forecasts.length} item aktif
                 </span>
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Filters & Sorting Control Panel */}
-          <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 anim-fade-up anim-delay-3">
             
             {/* Search Input */}
             <div className="relative flex-1 max-w-sm">
@@ -266,7 +259,7 @@ export default function Forecasting() {
           </div>
 
           {/* Forecasting data table */}
-          <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden anim-fade-up anim-delay-3">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-100/70 text-left">
                 <thead className="bg-slate-50/50">
@@ -321,8 +314,8 @@ export default function Forecasting() {
                       }
                       return 0;
                     })
-                    .map((f) => (
-                      <tr key={f.id} className="hover:bg-slate-50/70 transition-colors">
+                    .map((f, index) => (
+                      <tr key={f.id} className="hover:bg-slate-50/70 transition-colors anim-fade-up" style={{ animationDelay: `${0.3 + (index * 0.05)}s` }}>
                         <td className="px-6 py-3.5">
                           <div className="text-xs">
                             <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
