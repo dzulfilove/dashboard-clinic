@@ -27,6 +27,28 @@ import api from '../../services/api.js';
 
 const COLORS = ['#ef4444', '#f59e0b', '#10b981', '#1f2937']; // merah, kuning, hijau, hitam
 
+const formatIndonesianDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  try {
+    const dateOnly = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+    const parts = dateOnly.split('-');
+    if (parts.length !== 3) return dateStr;
+    
+    const year = parts[0];
+    const monthIndex = parseInt(parts[1], 10) - 1;
+    const day = parseInt(parts[2], 10);
+    
+    const monthNames = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    
+    return `${day < 10 ? '0' + day : day} ${monthNames[monthIndex]} ${year}`;
+  } catch (error) {
+    return dateStr;
+  }
+};
+
 export default function DashboardDokter() {
   const [startDate, setStartDate] = useState(() => {
     const now = new Date();
@@ -92,7 +114,9 @@ export default function DashboardDokter() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800 tracking-tight">Dashboard Kinerja Dokter DPJP</h1>
-            <p className="text-sm text-slate-500 font-medium">Analitik kunjungan dan distribusi pelayanan per dokter penanggung jawab</p>
+            <p className="text-sm text-slate-500 font-medium">
+              Analitik kunjungan dan distribusi pelayanan per dokter penanggung jawab {data?.periode ? `(${formatIndonesianDate(data.periode.from)} s/d ${formatIndonesianDate(data.periode.to)})` : ''}
+            </p>
           </div>
         </div>
       </div>
@@ -275,7 +299,7 @@ export default function DashboardDokter() {
                                             tick={{ fontSize: 10, fill: '#64748b' }} 
                                             axisLine={false} 
                                             tickLine={false} 
-                                            tickFormatter={(val) => val.split('-').slice(1).join('/')}
+                                            tickFormatter={(val) => formatIndonesianDate(val)}
                                           />
                                           <YAxis 
                                             tick={{ fontSize: 10, fill: '#64748b' }} 
@@ -287,6 +311,7 @@ export default function DashboardDokter() {
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                             itemStyle={{ fontSize: '12px', fontWeight: 600 }}
                                             labelStyle={{ fontSize: '10px', color: '#64748b', marginBottom: '4px' }}
+                                            labelFormatter={(val) => formatIndonesianDate(val)}
                                           />
                                           <Line 
                                             type="monotone" 

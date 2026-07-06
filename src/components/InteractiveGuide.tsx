@@ -447,18 +447,30 @@ export default function InteractiveGuide() {
       return;
     }
 
+    const el = document.querySelector(step.targetSelector);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     const updateRect = () => {
-      const el = document.querySelector(step.targetSelector!);
-      if (el) {
-        setHighlightRect(el.getBoundingClientRect());
+      const targetEl = document.querySelector(step.targetSelector!);
+      if (targetEl) {
+        setHighlightRect(targetEl.getBoundingClientRect());
       } else {
         setHighlightRect(null);
       }
     };
 
     updateRect();
+    const timeoutId = setTimeout(updateRect, 300);
+
     window.addEventListener('resize', updateRect);
-    return () => window.removeEventListener('resize', updateRect);
+    window.addEventListener('scroll', updateRect, { capture: true });
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', updateRect);
+      window.removeEventListener('scroll', updateRect, { capture: true });
+    };
   }, [isTourActive, tourStep]);
 
   const handleNextTour = () => {
@@ -481,6 +493,40 @@ export default function InteractiveGuide() {
     if (!isTourActive) return null;
 
     const step = tourSteps[tourStep];
+
+    // Hitung posisi aman agar tooltip tidak terpotong/tenggelam di bawah viewport
+    const tooltipHeight = 240; // perkiraan tinggi tooltip
+    let topStyle: any;
+    let leftStyle: any;
+    let transformStyle: string | undefined;
+
+    if (highlightRect) {
+      const spaceBelow = window.innerHeight - highlightRect.bottom;
+      const spaceAbove = highlightRect.top;
+
+      if (spaceBelow >= tooltipHeight + PADDING + 12) {
+        // Cukup ruang di bawah
+        topStyle = highlightRect.bottom + PADDING + 12;
+      } else if (spaceAbove >= tooltipHeight + PADDING + 12) {
+        // Cukup ruang di atas
+        topStyle = highlightRect.top - tooltipHeight - PADDING - 12;
+      } else {
+        // Ruang atas & bawah sempit, pasang di tempat yang paling optimal
+        topStyle = Math.max(16, window.innerHeight - tooltipHeight - 16);
+      }
+
+      // Pengaman tambahan agar tidak melebihi batas viewport
+      topStyle = Math.max(16, Math.min(topStyle, window.innerHeight - tooltipHeight - 16));
+
+      leftStyle = Math.max(16, Math.min(
+        highlightRect.left,
+        window.innerWidth - 320
+      ));
+    } else {
+      topStyle = '50%';
+      leftStyle = '50%';
+      transformStyle = 'translate(-50%, -50%)';
+    }
 
     return createPortal(
       <div className="fixed inset-0 z-[9998] pointer-events-none">
@@ -533,24 +579,12 @@ export default function InteractiveGuide() {
 
         {/* Tooltip */}
         <div
-          className="absolute z-[9999] pointer-events-auto"
-          style={
-            highlightRect
-              ? {
-                  // Posisi tooltip di bawah elemen highlight
-                  top: highlightRect.bottom + PADDING + 12,
-                  left: Math.max(16, Math.min(
-                    highlightRect.left,
-                    window.innerWidth - 320
-                  )),
-                }
-              : {
-                  // Fallback: tengah layar
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                }
-          }
+          className="absolute z-[9999] pointer-events-auto transition-all duration-200"
+          style={{
+            top: topStyle,
+            left: leftStyle,
+            transform: transformStyle,
+          }}
         >
           <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-5 w-[300px]">
             <p className="text-xs font-semibold text-teal-600 uppercase tracking-wider mb-1">
