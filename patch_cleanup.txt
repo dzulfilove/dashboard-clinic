@@ -1,0 +1,16 @@
+                      {/* Kunjungan Terakhir */}
+                      {/* Rencana Jumlah Pemeriksaan */}
+                      <div>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">
+                          Rencana Jml Pemeriksaan
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="10"
+                          value={formData.jumlah_pemeriksaan}
+                          onChange={(e) => setFormData({ ...formData, jumlah_pemeriksaan: e.target.value })}
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all font-bold"
+                          placeholder="Jumlah pemeriksaan (opsional)"
+                        />
+                      </div>

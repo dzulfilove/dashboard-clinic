@@ -1,0 +1,11 @@
+@@ -248,3 +248,11 @@
+         }
++
++        const [followupCols]: any = await mysqlPool.query("SHOW COLUMNS FROM followup_vaksin LIKE 'jumlah_pemeriksaan'");
++        if (followupCols.length === 0) {
++          console.log('Adding column jumlah_pemeriksaan to followup_vaksin...');
++          await mysqlPool.query("ALTER TABLE followup_vaksin ADD COLUMN jumlah_pemeriksaan INT DEFAULT NULL");
++          console.log('jumlah_pemeriksaan column added successfully.');
++        }
+       } catch (err: any) {
+         console.log('Error modifying existing tables:', err.message);

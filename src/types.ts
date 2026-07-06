@@ -32,6 +32,7 @@ export interface Pasien {
   kelurahan_id?: number;
   kecamatan_id?: number;
   kota_id?: number;
+  no_telp?: string;
   kelurahan?: Kelurahan;
   kecamatan?: Kecamatan;
   kota?: Kota;
@@ -182,3 +183,23 @@ export const TIPE_UNIT_RAWAT_JALAN = [
   "ORT (POLI ORTOPEDI)",
   "BU (POLI BEDAH UMUM)"
 ];
+
+export interface FollowUpVaksin {
+  id?: number;
+  no_order?: string;
+  unit_kunjungan?: string;
+  pasien_no_rm?: string;
+  pasien_nama?: string;
+  usia?: number;
+  kunjungan_terakhir?: string;
+  tanggal_rencana?: string;
+  rencana_kunjungan_ke?: number;
+  diagnosa_keluhan?: string;
+  status_rencana?: string;
+  catatan_hasil?: string;
+  paket_vaksin?: string;
+  rencana_tindakan?: string;
+  jumlah_pemeriksaan?: string;
+  created_at?: string;
+}
+

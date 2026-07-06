@@ -262,6 +262,13 @@ async function runMigrationsIfRequired() {
         }
 
         const [dpjpRalanCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_rawat_jalan LIKE 'dpjp'");
+
+        const [followupCols]: any = await mysqlPool.query("SHOW COLUMNS FROM followup_vaksin LIKE 'jumlah_pemeriksaan'");
+        if (followupCols.length === 0) {
+          console.log('Adding column jumlah_pemeriksaan to existing followup_vaksin MySQL table...');
+          await mysqlPool.query("ALTER TABLE followup_vaksin ADD COLUMN jumlah_pemeriksaan INT DEFAULT NULL");
+          console.log('Column jumlah_pemeriksaan added successfully.');
+        }
         if (dpjpRalanCols.length === 0) {
           await mysqlPool.query("ALTER TABLE registrasi_rawat_jalan ADD COLUMN dpjp VARCHAR(250) AFTER icd_kode");
         }
@@ -344,6 +351,11 @@ async function runMigrationsIfRequired() {
           console.log('Adding kota_id to pasien table...');
           await mysqlPool.query("ALTER TABLE pasien ADD COLUMN kota_id INT AFTER kecamatan_id");
         }
+        const [pasienNoTelpCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'no_telp'");
+        if (pasienNoTelpCol.length === 0) {
+          console.log('Adding no_telp to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN no_telp VARCHAR(20) DEFAULT NULL AFTER kota_id");
+        }
 
         // Direct check for dokter table to ensure it exists
         const [dokterTable]: any = await mysqlPool.query("SHOW TABLES LIKE 'dokter'");
@@ -386,6 +398,36 @@ async function runMigrationsIfRequired() {
           await mysqlPool.query("ALTER TABLE master_tindakan MODIFY COLUMN jenis VARCHAR(50) DEFAULT NULL");
         } catch (err: any) {
           console.warn('Failed to alter master_tindakan jenis column:', err.message);
+        }
+
+        // Direct check for followup_vaksin table to ensure it exists
+        try {
+          const [followupTable]: any = await mysqlPool.query("SHOW TABLES LIKE 'followup_vaksin'");
+          if (followupTable.length === 0) {
+            console.log('Explicitly creating missing followup_vaksin table...');
+            await mysqlPool.query(`
+              CREATE TABLE IF NOT EXISTS followup_vaksin (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                no_order VARCHAR(50) DEFAULT NULL,
+                unit_kunjungan VARCHAR(100) DEFAULT NULL,
+                pasien_no_rm VARCHAR(50) DEFAULT NULL,
+                pasien_nama VARCHAR(250) DEFAULT NULL,
+                usia INT DEFAULT NULL,
+                kunjungan_terakhir DATE DEFAULT NULL,
+                tanggal_rencana DATE DEFAULT NULL,
+                rencana_kunjungan_ke INT DEFAULT NULL,
+                diagnosa_keluhan TEXT DEFAULT NULL,
+                status_rencana VARCHAR(50) DEFAULT NULL,
+                catatan_hasil TEXT DEFAULT NULL,
+                paket_vaksin VARCHAR(150) DEFAULT NULL,
+                rencana_tindakan VARCHAR(250) DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            `);
+            console.log('followup_vaksin table created successfully.');
+          }
+        } catch (err: any) {
+          console.warn('Failed to ensure followup_vaksin table:', err.message);
         }
       } catch (colErr: any) {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);
@@ -535,6 +577,7 @@ interface VirtualDatabase {
   kota?: any[];
   kecamatan?: any[];
   kelurahan?: any[];
+  followup_vaksin?: any[];
 }
 
 function initVirtualDb() {
@@ -611,12 +654,12 @@ function initVirtualDb() {
     obat_konsumsi_harian: [],
     obat_forecasting: [],
     pasien: [
-      { no_rm: '002502', nama: 'MADE YULIANA' },
-      { no_rm: '002503', nama: 'JURIAH' },
-      { no_rm: '002123', nama: 'MUHAMMAD RIDHO PRAYOGA' },
-      { no_rm: '002505', nama: 'JIHAN' },
-      { no_rm: '001889', nama: 'MUBARIKA SEKARSARI YUSUF' },
-      { no_rm: '000611', nama: 'DELLA TRISYANASARI, Ny' }
+      { no_rm: '002502', nama: 'MADE YULIANA', tanggal_lahir: '1998-06-15', alamat: 'Jl. Jend. Sudirman No. 12', jenis_kelamin: 'P', kota_id: 1, kecamatan_id: 1, kelurahan_id: 1, no_telp: '081234567890' },
+      { no_rm: '002503', nama: 'JURIAH', tanggal_lahir: '2021-03-10', alamat: 'Jl. Gatot Subroto No. 45', jenis_kelamin: 'P', kota_id: 1, kecamatan_id: 2, kelurahan_id: 2, no_telp: '082198765432' },
+      { no_rm: '002123', nama: 'MUHAMMAD RIDHO PRAYOGA', tanggal_lahir: '1992-11-20', alamat: 'Jl. Merdeka No. 88', jenis_kelamin: 'L', kota_id: 2, kecamatan_id: 3, kelurahan_id: 3, no_telp: '085712345678' },
+      { no_rm: '002505', nama: 'JIHAN', tanggal_lahir: '1995-04-05', alamat: 'Jl. Asia Afrika No. 10', jenis_kelamin: 'P', kota_id: 2, kecamatan_id: 3, kelurahan_id: 3, no_telp: '081388889999' },
+      { no_rm: '001889', nama: 'MUBARIKA SEKARSARI YUSUF', tanggal_lahir: '1989-08-25', alamat: 'Jl. Diponegoro No. 17', jenis_kelamin: 'P', kota_id: 1, kecamatan_id: 1, kelurahan_id: 2, no_telp: '081122334455' },
+      { no_rm: '000611', nama: 'DELLA TRISYANASARI, Ny', tanggal_lahir: '1997-12-12', alamat: 'Jl. Kartini No. 5', jenis_kelamin: 'P', kota_id: 1, kecamatan_id: 2, kelurahan_id: 1, no_telp: '081909090909' }
     ],
     master_tindakan: [
       { id: 1, nama_tindakan: 'INJEKSI (IM/IV/SC) (UMUM)', jenis: 'RALAN' },
@@ -645,6 +688,76 @@ function initVirtualDb() {
       { id: 8, registrasi_id: 4, tindakan_id: 5, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:10:15', tarif_tindakan: 235000, tarif_sarana: 95000, tarif_pelayanan: 140000, tarif_medis: 0, jumlah: 1, subtotal: 235000 },
       { id: 9, registrasi_id: 5, tindakan_id: 6, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:27:15', tarif_tindakan: 185000, tarif_sarana: 75000, tarif_pelayanan: 110000, tarif_medis: 0, jumlah: 1, subtotal: 185000 },
       { id: 10, registrasi_id: 6, tindakan_id: 6, pelaksana: 'dr. Elvita Asril,Sp.OG', tindakan_keterangan: '', tindakan_tanggal: '2026-06-08', tindakan_jam: '15:45:24', tarif_tindakan: 185000, tarif_sarana: 75000, tarif_pelayanan: 110000, tarif_medis: 0, jumlah: 1, subtotal: 185000 }
+    ],
+    followup_vaksin: [
+      {
+        id: 1,
+        no_order: 'ORD-2026-001',
+        unit_kunjungan: 'Poli Vaksinasi & Imunisasi',
+        pasien_no_rm: '002502',
+        pasien_nama: 'MADE YULIANA',
+        usia: 28,
+        kunjungan_terakhir: '2026-06-01',
+        tanggal_rencana: '2026-07-06',
+        rencana_kunjungan_ke: 2,
+        diagnosa_keluhan: 'Vaksinasi Cervarix Dosis ke-2',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Kondisi umum sehat, tidak demam',
+        paket_vaksin: 'Paket Kanker Serviks (HPV) - Cervarix',
+        rencana_tindakan: 'Injeksi Vaksin HPV Dosis 2',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 2,
+        no_order: 'ORD-2026-002',
+        unit_kunjungan: 'Poli Anak',
+        pasien_no_rm: '002503',
+        pasien_nama: 'JURIAH',
+        usia: 5,
+        kunjungan_terakhir: '2026-05-15',
+        tanggal_rencana: '2026-07-15',
+        rencana_kunjungan_ke: 3,
+        diagnosa_keluhan: 'Imunisasi DPT Booster',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Rencana imunisasi terjadwal',
+        paket_vaksin: 'Paket Imunisasi Dasar Lengkap (Bayi)',
+        rencana_tindakan: 'Injeksi Vaksin DPT-HB-Hib Dosis 3',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 3,
+        no_order: 'ORD-2026-003',
+        unit_kunjungan: 'Poli Umum',
+        pasien_no_rm: '002123',
+        pasien_nama: 'MUHAMMAD RIDHO PRAYOGA',
+        usia: 34,
+        kunjungan_terakhir: '2026-06-10',
+        tanggal_rencana: '2026-07-08',
+        rencana_kunjungan_ke: 1,
+        diagnosa_keluhan: 'Vaksinasi Covid-19 Booster',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Kondisi umum sehat, tidak demam',
+        paket_vaksin: 'Vaksinasi Covid-19 Booster',
+        rencana_tindakan: 'Injeksi Vaksin Moderna Booster',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 4,
+        no_order: 'ORD-2026-004',
+        unit_kunjungan: 'Poli KIA (Kesehatan Ibu dan Anak)',
+        pasien_no_rm: '000611',
+        pasien_nama: 'DELLA TRISYANASARI, Ny',
+        usia: 29,
+        kunjungan_terakhir: '2026-06-08',
+        tanggal_rencana: '2026-07-06',
+        rencana_kunjungan_ke: 4,
+        diagnosa_keluhan: 'Vaksinasi BCG & Polio 1',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Pastikan bayi dalam kondisi sehat dan kenyang',
+        paket_vaksin: 'Paket Imunisasi Dasar Lengkap (Bayi)',
+        rencana_tindakan: 'Injeksi Vaksin BCG & Tetes Polio',
+        created_at: new Date().toISOString()
+      }
     ]
   };
 
@@ -789,6 +902,79 @@ export function readVirtualDb(): VirtualDatabase {
       }
       return o;
     });
+  }
+  if (!data.followup_vaksin) {
+    data.followup_vaksin = [
+      {
+        id: 1,
+        no_order: 'ORD-2026-001',
+        unit_kunjungan: 'Poli Vaksinasi & Imunisasi',
+        pasien_no_rm: '002502',
+        pasien_nama: 'MADE YULIANA',
+        usia: 28,
+        kunjungan_terakhir: '2026-06-01',
+        tanggal_rencana: '2026-07-06',
+        rencana_kunjungan_ke: 2,
+        diagnosa_keluhan: 'Vaksinasi Cervarix Dosis ke-2',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Kondisi umum sehat, tidak demam',
+        paket_vaksin: 'Paket Kanker Serviks (HPV) - Cervarix',
+        rencana_tindakan: 'Injeksi Vaksin HPV Dosis 2',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 2,
+        no_order: 'ORD-2026-002',
+        unit_kunjungan: 'Poli Anak',
+        pasien_no_rm: '002503',
+        pasien_nama: 'JURIAH',
+        usia: 5,
+        kunjungan_terakhir: '2026-05-15',
+        tanggal_rencana: '2026-07-15',
+        rencana_kunjungan_ke: 3,
+        diagnosa_keluhan: 'Imunisasi DPT Booster',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Rencana imunisasi terjadwal',
+        paket_vaksin: 'Paket Imunisasi Dasar Lengkap (Bayi)',
+        rencana_tindakan: 'Injeksi Vaksin DPT-HB-Hib Dosis 3',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 3,
+        no_order: 'ORD-2026-003',
+        unit_kunjungan: 'Poli Umum',
+        pasien_no_rm: '002123',
+        pasien_nama: 'MUHAMMAD RIDHO PRAYOGA',
+        usia: 34,
+        kunjungan_terakhir: '2026-06-10',
+        tanggal_rencana: '2026-07-08',
+        rencana_kunjungan_ke: 1,
+        diagnosa_keluhan: 'Vaksinasi Covid-19 Booster',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Kondisi umum sehat, tidak demam',
+        paket_vaksin: 'Vaksinasi Covid-19 Booster',
+        rencana_tindakan: 'Injeksi Vaksin Moderna Booster',
+        created_at: new Date().toISOString()
+      },
+      {
+        id: 4,
+        no_order: 'ORD-2026-004',
+        unit_kunjungan: 'Poli KIA (Kesehatan Ibu dan Anak)',
+        pasien_no_rm: '000611',
+        pasien_nama: 'DELLA TRISYANASARI, Ny',
+        usia: 29,
+        kunjungan_terakhir: '2026-06-08',
+        tanggal_rencana: '2026-07-06',
+        rencana_kunjungan_ke: 4,
+        diagnosa_keluhan: 'Vaksinasi BCG & Polio 1',
+        status_rencana: 'Scheduled',
+        catatan_hasil: 'Pastikan bayi dalam kondisi sehat dan kenyang',
+        paket_vaksin: 'Paket Imunisasi Dasar Lengkap (Bayi)',
+        rencana_tindakan: 'Injeksi Vaksin BCG & Tetes Polio',
+        created_at: new Date().toISOString()
+      }
+    ];
+    updated = true;
   }
   if (updated) {
     fs.writeFileSync(VIRTUAL_DB_FILE, JSON.stringify(data, null, 2), 'utf8');
@@ -1484,8 +1670,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     });
   }
 
-  if (norm.startsWith('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id)')) {
-    const [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id] = params;
+  if (norm.startsWith('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id')) {
+    const [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp] = params;
     if (!vdb.pasien) vdb.pasien = [];
     // Remove duplicates if already exists
     vdb.pasien = vdb.pasien.filter(p => String(p.no_rm).toLowerCase() !== String(no_rm).toLowerCase());
@@ -1497,7 +1683,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       jenis_kelamin: jenis_kelamin ? String(jenis_kelamin) : null,
       kota_id: kota_id ? Number(kota_id) : null,
       kecamatan_id: kecamatan_id ? Number(kecamatan_id) : null,
-      kelurahan_id: kelurahan_id ? Number(kelurahan_id) : null
+      kelurahan_id: kelurahan_id ? Number(kelurahan_id) : null,
+      no_telp: no_telp ? String(no_telp) : null
     });
     writeVirtualDb(vdb);
     return { affectedRows: 1 };
@@ -1517,27 +1704,46 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         jenis_kelamin: null,
         kota_id: null,
         kecamatan_id: null,
-        kelurahan_id: null
+        kelurahan_id: null,
+        no_telp: null
       });
       writeVirtualDb(vdb);
     }
     return { affectedRows: 1 };
   }
 
-  if (norm.startsWith('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?')) {
-    const [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_rm] = params;
-    if (!vdb.pasien) vdb.pasien = [];
-    const idx = vdb.pasien.findIndex(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
-    if (idx !== -1) {
-      vdb.pasien[idx].nama = String(nama);
-      vdb.pasien[idx].tanggal_lahir = tanggal_lahir ? String(tanggal_lahir) : null;
-      vdb.pasien[idx].alamat = alamat ? String(alamat) : null;
-      vdb.pasien[idx].jenis_kelamin = jenis_kelamin ? String(jenis_kelamin) : null;
-      vdb.pasien[idx].kota_id = kota_id ? Number(kota_id) : null;
-      vdb.pasien[idx].kecamatan_id = kecamatan_id ? Number(kecamatan_id) : null;
-      vdb.pasien[idx].kelurahan_id = kelurahan_id ? Number(kelurahan_id) : null;
-      writeVirtualDb(vdb);
-      return { affectedRows: 1 };
+  if (norm.startsWith('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id =')) {
+    if (params.length === 9) {
+      const [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp, no_rm] = params;
+      if (!vdb.pasien) vdb.pasien = [];
+      const idx = vdb.pasien.findIndex(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
+      if (idx !== -1) {
+        vdb.pasien[idx].nama = String(nama);
+        vdb.pasien[idx].tanggal_lahir = tanggal_lahir ? String(tanggal_lahir) : null;
+        vdb.pasien[idx].alamat = alamat ? String(alamat) : null;
+        vdb.pasien[idx].jenis_kelamin = jenis_kelamin ? String(jenis_kelamin) : null;
+        vdb.pasien[idx].kota_id = kota_id ? Number(kota_id) : null;
+        vdb.pasien[idx].kecamatan_id = kecamatan_id ? Number(kecamatan_id) : null;
+        vdb.pasien[idx].kelurahan_id = kelurahan_id ? Number(kelurahan_id) : null;
+        vdb.pasien[idx].no_telp = no_telp ? String(no_telp) : null;
+        writeVirtualDb(vdb);
+        return { affectedRows: 1 };
+      }
+    } else {
+      const [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_rm] = params;
+      if (!vdb.pasien) vdb.pasien = [];
+      const idx = vdb.pasien.findIndex(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
+      if (idx !== -1) {
+        vdb.pasien[idx].nama = String(nama);
+        vdb.pasien[idx].tanggal_lahir = tanggal_lahir ? String(tanggal_lahir) : null;
+        vdb.pasien[idx].alamat = alamat ? String(alamat) : null;
+        vdb.pasien[idx].jenis_kelamin = jenis_kelamin ? String(jenis_kelamin) : null;
+        vdb.pasien[idx].kota_id = kota_id ? Number(kota_id) : null;
+        vdb.pasien[idx].kecamatan_id = kecamatan_id ? Number(kecamatan_id) : null;
+        vdb.pasien[idx].kelurahan_id = kelurahan_id ? Number(kelurahan_id) : null;
+        writeVirtualDb(vdb);
+        return { affectedRows: 1 };
+      }
     }
     return { affectedRows: 0 };
   }
@@ -2087,6 +2293,18 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return { affectedRows: 1 };
   }
 
+  if (norm.startsWith('UPDATE pasien SET no_telp = ? WHERE no_rm = ?') || norm.startsWith('UPDATE pasien SET no_telp = ? WHERE no_rm = ?'.toLowerCase())) {
+    const [no_telp, no_rm] = params;
+    if (!vdb.pasien) vdb.pasien = [];
+    const idx = vdb.pasien.findIndex(p => String(p.no_rm).toLowerCase() === String(no_rm).toLowerCase());
+    if (idx !== -1) {
+      vdb.pasien[idx].no_telp = no_telp ? String(no_telp) : null;
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
   if (norm.startsWith('UPDATE pasien SET nama = ? WHERE no_rm = ?')) {
     const [nama, no_rm] = params;
     if (!vdb.pasien) vdb.pasien = [];
@@ -2187,6 +2405,75 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       return { affectedRows: 1 };
     }
     return { affectedRows: 0 };
+  }
+
+  // --- FOLLOW UP VAKSIN (VIRTUAL DB) ---
+  if (norm.startsWith('SELECT * FROM followup_vaksin')) {
+    if (!vdb.followup_vaksin) vdb.followup_vaksin = [];
+    return vdb.followup_vaksin;
+  }
+
+  if (norm.startsWith('INSERT INTO followup_vaksin')) {
+    const [no_order, unit_kunjungan, pasien_no_rm, pasien_nama, usia, kunjungan_terakhir, tanggal_rencana, rencana_kunjungan_ke, diagnosa_keluhan, status_rencana, catatan_hasil, paket_vaksin, rencana_tindakan, jumlah_pemeriksaan] = params;
+    if (!vdb.followup_vaksin) vdb.followup_vaksin = [];
+    const newId = vdb.followup_vaksin.length > 0 ? Math.max(...vdb.followup_vaksin.map(item => item.id)) + 1 : 1;
+    const newRecord = {
+      id: newId,
+      no_order: no_order || null,
+      unit_kunjungan: unit_kunjungan || null,
+      pasien_no_rm: pasien_no_rm || null,
+      pasien_nama: pasien_nama || null,
+      usia: usia ? Number(usia) : null,
+      kunjungan_terakhir: kunjungan_terakhir || null,
+      tanggal_rencana: tanggal_rencana || null,
+      rencana_kunjungan_ke: rencana_kunjungan_ke ? Number(rencana_kunjungan_ke) : null,
+      diagnosa_keluhan: diagnosa_keluhan || null,
+      status_rencana: status_rencana || null,
+      catatan_hasil: catatan_hasil || null,
+      paket_vaksin: paket_vaksin || null,
+      rencana_tindakan: rencana_tindakan || null,
+      jumlah_pemeriksaan: jumlah_pemeriksaan ? Number(jumlah_pemeriksaan) : null,
+      created_at: new Date().toISOString()
+    };
+    vdb.followup_vaksin.push(newRecord);
+    writeVirtualDb(vdb);
+    return { insertId: newId, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE followup_vaksin SET')) {
+    const [no_order, unit_kunjungan, pasien_no_rm, pasien_nama, usia, kunjungan_terakhir, tanggal_rencana, rencana_kunjungan_ke, diagnosa_keluhan, status_rencana, catatan_hasil, paket_vaksin, rencana_tindakan, jumlah_pemeriksaan, id] = params;
+    if (!vdb.followup_vaksin) vdb.followup_vaksin = [];
+    const idx = vdb.followup_vaksin.findIndex(item => item.id === Number(id));
+    if (idx !== -1) {
+      vdb.followup_vaksin[idx] = {
+        ...vdb.followup_vaksin[idx],
+        no_order: no_order !== undefined ? no_order : vdb.followup_vaksin[idx].no_order,
+        unit_kunjungan: unit_kunjungan !== undefined ? unit_kunjungan : vdb.followup_vaksin[idx].unit_kunjungan,
+        pasien_no_rm: pasien_no_rm !== undefined ? pasien_no_rm : vdb.followup_vaksin[idx].pasien_no_rm,
+        pasien_nama: pasien_nama !== undefined ? pasien_nama : vdb.followup_vaksin[idx].pasien_nama,
+        usia: usia !== undefined ? (usia ? Number(usia) : null) : vdb.followup_vaksin[idx].usia,
+        kunjungan_terakhir: kunjungan_terakhir !== undefined ? kunjungan_terakhir : vdb.followup_vaksin[idx].kunjungan_terakhir,
+        tanggal_rencana: tanggal_rencana !== undefined ? tanggal_rencana : vdb.followup_vaksin[idx].tanggal_rencana,
+        rencana_kunjungan_ke: rencana_kunjungan_ke !== undefined ? (rencana_kunjungan_ke ? Number(rencana_kunjungan_ke) : null) : vdb.followup_vaksin[idx].rencana_kunjungan_ke,
+        diagnosa_keluhan: diagnosa_keluhan !== undefined ? diagnosa_keluhan : vdb.followup_vaksin[idx].diagnosa_keluhan,
+        status_rencana: status_rencana !== undefined ? status_rencana : vdb.followup_vaksin[idx].status_rencana,
+        catatan_hasil: catatan_hasil !== undefined ? catatan_hasil : vdb.followup_vaksin[idx].catatan_hasil,
+        paket_vaksin: paket_vaksin !== undefined ? paket_vaksin : vdb.followup_vaksin[idx].paket_vaksin,
+        rencana_tindakan: rencana_tindakan !== undefined ? rencana_tindakan : vdb.followup_vaksin[idx].rencana_tindakan,
+        jumlah_pemeriksaan: jumlah_pemeriksaan !== undefined ? (jumlah_pemeriksaan ? Number(jumlah_pemeriksaan) : null) : vdb.followup_vaksin[idx].jumlah_pemeriksaan
+      };
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  if (norm.startsWith('DELETE FROM followup_vaksin WHERE id = ?')) {
+    const id = Number(params[0]);
+    if (!vdb.followup_vaksin) vdb.followup_vaksin = [];
+    vdb.followup_vaksin = vdb.followup_vaksin.filter(item => item.id !== id);
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
   }
 
   // Fallback defaults for unrecognized queries

@@ -1,0 +1,33 @@
+@@ -1485,3 +1485,4 @@
+     paket_vaksin,
+-    rencana_tindakan
++    rencana_tindakan,
++    jumlah_pemeriksaan
+   } = req.body;
+@@ -1489,4 +1490,4 @@
+     const result = await db.query(
+-      'INSERT INTO followup_vaksin (no_order, unit_kunjungan, pasien_no_rm, pasien_nama, usia, kunjungan_terakhir, tanggal_rencana, rencana_kunjungan_ke, diagnosa_keluhan, status_rencana, catatan_hasil, paket_vaksin, rencana_tindakan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
++      'INSERT INTO followup_vaksin (no_order, unit_kunjungan, pasien_no_rm, pasien_nama, usia, kunjungan_terakhir, tanggal_rencana, rencana_kunjungan_ke, diagnosa_keluhan, status_rencana, catatan_hasil, paket_vaksin, rencana_tindakan, jumlah_pemeriksaan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+       [
+@@ -1502,2 +1503,3 @@
+         paket_vaksin,
+-        rencana_tindakan
++        rencana_tindakan,
++        jumlah_pemeriksaan
+       ]
+@@ -1532,3 +1534,4 @@
+     paket_vaksin,
+-    rencana_tindakan
++    rencana_tindakan,
++    jumlah_pemeriksaan
+   } = req.body;
+@@ -1537,4 +1540,4 @@
+     await db.query(
+-      'UPDATE followup_vaksin SET no_order = ?, unit_kunjungan = ?, pasien_no_rm = ?, pasien_nama = ?, usia = ?, kunjungan_terakhir = ?, tanggal_rencana = ?, rencana_kunjungan_ke = ?, diagnosa_keluhan = ?, status_rencana = ?, catatan_hasil = ?, paket_vaksin = ?, rencana_tindakan = ? WHERE id = ?',
++      'UPDATE followup_vaksin SET no_order = ?, unit_kunjungan = ?, pasien_no_rm = ?, pasien_nama = ?, usia = ?, kunjungan_terakhir = ?, tanggal_rencana = ?, rencana_kunjungan_ke = ?, diagnosa_keluhan = ?, status_rencana = ?, catatan_hasil = ?, paket_vaksin = ?, rencana_tindakan = ?, jumlah_pemeriksaan = ? WHERE id = ?',
+       [
+@@ -1551,3 +1554,4 @@
+         paket_vaksin,
+         rencana_tindakan,
++        jumlah_pemeriksaan,
+         id

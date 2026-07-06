@@ -1,0 +1,13 @@
+        const [icdCols]: any = await mysqlPool.query("SHOW COLUMNS FROM registrasi_rawat_jalan LIKE 'icd_kode'");
+        if (icdCols.length === 0) {
+          console.log('Adding column icd_kode to existing registrasi_rawat_jalan MySQL table...');
+          await mysqlPool.query("ALTER TABLE registrasi_rawat_jalan ADD COLUMN icd_kode VARCHAR(20) AFTER unit");
+          console.log('Column icd_kode added successfully.');
+        }
+
+        const [followupCols]: any = await mysqlPool.query("SHOW COLUMNS FROM followup_vaksin LIKE 'jumlah_pemeriksaan'");
+        if (followupCols.length === 0) {
+          console.log('Adding column jumlah_pemeriksaan to existing followup_vaksin MySQL table...');
+          await mysqlPool.query("ALTER TABLE followup_vaksin ADD COLUMN jumlah_pemeriksaan INT DEFAULT NULL");
+          console.log('Column jumlah_pemeriksaan added successfully.');
+        }

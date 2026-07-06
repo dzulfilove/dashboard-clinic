@@ -1,0 +1,36 @@
+@@ -140,2 +140,4 @@
+   const [showModal, setShowModal] = useState(false);
++  const [showSettingsModal, setShowSettingsModal] = useState(false);
++  const [wahaConfig, setWahaConfig] = useState({ cron_time: '08:00', message_template: '', is_active: false });
+   const [isEditing, setIsEditing] = useState(false);
+@@ -410,2 +412,17 @@
+ 
++  // WAHA Settings Handlers
++  const openSettingsModal = async () => {
++    try {
++      const res = await api.get('/waha-config');
++      setWahaConfig(res.data);
++    } catch (err) {
++      console.error('Failed to load waha config', err);
++      // use default state
++    }
++    setShowSettingsModal(true);
++  };
++
++  const closeSettingsModal = () => setShowSettingsModal(false);
++
++
+   // Fetch Pasien for Select
+@@ -856,2 +873,11 @@
+           </motion.button>
++
++          <motion.button
++            whileHover={{ scale: 1.02 }}
++            whileTap={{ scale: 0.98 }}
++            onClick={openSettingsModal}
++            className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 text-xs rounded-2xl shadow-sm cursor-pointer border border-slate-200 transition"
++          >
++            <Settings className="h-4 w-4" />
++            <span>Pengaturan Automasi</span>
++          </motion.button>
+         </div>

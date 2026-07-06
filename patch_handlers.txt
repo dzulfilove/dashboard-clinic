@@ -1,0 +1,24 @@
+  const openSettingsModal = async () => {
+    try {
+      const res = await api.get('/waha-config');
+      setWahaConfig(res.data);
+    } catch (err) {
+      console.error('Failed to load waha config', err);
+    }
+    setShowSettingsModal(true);
+  };
+
+  const closeSettingsModal = () => setShowSettingsModal(false);
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      await api.post('/waha-config', wahaConfig);
+      Swal.fire('Berhasil', 'Pengaturan automasi berhasil disimpan', 'success');
+      setShowSettingsModal(false);
+    } catch (err: any) {
+      Swal.fire('Gagal', 'Gagal menyimpan pengaturan: ' + err.message, 'error');
+    }
+  };
+

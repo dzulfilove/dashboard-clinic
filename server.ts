@@ -13,7 +13,9 @@ import axios from 'axios';
 import nodemailer from 'nodemailer';
 import { db, initializeDatabase, readVirtualDb, writeVirtualDb, runMigrationScript } from './src/db/connection.js';
 
+import { getWahaConfig, setWahaConfig } from "./waha_config.js";
 // Simple in-memory rate limiter untuk OTP (production: gunakan Redis)
+import { initWahaCron } from "./waha_cron.js";
 const otpRateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function checkOtpRateLimit(email: string): boolean {
@@ -1351,6 +1353,7 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
           tanggal_lahir: r.tanggal_lahir,
           alamat: r.alamat,
           jenis_kelamin: r.jenis_kelamin,
+          no_telp: r.no_telp,
           kota: { id: r.kota_id, nama: r.kota_nama },
           kecamatan: { id: r.kecamatan_id, nama: r.kecamatan_nama },
           kelurahan: { id: r.kelurahan_id, nama: r.kelurahan_nama }
@@ -1380,6 +1383,7 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
         tanggal_lahir: r.tanggal_lahir,
         alamat: r.alamat,
         jenis_kelamin: r.jenis_kelamin,
+        no_telp: r.no_telp,
         kota: { id: r.kota_id, nama: r.kota_nama },
         kecamatan: { id: r.kecamatan_id, nama: r.kecamatan_nama },
         kelurahan: { id: r.kelurahan_id, nama: r.kelurahan_nama }
@@ -1400,10 +1404,10 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
-  const { no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id } = req.body;
+  const { no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp } = req.body;
   try {
-    await db.query('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-        [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id]);
+    await db.query('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+        [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp]);
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1412,10 +1416,21 @@ app.post('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat']), asyn
 
 app.put('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { no_rm } = req.params;
-  const { nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id } = req.body;
+  const { nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp } = req.body;
   try {
-    await db.query('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ? WHERE no_rm = ?', 
-        [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_rm]);
+    await db.query('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ?, no_telp = ? WHERE no_rm = ?', 
+        [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp, no_rm]);
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put('/api/pasien/:no_rm/no_telp', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const { no_rm } = req.params;
+  const { no_telp } = req.body;
+  try {
+    await db.query('UPDATE pasien SET no_telp = ? WHERE no_rm = ?', [no_telp, no_rm]);
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1441,6 +1456,241 @@ app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async 
     res.json({ success: true, message: 'Data pasien berhasil dihapus.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// --- API Follow Up Vaksin ---
+app.get('/api/followup-vaksin', authenticateToken, async (req: any, res) => {
+  try {
+    const rows = await db.query('SELECT * FROM followup_vaksin ORDER BY tanggal_rencana ASC');
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.post('/api/followup-vaksin', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const {
+    no_order,
+    unit_kunjungan,
+    pasien_no_rm,
+    pasien_nama,
+    usia,
+    kunjungan_terakhir,
+    tanggal_rencana,
+    rencana_kunjungan_ke,
+    diagnosa_keluhan,
+    status_rencana,
+    catatan_hasil,
+    paket_vaksin,
+    rencana_tindakan,
+    jumlah_pemeriksaan
+  } = req.body;
+
+  try {
+    const result = await db.query(
+      'INSERT INTO followup_vaksin (no_order, unit_kunjungan, pasien_no_rm, pasien_nama, usia, kunjungan_terakhir, tanggal_rencana, rencana_kunjungan_ke, diagnosa_keluhan, status_rencana, catatan_hasil, paket_vaksin, rencana_tindakan, jumlah_pemeriksaan) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        no_order,
+        unit_kunjungan,
+        pasien_no_rm,
+        pasien_nama,
+        usia ? Number(usia) : null,
+        kunjungan_terakhir,
+        tanggal_rencana,
+        rencana_kunjungan_ke ? Number(rencana_kunjungan_ke) : null,
+        diagnosa_keluhan,
+        status_rencana || 'Scheduled',
+        catatan_hasil,
+        paket_vaksin,
+        rencana_tindakan,
+        jumlah_pemeriksaan
+      ]
+    );
+    
+    // Log Activity
+    await logActivity(
+      req.user?.email || 'unknown',
+      'INSERT',
+      'Follow Up Vaksin',
+      `Menambah rencana kunjungan pasien vaksin: ${pasien_nama} (${no_order || '-'})`
+    );
+
+    res.json({ success: true, insertId: result?.insertId });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put('/api/followup-vaksin/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const { id } = req.params;
+  const {
+    no_order,
+    unit_kunjungan,
+    pasien_no_rm,
+    pasien_nama,
+    usia,
+    kunjungan_terakhir,
+    tanggal_rencana,
+    rencana_kunjungan_ke,
+    diagnosa_keluhan,
+    status_rencana,
+    catatan_hasil,
+    paket_vaksin,
+    rencana_tindakan,
+    jumlah_pemeriksaan
+  } = req.body;
+
+  try {
+    await db.query(
+      'UPDATE followup_vaksin SET no_order = ?, unit_kunjungan = ?, pasien_no_rm = ?, pasien_nama = ?, usia = ?, kunjungan_terakhir = ?, tanggal_rencana = ?, rencana_kunjungan_ke = ?, diagnosa_keluhan = ?, status_rencana = ?, catatan_hasil = ?, paket_vaksin = ?, rencana_tindakan = ?, jumlah_pemeriksaan = ? WHERE id = ?',
+      [
+        no_order,
+        unit_kunjungan,
+        pasien_no_rm,
+        pasien_nama,
+        usia ? Number(usia) : null,
+        kunjungan_terakhir,
+        tanggal_rencana,
+        rencana_kunjungan_ke ? Number(rencana_kunjungan_ke) : null,
+        diagnosa_keluhan,
+        status_rencana,
+        catatan_hasil,
+        paket_vaksin,
+        rencana_tindakan,
+        jumlah_pemeriksaan,
+        Number(id)
+      ]
+    );
+
+    // Log Activity
+    await logActivity(
+      req.user?.email || 'unknown',
+      'UPDATE',
+      'Follow Up Vaksin',
+      `Mengubah rencana kunjungan pasien vaksin: ${pasien_nama} (ID: ${id})`
+    );
+
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete('/api/followup-vaksin/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    await db.query('DELETE FROM followup_vaksin WHERE id = ?', [Number(id)]);
+
+    // Log Activity
+    await logActivity(
+      req.user?.email || 'unknown',
+      'DELETE',
+      'Follow Up Vaksin',
+      `Menghapus rencana kunjungan pasien vaksin ID: ${id}`
+    );
+
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- API WAHA WHATSAPP GATEWAY INTEGRATION ---
+app.get('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']), (req, res) => {
+  res.json(getWahaConfig());
+});
+
+app.post('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']), (req, res) => {
+  const config = req.body;
+  setWahaConfig(config);
+  initWahaCron(); // Restart the cron with new config
+  res.json({ message: 'Config updated successfully', config: getWahaConfig() });
+});
+app.post('/api/followup-vaksin/send-whatsapp', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  const { id, no_telp, message } = req.body;
+
+  if (!no_telp || !message) {
+    return res.status(400).json({ message: 'Nomor telepon (no_telp) dan pesan (message) wajib diisi.' });
+  }
+
+  try {
+    // 1. Format phone number: remove any non-digit chars
+    let cleanPhone = no_telp.replace(/\D/g, '');
+    // If it starts with 0, replace with 62
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '62' + cleanPhone.substring(1);
+    }
+    // Ensure it ends with @c.us
+    const chatId = cleanPhone.includes('@') ? cleanPhone : `${cleanPhone}@c.us`;
+
+    const wahaUrl = process.env.WAHA_URL || 'https://waha.purimedikabdl.com/';
+    const session = process.env.WAHA_SESSION || 'default';
+    const apiToken = process.env.WAHA_API_TOKEN || 'mysecretkeyPuryMedik4123';
+
+    // Headers
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    if (apiToken) {
+      headers['X-Api-Key'] = apiToken;
+    }
+
+    // Delay helper
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    // A) Start typing
+    try {
+      await axios.post(`${wahaUrl}api/startTyping`, {
+        session: session,
+        chatId: chatId
+      }, { headers, timeout: 5000 });
+    } catch (err: any) {
+      console.error('WAHA startTyping error:', err.response?.data || err.message);
+    }
+
+    // B) Wait 2 seconds (typing simulation)
+    await delay(2000);
+
+    // C) Stop typing
+    try {
+      await axios.post(`${wahaUrl}api/stopTyping`, {
+        session: session,
+        chatId: chatId
+      }, { headers, timeout: 5000 });
+    } catch (err: any) {
+      console.error('WAHA stopTyping error:', err.response?.data || err.message);
+    }
+
+    // D) Send Text message
+    const sendResponse = await axios.post(`${wahaUrl}api/sendText`, {
+      session: session,
+      chatId: chatId,
+      text: message
+    }, { headers, timeout: 10000 });
+
+    // 2. If id is provided, update the status in database
+    if (id) {
+      const nowStr = new Date().toLocaleString('id-ID');
+      const catatanAdd = `\n[Notifikasi WAHA terkirim pada ${nowStr}]`;
+      
+      await db.query(
+        `UPDATE followup_vaksin 
+         SET status_rencana = 'Notified', 
+             catatan_hasil = CONCAT(COALESCE(catatan_hasil, ''), ?) 
+         WHERE id = ?`,
+        [catatanAdd, Number(id)]
+      );
+    }
+
+    res.json({ success: true, data: sendResponse.data });
+  } catch (err: any) {
+    console.error('Error sending WhatsApp via WAHA:', err.response?.data || err.message);
+    res.status(500).json({ 
+      message: 'Gagal mengirim pesan via WhatsApp Gateway.', 
+      error: err.response?.data || err.message 
+    });
   }
 });
 
@@ -4553,6 +4803,7 @@ async function startServer() {
     });
   }
 
+  initWahaCron();
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[Express] Server running on port ${PORT}`);
   });

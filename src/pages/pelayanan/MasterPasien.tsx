@@ -69,7 +69,8 @@ export default function MasterPasien() {
     jenis_kelamin: 'L' as 'L' | 'P',
     kelurahan_id: 0,
     kecamatan_id: 0,
-    kota_id: 0
+    kota_id: 0,
+    no_telp: ''
   });
   
   const [submitting, setSubmitting] = useState(false);
@@ -133,7 +134,8 @@ export default function MasterPasien() {
       jenis_kelamin: 'L', 
       kelurahan_id: 0, 
       kecamatan_id: 0, 
-      kota_id: 0 
+      kota_id: 0,
+      no_telp: ''
     });
     setFeedback(null);
     setIsModalOpen(true);
@@ -150,6 +152,7 @@ export default function MasterPasien() {
       kelurahan_id: item.kelurahan_id || 0,
       kecamatan_id: item.kecamatan_id || 0,
       kota_id: item.kota_id || 0,
+      no_telp: item.no_telp || '',
     });
     setFeedback(null);
     setIsModalOpen(true);
@@ -314,6 +317,7 @@ export default function MasterPasien() {
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Lengkap Pasien</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Tanggal Lahir</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Alamat</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">No. Telepon</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Kelurahan</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Kecamatan</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Kota</th>
@@ -343,6 +347,9 @@ export default function MasterPasien() {
                     </td>
                     <td className="py-3 px-5 text-xs text-slate-800">
                       {p.alamat}
+                    </td>
+                    <td className="py-3 px-5 text-xs text-slate-800">
+                      {p.no_telp || '-'}
                     </td>
                     <td className="py-3 px-5 text-xs text-slate-800">
                       {p.kelurahan?.nama}
@@ -649,6 +656,17 @@ export default function MasterPasien() {
                 <textarea
                   value={formData.alamat}
                   onChange={(e) => setFormData(prev => ({ ...prev, alamat: e.target.value }))}
+                  className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">No. Telepon</label>
+                <input
+                  type="text"
+                  placeholder="Contoh: 08123456789"
+                  value={formData.no_telp}
+                  onChange={(e) => setFormData(prev => ({ ...prev, no_telp: e.target.value }))}
                   className="w-full text-sm font-semibold border border-slate-200 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none rounded-xl p-2.5 transition"
                 />
               </div>

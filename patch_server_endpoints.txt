@@ -1,0 +1,10 @@
+app.get('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']), (req, res) => {
+  res.json(getWahaConfig());
+});
+
+app.post('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']), (req, res) => {
+  const config = req.body;
+  setWahaConfig(config);
+  initWahaCron(); // Restart the cron with new config
+  res.json({ message: 'Config updated successfully', config: getWahaConfig() });
+});

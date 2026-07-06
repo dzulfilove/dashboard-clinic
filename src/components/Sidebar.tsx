@@ -21,7 +21,8 @@ import {
   Layers,
   AlertTriangle,
   Bed,
-  Stethoscope
+  Stethoscope,
+  Syringe
 } from 'lucide-react';
 import api from '../services/api.js';
 import { DbStatus } from '../types.js';
@@ -65,6 +66,7 @@ export default function Sidebar() {
         { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin', 'perawat'] },
         { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin', 'perawat'] },
         { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin', 'perawat'] },
+        { name: 'Follow Up Vaksin', path: '/pelayanan/followup-vaksin', icon: Syringe, roles: ['admin', 'perawat'] },
         { name: 'Master Wilayah', path: '/pelayanan/master-wilayah', icon: Layers, roles: ['admin', 'perawat'] }
       ]
     },

@@ -212,6 +212,7 @@ CREATE TABLE IF NOT EXISTS pasien (
   kelurahan_id INT,
   kecamatan_id INT,
   kota_id INT,
+  no_telp VARCHAR(20) DEFAULT NULL,
   FOREIGN KEY (kelurahan_id) REFERENCES kelurahan(id),
   FOREIGN KEY (kecamatan_id) REFERENCES kecamatan(id),
   FOREIGN KEY (kota_id) REFERENCES kota(id)
@@ -334,5 +335,25 @@ CREATE TABLE IF NOT EXISTS user_logs (
   description TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS followup_vaksin (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  no_order VARCHAR(50) DEFAULT NULL,
+  unit_kunjungan VARCHAR(100) DEFAULT NULL,
+  pasien_no_rm VARCHAR(50) DEFAULT NULL,
+  pasien_nama VARCHAR(250) DEFAULT NULL,
+  usia INT DEFAULT NULL,
+  kunjungan_terakhir DATE DEFAULT NULL,
+  tanggal_rencana DATE DEFAULT NULL,
+  rencana_kunjungan_ke INT DEFAULT NULL,
+  diagnosa_keluhan TEXT DEFAULT NULL,
+  status_rencana VARCHAR(50) DEFAULT NULL,
+  catatan_hasil TEXT DEFAULT NULL,
+  paket_vaksin VARCHAR(150) DEFAULT NULL,
+  rencana_tindakan VARCHAR(250) DEFAULT NULL,
+  jumlah_pemeriksaan INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
