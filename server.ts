@@ -3298,7 +3298,7 @@ async function fetchMedicinesWithStock(q?: string) {
       const startingDateStr = `${saldo_tahun}-${String(saldo_bulan).padStart(2, '0')}-01`;
       
       const relevantLogs = harian.filter((h: any) => {
-        return h.obat_id === m.id && h.tanggal >= startingDateStr;
+        return h.obat_id === m.id && new Date(h.tanggal) >= new Date(startingDateStr);
       });
 
       relevantLogs.forEach((h: any) => {
@@ -3389,7 +3389,7 @@ app.get('/api/obat/master', authenticateToken, async (req, res) => {
         const startingDateStr = `${saldo_tahun}-${String(saldo_bulan).padStart(2, '0')}-01`;
         
         const relevantLogs = harian.filter((h: any) => {
-          return h.obat_id === m.id && h.tanggal >= startingDateStr;
+          return h.obat_id === m.id && new Date(h.tanggal) >= new Date(startingDateStr);
         });
 
         relevantLogs.forEach((h: any) => {
@@ -4048,13 +4048,9 @@ app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']
     }
 
     // Ambil sisa stok hari sebelumnya sebagai stok_awal yang valid
-    const prevDate = new Date(dateObj);
-    prevDate.setDate(prevDate.getDate() - 1);
-    const prevDateStr = prevDate.toISOString().split('T')[0];
-    
     const prevHarian = await db.query(
-      'SELECT sisa_stok FROM obat_konsumsi_harian WHERE obat_id = ? AND tanggal = ?',
-      [Number(obat_id), prevDateStr]
+      'SELECT sisa_stok FROM obat_konsumsi_harian WHERE obat_id = ? AND tanggal < ? ORDER BY tanggal DESC LIMIT 1',
+      [Number(obat_id), String(tanggal)]
     );
     
     const derivedStokAwal = prevHarian.length > 0
