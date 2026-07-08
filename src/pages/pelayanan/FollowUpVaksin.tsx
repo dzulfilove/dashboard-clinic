@@ -2,32 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Users, 
-  Plus, 
-  Trash2, 
-  Edit3, 
-  ClipboardList, 
-  TrendingUp, 
-  FileText, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  Search, 
-  X, 
-  Syringe, 
-  Send, 
-  MessageSquare, 
-  Bell, 
-  BellRing,
-  Check, 
-  UserPlus, 
-  Loader2,
-  Filter,
-  CalendarDays,
-  CalendarPlus,
-  Stethoscope
-, Settings } from 'lucide-react';
+import { Users, Plus, Trash2, Edit3, ClipboardList, TrendingUp, FileText, Clock, CheckCircle, AlertCircle, Search, X, Syringe, Send, MessageSquare, Bell, BellRing, Check, UserPlus, Loader2, Filter, CalendarDays, CalendarPlus, Stethoscope, Settings, BarChart2 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
 import api from '../../services/api.js';
 import { Pasien, FollowUpVaksin as FollowUpType } from '../../types.js';
 
@@ -123,6 +99,12 @@ export default function FollowUpVaksinPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('Semua');
+  const [activeTab, setActiveTab] = useState<'list' | 'stats' | 'patients'>('list');
+  const [statsDateStart, setStatsDateStart] = useState('');
+  const [statsDateEnd, setStatsDateEnd] = useState('');
+  const [statsPaketVaksin, setStatsPaketVaksin] = useState('Semua');
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedPatientForHistory, setSelectedPatientForHistory] = useState<string | null>(null);
   
   const [paketVaksinList, setPaketVaksinList] = useState<string[]>(() => {
     const saved = localStorage.getItem('paket_vaksin_list');
@@ -853,6 +835,84 @@ export default function FollowUpVaksinPage() {
     }
   };
 
+  // Statistics computations based on statsFilteredData
+  const chartData = useMemo(() => {
+    // Filter data specifically for statistics
+    const statsFilteredData = data.filter(item => {
+      const matchesPaket = statsPaketVaksin === 'Semua' || item.paket_vaksin === statsPaketVaksin;
+      
+      let matchesDateRange = true;
+      if (item.tanggal_rencana) {
+        const itemDate = item.tanggal_rencana.includes('T') ? item.tanggal_rencana.split('T')[0] : item.tanggal_rencana;
+        if (statsDateStart && itemDate < statsDateStart) matchesDateRange = false;
+        if (statsDateEnd && itemDate > statsDateEnd) matchesDateRange = false;
+      } else if (statsDateStart || statsDateEnd) {
+        matchesDateRange = false;
+      }
+      
+      return matchesPaket && matchesDateRange;
+    });
+
+    const patientMap: Record<string, number> = {};
+    const packageMap: Record<string, number> = {};
+    const rawDateMap: Record<string, number> = {};
+
+    statsFilteredData.forEach(item => {
+      const patientName = item.pasien_nama || 'Unknown';
+      patientMap[patientName] = (patientMap[patientName] || 0) + 1;
+
+      const pkg = item.paket_vaksin || 'Tanpa Paket';
+      packageMap[pkg] = (packageMap[pkg] || 0) + 1;
+      
+      if (item.tanggal_rencana) {
+        const rawDate = item.tanggal_rencana.includes('T') ? item.tanggal_rencana.split('T')[0] : item.tanggal_rencana;
+        rawDateMap[rawDate] = (rawDateMap[rawDate] || 0) + 1;
+      }
+    });
+
+    const visitsPerPatient = Object.entries(patientMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10);
+    const visitsPerDate = Object.entries(rawDateMap).sort((a, b) => a[0].localeCompare(b[0])).map(([date, count]) => ({ date: formatTanggalIndo(date), count }));
+    const visitsPerPackage = Object.entries(packageMap).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+
+    return { visitsPerPatient, visitsPerDate, visitsPerPackage, totalFiltered: statsFilteredData.length };
+  }, [data, statsPaketVaksin, statsDateStart, statsDateEnd]);
+
+  const COLORS = ['#0f766e', '#0369a1', '#b45309', '#be123c', '#4338ca', '#6d28d9', '#be185d', '#047857'];
+
+  // List of unique patients based on data
+  const patientsWithVisits = useMemo(() => {
+    const map = new Map<string, { no_rm: string, nama: string, usia: number, total: number, lastVisit: string }>();
+    data.forEach(item => {
+      if (!item.pasien_no_rm) return;
+      if (!map.has(item.pasien_no_rm)) {
+        map.set(item.pasien_no_rm, {
+          no_rm: item.pasien_no_rm,
+          nama: item.pasien_nama || '-',
+          usia: Number(item.usia) || 0,
+          total: 0,
+          lastVisit: item.kunjungan_terakhir || item.tanggal_rencana || ''
+        });
+      }
+      const existing = map.get(item.pasien_no_rm)!;
+      existing.total += 1;
+      const compareDate = item.kunjungan_terakhir || item.tanggal_rencana || '';
+      if (compareDate && compareDate > existing.lastVisit) {
+        existing.lastVisit = compareDate;
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => b.lastVisit.localeCompare(a.lastVisit));
+  }, [data]);
+
+  // Selected patient history
+  const historyData = useMemo(() => {
+    if (!selectedPatientForHistory) return [];
+    return data.filter(d => d.pasien_no_rm === selectedPatientForHistory).sort((a, b) => {
+       const dateA = a.tanggal_rencana || '';
+       const dateB = b.tanggal_rencana || '';
+       return dateB.localeCompare(dateA);
+    });
+  }, [data, selectedPatientForHistory]);
+
   return (
     <div className="space-y-6" id="follow-up-vaksin-main-container">
       {/* Page Header */}
@@ -879,7 +939,6 @@ export default function FollowUpVaksinPage() {
               <span>Broadcast Hari Ini ({stats.pendingCount})</span>
             </motion.button>
           )}
-
 
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -957,7 +1016,144 @@ export default function FollowUpVaksinPage() {
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
+      {/* Tabs Navigation */}
+      <div className="flex space-x-1 bg-slate-100/80 p-1.5 rounded-xl w-full max-w-lg mb-2">
+        <button
+          onClick={() => setActiveTab('list')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            activeTab === 'list' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+          }`}
+        >
+          Daftar Rencana Kunjungan
+        </button>
+        <button
+          onClick={() => setActiveTab('stats')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            activeTab === 'stats' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+          }`}
+        >
+          Statistik
+        </button>
+        <button
+          onClick={() => setActiveTab('patients')}
+          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            activeTab === 'patients' ? 'bg-white text-teal-700 shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
+          }`}
+        >
+          Daftar Pasien
+        </button>
+      </div>
+
+      {activeTab === 'stats' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {/* Stats Filter Area */}
+          <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="flex flex-col">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Mulai Tanggal</label>
+                <input 
+                  type="date" 
+                  value={statsDateStart}
+                  onChange={e => setStatsDateStart(e.target.value)}
+                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Sampai Tanggal</label>
+                <input 
+                  type="date" 
+                  value={statsDateEnd}
+                  onChange={e => setStatsDateEnd(e.target.value)}
+                  className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                />
+              </div>
+            </div>
+            
+            <div className="flex flex-col w-full md:w-64">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Filter Paket Vaksin</label>
+              <select
+                value={statsPaketVaksin}
+                onChange={(e) => setStatsPaketVaksin(e.target.value)}
+                className="w-full px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500/20 font-medium"
+              >
+                <option value="Semua">Semua Paket Vaksin</option>
+                {paketVaksinList.map(paket => (
+                  <option key={paket} value={paket}>{paket}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2">
+            {/* Chart 1: Kunjungan per Pasien */}
+            <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-4">Kunjungan per Pasien (Top 10)</h4>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData.visitsPerPatient} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                    <XAxis type="number" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} cursor={{fill: '#f8fafc'}} />
+                    <Bar dataKey="count" fill="#0f766e" radius={[0, 4, 4, 0]}>
+                      {chartData.visitsPerPatient.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Chart 2: Kunjungan per Tanggal */}
+            <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-4">Kunjungan per Tanggal</h4>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData.visitsPerDate} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Line type="monotone" dataKey="count" stroke="#0ea5e9" strokeWidth={3} dot={{ r: 4, strokeWidth: 2, fill: '#fff' }} activeDot={{ r: 6 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Chart 3: Paket Vaksin */}
+            <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+              <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wide mb-2">Sebaran Paket Vaksin</h4>
+              <div className="flex-1 h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData.visitsPerPackage}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="count"
+                      stroke="none"
+                    >
+                      {chartData.visitsPerPackage.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'list' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          {/* Filter and Search Bar */}
       <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col xl:flex-row gap-4 justify-between items-stretch xl:items-center">
         <div className="relative w-full xl:w-72 shrink-0">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
@@ -1038,117 +1234,332 @@ export default function FollowUpVaksinPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                {filteredData.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/30 transition-all">
-                    {/* No Order / Unit */}
-                    <td className="px-6 py-4.5">
-                      <div className="font-mono text-[11.5px] font-semibold text-slate-500">{item.no_order || '-'}</div>
-                      <div className="text-[10px] text-slate-400 mt-0.5">{item.unit_kunjungan}</div>
-                    </td>
+                {(() => {
+                  const groups: Record<string, FollowUpType[]> = {};
+                  filteredData.forEach(item => {
+                    const key = `${item.pasien_no_rm}-${item.paket_vaksin}`;
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(item);
+                  });
+                  
+                  const groupedData = Object.values(groups);
+                  groupedData.forEach(group => {
+                    group.sort((a, b) => Number(a.rencana_kunjungan_ke) - Number(b.rencana_kunjungan_ke));
+                  });
 
-                    {/* Pasien */}
-                    <td className="px-6 py-4.5">
-                      <div className="font-semibold text-slate-800 uppercase tracking-wide">{item.pasien_nama}</div>
-                      <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1.5">
-                        <span className="bg-slate-100 px-1.5 py-0.5 rounded font-mono font-medium text-slate-600">RM: #{item.pasien_no_rm}</span>
-                        <span>•</span>
-                        <span className="font-medium text-slate-500">{item.usia} Tahun</span>
-                      </div>
-                    </td>
+                  return groupedData.map((group, groupIndex) => (
+                    <React.Fragment key={groupIndex}>
+                      {/* Group Header Row */}
+                      <tr className="bg-slate-100/60 border-y border-slate-200 shadow-sm">
+                        <td colSpan={7} className="px-6 py-3">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-2">
+                                <div className="h-7 w-7 rounded-full bg-teal-100 border border-teal-200 flex items-center justify-center text-teal-700 font-bold text-[10px]">
+                                  {group[0].pasien_nama?.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wide">
+                                    {group[0].pasien_nama} 
+                                  </div>
+                                  <div className="text-slate-500 font-mono text-[9px] mt-0.5">
+                                    RM: {group[0].pasien_no_rm}
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="h-6 w-px bg-slate-300"></div>
+                              
+                              <div className="text-sky-700 font-bold text-[11px] flex items-center gap-1.5 uppercase tracking-wide">
+                                 <Syringe className="w-3.5 h-3.5" />
+                                 {group[0].paket_vaksin}
+                              </div>
+                            </div>
+                            <div className="text-[10px] font-bold text-slate-600 bg-white px-2.5 py-1 rounded-md border border-slate-200 shadow-sm flex items-center gap-1.5">
+                               <span>Rencana Kunjungan:</span>
+                               <span className="text-teal-600">{group.length} {group[0].jumlah_pemeriksaan ? `/ ${group[0].jumlah_pemeriksaan}` : ''}</span>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                      
+                      {/* Group Items */}
+                      {group.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50/30 transition-all">
+                          {/* No Order / Unit */}
+                          <td className="px-6 py-4.5">
+                            <div className="font-mono text-[11.5px] font-semibold text-slate-500">{item.no_order || '-'}</div>
+                            <div className="text-[10px] text-slate-400 mt-0.5">{item.unit_kunjungan}</div>
+                          </td>
 
-                    {/* Paket Vaksin */}
-                    <td className="px-6 py-4.5">
-                      <div className="font-medium text-slate-700 flex items-center gap-1.5">
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-100">
-                          Vaksin
-                        </span>
-                        <span className="font-semibold">{item.paket_vaksin}</span>
-                      </div>
-                      <div className="text-[9.5px] mt-1 border px-2 py-0.5 rounded-full inline-flex items-center gap-1 bg-sky-50/50 border-sky-100 text-sky-800">
-                        <Syringe className="h-2.5 w-2.5 text-sky-600" />
-                        <span className="font-bold">Kunjungan Ke-{item.rencana_kunjungan_ke}</span>
-                      </div>
-                    </td>
+                          {/* Pasien (Simplified for child rows) */}
+                          <td className="px-6 py-4.5">
+                            <div className="text-[10px] text-slate-400 font-medium">Lihat Grup ↑</div>
+                          </td>
 
+                          {/* Paket Vaksin (Simplified) */}
+                          <td className="px-6 py-4.5">
+                            <div className="text-[10.5px] font-bold border px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-sky-50/80 border-sky-200 text-sky-800 shadow-sm">
+                              <Syringe className="h-3 w-3 text-sky-600" />
+                              <span>Kunjungan Ke-{item.rencana_kunjungan_ke}</span>
+                            </div>
+                          </td>
 
-                    {/* Kunjungan Terakhir */}
-                    <td className="px-6 py-4.5 text-slate-500 font-medium">
-                      <div className="text-[11px]">{formatTanggalIndo(item.kunjungan_terakhir)}</div>
-                      {item.rencana_kunjungan_ke && Number(item.rencana_kunjungan_ke) > 1 && (
-                        <div className="text-[9px] text-amber-700 font-black mt-1 bg-amber-50/50 border border-amber-200/60 rounded px-1.5 py-0.5 inline-flex items-center gap-1">
-                          <span className="h-1 w-1 rounded-full bg-amber-500"></span>
-                          Kunjungan Rencana ke-{Number(item.rencana_kunjungan_ke) - 1}
-                        </div>
-                      )}
-                    </td>
+                          {/* Kunjungan Terakhir */}
+                          <td className="px-6 py-4.5 text-slate-500 font-medium">
+                            <div className="text-[11px]">{formatTanggalIndo(item.kunjungan_terakhir)}</div>
+                            {item.rencana_kunjungan_ke && Number(item.rencana_kunjungan_ke) > 1 && (
+                              <div className="text-[9px] text-amber-700 font-black mt-1 bg-amber-50/50 border border-amber-200/60 rounded px-1.5 py-0.5 inline-flex items-center gap-1">
+                                <span className="h-1 w-1 rounded-full bg-amber-500"></span>
+                                Kunjungan Rencana ke-{Number(item.rencana_kunjungan_ke) - 1}
+                              </div>
+                            )}
+                          </td>
 
-                    {/* Tanggal Rencana */}
-                    <td className="px-6 py-4.5">
-                      <div className="font-semibold text-slate-800 text-[11px]">
-                        {formatTanggalIndo(item.tanggal_rencana)}
-                      </div>
-                      {item.diagnosa_keluhan && (
-                        <div className="text-[10px] text-slate-400 mt-1 italic max-w-xs truncate" title={item.diagnosa_keluhan}>
-                          "{item.diagnosa_keluhan}"
-                        </div>
-                      )}
-                    </td>
+                          {/* Tanggal Rencana */}
+                          <td className="px-6 py-4.5">
+                            <div className="font-semibold text-slate-800 text-[11px]">
+                              {formatTanggalIndo(item.tanggal_rencana)}
+                            </div>
+                            {item.diagnosa_keluhan && (
+                              <div className="text-[10px] text-slate-400 mt-1 italic max-w-xs truncate" title={item.diagnosa_keluhan}>
+                                "{item.diagnosa_keluhan}"
+                              </div>
+                            )}
+                          </td>
 
-                    {/* Status */}
-                    <td className="px-6 py-4.5">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${getStatusBadgeStyle(item.status_rencana)}`}>
-                        {item.status_rencana === 'Scheduled' && 'Terjadwal'}
-                        {item.status_rencana === 'Notified' && 'Notifikasi Terkirim'}
-                        {item.status_rencana === 'Completed' && 'Selesai'}
-                        {item.status_rencana === 'Cancelled' && 'Batal'}
-                      </span>
-                    </td>
+                          {/* Status */}
+                          <td className="px-6 py-4.5">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${getStatusBadgeStyle(item.status_rencana)}`}>
+                              {item.status_rencana === 'Scheduled' && 'Terjadwal'}
+                              {item.status_rencana === 'Notified' && 'Notifikasi Terkirim'}
+                              {item.status_rencana === 'Completed' && 'Selesai'}
+                              {item.status_rencana === 'Cancelled' && 'Batal'}
+                            </span>
+                          </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4.5">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {item.status_rencana === 'Scheduled' && (
-                          <button
-                            onClick={() => handleSendNotification(item)}
-                            title="Kirim Notifikasi Pengingat WA"
-                            className="p-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-100 text-sky-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-                          >
-                            <Send className="h-3.5 w-3.5" />
-                          </button>
-                        )}
+                          {/* Actions */}
+                          <td className="px-6 py-4.5">
+                            <div className="flex items-center justify-center gap-1.5">
+                              {item.status_rencana === 'Scheduled' && (
+                                <button
+                                  onClick={() => handleSendNotification(item)}
+                                  title="Kirim Notifikasi Pengingat WA"
+                                  className="p-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-100 text-sky-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                                >
+                                  <Send className="h-3.5 w-3.5" />
+                                </button>
+                              )}
 
-                        <button
-                          onClick={() => handleCreateNextPlan(item)}
-                          title="Buat Rencana Kunjungan Berikutnya (Instan)"
-                          className="p-1.5 bg-teal-50 hover:bg-teal-100 border border-teal-100 text-teal-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-                        >
-                          <CalendarPlus className="h-3.5 w-3.5" />
-                        </button>
-                        
-                        <button
-                          onClick={() => handleEditClick(item)}
-                          title="Ubah Detail"
-                          className="p-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" />
-                        </button>
-                        
-                        <button
-                          onClick={() => handleDelete(item.id!, item.pasien_nama!)}
-                          title="Hapus Rencana"
-                          className="p-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                              <button
+                                onClick={() => handleCreateNextPlan(item)}
+                                title="Buat Rencana Kunjungan Berikutnya (Instan)"
+                                className="p-1.5 bg-teal-50 hover:bg-teal-100 border border-teal-100 text-teal-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                              >
+                                <CalendarPlus className="h-3.5 w-3.5" />
+                              </button>
+                              
+                              <button
+                                onClick={() => handleEditClick(item)}
+                                title="Ubah Detail"
+                                className="p-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                              >
+                                <Edit3 className="h-3.5 w-3.5" />
+                              </button>
+                              
+                              <button
+                                onClick={() => handleDelete(item.id!, item.pasien_nama!)}
+                                title="Hapus Rencana"
+                                className="p-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-100 text-rose-600 rounded-xl transition-all active:scale-95 flex items-center justify-center cursor-pointer"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ));
+                })()}
               </tbody>
             </table>
           </div>
         )}
       </div>
+      </div>
+      )}
+
+      {activeTab === 'patients' && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm">
+            {patientsWithVisits.length === 0 ? (
+              <div className="py-12 flex flex-col items-center justify-center text-center">
+                <Users className="h-10 w-10 text-slate-300 mb-3" />
+                <p className="text-xs font-semibold text-slate-800">Tidak ada data pasien dengan riwayat vaksin</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/50 border-b border-slate-100/70 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
+                      <th className="px-6 py-4.5">No RM</th>
+                      <th className="px-6 py-4.5">Nama Pasien</th>
+                      <th className="px-6 py-4.5">Usia</th>
+                      <th className="px-6 py-4.5 text-center">Total Kunjungan</th>
+                      <th className="px-6 py-4.5">Kunjungan Terakhir</th>
+                      <th className="px-6 py-4.5 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
+                    {patientsWithVisits.map((patient) => (
+                      <tr key={patient.no_rm} className="hover:bg-slate-50/30 transition-all">
+                        <td className="px-6 py-4.5">
+                          <span className="bg-slate-100 px-2 py-1 rounded font-mono font-medium text-slate-600">RM: {patient.no_rm}</span>
+                        </td>
+                        <td className="px-6 py-4.5">
+                          <div className="font-bold text-slate-800 uppercase tracking-wide">{patient.nama}</div>
+                        </td>
+                        <td className="px-6 py-4.5 font-medium text-slate-600">
+                          {patient.usia} Tahun
+                        </td>
+                        <td className="px-6 py-4.5 text-center">
+                          <span className="inline-flex items-center justify-center px-2 py-1 bg-teal-50 text-teal-700 font-bold rounded-lg border border-teal-100 min-w-[2rem]">
+                            {patient.total}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4.5">
+                          <div className="font-medium text-slate-700">{formatTanggalIndo(patient.lastVisit)}</div>
+                        </td>
+                        <td className="px-6 py-4.5 text-center">
+                          <button
+                            onClick={() => {
+                              setSelectedPatientForHistory(patient.no_rm);
+                              setShowHistoryModal(true);
+                            }}
+                            className="p-1.5 bg-sky-50 hover:bg-sky-100 border border-sky-100 text-sky-600 rounded-xl transition-all active:scale-95 inline-flex items-center justify-center cursor-pointer"
+                            title="Lihat Riwayat Vaksin"
+                          >
+                            <ClipboardList className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal Riwayat Vaksin Pasien */}
+      {createPortal(
+        <AnimatePresence>
+          {showHistoryModal && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center pt-10 pb-10 px-4 z-[9999] overflow-y-auto">
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="bg-white border border-slate-100 shadow-xl w-full max-w-4xl overflow-hidden rounded-2xl flex flex-col max-h-[90vh]"
+              >
+                {/* Modal Header */}
+                <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-slate-800 p-2 rounded-lg">
+                      <ClipboardList className="h-5 w-5 text-teal-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black uppercase tracking-wider text-white">
+                        Riwayat Vaksinasi Pasien
+                      </h3>
+                      {historyData.length > 0 && (
+                        <div className="text-[10px] text-slate-400 font-medium">
+                          {historyData[0].pasien_nama} • RM: {historyData[0].pasien_no_rm}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowHistoryModal(false);
+                      setSelectedPatientForHistory(null);
+                    }}
+                    className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors cursor-pointer text-slate-300 hover:text-white"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50">
+                  {historyData.length === 0 ? (
+                     <div className="py-12 flex flex-col items-center justify-center text-center">
+                       <p className="text-xs font-medium text-slate-500">Belum ada riwayat.</p>
+                     </div>
+                  ) : (
+                    <div className="relative border-l-2 border-teal-200 ml-3 pl-6 space-y-8">
+                      {historyData.map((history, idx) => (
+                        <div key={history.id || idx} className="relative">
+                           <div className="absolute -left-[31px] top-1 h-3 w-3 bg-teal-500 rounded-full ring-4 ring-teal-50" />
+                           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                             <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4 mb-3 border-b border-slate-100 pb-3">
+                               <div>
+                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tanggal Rencana / Kunjungan</div>
+                                 <div className="font-bold text-slate-800 flex items-center gap-2">
+                                   <CalendarDays className="h-3.5 w-3.5 text-teal-600" />
+                                   {formatTanggalIndo(history.tanggal_rencana)}
+                                 </div>
+                               </div>
+                               <div className="text-left sm:text-right">
+                                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md border text-[10px] font-bold ${getStatusBadgeStyle(history.status_rencana)}`}>
+                                   {history.status_rencana === 'Scheduled' && 'Terjadwal'}
+                                   {history.status_rencana === 'Notified' && 'Notifikasi Terkirim'}
+                                   {history.status_rencana === 'Completed' && 'Selesai'}
+                                   {history.status_rencana === 'Cancelled' && 'Batal'}
+                                 </span>
+                               </div>
+                             </div>
+
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <div>
+                                 <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Paket Vaksin</div>
+                                 <div className="text-xs font-bold text-sky-700 bg-sky-50 border border-sky-100 px-2 py-1 rounded-lg inline-flex items-center gap-1.5">
+                                   <Syringe className="h-3.5 w-3.5" />
+                                   {history.paket_vaksin}
+                                 </div>
+                               </div>
+                               <div>
+                                 <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Kunjungan Ke</div>
+                                 <div className="text-xs font-bold text-slate-700">
+                                   {history.rencana_kunjungan_ke} {history.jumlah_pemeriksaan ? `/ ${history.jumlah_pemeriksaan}` : ''}
+                                 </div>
+                               </div>
+                               <div className="md:col-span-2">
+                                 <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Diagnosa / Keluhan</div>
+                                 <div className="text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                   {history.diagnosa_keluhan || '-'}
+                                 </div>
+                               </div>
+                               <div className="md:col-span-2">
+                                 <div className="text-[10px] font-bold text-slate-400 uppercase mb-1">Rencana Tindakan</div>
+                                 <div className="text-xs text-slate-700 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                   {history.rencana_tindakan || '-'}
+                                 </div>
+                               </div>
+                             </div>
+                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Modal Slideover / Popup Form */}
       {createPortal(
