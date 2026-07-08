@@ -138,8 +138,6 @@ export default function FollowUpVaksinPage() {
 
   const [selectedPaket, setSelectedPaket] = useState('Semua');
   const [showModal, setShowModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [wahaConfig, setWahaConfig] = useState({ cron_time: "08:00", message_template: "", is_active: false });
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   
@@ -268,6 +266,26 @@ export default function FollowUpVaksinPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Autofill jumlah_pemeriksaan from previous visit
+  useEffect(() => {
+    console.log('Autofill check:', {
+      no_rm: formData.pasien_no_rm,
+      kunjungan: formData.rencana_kunjungan_ke,
+      dataCount: data.length
+    });
+    if (formData.pasien_no_rm && Number(formData.rencana_kunjungan_ke) > 1) {
+      const prevVisit = Number(formData.rencana_kunjungan_ke) - 1;
+      const prevRecord = data.find(item => item.pasien_no_rm === formData.pasien_no_rm && Number(item.rencana_kunjungan_ke) === prevVisit);
+      
+      console.log('Prev record:', prevRecord);
+
+      if (prevRecord && prevRecord.jumlah_pemeriksaan && (!formData.jumlah_pemeriksaan || formData.jumlah_pemeriksaan === '')) {
+        console.log('Autofilling with:', prevRecord.jumlah_pemeriksaan);
+        setFormData(prev => ({ ...prev, jumlah_pemeriksaan: String(prevRecord.jumlah_pemeriksaan) }));
+      }
+    }
+  }, [formData.pasien_no_rm, formData.rencana_kunjungan_ke, data]);
 
   // Filter & Search Logic
   const filteredData = useMemo(() => {
@@ -399,29 +417,6 @@ export default function FollowUpVaksinPage() {
     setShowModal(true);
   };
 
-  const openSettingsModal = async () => {
-    try {
-      const res = await api.get('/waha-config');
-      setWahaConfig(res.data);
-    } catch (err) {
-      console.error('Failed to load waha config', err);
-    }
-    setShowSettingsModal(true);
-  };
-
-  const closeSettingsModal = () => setShowSettingsModal(false);
-
-  const handleSaveSettings = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-      await api.post('/waha-config', wahaConfig);
-      Swal.fire('Berhasil', 'Pengaturan automasi berhasil disimpan', 'success');
-      setShowSettingsModal(false);
-    } catch (err: any) {
-      Swal.fire('Gagal', 'Gagal menyimpan pengaturan: ' + err.message, 'error');
-    }
-  };
 
   // Open Add Modal
   const openAddModal = () => {
@@ -508,7 +503,10 @@ export default function FollowUpVaksinPage() {
       }
 
       // Prepare data for submission
-      const submissionData = { ...formData };
+      const submissionData = { 
+        ...formData, 
+        jumlah_pemeriksaan: (formData.jumlah_pemeriksaan !== '' && formData.jumlah_pemeriksaan !== null && formData.jumlah_pemeriksaan !== undefined) ? Number(formData.jumlah_pemeriksaan) : null 
+      };
       if (Number(submissionData.rencana_kunjungan_ke) <= 1 || !submissionData.kunjungan_terakhir) {
         submissionData.kunjungan_terakhir = null as any;
       }
@@ -753,7 +751,8 @@ export default function FollowUpVaksinPage() {
           diagnosa_keluhan: item.diagnosa_keluhan || '',
           status_rencana: 'Scheduled',
           catatan_hasil: '',
-          rencana_tindakan: item.rencana_tindakan || ''
+          rencana_tindakan: item.rencana_tindakan || '',
+          jumlah_pemeriksaan: item.jumlah_pemeriksaan !== undefined && item.jumlah_pemeriksaan !== null ? Number(item.jumlah_pemeriksaan) : null
         };
 
         await api.post('/followup-vaksin', nextPlan);
@@ -881,14 +880,6 @@ export default function FollowUpVaksinPage() {
             </motion.button>
           )}
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={openSettingsModal}
-            className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 px-4 text-xs rounded-2xl shadow-sm cursor-pointer"
-          >
-            <span>Pengaturan Automasi</span>
-          </motion.button>
 
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -1626,93 +1617,6 @@ export default function FollowUpVaksinPage() {
             </div>
           )}
         </AnimatePresence>
-          {showSettingsModal && (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-                onClick={closeSettingsModal}
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="bg-white rounded-3xl w-full max-w-lg shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
-              >
-                <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                      <Settings className="h-5 w-5" />
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-800 tracking-tight">Pengaturan Automasi</h2>
-                  </div>
-                  <button
-                    onClick={closeSettingsModal}
-                    className="p-2 hover:bg-slate-200 rounded-full text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-                
-                <form onSubmit={handleSaveSettings} className="overflow-y-auto p-6 space-y-5">
-                  <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl">
-                    <div>
-                      <h4 className="font-bold text-slate-800 text-sm">Aktifkan Broadcast Otomatis</h4>
-                      <p className="text-xs text-slate-500 mt-1">Kirim pengingat WhatsApp setiap hari secara otomatis.</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" checked={wahaConfig.is_active} onChange={(e) => setWahaConfig({...wahaConfig, is_active: e.target.checked})} />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500"></div>
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Waktu Eksekusi (Cron)</label>
-                    <input
-                      type="time"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 font-medium transition-all"
-                      value={wahaConfig.cron_time}
-                      onChange={(e) => setWahaConfig({...wahaConfig, cron_time: e.target.value})}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Template Pesan WhatsApp</label>
-                    <textarea
-                      rows={10}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 font-medium transition-all font-mono leading-relaxed"
-                      value={wahaConfig.message_template}
-                      onChange={(e) => setWahaConfig({...wahaConfig, message_template: e.target.value})}
-                      required
-                    />
-                    <div className="mt-2 text-[10px] text-slate-500 font-mono">
-                      Variabel tersedia: <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">{`{nama}`}</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">{`{paket_vaksin}`}</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">{`{rencana_tindakan}`}</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">{`{tanggal}`}</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">{`{unit_kunjungan}`}</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">{`{kunjungan_ke}`}</code>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 flex justify-end gap-3 border-t border-slate-100">
-                    <button
-                      type="button"
-                      onClick={closeSettingsModal}
-                      className="px-5 py-2.5 border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-700 rounded-2xl text-xs font-bold transition-all cursor-pointer"
-                    >
-                      Tutup
-                    </button>
-                    <button
-                      type="submit"
-                      className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-98 text-white rounded-2xl text-xs font-extrabold transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      <span>Simpan Pengaturan</span>
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
-            </div>
-          )}
         </>,
         document.body
       )}

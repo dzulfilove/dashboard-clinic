@@ -1470,6 +1470,7 @@ app.get('/api/followup-vaksin', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/followup-vaksin', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  console.log('POST /api/followup-vaksin body:', req.body);
   const {
     no_order,
     unit_kunjungan,
@@ -1504,7 +1505,7 @@ app.post('/api/followup-vaksin', authenticateToken, roleGuard(['admin', 'perawat
         catatan_hasil,
         paket_vaksin,
         rencana_tindakan,
-        jumlah_pemeriksaan
+        jumlah_pemeriksaan !== undefined && jumlah_pemeriksaan !== null && jumlah_pemeriksaan !== '' ? Number(jumlah_pemeriksaan) : null
       ]
     );
     
@@ -1523,6 +1524,7 @@ app.post('/api/followup-vaksin', authenticateToken, roleGuard(['admin', 'perawat
 });
 
 app.put('/api/followup-vaksin/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  console.log('PUT /api/followup-vaksin/:id body:', req.body);
   const { id } = req.params;
   const {
     no_order,
@@ -1542,6 +1544,23 @@ app.put('/api/followup-vaksin/:id', authenticateToken, roleGuard(['admin', 'pera
   } = req.body;
 
   try {
+    console.log('UPDATE followup_vaksin params:', [
+        no_order,
+        unit_kunjungan,
+        pasien_no_rm,
+        pasien_nama,
+        usia ? Number(usia) : null,
+        kunjungan_terakhir,
+        tanggal_rencana,
+        rencana_kunjungan_ke ? Number(rencana_kunjungan_ke) : null,
+        diagnosa_keluhan,
+        status_rencana,
+        catatan_hasil,
+        paket_vaksin,
+        rencana_tindakan,
+        jumlah_pemeriksaan !== undefined && jumlah_pemeriksaan !== null && jumlah_pemeriksaan !== '' ? Number(jumlah_pemeriksaan) : null,
+        Number(id)
+      ]);
     await db.query(
       'UPDATE followup_vaksin SET no_order = ?, unit_kunjungan = ?, pasien_no_rm = ?, pasien_nama = ?, usia = ?, kunjungan_terakhir = ?, tanggal_rencana = ?, rencana_kunjungan_ke = ?, diagnosa_keluhan = ?, status_rencana = ?, catatan_hasil = ?, paket_vaksin = ?, rencana_tindakan = ?, jumlah_pemeriksaan = ? WHERE id = ?',
       [
@@ -1558,7 +1577,7 @@ app.put('/api/followup-vaksin/:id', authenticateToken, roleGuard(['admin', 'pera
         catatan_hasil,
         paket_vaksin,
         rencana_tindakan,
-        jumlah_pemeriksaan,
+        jumlah_pemeriksaan !== undefined && jumlah_pemeriksaan !== null && jumlah_pemeriksaan !== '' ? Number(jumlah_pemeriksaan) : null,
         Number(id)
       ]
     );
@@ -1604,7 +1623,7 @@ app.get('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']), 
 app.post('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']), (req, res) => {
   const config = req.body;
   setWahaConfig(config);
-  initWahaCron(); // Restart the cron with new config
+  // initWahaCron(); // Restart the cron with new config
   res.json({ message: 'Config updated successfully', config: getWahaConfig() });
 });
 app.post('/api/followup-vaksin/send-whatsapp', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
@@ -4803,7 +4822,7 @@ async function startServer() {
     });
   }
 
-  initWahaCron();
+  // initWahaCron();
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`[Express] Server running on port ${PORT}`);
   });
