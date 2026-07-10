@@ -15,7 +15,8 @@ import {
   TrendingDown,
   Download,
   CalendarDays,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Edit2
 } from 'lucide-react';
 import {
   BarChart,
@@ -71,6 +72,8 @@ export default function InputKonsumsi() {
   }>({});
 
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [existingLogMap, setExistingLogMap] = useState<Record<number, boolean>>({});
+  const [editingRows, setEditingRows] = useState<Record<number, boolean>>({});
 
   // Statistics states and controllers
   const [activeTab, setActiveTab] = useState<'input' | 'stats' | 'saldo'>('stats');
@@ -122,6 +125,7 @@ export default function InputKonsumsi() {
 
       // Build row input mappings
       const initialMap: typeof rowInputs = {};
+      const newExistingMap: Record<number, boolean> = {};
       activeMeds.forEach(m => {
         const match = existingLogs.find(log => log.obat_id === m.id);
         if (match) {
@@ -131,6 +135,7 @@ export default function InputKonsumsi() {
             pemakaian: String(match.pemakaian),
             retur_hilang: String(match.retur_hilang || 0)
           };
+          newExistingMap[m.id] = true;
         } else {
           const suggestedStock = m.stok_akhir !== undefined 
             ? String(m.stok_akhir) 
@@ -145,6 +150,8 @@ export default function InputKonsumsi() {
       });
 
       setRowInputs(initialMap);
+      setExistingLogMap(newExistingMap);
+      setEditingRows({});
     } catch (err: any) {
       console.error(err);
       setFeedback({ type: 'error', msg: 'Gagal mendownload data konsumsi obat.' });
@@ -220,6 +227,9 @@ export default function InputKonsumsi() {
         msg: `Laporan harian obat ${oName} disimpan untuk tanggal ${selectedDate}.` 
       });
 
+      setExistingLogMap(prev => ({ ...prev, [obatId]: true }));
+      setEditingRows(prev => ({ ...prev, [obatId]: false }));
+
     } catch (err: any) {
       console.error(err);
       setFeedback({ type: 'error', msg: 'Gagal menyimpan baris obat: ' + (err.response?.data?.message || err.message) });
@@ -284,6 +294,9 @@ export default function InputKonsumsi() {
     } else {
       setFeedback({ type: 'error', msg: `Berhasil menyimpan ${successCount} obat, tetapi ${failedCount} obat mengalami kegagalan.` });
     }
+    
+    // Refresh to update existingLogMap and lock the fields
+    loadMedicinesAndLogs();
   };
 
   const [statsSearchQuery, setStatsSearchQuery] = useState('');
@@ -878,6 +891,10 @@ export default function InputKonsumsi() {
                           const isSaving = savingRows[m.id] || false;
                           const inputYear = new Date(selectedDate).getFullYear();
                           const hasNoSaldoAwal = !m.saldo_awal_tahun || Number(m.saldo_awal_tahun) !== inputYear;
+                          const isSaved = existingLogMap[m.id] || false;
+                          const isEditing = editingRows[m.id] || false;
+                          const isLocked = isSaved && !isEditing;
+                          const isDisabled = hasNoSaldoAwal || isLocked;
 
                           return (
                             <tr key={m.id} className={`transition-colors ${hasNoSaldoAwal ? 'bg-slate-50/40 hover:bg-slate-55/40 opacity-80' : 'hover:bg-slate-50/70'}`}>
@@ -896,6 +913,14 @@ export default function InputKonsumsi() {
                                       </span>
                                     </div>
                                   )}
+                                  {isSaved && !hasNoSaldoAwal && (
+                                    <div className="mt-1.5">
+                                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                        <CheckCircle className="h-3 w-3 text-emerald-500" />
+                                        Tersimpan
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               </td>
 
@@ -907,8 +932,8 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.stok_awal}
                                   onChange={(e) => handleCellChange(m.id, 'stok_awal', e.target.value)}
-                                  disabled={hasNoSaldoAwal}
-                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
+                                  disabled={isDisabled}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${isDisabled ? 'bg-slate-200/50 border border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
                                   placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
@@ -921,8 +946,8 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.penerimaan}
                                   onChange={(e) => handleCellChange(m.id, 'penerimaan', e.target.value)}
-                                  disabled={hasNoSaldoAwal}
-                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
+                                  disabled={isDisabled}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${isDisabled ? 'bg-slate-200/50 border border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
                                   placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
@@ -935,8 +960,8 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.pemakaian}
                                   onChange={(e) => handleCellChange(m.id, 'pemakaian', e.target.value)}
-                                  disabled={hasNoSaldoAwal}
-                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
+                                  disabled={isDisabled}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${isDisabled ? 'bg-slate-200/50 border border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
                                   placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
@@ -949,8 +974,8 @@ export default function InputKonsumsi() {
                                   inputMode="numeric"
                                   value={inputs.retur_hilang}
                                   onChange={(e) => handleCellChange(m.id, 'retur_hilang', e.target.value)}
-                                  disabled={hasNoSaldoAwal}
-                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${hasNoSaldoAwal ? 'bg-slate-200/50 border border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-amber-50/50 border border-amber-200 text-amber-900'}`}
+                                  disabled={isDisabled}
+                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${isDisabled ? 'bg-slate-200/50 border border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-amber-50/50 border border-amber-200 text-amber-900'}`}
                                   placeholder={hasNoSaldoAwal ? "N/A" : "0"}
                                 />
                               </td>
@@ -965,16 +990,27 @@ export default function InputKonsumsi() {
                               {/* Individual Save action */}
                               {(user?.role === 'admin' || user?.role === 'farmasi') && (
                                 <td className="px-6 py-4 text-right whitespace-nowrap">
-                                  <button
-                                    id={`save-row-${m.id}`}
-                                    onClick={() => handleSaveRow(m.id)}
-                                    disabled={isSaving || hasNoSaldoAwal}
-                                    className={`p-2 border rounded-xl transition-all flex items-center justify-center mx-auto ${hasNoSaldoAwal ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-teal-50 hover:bg-teal-600 border-teal-250 text-teal-700 hover:text-white cursor-pointer'}`}
-                                    title={hasNoSaldoAwal ? `Saldo awal tahun ${inputYear} belum diinput` : "Simpan baris obat ini"}
-                                    style={{ minHeight: '44px', minWidth: '44px' }}
-                                  >
-                                    <Save className="h-4.5 w-4.5" />
-                                  </button>
+                                  {isLocked ? (
+                                    <button
+                                      onClick={() => setEditingRows(prev => ({ ...prev, [m.id]: true }))}
+                                      className="p-2 border rounded-xl transition-all flex items-center justify-center mx-auto bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700 hover:text-amber-800 cursor-pointer"
+                                      title="Edit data obat ini"
+                                      style={{ minHeight: '44px', minWidth: '44px' }}
+                                    >
+                                      <Edit2 className="h-4.5 w-4.5" />
+                                    </button>
+                                  ) : (
+                                    <button
+                                      id={`save-row-${m.id}`}
+                                      onClick={() => handleSaveRow(m.id)}
+                                      disabled={isSaving || hasNoSaldoAwal}
+                                      className={`p-2 border rounded-xl transition-all flex items-center justify-center mx-auto ${hasNoSaldoAwal ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : 'bg-teal-50 hover:bg-teal-600 border-teal-250 text-teal-700 hover:text-white cursor-pointer'}`}
+                                      title={hasNoSaldoAwal ? `Saldo awal tahun ${inputYear} belum diinput` : "Simpan baris obat ini"}
+                                      style={{ minHeight: '44px', minWidth: '44px' }}
+                                    >
+                                      <Save className="h-4.5 w-4.5" />
+                                    </button>
+                                  )}
                                 </td>
                               )}
                             </tr>

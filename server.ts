@@ -1149,7 +1149,7 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
 
         await db.query(
           'INSERT INTO tindakan_rawat_jalan (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [regId, tid, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          [regId, tid, t.tindakan_keterangan, t.tindakan_tanggal ? String(t.tindakan_tanggal).split('T')[0] : null, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -2568,7 +2568,7 @@ app.put('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admin',
 
         await db.query(
           'INSERT INTO tindakan_rawat_jalan (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [Number(id), tid, t.tindakan_keterangan, t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          [Number(id), tid, t.tindakan_keterangan, t.tindakan_tanggal ? String(t.tindakan_tanggal).split('T')[0] : null, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -2808,7 +2808,7 @@ app.post('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat',
 
         await db.query(
           'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [regId, tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          [regId, tid, t.tindakan_keterangan || '', t.tindakan_tanggal ? String(t.tindakan_tanggal).split('T')[0] : null, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -2865,7 +2865,7 @@ app.put('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'perawa
 
         await db.query(
           'INSERT INTO tindakan_igd (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [Number(id), tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          [Number(id), tid, t.tindakan_keterangan || '', t.tindakan_tanggal ? String(t.tindakan_tanggal).split('T')[0] : null, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -3098,7 +3098,7 @@ app.post('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat
 
         await db.query(
           'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [regId, tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          [regId, tid, t.tindakan_keterangan || '', t.tindakan_tanggal ? String(t.tindakan_tanggal).split('T')[0] : null, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
@@ -3154,7 +3154,7 @@ app.put('/api/pelayanan/ranap/:id', authenticateToken, roleGuard(['admin', 'pera
 
         await db.query(
           'INSERT INTO tindakan_ranap (registrasi_id, tindakan_id, tindakan_keterangan, tindakan_tanggal, tindakan_jam, tarif_tindakan, tarif_sarana, tarif_pelayanan, tarif_medis, jumlah, subtotal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [Number(id), tid, t.tindakan_keterangan || '', t.tindakan_tanggal, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
+          [Number(id), tid, t.tindakan_keterangan || '', t.tindakan_tanggal ? String(t.tindakan_tanggal).split('T')[0] : null, t.tindakan_jam, t.tarif_tindakan, t.tarif_sarana, t.tarif_pelayanan, t.tarif_medis, t.jumlah, t.subtotal]
         );
       }
     }
