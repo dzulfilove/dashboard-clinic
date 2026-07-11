@@ -4,6 +4,7 @@ dotenv.config();
 
 import express from 'express';
 import compression from "compression";
+import expressStaticGzip from "express-static-gzip";
 import path from 'path';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
@@ -4936,18 +4937,24 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath, {
+    
+    app.use('/assets', expressStaticGzip(path.join(distPath, 'assets'), {
+      enableBrotli: true,
+      orderPreference: ['br', 'gz'],
+      serveStatic: { immutable: true, maxAge: '1y' },
+    }));
+    
+    app.use(express.static(distPath, { 
+      maxAge: '1h',
       setHeaders: (res, filePath) => {
-        if (filePath.includes('/assets/')) {
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-        } else if (filePath.endsWith('index.html')) {
+        if (filePath.endsWith('index.html')) {
           res.setHeader('Cache-Control', 'no-cache');
-        } else {
-          res.setHeader('Cache-Control', 'public, max-age=3600');
         }
       }
     }));
+    
     app.get('*', (req, res) => {
+      res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
