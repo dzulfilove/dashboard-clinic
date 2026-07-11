@@ -207,3 +207,10 @@ html {
   }
 }
 
+
+/* Disable backdrop-blur globally for performance on low-end devices */
+/* To re-enable, remove this block */
+[class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
