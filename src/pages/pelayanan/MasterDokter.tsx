@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { 
@@ -403,14 +404,14 @@ export default function MasterDokter() {
 
               <div>
                 <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Status Keaktifan</label>
-                <select 
+                <SearchableSelect 
                   value={formData.status}
                   onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'aktif' | 'non-aktif' }))}
                   className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                 >
                   <option value="aktif">AKTIF</option>
                   <option value="non-aktif">NON-AKTIF</option>
-                </select>
+                </SearchableSelect>
               </div>
 
               <div className="pt-3 border-t border-slate-100/70 flex items-center justify-end gap-3">

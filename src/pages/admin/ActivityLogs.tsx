@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { 
   Activity, 
   Search, 
@@ -324,7 +325,7 @@ export default function ActivityLogs() {
           {/* Action Type */}
           <div>
             <label htmlFor="filter-action-select" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Tipe Aksi</label>
-            <select
+            <SearchableSelect
               id="filter-action-select"
               value={selectedAction}
               onChange={(e) => setSelectedAction(e.target.value)}
@@ -336,13 +337,13 @@ export default function ActivityLogs() {
               <option value="UPDATE">UPDATE (Edit Data)</option>
               <option value="DELETE">DELETE (Hapus Data)</option>
               <option value="VIEW">VIEW (Buka Modul)</option>
-            </select>
+            </SearchableSelect>
           </div>
 
           {/* Module */}
           <div>
             <label htmlFor="filter-module-select" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Fitur / Modul</label>
-            <select
+            <SearchableSelect
               id="filter-module-select"
               value={selectedModule}
               onChange={(e) => setSelectedModule(e.target.value)}
@@ -353,13 +354,13 @@ export default function ActivityLogs() {
               {uniqueModules.map((mod, index) => (
                 <option key={index} value={mod}>{mod}</option>
               ))}
-            </select>
+            </SearchableSelect>
           </div>
 
           {/* Date range helper */}
           <div>
             <label htmlFor="filter-date-select" className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">Rentang Waktu</label>
-            <select
+            <SearchableSelect
               id="filter-date-select"
               value={selectedDateFilter}
               onChange={(e) => setSelectedDateFilter(e.target.value)}
@@ -369,7 +370,7 @@ export default function ActivityLogs() {
               <option value="ALL">Semua Waktu</option>
               <option value="TODAY">Hari Ini</option>
               <option value="WEEK">7 Hari Terakhir</option>
-            </select>
+            </SearchableSelect>
           </div>
         </div>
       </div >

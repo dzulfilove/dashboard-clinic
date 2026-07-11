@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
@@ -822,7 +823,7 @@ export default function MasterPemeriksaan() {
                     </div>
 
                     {!isCustomKategori ? (
-                      <select
+                      <SearchableSelect
                         id="modal-category-select"
                         value={formKategori}
                         onChange={(e) => setFormKategori(e.target.value)}
@@ -832,7 +833,7 @@ export default function MasterPemeriksaan() {
                         {uniqueCategories.map(cat => (
                           <option key={cat} value={cat}>{cat}</option>
                         ))}
-                      </select>
+                      </SearchableSelect>
                     ) : (
                       <input
                         id="modal-category-input"
@@ -870,7 +871,7 @@ export default function MasterPemeriksaan() {
                         <span className="text-xxs font-medium text-slate-700 block">Status Keaktifan</span>
                         <span className="text-[9px] text-slate-400 block mt-0.5">Tampilkan parameter di input harian</span>
                       </div>
-                      <select
+                      <SearchableSelect
                         id="modal-param-active"
                         value={formIsActive}
                         onChange={(e) => setFormIsActive(Number(e.target.value))}
@@ -879,7 +880,7 @@ export default function MasterPemeriksaan() {
                       >
                         <option value={1}>Aktif</option>
                         <option value={0}>Inaktif</option>
-                      </select>
+                      </SearchableSelect>
                     </div>
                   )}
 

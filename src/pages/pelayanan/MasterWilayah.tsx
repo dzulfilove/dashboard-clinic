@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import Swal from 'sweetalert2';
 import { Plus, Trash2, Check, X, Map } from 'lucide-react';
 import api from '../../services/api';
@@ -294,7 +295,7 @@ export default function MasterWilayah() {
               <form onSubmit={handleAddKecamatan} className="bg-slate-50 p-3 rounded-xl mb-4 border border-slate-100">
                 <div className="mb-2">
                   <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Kota</label>
-                  <select
+                  <SearchableSelect
                     required
                     value={newKecamatanKotaId}
                     onChange={(e) => setNewKecamatanKotaId(e.target.value)}
@@ -302,7 +303,7 @@ export default function MasterWilayah() {
                   >
                     <option value="">Pilih Kota Induk</option>
                     {kota.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-                  </select>
+                  </SearchableSelect>
                 </div>
                 <div className="mb-2.5">
                   <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kecamatan</label>
@@ -401,7 +402,7 @@ export default function MasterWilayah() {
               <form onSubmit={handleAddKelurahan} className="bg-slate-50 p-3 rounded-xl mb-4 border border-slate-100">
                 <div className="mb-2">
                   <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Kecamatan</label>
-                  <select
+                  <SearchableSelect
                     required
                     value={newKelurahanKecamatanId}
                     onChange={(e) => setNewKelurahanKecamatanId(e.target.value)}
@@ -409,7 +410,7 @@ export default function MasterWilayah() {
                   >
                     <option value="">Pilih Kecamatan Induk</option>
                     {kecamatan.map(k => <option key={k.id} value={k.id}>{k.nama} ({k.kota_nama})</option>)}
-                  </select>
+                  </SearchableSelect>
                 </div>
                 <div className="mb-2.5">
                   <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kelurahan</label>

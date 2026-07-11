@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
@@ -267,7 +268,7 @@ export default function UsersManagement() {
 
             <div>
               <label htmlFor="userrole" className="block text-xs font-bold text-slate-700 uppercase tracking-wide">Hak Akses Modul (Role)</label>
-              <select
+              <SearchableSelect
                 id="userrole"
                 value={role}
                 onChange={(e) => setRole(e.target.value as any)}
@@ -279,7 +280,7 @@ export default function UsersManagement() {
                 <option value="perawat">Perawat (Akses Pelayanan Klinik)</option>
                 <option value="farmasi">Petugas Farmasi (Akses Farmasi)</option>
                 <option value="admin">Sistem Admin (Semua Akses / Full Access)</option>
-              </select>
+              </SearchableSelect>
             </div>
 
             <div className="md:col-span-4 flex justify-end space-x-3 pt-3">

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SearchableSelect } from './SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import { Save, Search, RefreshCw, CheckCircle, AlertCircle, Edit2, X, Info, Layers, TrendingUp, HelpCircle, ClipboardPaste, ArrowRight, Play } from 'lucide-react';
 import api from '../services/api.js';
@@ -368,7 +369,7 @@ export default function SaldoAwal() {
                         <td className="px-4 py-3.5">
                           {isEditing ? (
                             <div className="flex items-center gap-1">
-                              <select
+                              <SearchableSelect
                                 value={editBulan}
                                 onChange={(e) => setEditBulan(Number(e.target.value))}
                                 className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold"
@@ -376,8 +377,8 @@ export default function SaldoAwal() {
                                 {MONTHS.map((m, idx) => (
                                   <option key={idx} value={idx + 1}>{m}</option>
                                 ))}
-                              </select>
-                              <select
+                              </SearchableSelect>
+                              <SearchableSelect
                                 value={editTahun}
                                 onChange={(e) => setEditTahun(Number(e.target.value))}
                                 className="px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold"
@@ -385,7 +386,7 @@ export default function SaldoAwal() {
                                 {YEARS.map((y) => (
                                   <option key={y} value={y}>{y}</option>
                                 ))}
-                              </select>
+                              </SearchableSelect>
                             </div>
                           ) : isConfigured ? (
                             <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full inline-block">
@@ -491,7 +492,7 @@ export default function SaldoAwal() {
               <div className="flex gap-4 mb-2">
                 <div className="flex-1">
                   <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bulan Saldo</label>
-                  <select 
+                  <SearchableSelect 
                     value={importMonth}
                     onChange={e => setImportMonth(Number(e.target.value))}
                     className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
@@ -499,11 +500,11 @@ export default function SaldoAwal() {
                     {MONTHS.map((m, idx) => (
                       <option key={idx} value={idx + 1}>{m}</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
                 <div className="flex-1">
                   <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tahun Saldo</label>
-                  <select 
+                  <SearchableSelect 
                     value={importYear}
                     onChange={e => setImportYear(Number(e.target.value))}
                     className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
@@ -511,7 +512,7 @@ export default function SaldoAwal() {
                     {YEARS.map(y => (
                       <option key={y} value={y}>{y}</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
               </div>
 

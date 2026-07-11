@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
+import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
@@ -128,6 +130,7 @@ export default function IGD() {
   // Form states for manual registration
   const [noRegistrasi, setNoRegistrasi] = useState('');
   const [noRm, setNoRm] = useState('');
+  const [selectedPasienOption, setSelectedPasienOption] = useState<any>(null);
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
@@ -216,34 +219,7 @@ export default function IGD() {
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
 
-  useEffect(() => {
-    if (isEditMode) {
-      setIsNewPatient(false);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      if (!noRm || noRm.trim().length < 2) {
-        setIsNewPatient(false);
-        return;
-      }
-      try {
-        const res = await api.get('/pasien', { params: { q: noRm.trim() } });
-        const exactMatch = res.data.find(
-          (p: any) => String(p.no_rm).toLowerCase() === noRm.trim().toLowerCase()
-        );
-        if (exactMatch) {
-          setNamaPasien(exactMatch.nama);
-          setIsNewPatient(false);
-        } else {
-          setIsNewPatient(true);
-        }
-      } catch (err) {
-        console.warn('Gagal memeriksa data pasien:', err);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [noRm, isEditMode]);
+  /* useEffect for patient auto-check removed */
 
   useEffect(() => {
     if (!noRegistrasi || isEditMode) {
@@ -360,7 +336,7 @@ export default function IGD() {
           triase: triase,
           icd_kode: icdKode || null,
           dpjp: dpjp,
-          tindakan: manualTindakan
+          tindakan: manualTindakan.map(t => ({ ...t, tindakan_tanggal: tanggalPelayanan }))
         });
         showFeedback('success', `Data pendaftaran ${noRegistrasi} berhasil diperbarui.`);
       } else {
@@ -372,7 +348,7 @@ export default function IGD() {
           triase: triase,
           icd_kode: icdKode || null,
           dpjp: dpjp,
-          tindakan: manualTindakan,
+          tindakan: manualTindakan.map(t => ({ ...t, tindakan_tanggal: tanggalPelayanan })),
           tanggal_lahir: isNewPatient ? tanggalLahir : undefined,
           jenis_kelamin: isNewPatient ? jenisKelamin : undefined,
           alamat: isNewPatient ? alamat : undefined,
@@ -401,6 +377,7 @@ export default function IGD() {
     setEditTargetId(null);
     setNoRegistrasi('');
     setNoRm('');
+    setSelectedPasienOption(null);
     setNamaPasien('');
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
     setTriase('hijau');
@@ -1819,7 +1796,7 @@ export default function IGD() {
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Triase Kegawatan</label>
-                                  <select
+                                  <SearchableSelect
                                     value={p.triase || 'hijau'}
                                     onChange={(e) => updateParsedTriage(idx, e.target.value)}
                                     className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
@@ -1828,12 +1805,12 @@ export default function IGD() {
                                     <option value="kuning">Kuning (Darurat)</option>
                                     <option value="merah">Merah (Gawat Darurat)</option>
                                     <option value="hitam">Hitam (Meninggal)</option>
-                                  </select>
+                                  </SearchableSelect>
                                 </div>
 
                                 <div>
                                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Diagnosa Masuk (ICD-10)</label>
-                                  <select
+                                  <SearchableSelect
                                     value={p.icd_kode || ''}
                                     onChange={(e) => updateParsedIcd(idx, e.target.value)}
                                     className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
@@ -1844,12 +1821,12 @@ export default function IGD() {
                                         {icd.kode_icd} - {icd.deskripsi}
                                       </option>
                                     ))}
-                                  </select>
+                                  </SearchableSelect>
                                 </div>
                                 
                                 <div>
                                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DPJP</label>
-                                  <select
+                                  <SearchableSelect
                                     className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
                                     value={p.dpjp || ''}
                                     onChange={(e) => {
@@ -1862,7 +1839,7 @@ export default function IGD() {
                                     {dokterList.map(d => (
                                       <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                                     ))}
-                                  </select>
+                                  </SearchableSelect>
                                 </div>
                               </div>
                               
@@ -1974,13 +1951,29 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">No. Rekam Medis (RM)</label>
-                        <input
-                          type="text"
-                          placeholder="Contoh: 002494"
-                          value={noRm}
-                          onChange={(e) => setNoRm(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Pencarian / No. Rekam Medis (RM)</label>
+                        <AsyncPasienSelect
+                          value={selectedPasienOption}
+                          onChange={(option: any) => {
+                            setSelectedPasienOption(option);
+                            if (option) {
+                              if (option.__isNew__) {
+                                setNoRm(option.value);
+                                setNamaPasien('');
+                                setIsNewPatient(true);
+                              } else {
+                                setNoRm(option.value);
+                                setNamaPasien(option.pasien?.nama || '');
+                                setIsNewPatient(false);
+                              }
+                            } else {
+                              setNoRm('');
+                              setNamaPasien('');
+                              setIsNewPatient(false);
+                            }
+                          }}
+                          disabled={isEditMode}
+                          className="mt-1.5"
                           required
                         />
                       </div>
@@ -2021,7 +2014,7 @@ export default function IGD() {
 
                             <div>
                               <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Jenis Kelamin</label>
-                              <select
+                              <SearchableSelect
                                 value={jenisKelamin}
                                 onChange={(e) => setJenisKelamin(e.target.value)}
                                 className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
@@ -2029,7 +2022,7 @@ export default function IGD() {
                               >
                                 <option value="L">Laki-laki (L)</option>
                                 <option value="P">Perempuan (P)</option>
-                              </select>
+                              </SearchableSelect>
                             </div>
 
                             <div className="col-span-1 md:col-span-2">
@@ -2092,7 +2085,7 @@ export default function IGD() {
 
                       <div>
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
-                        <select
+                        <SearchableSelect
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
@@ -2102,12 +2095,12 @@ export default function IGD() {
                           <option value="kuning">Kuning - Darurat</option>
                           <option value="hitam">Hitam - Meninggal</option>
                           <option value="merah">Merah - Gawat Darurat</option>
-                        </select>
+                        </SearchableSelect>
                       </div>
 
                       <div>
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
-                        <select
+                        <SearchableSelect
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
@@ -2117,19 +2110,19 @@ export default function IGD() {
                           {dokterList.map(d => (
                             <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                           ))}
-                        </select>
+                        </SearchableSelect>
                       </div>
 
                       <div>
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Diagnosis (ICD-10)</label>
-                        <select
+                        <SearchableSelect
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                         >
                           <option value="">-- Pilih Diagnosis --</option>
                           {icdList.map(icd => <option key={icd.id} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>)}
-                        </select>
+                        </SearchableSelect>
                       </div>
                     </div>
                   </div>
@@ -2188,17 +2181,6 @@ export default function IGD() {
                                 value={t.tindakan_keterangan}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_keterangan', e.target.value)}
                                 className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tanggal Tindakan</label>
-                              <input
-                                type="date"
-                                value={t.tindakan_tanggal}
-                                onChange={(e) => updateManualTindakanField(index, 'tindakan_tanggal', e.target.value)}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                                required
                               />
                             </div>
 

@@ -10,7 +10,12 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+      dedupe: ['react', 'react-dom']
     },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-select', 'react-select/async-creatable', '@emotion/react']
+    },
+    
     build: {
       rollupOptions: {
         output: {

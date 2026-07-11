@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
+import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
@@ -169,6 +171,7 @@ export default function RawatJalan() {
   // Form states for manual registration
   const [noRegistrasi, setNoRegistrasi] = useState('');
   const [noRm, setNoRm] = useState('');
+  const [selectedPasienOption, setSelectedPasienOption] = useState<any>(null);
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
@@ -260,34 +263,7 @@ export default function RawatJalan() {
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
 
-  useEffect(() => {
-    if (isEditMode) {
-      setIsNewPatient(false);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      if (!noRm || noRm.trim().length < 2) {
-        setIsNewPatient(false);
-        return;
-      }
-      try {
-        const res = await api.get('/pasien', { params: { q: noRm.trim() } });
-        const exactMatch = res.data.find(
-          (p: any) => String(p.no_rm).toLowerCase() === noRm.trim().toLowerCase()
-        );
-        if (exactMatch) {
-          setNamaPasien(exactMatch.nama);
-          setIsNewPatient(false);
-        } else {
-          setIsNewPatient(true);
-        }
-      } catch (err) {
-        console.warn('Gagal memeriksa data pasien:', err);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [noRm, isEditMode]);
+  /* useEffect for patient auto-check removed */
 
   useEffect(() => {
     if (!noRegistrasi || isEditMode) {
@@ -415,6 +391,7 @@ export default function RawatJalan() {
   const resetManualForm = () => {
     setNoRegistrasi('');
     setNoRm('');
+    setSelectedPasienOption(null);
     setNamaPasien('');
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
     setTriase('hijau');
@@ -1566,7 +1543,7 @@ export default function RawatJalan() {
                 </div>
 
                 <div className="relative">
-                  <select
+                  <SearchableSelect
                     value={unitFilter}
                     onChange={(e) => setUnitFilter(e.target.value)}
                     className="pl-4 pr-8 py-2.5 bg-white border border-slate-100 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 transition-all"
@@ -1575,7 +1552,7 @@ export default function RawatJalan() {
                     {TIPE_UNIT_RAWAT_JALAN.map(unit => (
                         <option key={unit} value={unit}>{unit}</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -1931,7 +1908,7 @@ export default function RawatJalan() {
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                               <div>
                                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Triase</label>
-                                <select 
+                                <SearchableSelect 
                                   className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.triase || 'hijau'}
                                   onChange={(e) => {
@@ -1944,12 +1921,12 @@ export default function RawatJalan() {
                                   <option value="kuning">Kuning</option>
                                   <option value="hitam">Hitam</option>
                                   <option value="merah">Merah</option>
-                                </select>
+                                </SearchableSelect>
                               </div>
 
                               <div>
                                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Diagnosa (ICD-10)</label>
-                                <select 
+                                <SearchableSelect 
                                   className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.icd_kode || ''}
                                   onChange={(e) => {
@@ -1964,12 +1941,12 @@ export default function RawatJalan() {
                                       {icd.kode_icd} - {icd.deskripsi}
                                     </option>
                                   ))}
-                                </select>
+                                </SearchableSelect>
                               </div>
 
                               <div>
                                 <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">DPJP</label>
-                                <select
+                                <SearchableSelect
                                   className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.dpjp || ''}
                                   onChange={(e) => {
@@ -1982,7 +1959,7 @@ export default function RawatJalan() {
                                   {dokterList.map(d => (
                                     <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                                   ))}
-                                </select>
+                                </SearchableSelect>
                               </div>
                             </div>
                           </div>
@@ -2003,7 +1980,7 @@ export default function RawatJalan() {
                     <div className="pt-4 border-t border-slate-100">
                       <div className="mb-4">
                         <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan (Wajib Pilih)</label>
-                        <select
+                        <SearchableSelect
                           value={bulkUnit}
                           onChange={(e) => setBulkUnit(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white transition-all"
@@ -2013,7 +1990,7 @@ export default function RawatJalan() {
                           {TIPE_UNIT_RAWAT_JALAN.map(unit => (
                               <option key={unit} value={unit}>{unit}</option>
                           ))}
-                        </select>
+                        </SearchableSelect>
                       </div>
 
                       <button
@@ -2116,13 +2093,29 @@ export default function RawatJalan() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">No. Rekam Medis (RM)</label>
-                        <input
-                          type="text"
-                          placeholder="Contoh: 002502"
-                          value={noRm}
-                          onChange={(e) => setNoRm(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs placeholder-slate-405 focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white font-mono transition-all"
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Pencarian / No. Rekam Medis (RM)</label>
+                        <AsyncPasienSelect
+                          value={selectedPasienOption}
+                          onChange={(option: any) => {
+                            setSelectedPasienOption(option);
+                            if (option) {
+                              if (option.__isNew__) {
+                                setNoRm(option.value);
+                                setNamaPasien('');
+                                setIsNewPatient(true);
+                              } else {
+                                setNoRm(option.value);
+                                setNamaPasien(option.pasien?.nama || '');
+                                setIsNewPatient(false);
+                              }
+                            } else {
+                              setNoRm('');
+                              setNamaPasien('');
+                              setIsNewPatient(false);
+                            }
+                          }}
+                          disabled={isEditMode}
+                          className="mt-1.5"
                           required
                         />
                       </div>
@@ -2163,7 +2156,7 @@ export default function RawatJalan() {
 
                             <div>
                               <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Jenis Kelamin</label>
-                              <select
+                              <SearchableSelect
                                 value={jenisKelamin}
                                 onChange={(e) => setJenisKelamin(e.target.value)}
                                 className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
@@ -2171,7 +2164,7 @@ export default function RawatJalan() {
                               >
                                 <option value="L">Laki-laki (L)</option>
                                 <option value="P">Perempuan (P)</option>
-                              </select>
+                              </SearchableSelect>
                             </div>
 
                             <div className="col-span-1 md:col-span-2">
@@ -2234,7 +2227,7 @@ export default function RawatJalan() {
 
                       <div>
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
-                        <select
+                        <SearchableSelect
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
@@ -2244,12 +2237,12 @@ export default function RawatJalan() {
                           <option value="kuning">Kuning - Darurat</option>
                           <option value="hitam">Hitam - Meninggal</option>
                           <option value="merah">Merah - Gawat Darurat</option>
-                        </select>
+                        </SearchableSelect>
                       </div>
 
                       <div>
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Unit Pelayanan</label>
-                        <select
+                        <SearchableSelect
                           value={unit}
                           onChange={(e) => setUnit(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
@@ -2259,12 +2252,12 @@ export default function RawatJalan() {
                           {TIPE_UNIT_RAWAT_JALAN.map(unit => (
                               <option key={unit} value={unit}>{unit}</option>
                           ))}
-                        </select>
+                        </SearchableSelect>
                       </div>
 
                       <div>
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
-                        <select
+                        <SearchableSelect
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
@@ -2274,12 +2267,12 @@ export default function RawatJalan() {
                           {dokterList.map(d => (
                             <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                           ))}
-                        </select>
+                        </SearchableSelect>
                       </div>
 
                       <div className="md:col-span-2">
                         <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Diagnosis (ICD-10)</label>
-                        <select
+                        <SearchableSelect
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all"
@@ -2287,7 +2280,7 @@ export default function RawatJalan() {
                         >
                           <option value="">-- Pilih Diagnosis --</option>
                           {icdList.map(icd => <option key={icd.id} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>)}
-                        </select>
+                        </SearchableSelect>
                       </div>
                     </div>
                   </div>

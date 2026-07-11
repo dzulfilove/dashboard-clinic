@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { 
@@ -640,14 +641,14 @@ export default function MasterPasien() {
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Jenis Kelamin</label>
-                  <select
+                  <SearchableSelect
                     value={formData.jenis_kelamin}
                     onChange={(e) => setFormData(prev => ({ ...prev, jenis_kelamin: e.target.value as 'L' | 'P' }))}
                     className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value="L">Laki-laki</option>
                     <option value="P">Perempuan</option>
-                  </select>
+                  </SearchableSelect>
                 </div>
               </div>
 
@@ -674,36 +675,36 @@ export default function MasterPasien() {
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Kota</label>
-                  <select
+                  <SearchableSelect
                     value={formData.kota_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kota_id: parseInt(e.target.value) }))}
                     className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value={0}>Pilih Kota</option>
                     {kotaList.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
-                  </select>
+                  </SearchableSelect>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Kecamatan</label>
-                  <select
+                  <SearchableSelect
                     value={formData.kecamatan_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kecamatan_id: parseInt(e.target.value) }))}
                     className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value={0}>Pilih Kecamatan</option>
                     {kecamatanList.filter(kec => kec.kota_id === formData.kota_id).map(kec => <option key={kec.id} value={kec.id}>{kec.nama}</option>)}
-                  </select>
+                  </SearchableSelect>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-600 tracking-wider uppercase mb-1.5">Kelurahan</label>
-                  <select
+                  <SearchableSelect
                     value={formData.kelurahan_id}
                     onChange={(e) => setFormData(prev => ({ ...prev, kelurahan_id: parseInt(e.target.value) }))}
                     className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                   >
                     <option value={0}>Pilih Kelurahan</option>
                     {kelurahanList.filter(kel => kel.kecamatan_id === formData.kecamatan_id).map(kel => <option key={kel.id} value={kel.id}>{kel.nama}</option>)}
-                  </select>
+                  </SearchableSelect>
                 </div>
               </div>
 

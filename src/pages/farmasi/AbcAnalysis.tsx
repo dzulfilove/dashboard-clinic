@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   Layers, 
@@ -96,7 +97,7 @@ export default function AbcAnalysis() {
         {/* Month Year Selector */}
         <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-100/80 rounded-2xl shadow-sm">
           <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
-          <select 
+          <SearchableSelect 
             id="abc-month-select"
             value={selectedMonth} 
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
@@ -106,9 +107,9 @@ export default function AbcAnalysis() {
             {months.map(m => (
               <option key={m.value} value={m.value}>{m.name}</option>
             ))}
-          </select>
+          </SearchableSelect>
           <span className="text-slate-300">|</span>
-          <select 
+          <SearchableSelect 
             id="abc-year-select"
             value={selectedYear} 
             onChange={(e) => setSelectedYear(Number(e.target.value))}
@@ -118,7 +119,7 @@ export default function AbcAnalysis() {
             {years.map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
-          </select>
+          </SearchableSelect>
         </div>
       </div>
 

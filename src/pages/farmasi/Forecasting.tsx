@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   TrendingUp, 
@@ -99,7 +100,7 @@ export default function Forecasting() {
         <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-100/80 rounded-2xl shadow-sm">
           <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
           <span className="text-xs font-semibold text-slate-500">Proyeksi Target:</span>
-          <select 
+          <SearchableSelect 
             id="proj-month-select"
             value={projMonth} 
             onChange={(e) => setProjMonth(Number(e.target.value))}
@@ -109,9 +110,9 @@ export default function Forecasting() {
             {months.map(m => (
               <option key={m.value} value={m.value}>{m.name}</option>
             ))}
-          </select>
+          </SearchableSelect>
           <span className="text-slate-300">|</span>
-          <select 
+          <SearchableSelect 
             id="proj-year-select"
             value={projYear} 
             onChange={(e) => setProjYear(Number(e.target.value))}
@@ -121,7 +122,7 @@ export default function Forecasting() {
             {years.map(y => (
               <option key={y} value={y}>{y}</option>
             ))}
-          </select>
+          </SearchableSelect>
         </div>
       </div>
 
@@ -240,7 +241,7 @@ export default function Forecasting() {
               {/* Sort Dropdown */}
               <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors shadow-xs">
                 <ArrowUpDown className="h-4 w-4 text-slate-500" />
-                <select
+                <SearchableSelect
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="bg-transparent border-none text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
@@ -252,7 +253,7 @@ export default function Forecasting() {
                   <option value="stok_akhir_asc">Stok Akhir (Terendah)</option>
                   <option value="stok_akhir_desc">Stok Akhir (Tertinggi)</option>
                   <option value="pemakaian_desc">Pemakaian 3 Bln (Terbanyak)</option>
-                </select>
+                </SearchableSelect>
               </div>
 
             </div>

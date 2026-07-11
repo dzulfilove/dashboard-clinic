@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import Swal from 'sweetalert2';
 import { useAuthStore } from '../../store/authStore.js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -778,7 +779,7 @@ export default function MasterObat() {
 
             <div>
               <label htmlFor="status" className="block text-xs font-medium text-slate-400 uppercase tracking-wider">Status Diaktifkan</label>
-              <select
+              <SearchableSelect
                 id="status"
                 value={isActive}
                 onChange={(e) => setIsActive(Number(e.target.value))}
@@ -787,7 +788,7 @@ export default function MasterObat() {
               >
                 <option value={1}>Aktif (Bisa Diorder)</option>
                 <option value={0}>Tidak Aktif / Tangguhkan</option>
-              </select>
+              </SearchableSelect>
             </div>
 
             <div className="md:col-span-3 flex justify-end space-x-3 pt-3 border-t border-slate-800">

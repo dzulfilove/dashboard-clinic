@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { 
@@ -320,14 +321,14 @@ export default function MasterTindakan() {
 
               <div>
                 <label className="block text-xs font-black text-slate-500 tracking-wider uppercase mb-1.5">Klasifikasi Jenis</label>
-                <select
+                <SearchableSelect
                   value={formData.jenis}
                   onChange={(e) => setFormData(prev => ({ ...prev, jenis: e.target.value as 'RALAN' | 'RANAP' }))}
                   className="w-full text-sm font-semibold border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-xl p-2.5 transition bg-white"
                 >
                   <option value="RALAN">Rawat Jalan (RALAN)</option>
                   <option value="RANAP">Rawat Inap (RANAP)</option>
-                </select>
+                </SearchableSelect>
               </div>
 
               <div className="pt-3 border-t border-slate-50 flex items-center justify-end gap-3">

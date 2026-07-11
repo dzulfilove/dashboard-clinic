@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
+import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from 'motion/react';
@@ -136,6 +138,7 @@ export default function RawatInap() {
   // Form states for manual registration
   const [noRegistrasi, setNoRegistrasi] = useState('');
   const [noRm, setNoRm] = useState('');
+  const [selectedPasienOption, setSelectedPasienOption] = useState<any>(null);
   const [namaPasien, setNamaPasien] = useState('');
   const [tanggalPelayanan, setTanggalPelayanan] = useState(new Date().toISOString().split('T')[0]);
   const [triase, setTriase] = useState('hijau');
@@ -225,34 +228,7 @@ export default function RawatInap() {
     fetchDokter();
   }, [startDate, endDate]);
 
-  useEffect(() => {
-    if (isEditMode) {
-      setIsNewPatient(false);
-      return;
-    }
-    const timer = setTimeout(async () => {
-      if (!noRm || noRm.trim().length < 2) {
-        setIsNewPatient(false);
-        return;
-      }
-      try {
-        const res = await api.get('/pasien', { params: { q: noRm.trim() } });
-        const exactMatch = res.data.find(
-          (p: any) => String(p.no_rm).toLowerCase() === noRm.trim().toLowerCase()
-        );
-        if (exactMatch) {
-          setNamaPasien(exactMatch.nama);
-          setIsNewPatient(false);
-        } else {
-          setIsNewPatient(true);
-        }
-      } catch (err) {
-        console.warn('Gagal memeriksa data pasien:', err);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [noRm, isEditMode]);
+  /* useEffect for patient auto-check removed */
 
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
@@ -278,6 +254,7 @@ export default function RawatInap() {
     setIsEditMode(false);
     setEditTargetId(null);
     setNoRm('');
+    setSelectedPasienOption(null);
     setNamaPasien('');
     setTanggalPelayanan(new Date().toISOString().split('T')[0]);
     setTriase('hijau');
@@ -1504,7 +1481,7 @@ export default function RawatInap() {
                 </div>
 
                 <div className="relative">
-                  <select
+                  <SearchableSelect
                     value={roomFilter}
                     onChange={(e) => {
                       setRoomFilter(e.target.value);
@@ -1516,7 +1493,7 @@ export default function RawatInap() {
                     {allRooms.map((rm, i) => (
                       <option key={i} value={rm}>{rm}</option>
                     ))}
-                  </select>
+                  </SearchableSelect>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -1803,7 +1780,7 @@ export default function RawatInap() {
                             </div>
                             <div className="flex items-center space-x-2">
                               <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
-                              <select 
+                              <SearchableSelect 
                                 className="text-[10px] font-bold border rounded-lg p-1 bg-white focus:ring-1 focus:ring-teal-500 outline-none"
                                 value={p.triase || 'hijau'}
                                 onChange={(e) => {
@@ -1816,7 +1793,7 @@ export default function RawatInap() {
                                 <option value="kuning">Kuning</option>
                                 <option value="hitam">Hitam</option>
                                 <option value="merah">Merah</option>
-                              </select>
+                              </SearchableSelect>
                             </div>
                           </div>
 
@@ -1838,7 +1815,7 @@ export default function RawatInap() {
                           <div className="grid grid-cols-4 gap-2 border-t border-slate-100/40 pt-2 text-[10px]">
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
-                              <select
+                              <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
                                 value={p.dpjp || ''}
                                 onChange={(e) => {
@@ -1851,11 +1828,11 @@ export default function RawatInap() {
                                 {dokterList.map(d => (
                                   <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                                 ))}
-                              </select>
+                              </SearchableSelect>
                             </div>
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
-                              <select
+                              <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none"
                                 value={p.kamar || 'Kamar Sinta'}
                                 onChange={(e) => {
@@ -1867,11 +1844,11 @@ export default function RawatInap() {
                                 <option value="Kamar Sinta">Kamar Sinta</option>
                                 <option value="Kamar Rama">Kamar Rama</option>
                                 <option value="Kamar Yudistira">Kamar Yudistira</option>
-                              </select>
+                              </SearchableSelect>
                             </div>
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Masuk (ICD)</label>
-                              <select
+                              <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none"
                                 value={p.icd_masuk || ''}
                                 onChange={(e) => {
@@ -1884,11 +1861,11 @@ export default function RawatInap() {
                                 {icdList.map((icd, i) => (
                                   <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
                                 ))}
-                              </select>
+                              </SearchableSelect>
                             </div>
                             <div>
                               <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Pulang (ICD)</label>
-                              <select
+                              <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none"
                                 value={p.icd_pulang || ''}
                                 onChange={(e) => {
@@ -1901,7 +1878,7 @@ export default function RawatInap() {
                                 {icdList.map((icd, i) => (
                                   <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
                                 ))}
-                              </select>
+                              </SearchableSelect>
                             </div>
                           </div>
 
@@ -1992,7 +1969,7 @@ export default function RawatInap() {
 
                   <div>
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Kamar Bed Inap</label>
-                    <select
+                    <SearchableSelect
                       required
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                       value={kamar}
@@ -2001,19 +1978,35 @@ export default function RawatInap() {
                       <option value="Kamar Sinta">Kamar Sinta</option>
                       <option value="Kamar Rama">Kamar Rama</option>
                       <option value="Kamar Yudistira">Kamar Yudistira</option>
-                    </select>
+                    </SearchableSelect>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">No. Rekam Medis (RM)</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="Contoh: 002462"
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl font-mono focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white"
-                      value={noRm}
-                      onChange={(e) => setNoRm(e.target.value)}
-                    />
+                    <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">Pencarian / No. Rekam Medis (RM)</label>
+                        <AsyncPasienSelect
+                          value={selectedPasienOption}
+                          onChange={(option: any) => {
+                            setSelectedPasienOption(option);
+                            if (option) {
+                              if (option.__isNew__) {
+                                setNoRm(option.value);
+                                setNamaPasien('');
+                                setIsNewPatient(true);
+                              } else {
+                                setNoRm(option.value);
+                                setNamaPasien(option.pasien?.nama || '');
+                                setIsNewPatient(false);
+                              }
+                            } else {
+                              setNoRm('');
+                              setNamaPasien('');
+                              setIsNewPatient(false);
+                            }
+                          }}
+                          disabled={isEditMode}
+                          className="mt-1.5"
+                          required
+                        />
                   </div>
 
                   <div>
@@ -2052,7 +2045,7 @@ export default function RawatInap() {
 
                         <div>
                           <label className="block text-[12px] font-extrabold text-slate-500 uppercase tracking-wider">Jenis Kelamin</label>
-                          <select
+                          <SearchableSelect
                             value={jenisKelamin}
                             onChange={(e) => setJenisKelamin(e.target.value)}
                             className="mt-1.5 block w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none"
@@ -2060,7 +2053,7 @@ export default function RawatInap() {
                           >
                             <option value="L">Laki-laki (L)</option>
                             <option value="P">Perempuan (P)</option>
-                          </select>
+                          </SearchableSelect>
                         </div>
 
                         <div className="col-span-1 md:col-span-2">
@@ -2123,7 +2116,7 @@ export default function RawatInap() {
 
                   <div>
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Tingkatan Triase Kegawatan</label>
-                    <select
+                    <SearchableSelect
                       value={triase}
                       onChange={(e) => setTriase(e.target.value)}
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
@@ -2132,11 +2125,11 @@ export default function RawatInap() {
                       <option value="kuning">Kuning - Darurat</option>
                       <option value="merah">Merah - Gawat Darurat</option>
                       <option value="hitam">Hitam - Meninggal</option>
-                    </select>
+                    </SearchableSelect>
                   </div>
                   <div>
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
-                    <select
+                    <SearchableSelect
                       required
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                       value={dpjp}
@@ -2146,13 +2139,13 @@ export default function RawatInap() {
                       {dokterList.map(d => (
                         <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                       ))}
-                    </select>
+                    </SearchableSelect>
                   </div>
 
                   {/* DOUBLE DIAGNOSIS INPUT COLS */}
                   <div>
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosa Masuk (ICD-10)</label>
-                    <select
+                    <SearchableSelect
                       value={icdMasuk}
                       onChange={(e) => setIcdMasuk(e.target.value)}
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
@@ -2161,12 +2154,12 @@ export default function RawatInap() {
                       {icdList.map((icd, i) => (
                         <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
                       ))}
-                    </select>
+                    </SearchableSelect>
                   </div>
 
                   <div>
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Diagnosa Pulang (ICD-10)</label>
-                    <select
+                    <SearchableSelect
                       value={icdPulang}
                       onChange={(e) => setIcdPulang(e.target.value)}
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
@@ -2175,7 +2168,7 @@ export default function RawatInap() {
                       {icdList.map((icd, i) => (
                         <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
                       ))}
-                    </select>
+                    </SearchableSelect>
                   </div>
                 </div>
 

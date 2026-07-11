@@ -2380,34 +2380,41 @@ app.get('/api/laporan/dokter', authenticateToken, roleGuard(['admin', 'perawat']
       ORDER BY total_ranap DESC
     `, dokter ? [from, to, dokter] : [from, to]);
 
+    const paramsArr = dokter ? [from, to, dokter, from, to, dokter, from, to, dokter] : [from, to, from, to, from, to];
+
     const diagnosaDokter = await db.query(`
-      SELECT
-        r.dpjp AS nama_dokter,
-        r.icd_kode,
+      SELECT 
+        gabungan.dpjp AS nama_dokter,
+        gabungan.icd_kode,
         i.deskripsi AS icd_deskripsi,
         COUNT(*) AS jumlah
-      FROM registrasi_rawat_jalan r
-      LEFT JOIN master_icd10 i ON r.icd_kode = i.kode_icd
-      WHERE r.tanggal_pelayanan BETWEEN ? AND ?
-        AND r.dpjp IS NOT NULL AND r.dpjp != ''
-        AND r.icd_kode IS NOT NULL
-        ${dokter ? "AND r.dpjp = ?" : ""}
-      GROUP BY r.dpjp, r.icd_kode
-      ORDER BY r.dpjp, jumlah DESC
-    `, dokter ? [from, to, dokter] : [from, to]);
+      FROM (
+        SELECT dpjp, icd_kode FROM registrasi_rawat_jalan WHERE tanggal_pelayanan BETWEEN ? AND ? AND dpjp IS NOT NULL AND dpjp != '' AND icd_kode IS NOT NULL ${dokter ? "AND dpjp = ?" : ""}
+        UNION ALL
+        SELECT dpjp, icd_kode FROM registrasi_igd WHERE tanggal_pelayanan BETWEEN ? AND ? AND dpjp IS NOT NULL AND dpjp != '' AND icd_kode IS NOT NULL ${dokter ? "AND dpjp = ?" : ""}
+        UNION ALL
+        SELECT dpjp, icd_masuk AS icd_kode FROM registrasi_ranap WHERE tanggal_pelayanan BETWEEN ? AND ? AND dpjp IS NOT NULL AND dpjp != '' AND icd_masuk IS NOT NULL ${dokter ? "AND dpjp = ?" : ""}
+      ) AS gabungan
+      LEFT JOIN master_icd10 i ON gabungan.icd_kode = i.kode_icd
+      GROUP BY gabungan.dpjp, gabungan.icd_kode
+      ORDER BY gabungan.dpjp, jumlah DESC
+    `, paramsArr);
 
     const trenHarian = await db.query(`
       SELECT
         dpjp AS nama_dokter,
         tanggal_pelayanan AS tanggal,
         COUNT(*) AS jumlah
-      FROM registrasi_rawat_jalan
-      WHERE tanggal_pelayanan BETWEEN ? AND ?
-        AND dpjp IS NOT NULL AND dpjp != ''
-        ${dokter ? "AND dpjp = ?" : ""}
+      FROM (
+        SELECT dpjp, tanggal_pelayanan FROM registrasi_rawat_jalan WHERE tanggal_pelayanan BETWEEN ? AND ? AND dpjp IS NOT NULL AND dpjp != '' ${dokter ? "AND dpjp = ?" : ""}
+        UNION ALL
+        SELECT dpjp, tanggal_pelayanan FROM registrasi_igd WHERE tanggal_pelayanan BETWEEN ? AND ? AND dpjp IS NOT NULL AND dpjp != '' ${dokter ? "AND dpjp = ?" : ""}
+        UNION ALL
+        SELECT dpjp, tanggal_pelayanan FROM registrasi_ranap WHERE tanggal_pelayanan BETWEEN ? AND ? AND dpjp IS NOT NULL AND dpjp != '' ${dokter ? "AND dpjp = ?" : ""}
+      ) AS gabungan
       GROUP BY dpjp, tanggal_pelayanan
       ORDER BY tanggal_pelayanan ASC
-    `, dokter ? [from, to, dokter] : [from, to]);
+    `, paramsArr);
 
     const dokterMap = new Map();
 
@@ -3435,11 +3442,16 @@ app.post('/api/obat/saldo-awal', authenticateToken, roleGuard(['admin', 'farmasi
     return res.status(400).json({ message: 'Obat ID, Tahun, dan Bulan wajib diisi.' });
   }
 
+  let conn;
   try {
+    conn = await db.getConnection();
+    await conn.beginTransaction();
+    
     const status = db.getDiagnosticStatus();
     if (status.isVirtual) {
+      // Direct virtual DB write
       const vdb = readVirtualDb();
-      const idx = vdb.obat_master.findIndex(o => o.id === Number(obat_id));
+      const idx = vdb.obat_master.findIndex((o: any) => o.id === Number(obat_id));
       if (idx !== -1) {
         vdb.obat_master[idx] = {
           ...vdb.obat_master[idx],
@@ -3449,16 +3461,29 @@ app.post('/api/obat/saldo-awal', authenticateToken, roleGuard(['admin', 'farmasi
         };
         writeVirtualDb(vdb);
       } else {
+        await conn.rollback();
+        conn.release();
         return res.status(404).json({ message: 'Obat tidak ditemukan.' });
       }
     } else {
-      await db.query(
+      await conn.query(
         'UPDATE obat_master SET saldo_awal_tahun = ?, saldo_awal_bulan = ?, saldo_awal_nilai = ? WHERE id = ?',
         [Number(tahun), Number(bulan), Number(saldo_awal_nilai || 0), Number(obat_id)]
       );
     }
-    res.json({ success: true, message: 'Saldo awal tahunan berhasil disimpan.' });
+    
+    // Recalculate
+    const { warnings } = await recalcObatChain(conn, Number(obat_id));
+    
+    await conn.commit();
+    conn.release();
+
+    res.json({ success: true, message: 'Saldo awal tahunan berhasil disimpan.', warnings });
   } catch (err: any) {
+    if (conn) {
+      await conn.rollback();
+      conn.release();
+    }
     res.status(500).json({ message: err.message });
   }
 });
@@ -4024,16 +4049,143 @@ app.get('/api/obat/konsumsi', authenticateToken, async (req, res) => {
   }
 });
 
+
+// HELPER: Recalculate daily and monthly stock chain for a given obat_id
+async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: string[] }> {
+  const warnings: string[] = [];
+
+  // 1. Get initial master balance
+  const [masterRows] = await conn.query('SELECT * FROM obat_master WHERE id = ?', [obat_id]);
+  if (!masterRows || masterRows.length === 0) return { warnings };
+  const m = masterRows[0];
+  const saldo_awal_nilai = Number(m.saldo_awal_nilai) || 0;
+  const nama_obat = m.nama_obat || 'Unknown';
+
+  // 2. Fetch all daily records ordered by tanggal ASC
+  const [harianRows] = await conn.query('SELECT * FROM obat_konsumsi_harian WHERE obat_id = ? ORDER BY tanggal ASC', [obat_id]);
+  
+  if (harianRows.length === 0) {
+    // If no daily rows, delete all monthly records for this drug to prevent orphaned aggregates
+    await conn.query('DELETE FROM obat_konsumsi_bulanan WHERE obat_id = ?', [obat_id]);
+    return { warnings };
+  }
+
+  // 3. Iterate and recalculate
+  let runningSisa = saldo_awal_nilai;
+  const monthYears = new Set<string>();
+
+  for (const row of harianRows) {
+    const penerimaan = Number(row.penerimaan) || 0;
+    const pemakaian = Number(row.pemakaian) || 0;
+    const retur_hilang = Number(row.retur_hilang) || 0;
+    
+    const stok_awal = runningSisa;
+    const sisa_stok = stok_awal + penerimaan - pemakaian - retur_hilang;
+    
+    if (sisa_stok < 0) {
+      warnings.push(`Stok ${nama_obat} menjadi negatif (${sisa_stok}) pada ${new Date(row.tanggal).toISOString().split('T')[0]}`);
+    }
+
+    if (Number(row.stok_awal) !== stok_awal || Number(row.sisa_stok) !== sisa_stok) {
+      await conn.query(
+        'UPDATE obat_konsumsi_harian SET stok_awal = ?, sisa_stok = ? WHERE id = ?',
+        [stok_awal, sisa_stok, row.id]
+      );
+    }
+    
+    runningSisa = sisa_stok;
+    
+    // track unique month-year
+    const d = new Date(row.tanggal);
+    const mStr = (d.getMonth() + 1).toString() + '-' + d.getFullYear().toString();
+    monthYears.add(mStr);
+  }
+
+  // 4. Check for potential duplicate receipts (basic heuristic: same large receipt on adjacent days)
+  for (let i = 1; i < harianRows.length; i++) {
+    const r1 = harianRows[i-1];
+    const r2 = harianRows[i];
+    if (r1.penerimaan > 0 && r1.penerimaan === r2.penerimaan) {
+      const d1 = new Date(r1.tanggal);
+      const d2 = new Date(r2.tanggal);
+      const diffTime = Math.abs(d2.getTime() - d1.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      if (diffDays <= 3) {
+        warnings.push(`Dugaan penerimaan ganda (${r1.penerimaan}) untuk ${nama_obat} pada ${d1.toISOString().split('T')[0]} & ${d2.toISOString().split('T')[0]}`);
+      }
+    }
+  }
+
+  // 5. Rebuild monthly aggregated rows
+  // Clear months that are no longer valid for this drug
+  const validMy = Array.from(monthYears);
+  if (validMy.length > 0) {
+    // A bit manual because of month-year mapping
+    // We can just fetch current monthly and delete those not in validMy
+    const [currentBulanan] = await conn.query('SELECT bulan, tahun FROM obat_konsumsi_bulanan WHERE obat_id = ?', [obat_id]);
+    for (const b of currentBulanan) {
+      const myStr = b.bulan + '-' + b.tahun;
+      if (!monthYears.has(myStr)) {
+         await conn.query('DELETE FROM obat_konsumsi_bulanan WHERE obat_id = ? AND bulan = ? AND tahun = ?', [obat_id, b.bulan, b.tahun]);
+      }
+    }
+  }
+
+  // Aggregate daily to monthly
+  for (const my of monthYears) {
+    const [mm, yyyy] = my.split('-');
+    const month = parseInt(mm);
+    const year = parseInt(yyyy);
+
+    const [harianBulan] = await conn.query(
+      'SELECT * FROM obat_konsumsi_harian WHERE obat_id = ? AND MONTH(tanggal) = ? AND YEAR(tanggal) = ? ORDER BY tanggal ASC',
+      [obat_id, month, year]
+    );
+
+    if (harianBulan.length > 0) {
+      // The row's stok_awal is the updated one from the iteration above
+      const monthly_stok_awal = harianBulan[0].stok_awal;
+      let sumPenerimaan = 0;
+      let sumPemakaian = 0;
+      let sumRetur = 0;
+      for (const r of harianBulan) {
+        sumPenerimaan += Number(r.penerimaan) || 0;
+        sumPemakaian += Number(r.pemakaian) || 0;
+        sumRetur += Number(r.retur_hilang) || 0;
+      }
+      const monthly_sisa_stok = monthly_stok_awal + sumPenerimaan - sumPemakaian - sumRetur;
+      
+      // we don't have input_by from recalc strictly for monthly, but we can reuse the last row's
+      const lastRow = harianBulan[harianBulan.length - 1];
+      const input_by = lastRow.input_by;
+
+      await conn.query(
+        `INSERT INTO obat_konsumsi_bulanan (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) 
+         ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)`,
+        [obat_id, month, year, monthly_stok_awal, sumPenerimaan, sumPemakaian, sumRetur, monthly_sisa_stok, input_by]
+      );
+    }
+  }
+
+  return { warnings };
+}
+
 app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']), async (req: any, res) => {
-  const { tanggal, obat_id, stok_awal, penerimaan, pemakaian, retur_hilang } = req.body;
+  const { tanggal, obat_id, penerimaan, pemakaian, retur_hilang } = req.body;
   if (!tanggal || !obat_id) {
     return res.status(400).json({ message: 'Informasi obat dan tanggal harus lengkap.' });
   }
 
+  let conn;
   try {
+    conn = await db.getConnection();
+    await conn.beginTransaction();
+
     // Check if medicine exists and has initial balance for the input year
-    const medicines = await db.query('SELECT * FROM obat_master WHERE id = ?', [Number(obat_id)]);
-    if (medicines.length === 0) {
+    const [medicines] = await conn.query('SELECT * FROM obat_master WHERE id = ?', [Number(obat_id)]);
+    if (!medicines || medicines.length === 0) {
+      await conn.rollback();
       return res.status(404).json({ message: 'Obat tidak ditemukan.' });
     }
 
@@ -4042,66 +4194,34 @@ app.post('/api/obat/konsumsi', authenticateToken, roleGuard(['admin', 'farmasi']
     const inputYear = dateObj.getFullYear();
 
     if (!m.saldo_awal_tahun || Number(m.saldo_awal_tahun) !== inputYear) {
+      await conn.rollback();
       return res.status(400).json({ 
         message: `Gagal: Saldo awal tahun ${inputYear} belum diinput untuk obat ${m.nama_obat || ''}. Silakan input saldo awal terlebih dahulu.` 
       });
     }
 
-    // Ambil sisa stok hari sebelumnya sebagai stok_awal yang valid
-    const prevHarian = await db.query(
-      'SELECT sisa_stok FROM obat_konsumsi_harian WHERE obat_id = ? AND tanggal < ? ORDER BY tanggal DESC LIMIT 1',
-      [Number(obat_id), String(tanggal)]
-    );
-    
-    const derivedStokAwal = prevHarian.length > 0
-      ? Number(prevHarian[0].sisa_stok)
-      : Number(m.saldo_awal_nilai || 0);
-
-    const sisa_stok = derivedStokAwal + Number(penerimaan || 0) 
-                      - Number(pemakaian || 0) - Number(retur_hilang || 0);
-
-    // 1. Insert/Update Harian
-    await db.query(
-      'INSERT INTO obat_konsumsi_harian (obat_id, tanggal, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
-      [Number(obat_id), String(tanggal), derivedStokAwal, Number(penerimaan || 0), Number(pemakaian || 0), Number(retur_hilang || 0), sisa_stok, req.user.id]
+    // 1. Insert/Update Harian (Only raw values, let recalc compute stocks)
+    await conn.query(
+      'INSERT INTO obat_konsumsi_harian (obat_id, tanggal, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, 0, ?, ?, ?, 0, ?) ON DUPLICATE KEY UPDATE penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), input_by = VALUES(input_by)',
+      [Number(obat_id), String(tanggal), Number(penerimaan || 0), Number(pemakaian || 0), Number(retur_hilang || 0), req.user.id]
     );
 
-    // 2. Extract bulan & tahun from tanggal
-    const bulan = dateObj.getMonth() + 1;
-    const tahun = dateObj.getFullYear();
+    // 2. Recalculate chain
+    const { warnings } = await recalcObatChain(conn, Number(obat_id));
 
-    // 3. Recalculate monthly values from harian
-    const harianRows = await db.query(
-      'SELECT * FROM obat_konsumsi_harian WHERE obat_id = ? AND MONTH(tanggal) = ? AND YEAR(tanggal) = ? ORDER BY tanggal ASC',
-      [Number(obat_id), bulan, tahun]
-    );
+    await conn.commit();
+    conn.release();
 
-    if (harianRows.length > 0) {
-      const firstRow = harianRows[0];
-      const lastRow = harianRows[harianRows.length - 1];
-
-      const monthly_stok_awal = firstRow.stok_awal;
-      let monthly_penerimaan = 0;
-      let monthly_pemakaian = 0;
-      let monthly_retur_hilang = 0;
-
-      harianRows.forEach((row: any) => {
-        monthly_penerimaan += row.penerimaan;
-        monthly_pemakaian += row.pemakaian;
-        monthly_retur_hilang += row.retur_hilang;
-      });
-
-      const monthly_sisa_stok = lastRow.sisa_stok;
-
-      // 4. Update the monthly aggregated table
-      await db.query(
-        'INSERT INTO obat_konsumsi_bulanan (obat_id, bulan, tahun, stok_awal, penerimaan, pemakaian, retur_hilang, sisa_stok, input_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stok_awal = VALUES(stok_awal), penerimaan = VALUES(penerimaan), pemakaian = VALUES(pemakaian), retur_hilang = VALUES(retur_hilang), sisa_stok = VALUES(sisa_stok), input_by = VALUES(input_by)',
-        [Number(obat_id), bulan, tahun, monthly_stok_awal, monthly_penerimaan, monthly_pemakaian, monthly_retur_hilang, monthly_sisa_stok, req.user.id]
-      );
-    }
-
-    res.json({ success: true, message: 'Laporan harian konsumsi obat berhasil disimpan.', sisa_stok });
+    res.json({ 
+      success: true, 
+      message: 'Laporan harian konsumsi obat berhasil disimpan.', 
+      warnings 
+    });
   } catch (err: any) {
+    if (conn) {
+      await conn.rollback();
+      conn.release();
+    }
     res.status(500).json({ message: err.message });
   }
 });

@@ -996,6 +996,19 @@ export const db = {
   },
 
   // Perform a generic query. If in virtual mode, executes Javascript simulator logic.
+  getConnection: async () => {
+    if (!dbStatusInfo.isVirtual && mysqlPool) {
+      return await mysqlPool.getConnection();
+    }
+    // Dummy connection for virtual mode
+    return {
+      query: async (sqlText, params) => { return [await db.query(sqlText, params)]; },
+      beginTransaction: async () => {},
+      commit: async () => {},
+      rollback: async () => {},
+      release: () => {}
+    };
+  },
   query: async (sqlText: string, params: any[] = []): Promise<any> => {
     if (!dbStatusInfo.isVirtual && mysqlPool) {
       try {
@@ -1421,6 +1434,15 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   // 9.5 PHARMACY CONSUMPTION DAILY
+  
+  if (norm.startsWith('SELECT * FROM obat_konsumsi_harian WHERE obat_id = ? ORDER BY tanggal ASC')) {
+    if (!vdb.obat_konsumsi_harian) vdb.obat_konsumsi_harian = [];
+    const oid = Number(params[0]);
+    const filtered = vdb.obat_konsumsi_harian.filter((x: any) => x.obat_id === oid);
+    filtered.sort((a: any, b: any) => String(a.tanggal).localeCompare(String(b.tanggal)));
+    return filtered;
+  }
+
   if (norm.startsWith('SELECT c.*, o.nama_obat, o.kode_obat, o.harga_satuan, o.lead_time_hari, o.golongan FROM obat_konsumsi_harian c JOIN obat_master o ON c.obat_id = o.id')) {
     if (!vdb.obat_konsumsi_harian) vdb.obat_konsumsi_harian = [];
     let res = vdb.obat_konsumsi_harian.map(c => {
@@ -1444,6 +1466,20 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       res = res.filter(x => x.tanggal >= String(start) && x.tanggal <= String(end));
     }
     return res;
+  }
+
+  
+  if (norm.startsWith('UPDATE obat_konsumsi_harian SET stok_awal = ?, sisa_stok = ? WHERE id = ?')) {
+    const [sawal, sisa, id] = params;
+    if (!vdb.obat_konsumsi_harian) vdb.obat_konsumsi_harian = [];
+    const idx = vdb.obat_konsumsi_harian.findIndex((x: any) => x.id === Number(id));
+    if (idx !== -1) {
+      vdb.obat_konsumsi_harian[idx].stok_awal = Number(sawal);
+      vdb.obat_konsumsi_harian[idx].sisa_stok = Number(sisa);
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
   }
 
   if (norm.includes('INSERT INTO obat_konsumsi_harian') && norm.includes('ON DUPLICATE KEY UPDATE')) {
@@ -1496,6 +1532,31 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     // Sort by tanggal ASC
     filtered.sort((a, b) => a.tanggal.localeCompare(b.tanggal));
     return filtered;
+  }
+
+  
+  if (norm.startsWith('DELETE FROM obat_konsumsi_bulanan WHERE obat_id = ? AND bulan = ? AND tahun = ?')) {
+    const [oid, b, t] = params;
+    if (!vdb.obat_konsumsi_bulanan) vdb.obat_konsumsi_bulanan = [];
+    vdb.obat_konsumsi_bulanan = vdb.obat_konsumsi_bulanan.filter((x: any) => !(x.obat_id === Number(oid) && x.bulan === Number(b) && x.tahun === Number(t)));
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+
+  if (norm.startsWith('DELETE FROM obat_konsumsi_bulanan WHERE obat_id = ?')) {
+    const oid = Number(params[0]);
+    if (!vdb.obat_konsumsi_bulanan) vdb.obat_konsumsi_bulanan = [];
+    vdb.obat_konsumsi_bulanan = vdb.obat_konsumsi_bulanan.filter((x: any) => x.obat_id !== oid);
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+
+  if (norm.startsWith('SELECT bulan, tahun FROM obat_konsumsi_bulanan WHERE obat_id = ?')) {
+    const oid = Number(params[0]);
+    if (!vdb.obat_konsumsi_bulanan) vdb.obat_konsumsi_bulanan = [];
+    return vdb.obat_konsumsi_bulanan.filter((x: any) => x.obat_id === oid).map((x: any) => ({ bulan: x.bulan, tahun: x.tahun }));
   }
 
   if (norm.includes('INSERT INTO obat_konsumsi_bulanan') && norm.includes('ON DUPLICATE KEY UPDATE')) {

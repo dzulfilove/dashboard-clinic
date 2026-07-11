@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
@@ -331,7 +332,7 @@ export default function DashboardLab() {
             <Calendar className="h-4 w-4 text-teal-605 flex-shrink-0" />
             <div className="flex items-center space-x-1">
               <span className="text-slate-400 font-normal text-[9px] uppercase">Dari:</span>
-              <select 
+              <SearchableSelect 
                 id="select-start-month-anal"
                 value={startMonth} 
                 onChange={(e) => setStartMonth(Number(e.target.value))}
@@ -341,8 +342,8 @@ export default function DashboardLab() {
                 {months.map(m => (
                   <option key={m.value} value={m.value}>{m.name}</option>
                 ))}
-              </select>
-              <select 
+              </SearchableSelect>
+              <SearchableSelect 
                 id="select-start-year-anal"
                 value={startYear} 
                 onChange={(e) => setStartYear(Number(e.target.value))}
@@ -352,14 +353,14 @@ export default function DashboardLab() {
                 {years.map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
             
             <span className="text-slate-300">|</span>
             
             <div className="flex items-center space-x-1">
               <span className="text-slate-400 font-normal text-[9px] uppercase">Selesai:</span>
-              <select 
+              <SearchableSelect 
                 id="select-end-month-anal"
                 value={endMonth} 
                 onChange={(e) => setEndMonth(Number(e.target.value))}
@@ -369,8 +370,8 @@ export default function DashboardLab() {
                 {months.map(m => (
                   <option key={m.value} value={m.value}>{m.name}</option>
                 ))}
-              </select>
-              <select 
+              </SearchableSelect>
+              <SearchableSelect 
                 id="select-end-year-anal"
                 value={endYear} 
                 onChange={(e) => setEndYear(Number(e.target.value))}
@@ -380,7 +381,7 @@ export default function DashboardLab() {
                 {years.map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
           </div>
 
