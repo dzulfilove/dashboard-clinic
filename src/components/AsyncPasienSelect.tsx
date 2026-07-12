@@ -41,6 +41,8 @@ export const AsyncPasienSelect: React.FC<AsyncPasienSelectProps> = ({ value, onC
 
   return (
     <AsyncCreatableSelect
+      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+      menuPosition="fixed"
       cacheOptions
       defaultOptions={false}
       loadOptions={loadOptions}
@@ -73,6 +75,10 @@ export const AsyncPasienSelect: React.FC<AsyncPasienSelectProps> = ({ value, onC
           ...base,
           zIndex: 9999,
           fontSize: '0.75rem',
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
         })
       }}
     />

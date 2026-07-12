@@ -269,9 +269,9 @@ export default function AbcAnalysis() {
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-400">
                         #{index + 1}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-xs">
-                          <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">
+                      <td className="px-6 py-4">
+                        <div className="text-xs min-w-[120px] max-w-[250px] whitespace-normal break-words">
+                          <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100 whitespace-nowrap inline-block">
                             {item.kode_obat}
                           </span>
                           <h4 className="font-bold text-slate-900 mt-1.5 text-xs">{item.nama_obat}</h4>

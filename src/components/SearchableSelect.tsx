@@ -22,6 +22,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({ children, on
 
   return (
     <Select
+      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+      menuPosition="fixed"
       value={selectedOption}
       onChange={(selected: any) => {
         if (onChange) {
@@ -55,6 +57,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({ children, on
           ...base,
           zIndex: 9999, // Ensure dropdown is above modals
           fontSize: '0.75rem',
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
         })
       }}
     />
