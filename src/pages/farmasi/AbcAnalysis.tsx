@@ -21,6 +21,7 @@ export default function AbcAnalysis() {
   const [abcData, setAbcData] = useState<AbcItem[]>([]);
   const [totalInvestasi, setTotalInvestasi] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [selectedKelompok, setSelectedKelompok] = useState('ALL');
 
   // Date selectors (defaulting to current month/year target)
   const d = new Date();
@@ -243,10 +244,23 @@ export default function AbcAnalysis() {
           <div 
             className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden anim-fade-up anim-delay-5"
           >
-            <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70">
+            <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">
                 Tabel Urutan Nilai Konsumsi (Pareto Decending)
               </h3>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500 uppercase">Filter Kelompok:</span>
+                <select 
+                  value={selectedKelompok}
+                  onChange={(e) => setSelectedKelompok(e.target.value)}
+                  className="bg-white border border-slate-200 rounded-lg text-xs font-semibold px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500/20 text-slate-700"
+                >
+                  <option value="ALL">Semua Kelas</option>
+                  <option value="A">Kelas A (Prioritas Utama)</option>
+                  <option value="B">Kelas B (Menengah)</option>
+                  <option value="C">Kelas C (Rutin)</option>
+                </select>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
@@ -264,13 +278,17 @@ export default function AbcAnalysis() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/70 text-slate-700 text-xs font-semibold">
-                  {abcData.map((item, index) => (
+                  {abcData
+                    .filter(item => selectedKelompok === 'ALL' || item.klasifikasi === selectedKelompok)
+                    .map((item, index) => {
+                      const globalIndex = abcData.indexOf(item);
+                      return (
                     <tr key={item.obat_id} className="hover:bg-slate-50/70 transition-colors anim-fade-up" style={{ animationDelay: `${0.4 + (index * 0.05)}s` }}>
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-xs font-bold text-slate-400">
-                        #{index + 1}
+                        #{globalIndex + 1}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-xs min-w-[120px] max-w-[250px] whitespace-normal break-words">
+                        <div className="text-xs min-w-[120px] max-w-[140px] lg:max-w-[180px] whitespace-normal break-words">
                           <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100 whitespace-nowrap inline-block">
                             {item.kode_obat}
                           </span>
@@ -313,7 +331,7 @@ export default function AbcAnalysis() {
                         </span>
                       </td>
                     </tr>
-                  ))}
+                  );})}
                 </tbody>
               </table>
             </div>

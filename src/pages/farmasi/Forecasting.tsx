@@ -31,6 +31,7 @@ export default function Forecasting() {
   // Filters & Sorting state
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'need_order' | 'safe'>('all');
+  const [kelasFilter, setKelasFilter] = useState<'ALL' | 'A' | 'B' | 'C'>('ALL');
   const [sortBy, setSortBy] = useState<string>('nama_asc');
 
   const months = [
@@ -238,6 +239,21 @@ export default function Forecasting() {
                 </button>
               </div>
 
+              {/* Class Filter */}
+              <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors shadow-xs">
+                <span className="text-xs font-bold text-slate-500">Kelas:</span>
+                <select 
+                  value={kelasFilter}
+                  onChange={(e) => setKelasFilter(e.target.value as any)}
+                  className="bg-transparent border-none text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL">Semua</option>
+                  <option value="A">Kelas A</option>
+                  <option value="B">Kelas B</option>
+                  <option value="C">Kelas C</option>
+                </select>
+              </div>
+
               {/* Sort Dropdown */}
               <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors shadow-xs">
                 <ArrowUpDown className="h-4 w-4 text-slate-500" />
@@ -288,7 +304,8 @@ export default function Forecasting() {
                         statusFilter === 'all' ||
                         (statusFilter === 'need_order' && needOrder) ||
                         (statusFilter === 'safe' && !needOrder);
-                      return matchesSearch && matchesStatus;
+                      const matchesKelas = kelasFilter === 'ALL' || f.kelas_abc === kelasFilter;
+                      return matchesSearch && matchesStatus && matchesKelas;
                     })
                     .sort((a, b) => {
                       if (sortBy === 'nama_asc') {
