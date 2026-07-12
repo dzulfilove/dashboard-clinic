@@ -297,7 +297,7 @@ export default function ActivityLogs() {
       {/* Filter and search bar card */}
       <div 
         id="logs-filters-container" 
-        className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4 anim-fade-up anim-delay-2"
+        className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-4 anim-fade-up anim-delay-2 relative z-20"
       >
         <div className="flex items-center space-x-2 pb-2">
           <Filter className="h-4 w-4 text-teal-600" />
