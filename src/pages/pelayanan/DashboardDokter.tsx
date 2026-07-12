@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Stethoscope, 
   Users, 
@@ -59,6 +60,23 @@ export default function DashboardDokter() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>(null);
   const [selectedDokter, setSelectedDokter] = useState<any>(null);
+  const [visits, setVisits] = useState<any[]>([]);
+  const [visitsLoading, setVisitsLoading] = useState(false);
+  const [activeDoctorForVisits, setActiveDoctorForVisits] = useState<any>(null);
+
+  const fetchDoctorVisits = async (dokterName: string) => {
+    setVisitsLoading(true);
+    try {
+      const res = await api.get('/laporan/dokter/kunjungan', {
+        params: { dokter: dokterName, startDate, endDate }
+      });
+      setVisits(res.data);
+    } catch (error) {
+      console.error('Failed to fetch doctor visits', error);
+    } finally {
+      setVisitsLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -105,7 +123,8 @@ export default function DashboardDokter() {
   const tersibuk = getDokterTersibuk();
 
   return (
-    <div className="space-y-6">
+    <>
+      <div className="space-y-6">
       {/* SECTION 1 — Header */}
       <div className="bg-white p-6 border border-slate-100 shadow-sm rounded-2xl flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -284,6 +303,27 @@ export default function DashboardDokter() {
                         <tr>
                           <td colSpan={7} className="p-0 border-b border-slate-100">
                             <div className="bg-slate-50/80 p-6 border-t border-slate-100 shadow-inner">
+                              
+                              {/* Header & Action Button */}
+                              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-slate-200/60 pb-4">
+                                <div>
+                                  <h3 className="text-sm font-bold text-slate-800">Analisis Kinerja Dokter: {dokter.nama_dokter}</h3>
+                                  <p className="text-xxs text-slate-500">Rincian aktivitas pelayanan klinis untuk periode terpilih.</p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveDoctorForVisits(dokter);
+                                    fetchDoctorVisits(dokter.nama_dokter);
+                                  }}
+                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+                                >
+                                  <Calendar className="h-3 w-3" />
+                                  Lihat Rincian Kunjungan ({dokter.total_semua})
+                                </button>
+                              </div>
+
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 
                                 {/* Sub-section A: Chart Tren Harian */}
@@ -440,5 +480,144 @@ export default function DashboardDokter() {
         </div>
       </div>
     </div>
+
+      {/* Modal Rincian Kunjungan Dokter */}
+      {activeDoctorForVisits && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in" style={{ pointerEvents: 'auto' }}>
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setActiveDoctorForVisits(null)}
+          />
+          <div 
+            className="relative bg-white w-full max-w-4xl rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh] anim-fade-up z-[10000]"
+            style={{ pointerEvents: 'auto' }}
+          >
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div>
+                <h3 className="text-base font-bold text-slate-800">
+                  Daftar Kunjungan: {activeDoctorForVisits.nama_dokter}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Periode: {formatIndonesianDate(startDate)} s/d {formatIndonesianDate(endDate)}
+                </p>
+              </div>
+              <button 
+                onClick={() => setActiveDoctorForVisits(null)}
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors cursor-pointer"
+              >
+                <span className="sr-only">Tutup</span>
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {visitsLoading ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mb-3" />
+                  <p className="text-xs text-slate-500 font-medium">Memuat daftar kunjungan...</p>
+                </div>
+              ) : visits.length === 0 ? (
+                <div className="text-center py-16">
+                  <Stethoscope className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm font-semibold text-slate-600">Tidak Ada Kunjungan</p>
+                  <p className="text-xs text-slate-400 mt-1">Belum ada kunjungan pelayanan yang tercatat untuk dokter ini pada periode yang dipilih.</p>
+                </div>
+              ) : (
+                <div className="border border-slate-100 rounded-xl overflow-hidden shadow-xs">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50 text-xxs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                          <th className="py-3 px-4 text-center w-12">No</th>
+                          <th className="py-3 px-4">No. Registrasi</th>
+                          <th className="py-3 px-4">No. RM</th>
+                          <th className="py-3 px-4">Nama Pasien</th>
+                          <th className="py-3 px-4">Tanggal</th>
+                          <th className="py-3 px-4 text-center">Tipe</th>
+                          <th className="py-3 px-4">Detail Unit</th>
+                          <th className="py-3 px-4 text-center">ICD-10</th>
+                          <th className="py-3 px-4 text-center">Triase</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {visits.map((visit, index) => {
+                          let triaseBg = 'bg-slate-100 text-slate-700';
+                          let triaseLabel = visit.triase;
+                          if (visit.triase === 'merah') {
+                            triaseBg = 'bg-red-50 text-red-700 border-red-100';
+                            triaseLabel = 'Merah';
+                          } else if (visit.triase === 'kuning') {
+                            triaseBg = 'bg-amber-50 text-amber-700 border-amber-100';
+                            triaseLabel = 'Kuning';
+                          } else if (visit.triase === 'hijau') {
+                            triaseBg = 'bg-emerald-50 text-emerald-700 border-emerald-100';
+                            triaseLabel = 'Hijau';
+                          } else if (visit.triase === 'hitam') {
+                            triaseBg = 'bg-slate-900 text-slate-100 border-slate-800';
+                            triaseLabel = 'Hitam';
+                          }
+
+                          return (
+                            <tr key={index} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="py-2.5 px-4 text-center text-xs text-slate-500 font-medium">{index + 1}</td>
+                              <td className="py-2.5 px-4 text-xs font-semibold text-slate-700">{visit.no_registrasi}</td>
+                              <td className="py-2.5 px-4 text-xs text-slate-600 font-mono">{visit.no_rm}</td>
+                              <td className="py-2.5 px-4 text-xs font-medium text-slate-800">{visit.nama_pasien}</td>
+                              <td className="py-2.5 px-4 text-xs text-slate-600">{formatIndonesianDate(visit.tanggal_pelayanan)}</td>
+                              <td className="py-2.5 px-4 text-center">
+                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  visit.tipe === 'Rawat Jalan' ? 'bg-teal-50 text-teal-700 border border-teal-100' :
+                                  visit.tipe === 'IGD' ? 'bg-orange-50 text-orange-700 border border-orange-100' :
+                                  'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                                }`}>
+                                  {visit.tipe}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-4 text-xs text-slate-600">{visit.info}</td>
+                              <td className="py-2.5 px-4 text-center">
+                                <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded border border-slate-200">
+                                  {visit.icd}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-4 text-center">
+                                {visit.triase ? (
+                                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${triaseBg}`}>
+                                    {triaseLabel}
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-400">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">
+              <div>
+                Total Kunjungan: <span className="font-bold text-slate-700">{visits.length}</span>
+              </div>
+              <button
+                onClick={() => setActiveDoctorForVisits(null)}
+                className="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl cursor-pointer transition-colors shadow-2xs"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }

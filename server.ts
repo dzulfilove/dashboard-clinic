@@ -2547,6 +2547,85 @@ app.get('/api/laporan/dokter', authenticateToken, roleGuard(['admin', 'perawat']
   }
 });
 
+app.get('/api/laporan/dokter/kunjungan', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
+  try {
+    const { dokter, startDate, endDate } = req.query;
+    if (!dokter) {
+      return res.status(400).json({ message: 'Parameter dokter wajib diisi' });
+    }
+    const from = startDate || '1970-01-01';
+    const to = endDate || new Date().toISOString().split('T')[0];
+
+    // Query Rawat Jalan
+    const ralan = await db.query(`
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit, r.icd_kode, r.dpjp
+      FROM registrasi_rawat_jalan r
+      JOIN pasien p ON r.pasien_no_rm = p.no_rm
+      WHERE r.dpjp = ? AND r.tanggal_pelayanan BETWEEN ? AND ?
+    `, [dokter, from, to]);
+
+    // Query IGD
+    const igd = await db.query(`
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode, r.dpjp
+      FROM registrasi_igd r
+      JOIN pasien p ON r.pasien_no_rm = p.no_rm
+      WHERE r.dpjp = ? AND r.tanggal_pelayanan BETWEEN ? AND ?
+    `, [dokter, from, to]);
+
+    // Query Rawat Inap
+    const ranap = await db.query(`
+      SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp
+      FROM registrasi_ranap r
+      JOIN pasien p ON r.pasien_no_rm = p.no_rm
+      WHERE r.dpjp = ? AND r.tanggal_pelayanan BETWEEN ? AND ?
+    `, [dokter, from, to]);
+
+    const formattedRalan = (ralan || []).map((r: any) => ({
+      id: r.id,
+      no_registrasi: r.no_registrasi,
+      no_rm: r.no_rm,
+      nama_pasien: r.nama_pasien,
+      tanggal_pelayanan: r.tanggal_pelayanan,
+      triase: r.triase,
+      tipe: 'Rawat Jalan',
+      info: r.unit || 'Poli Umum',
+      icd: r.icd_kode || '-'
+    }));
+
+    const formattedIgd = (igd || []).map((r: any) => ({
+      id: r.id,
+      no_registrasi: r.no_registrasi,
+      no_rm: r.no_rm,
+      nama_pasien: r.nama_pasien,
+      tanggal_pelayanan: r.tanggal_pelayanan,
+      triase: r.triase,
+      tipe: 'IGD',
+      info: 'IGD',
+      icd: r.icd_kode || '-'
+    }));
+
+    const formattedRanap = (ranap || []).map((r: any) => ({
+      id: r.id,
+      no_registrasi: r.no_registrasi,
+      no_rm: r.no_rm,
+      nama_pasien: r.nama_pasien,
+      tanggal_pelayanan: r.tanggal_pelayanan,
+      triase: r.triase,
+      tipe: 'Rawat Inap',
+      info: r.kamar || 'Ranap',
+      icd: [r.icd_masuk, r.icd_pulang].filter(Boolean).join(' / ') || '-'
+    }));
+
+    const allVisits = [...formattedRalan, ...formattedIgd, ...formattedRanap].sort(
+      (a, b) => new Date(b.tanggal_pelayanan).getTime() - new Date(a.tanggal_pelayanan).getTime()
+    );
+
+    res.json(allVisits);
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Master Wilayah
 app.post('/api/wilayah/kota', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { const { nama } = req.body; if (!nama) throw new Error('Nama kota wajib diisi'); await db.query('INSERT INTO kota (nama) VALUES (?)', [nama]); res.json({ success: true }); } catch (err: any) { res.status(400).json({ message: err.message }); } });
 app.delete('/api/wilayah/kota/:id', authenticateToken, roleGuard(['admin']), async (req: any, res) => { try { await db.query('DELETE FROM kota WHERE id = ?', [req.params.id]); res.json({ success: true }); } catch (err: any) { res.status(500).json({ message: err.message }); } });

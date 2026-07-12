@@ -2035,6 +2035,73 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return { affectedRows: 1 };
   }
 
+  // --- 8.5.1.5 DOKTER VISITS BY DPJP SIMULATION ---
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit, r.icd_kode, r.dpjp FROM registrasi_rawat_jalan r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.dpjp = ?')) {
+    const [dokter, from, to] = params;
+    if (!vdb.registrasi_rawat_jalan) vdb.registrasi_rawat_jalan = [];
+    if (!vdb.pasien) vdb.pasien = [];
+    return vdb.registrasi_rawat_jalan
+      .filter((r: any) => String(r.dpjp || '').toLowerCase() === String(dokter || '').toLowerCase() && r.tanggal_pelayanan >= from && r.tanggal_pelayanan <= to)
+      .map((r: any) => {
+        const p = vdb.pasien.find(pas => String(pas.no_rm).toLowerCase() === String(r.pasien_no_rm).toLowerCase());
+        return {
+          id: r.id,
+          no_registrasi: r.no_registrasi,
+          no_rm: r.pasien_no_rm,
+          nama_pasien: p ? p.nama : 'Pasien',
+          tanggal_pelayanan: r.tanggal_pelayanan,
+          triase: r.triase || 'hijau',
+          unit: r.unit || 'Poli Umum',
+          icd_kode: r.icd_kode || null,
+          dpjp: r.dpjp || null
+        };
+      });
+  }
+
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_kode, r.dpjp FROM registrasi_igd r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.dpjp = ?')) {
+    const [dokter, from, to] = params;
+    if (!vdb.registrasi_igd) vdb.registrasi_igd = [];
+    if (!vdb.pasien) vdb.pasien = [];
+    return vdb.registrasi_igd
+      .filter((r: any) => String(r.dpjp || '').toLowerCase() === String(dokter || '').toLowerCase() && r.tanggal_pelayanan >= from && r.tanggal_pelayanan <= to)
+      .map((r: any) => {
+        const p = vdb.pasien.find(pas => String(pas.no_rm).toLowerCase() === String(r.pasien_no_rm).toLowerCase());
+        return {
+          id: r.id,
+          no_registrasi: r.no_registrasi,
+          no_rm: r.pasien_no_rm,
+          nama_pasien: p ? p.nama : 'Pasien',
+          tanggal_pelayanan: r.tanggal_pelayanan,
+          triase: r.triase || 'hijau',
+          icd_kode: r.icd_kode || null,
+          dpjp: r.dpjp || null
+        };
+      });
+  }
+
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm WHERE r.dpjp = ?')) {
+    const [dokter, from, to] = params;
+    if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
+    if (!vdb.pasien) vdb.pasien = [];
+    return vdb.registrasi_ranap
+      .filter((r: any) => String(r.dpjp || '').toLowerCase() === String(dokter || '').toLowerCase() && r.tanggal_pelayanan >= from && r.tanggal_pelayanan <= to)
+      .map((r: any) => {
+        const p = vdb.pasien.find(pas => String(pas.no_rm).toLowerCase() === String(r.pasien_no_rm).toLowerCase());
+        return {
+          id: r.id,
+          no_registrasi: r.no_registrasi,
+          no_rm: r.pasien_no_rm,
+          nama_pasien: p ? p.nama : 'Pasien',
+          tanggal_pelayanan: r.tanggal_pelayanan,
+          triase: r.triase || 'hijau',
+          icd_masuk: r.icd_masuk || null,
+          icd_pulang: r.icd_pulang || null,
+          kamar: r.kamar || '',
+          dpjp: r.dpjp || null
+        };
+      });
+  }
+
   // --- 8.5.2 REGISTRASI RAWAT JALAN & TINDAKAN RAWAT JALAN SIMULATION ---
   if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase FROM registrasi_rawat_jalan r JOIN pasien p ON r.pasien_no_rm = p.no_rm') ||
       norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.unit FROM registrasi_rawat_jalan r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
