@@ -1081,6 +1081,102 @@ export const db = {
   }
 };
 
+// Helper to filter pasien list in virtual DB simulation
+function filterPasienList(pasienList: any[], norm: string, params: any[], vdb: any): any[] {
+  let list = pasienList.map((p: any) => {
+    const k = vdb.kota ? vdb.kota.find((kt: any) => kt.id === Number(p.kota_id)) : null;
+    const kec = vdb.kecamatan ? vdb.kecamatan.find((kc: any) => kc.id === Number(p.kecamatan_id)) : null;
+    const kel = vdb.kelurahan ? vdb.kelurahan.find((kl: any) => kl.id === Number(p.kelurahan_id)) : null;
+    return {
+      ...p,
+      kota_nama: k ? k.nama : null,
+      kecamatan_nama: kec ? kec.nama : null,
+      kelurahan_nama: kel ? kel.nama : null
+    };
+  });
+
+  // 1. Search Query
+  if (norm.includes('p.nama LIKE ? OR p.no_rm LIKE ?')) {
+    const qVal = params[0]?.replace(/%/g, '')?.toLowerCase() || '';
+    if (qVal) {
+      list = list.filter(p => 
+        (p.nama || '').toLowerCase().includes(qVal) || 
+        (p.no_rm || '').toLowerCase().includes(qVal) || 
+        (p.alamat || '').toLowerCase().includes(qVal)
+      );
+    }
+  }
+
+  // Bind parameter placeholders
+  let currentParamIdx = norm.includes('p.nama LIKE ?') ? 3 : 0;
+
+  if (norm.includes('k.nama = ?')) {
+    const val = params[currentParamIdx++];
+    if (val) {
+      list = list.filter(p => p.kota_nama === val);
+    }
+  }
+  if (norm.includes('kec.nama = ?')) {
+    const val = params[currentParamIdx++];
+    if (val) {
+      list = list.filter(p => p.kecamatan_nama === val);
+    }
+  }
+  if (norm.includes('kel.nama = ?')) {
+    const val = params[currentParamIdx++];
+    if (val) {
+      list = list.filter(p => p.kelurahan_nama === val);
+    }
+  }
+  if (norm.includes('p.jenis_kelamin = ?')) {
+    const val = params[currentParamIdx++];
+    if (val) {
+      list = list.filter(p => p.jenis_kelamin === val);
+    }
+  }
+
+  // Age Group Conditions
+  if (norm.includes('p.tanggal_lahir) / 365.25 < 5')) {
+    list = list.filter(p => {
+      if (!p.tanggal_lahir) return false;
+      const age = (Date.now() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      return age < 5;
+    });
+  } else if (norm.includes('p.tanggal_lahir) / 365.25 BETWEEN 5 AND 11')) {
+    list = list.filter(p => {
+      if (!p.tanggal_lahir) return false;
+      const age = (Date.now() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      return age >= 5 && age <= 11;
+    });
+  } else if (norm.includes('p.tanggal_lahir) / 365.25 BETWEEN 12 AND 17') || norm.includes('p.tanggal_lahir) / 365.25 BETWEEN 12 AND 25')) {
+    list = list.filter(p => {
+      if (!p.tanggal_lahir) return false;
+      const age = (Date.now() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      return age >= 12 && age <= 17;
+    });
+  } else if (norm.includes('p.tanggal_lahir) / 365.25 BETWEEN 18 AND 45') || norm.includes('p.tanggal_lahir) / 365.25 BETWEEN 26 AND 45')) {
+    list = list.filter(p => {
+      if (!p.tanggal_lahir) return false;
+      const age = (Date.now() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      return age >= 18 && age <= 45;
+    });
+  } else if (norm.includes('p.tanggal_lahir) / 365.25 BETWEEN 46 AND 60')) {
+    list = list.filter(p => {
+      if (!p.tanggal_lahir) return false;
+      const age = (Date.now() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      return age >= 46 && age <= 60;
+    });
+  } else if (norm.includes('p.tanggal_lahir) / 365.25 > 60')) {
+    list = list.filter(p => {
+      if (!p.tanggal_lahir) return false;
+      const age = (Date.now() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+      return age > 60;
+    });
+  }
+
+  return list;
+}
+
 // SQL query parser/simulator for critical features
 function simulateSqlQuery(sqlText: string, params: any[]): any {
   const norm = sqlText.replace(/\s+/g, ' ').trim();
@@ -1098,6 +1194,10 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     if (tableName) {
       const data = (vdb as any)[tableName];
       if (Array.isArray(data)) {
+        if (tableName === 'pasien') {
+          const filtered = filterPasienList(data, norm, params, vdb);
+          return [{ [alias]: filtered.length }];
+        }
         if (norm.includes('where pasien_no_rm = ?')) {
           const pasienNoRm = params[0];
           const count = data.filter(item => item.pasien_no_rm === pasienNoRm).length;
@@ -1758,17 +1858,18 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     if (!vdb.kota) vdb.kota = [];
     if (!vdb.kecamatan) vdb.kecamatan = [];
     if (!vdb.kelurahan) vdb.kelurahan = [];
-    return vdb.pasien.map((p: any) => {
-      const k = vdb.kota.find((kt: any) => kt.id === Number(p.kota_id));
-      const kec = vdb.kecamatan.find((kc: any) => kc.id === Number(p.kecamatan_id));
-      const kel = vdb.kelurahan.find((kl: any) => kl.id === Number(p.kelurahan_id));
-      return {
-        ...p,
-        kota_nama: k ? k.nama : null,
-        kecamatan_nama: kec ? kec.nama : null,
-        kelurahan_nama: kel ? kel.nama : null
-      };
-    });
+    
+    let list = filterPasienList(vdb.pasien, norm, params, vdb);
+    
+    // Check for pagination limits
+    if (norm.includes('limit ? offset ?')) {
+      const offsetVal = params[params.length - 1];
+      const limitVal = params[params.length - 2];
+      if (typeof offsetVal === 'number' && typeof limitVal === 'number') {
+        list = list.slice(offsetVal, offsetVal + limitVal);
+      }
+    }
+    return list;
   }
 
   if (norm.startsWith('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id')) {

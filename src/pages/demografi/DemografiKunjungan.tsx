@@ -102,6 +102,33 @@ export default function DemografiKunjungan() {
 
   // Modal / Sidebar history state
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<{ type: 'kota' | 'kecamatan' | 'kelurahan' | 'usia' | 'gender', name: string } | null>(null);
+  const [groupPatients, setGroupPatients] = useState<Patient[]>([]);
+  const [groupLoading, setGroupLoading] = useState(false);
+
+  const handleGroupClick = async (type: 'kota' | 'kecamatan' | 'kelurahan' | 'usia' | 'gender', name: string) => {
+    if (name === 'Tidak Diketahui') return;
+    setSelectedGroup({ type, name });
+    setGroupLoading(true);
+    
+    const params: any = { limit: 100 };
+    if (type === 'usia') {
+      params.kelompok_usia = name;
+    } else if (type === 'gender') {
+      params.jenis_kelamin = name;
+    } else {
+      params[`${type}_nama`] = name;
+    }
+
+    try {
+      const res = await api.get('/pasien', { params });
+      setGroupPatients(res.data?.data || res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch group patients:', err);
+    } finally {
+      setGroupLoading(false);
+    }
+  };
   const [patientHistory, setPatientHistory] = useState<VisitHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
@@ -545,8 +572,8 @@ export default function DemografiKunjungan() {
                       </thead>
                       <tbody className="divide-y divide-slate-55">
                         {byKota.map((item, index) => (
-                          <tr key={index} className="hover:bg-slate-50/40">
-                            <td className="py-2 font-medium text-slate-700">{item.kota}</td>
+                          <tr key={index} className={`hover:bg-slate-50/40 ${item.kota !== 'Tidak Diketahui' ? 'cursor-pointer' : ''}`} onClick={() => item.kota && handleGroupClick('kota', item.kota)}>
+                            <td className="py-2 font-medium text-slate-700 hover:text-teal-600 transition-colors">{item.kota}</td>
                             <td className="py-2 text-right text-slate-600 font-bold">{item.jumlah_pasien}</td>
                             <td className="py-2 text-right text-slate-600 font-bold">{item.jumlah_kunjungan}</td>
                           </tr>
@@ -582,7 +609,7 @@ export default function DemografiKunjungan() {
                         <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
                         <YAxis type="category" dataKey="kecamatan" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
                         <Tooltip />
-                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#0ea5e9" radius={[0, 4, 4, 0]} barSize={16} />
+                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#0ea5e9" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kecamatan && handleGroupClick('kecamatan', data.kecamatan)} cursor="pointer" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -611,7 +638,7 @@ export default function DemografiKunjungan() {
                         <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
                         <YAxis type="category" dataKey="kelurahan" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
                         <Tooltip />
-                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={16} />
+                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kelurahan && handleGroupClick('kelurahan', data.kelurahan)} cursor="pointer" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -654,6 +681,8 @@ export default function DemografiKunjungan() {
                           paddingAngle={3}
                           dataKey="jumlah"
                           nameKey="jenis_kelamin"
+                          onClick={(data: any) => data?.name && handleGroupClick('gender', data.name)}
+                          cursor="pointer"
                         >
                           {byGender.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -700,7 +729,7 @@ export default function DemografiKunjungan() {
                         <XAxis dataKey="kelompok_usia" stroke="#94a3b8" fontSize={11} tickLine={false} />
                         <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
                         <Tooltip />
-                        <Bar dataKey="jumlah" name="Jumlah Pasien" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={34}>
+                        <Bar dataKey="jumlah" name="Jumlah Pasien" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={34} onClick={(data: any) => data?.kelompok_usia && handleGroupClick('usia', data.kelompok_usia)} cursor="pointer">
                           {byAgeGroup.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
@@ -735,6 +764,91 @@ export default function DemografiKunjungan() {
             </motion.div>
           )}
         </AnimatePresence>
+      )}
+
+      {/* Modal Pasien per Wilayah */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedGroup && (
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ pointerEvents: 'auto' }}>
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+                onClick={() => setSelectedGroup(null)}
+              />
+              <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[85vh]"
+            >
+              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-teal-100 text-teal-700 rounded-xl">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold font-display text-slate-800">
+                      Data Pasien
+                    </h3>
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mt-0.5">
+                      {selectedGroup.type === 'kota' ? 'Kota/Kabupaten' : selectedGroup.type === 'kecamatan' ? 'Kecamatan' : selectedGroup.type === 'kelurahan' ? 'Kelurahan' : selectedGroup.type === 'gender' ? 'Jenis Kelamin' : 'Kelompok Usia'}: {selectedGroup.name}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedGroup(null)}
+                  className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-xl transition-colors cursor-pointer"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto flex-1 bg-white">
+                {groupLoading ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600 mb-4"></div>
+                    <p className="text-sm text-slate-500">Memuat data pasien...</p>
+                  </div>
+                ) : groupPatients.length === 0 ? (
+                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
+                    <Users className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500 font-medium">Tidak ada pasien ditemukan di kelompok ini.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
+                    <table className="w-full text-left text-sm border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/80 border-b border-slate-200">
+                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">No. RM</th>
+                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Nama Pasien</th>
+                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">L/P</th>
+                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Usia</th>
+                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Alamat Lengkap</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {groupPatients.map((p, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="py-3 px-4 text-slate-500 font-mono text-xs">{p.no_rm}</td>
+                            <td className="py-3 px-4 font-bold text-slate-800">{p.nama}</td>
+                            <td className="py-3 px-4 text-slate-600">{p.jenis_kelamin}</td>
+                            <td className="py-3 px-4 text-slate-600 text-xs">
+                              {p.tanggal_lahir ? Math.floor((new Date().getTime() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25)) + ' thn' : '-'}
+                            </td>
+                            <td className="py-3 px-4 text-slate-600 text-xs truncate max-w-[200px]" title={p.alamat || '-'}>{p.alamat || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
 
       {/* Patient History Modal Side-Drawer */}

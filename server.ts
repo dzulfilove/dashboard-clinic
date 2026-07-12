@@ -1347,6 +1347,49 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
       params.push(`%${q}%`, `%${q}%`, `%${q}%`);
     }
 
+    if (req.query.kota_nama) {
+      whereClause += (whereClause ? ' AND ' : ' WHERE ') + ' k.nama = ?';
+      params.push(req.query.kota_nama);
+    }
+    if (req.query.kecamatan_nama) {
+      whereClause += (whereClause ? ' AND ' : ' WHERE ') + ' kec.nama = ?';
+      params.push(req.query.kecamatan_nama);
+    }
+    if (req.query.kelurahan_nama) {
+      whereClause += (whereClause ? ' AND ' : ' WHERE ') + ' kel.nama = ?';
+      params.push(req.query.kelurahan_nama);
+    }
+
+    if (req.query.jenis_kelamin) {
+      const jk = req.query.jenis_kelamin === 'Laki-laki' || req.query.jenis_kelamin === 'L' ? 'L' : req.query.jenis_kelamin === 'Perempuan' || req.query.jenis_kelamin === 'P' ? 'P' : '';
+      if (jk) {
+        whereClause += (whereClause ? ' AND ' : ' WHERE ') + ' p.jenis_kelamin = ?';
+        params.push(jk);
+      }
+    }
+    
+    if (req.query.kelompok_usia) {
+      const usia = req.query.kelompok_usia;
+      let ageCondition = '';
+      if (usia === 'Balita (<5 thn)' || usia === 'Balita (0-5 thn)') {
+        ageCondition = 'DATEDIFF(CURRENT_DATE, p.tanggal_lahir) / 365.25 < 5';
+      } else if (usia === 'Anak-anak (5-11 thn)' || usia === 'Kanak-kanak (5-11 thn)') {
+        ageCondition = 'DATEDIFF(CURRENT_DATE, p.tanggal_lahir) / 365.25 BETWEEN 5 AND 11';
+      } else if (usia === 'Remaja (12-17 thn)' || usia === 'Remaja (12-25 thn)') {
+        ageCondition = 'DATEDIFF(CURRENT_DATE, p.tanggal_lahir) / 365.25 BETWEEN 12 AND 17';
+      } else if (usia === 'Dewasa (18-45 thn)' || usia === 'Dewasa (26-45 thn)') {
+        ageCondition = 'DATEDIFF(CURRENT_DATE, p.tanggal_lahir) / 365.25 BETWEEN 18 AND 45';
+      } else if (usia === 'Paruh Baya (46-60 thn)') {
+        ageCondition = 'DATEDIFF(CURRENT_DATE, p.tanggal_lahir) / 365.25 BETWEEN 46 AND 60';
+      } else if (usia === 'Lansia (>60 thn)') {
+        ageCondition = 'DATEDIFF(CURRENT_DATE, p.tanggal_lahir) / 365.25 > 60';
+      }
+
+      if (ageCondition) {
+        whereClause += (whereClause ? ' AND ' : ' WHERE ') + ageCondition;
+      }
+    }
+
     if (page === undefined && limit === undefined && req.query.all !== 'false') {
       // Return raw array for backward compatibility
       let sql = 'SELECT p.*, k.nama as kota_nama, kec.nama as kecamatan_nama, kel.nama as kelurahan_nama FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id';
@@ -1371,7 +1414,7 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
     const offset = (p - 1) * lim;
 
     // Count query for pagination
-    const countSql = 'SELECT COUNT(*) as total FROM pasien p' + whereClause;
+    const countSql = 'SELECT COUNT(*) as total FROM pasien p LEFT JOIN kota k ON p.kota_id = k.id LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id' + whereClause;
     const countResult = await db.query(countSql, params);
     const total = countResult[0]?.total || 0;
 
