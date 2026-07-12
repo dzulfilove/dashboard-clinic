@@ -7,6 +7,7 @@ import { useAuthStore } from './store/authStore.js';
 import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import PageTransition from './components/PageTransition.js';
+import { prefetchRoutes } from './routePrefetch.js';
 const InteractiveGuide = lazy(() => import('./components/InteractiveGuide.js'));
 
 // Pages
@@ -42,6 +43,13 @@ export default function App() {
     // Read cached login sessions on load
     initialize();
   }, [initialize]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      prefetchRoutes();
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <Router>
