@@ -164,7 +164,7 @@ export default function DashboardDokter() {
           <button 
             onClick={fetchData}
             disabled={loading}
-            className="w-full sm:w-auto bg-teal-600 text-white rounded-xl text-xs font-medium px-5 py-2 hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full sm:w-auto bg-teal-600 text-white rounded-xl text-[12px] font-medium px-5 py-2 hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
           >
             {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Lihat'}
           </button>
@@ -290,7 +290,7 @@ export default function DashboardDokter() {
                         <td className="px-4 py-3 text-xs font-semibold text-teal-700 text-center bg-teal-50/50">{dokter.total_semua}</td>
                         <td className="px-4 py-3 text-right">
                           <button 
-                            className={`inline-flex items-center justify-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${isSelected ? 'bg-teal-100 text-teal-800' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
+                            className={`inline-flex items-center justify-center gap-1 text-[12px] font-medium px-3 py-1.5 rounded-lg transition-colors ${isSelected ? 'bg-teal-100 text-teal-800' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'}`}
                           >
                             Detail
                             {isSelected ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
@@ -317,7 +317,7 @@ export default function DashboardDokter() {
                                     setActiveDoctorForVisits(dokter);
                                     fetchDoctorVisits(dokter.nama_dokter);
                                   }}
-                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
+                                  className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[12px] font-bold shadow-xs transition-colors cursor-pointer self-start sm:self-auto"
                                 >
                                   <Calendar className="h-3 w-3" />
                                   Lihat Rincian Kunjungan ({dokter.total_semua})
@@ -483,28 +483,30 @@ export default function DashboardDokter() {
 
       {/* Modal Rincian Kunjungan Dokter */}
       {activeDoctorForVisits && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in" style={{ pointerEvents: 'auto' }}>
+        <>
+          {/* Sibling Backdrop to ensure full screen coverage */}
           <div 
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[19999] transition-opacity pointer-events-auto"
             onClick={() => setActiveDoctorForVisits(null)}
           />
+          
           <div 
-            className="relative bg-white w-full max-w-4xl rounded-2xl shadow-xl border border-slate-100 overflow-hidden flex flex-col max-h-[85vh] anim-fade-up z-[10000]"
-            style={{ pointerEvents: 'auto' }}
+            className="fixed inset-0 m-auto w-full max-w-4xl h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col z-[20000] pointer-events-auto"
           >
             {/* Header */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
                 <h3 className="text-base font-bold text-slate-800">
                   Daftar Kunjungan: {activeDoctorForVisits.nama_dokter}
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-[11px] text-slate-500">
                   Periode: {formatIndonesianDate(startDate)} s/d {formatIndonesianDate(endDate)}
                 </p>
               </div>
               <button 
                 onClick={() => setActiveDoctorForVisits(null)}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors cursor-pointer flex items-center justify-center"
+                style={{ minHeight: '36px', minWidth: '36px' }}
               >
                 <span className="sr-only">Tutup</span>
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -603,19 +605,19 @@ export default function DashboardDokter() {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-3.5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">
+            <div className="px-6 py-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
               <div>
                 Total Kunjungan: <span className="font-bold text-slate-700">{visits.length}</span>
               </div>
               <button
                 onClick={() => setActiveDoctorForVisits(null)}
-                className="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl cursor-pointer transition-colors shadow-2xs"
+                className="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl cursor-pointer transition-colors shadow-2xs text-[12px]"
               >
                 Tutup
               </button>
             </div>
           </div>
-        </div>,
+        </>,
         document.body
       )}
     </>

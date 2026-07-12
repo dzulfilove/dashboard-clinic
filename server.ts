@@ -1674,6 +1674,70 @@ app.post('/api/waha-config', authenticateToken, roleGuard(['admin', 'perawat']),
   // initWahaCron(); // Restart the cron with new config
   res.json({ message: 'Config updated successfully', config: getWahaConfig() });
 });
+
+async function sendWhatsappViaWaha(no_telp: string, message: string) {
+  if (!no_telp || !message) {
+    throw new Error('Nomor telepon (no_telp) dan pesan (message) wajib diisi.');
+  }
+
+  // 1. Format phone number: remove any non-digit chars
+  let cleanPhone = no_telp.replace(/\D/g, '');
+  // If it starts with 0, replace with 62
+  if (cleanPhone.startsWith('0')) {
+    cleanPhone = '62' + cleanPhone.substring(1);
+  }
+  // Ensure it ends with @c.us
+  const chatId = cleanPhone.includes('@') ? cleanPhone : `${cleanPhone}@c.us`;
+
+  const wahaUrl = process.env.WAHA_URL || 'https://waha.purimedikabdl.com/';
+  const session = process.env.WAHA_SESSION || 'default';
+  const apiToken = process.env.WAHA_API_TOKEN || 'mysecretkeyPuryMedik4123';
+
+  // Headers
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+  if (apiToken) {
+    headers['X-Api-Key'] = apiToken;
+  }
+
+  // Delay helper
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  // A) Start typing
+  try {
+    await axios.post(`${wahaUrl}api/startTyping`, {
+      session: session,
+      chatId: chatId
+    }, { headers, timeout: 5000 });
+  } catch (err: any) {
+    console.error('WAHA startTyping error:', err.response?.data || err.message);
+  }
+
+  // B) Wait 2 seconds (typing simulation)
+  await delay(2000);
+
+  // C) Stop typing
+  try {
+    await axios.post(`${wahaUrl}api/stopTyping`, {
+      session: session,
+      chatId: chatId
+    }, { headers, timeout: 5000 });
+  } catch (err: any) {
+    console.error('WAHA stopTyping error:', err.response?.data || err.message);
+  }
+
+  // D) Send Text message
+  const sendResponse = await axios.post(`${wahaUrl}api/sendText`, {
+    session: session,
+    chatId: chatId,
+    text: message
+  }, { headers, timeout: 10000 });
+
+  return sendResponse.data;
+}
+
 app.post('/api/followup-vaksin/send-whatsapp', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id, no_telp, message } = req.body;
 
@@ -1682,60 +1746,7 @@ app.post('/api/followup-vaksin/send-whatsapp', authenticateToken, roleGuard(['ad
   }
 
   try {
-    // 1. Format phone number: remove any non-digit chars
-    let cleanPhone = no_telp.replace(/\D/g, '');
-    // If it starts with 0, replace with 62
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '62' + cleanPhone.substring(1);
-    }
-    // Ensure it ends with @c.us
-    const chatId = cleanPhone.includes('@') ? cleanPhone : `${cleanPhone}@c.us`;
-
-    const wahaUrl = process.env.WAHA_URL || 'https://waha.purimedikabdl.com/';
-    const session = process.env.WAHA_SESSION || 'default';
-    const apiToken = process.env.WAHA_API_TOKEN || 'mysecretkeyPuryMedik4123';
-
-    // Headers
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-    if (apiToken) {
-      headers['X-Api-Key'] = apiToken;
-    }
-
-    // Delay helper
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-    // A) Start typing
-    try {
-      await axios.post(`${wahaUrl}api/startTyping`, {
-        session: session,
-        chatId: chatId
-      }, { headers, timeout: 5000 });
-    } catch (err: any) {
-      console.error('WAHA startTyping error:', err.response?.data || err.message);
-    }
-
-    // B) Wait 2 seconds (typing simulation)
-    await delay(2000);
-
-    // C) Stop typing
-    try {
-      await axios.post(`${wahaUrl}api/stopTyping`, {
-        session: session,
-        chatId: chatId
-      }, { headers, timeout: 5000 });
-    } catch (err: any) {
-      console.error('WAHA stopTyping error:', err.response?.data || err.message);
-    }
-
-    // D) Send Text message
-    const sendResponse = await axios.post(`${wahaUrl}api/sendText`, {
-      session: session,
-      chatId: chatId,
-      text: message
-    }, { headers, timeout: 10000 });
+    const data = await sendWhatsappViaWaha(no_telp, message);
 
     // 2. If id is provided, update the status in database
     if (id) {
@@ -1751,7 +1762,7 @@ app.post('/api/followup-vaksin/send-whatsapp', authenticateToken, roleGuard(['ad
       );
     }
 
-    res.json({ success: true, data: sendResponse.data });
+    res.json({ success: true, data });
   } catch (err: any) {
     console.error('Error sending WhatsApp via WAHA:', err.response?.data || err.message);
     res.status(500).json({ 
@@ -1963,9 +1974,24 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
         .filter(item => item.jumlah > 0);
 
       // Return unified response
+      const loyalList = vdb.pasien_loyal || [];
+      const loyalRMs = loyalList
+        .filter((pl: any) => pl.status === 'aktif')
+        .map((pl: any) => String(pl.pasien_no_rm).toLowerCase());
+
+      const topAllTimeWithLoyal = topAllTime.map((p: any) => ({
+        ...p,
+        is_loyal: loyalRMs.includes(String(p.no_rm).toLowerCase())
+      }));
+
+      const topPeriodWithLoyal = topPeriod.map((p: any) => ({
+        ...p,
+        is_loyal: loyalRMs.includes(String(p.no_rm).toLowerCase())
+      }));
+
       return res.json({
-        topAllTime,
-        topPeriod,
+        topAllTime: topAllTimeWithLoyal,
+        topPeriod: topPeriodWithLoyal,
         byKota,
         byKecamatan,
         byKelurahan,
@@ -2118,9 +2144,22 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
       `);
       const byAgeGroup = Array.isArray(dbAgeGroup) ? dbAgeGroup : [];
 
+      const loyalRows: any = await db.query("SELECT pasien_no_rm FROM pasien_loyal WHERE status = 'aktif'");
+      const loyalRMs = (Array.isArray(loyalRows) ? loyalRows : []).map((row: any) => String(row.pasien_no_rm).toLowerCase());
+
+      const topAllTimeWithLoyal = (Array.isArray(topAllTime) ? topAllTime : []).map((p: any) => ({
+        ...p,
+        is_loyal: loyalRMs.includes(String(p.no_rm).toLowerCase())
+      }));
+
+      const topPeriodWithLoyal = (Array.isArray(topPeriod) ? topPeriod : []).map((p: any) => ({
+        ...p,
+        is_loyal: loyalRMs.includes(String(p.no_rm).toLowerCase())
+      }));
+
       return res.json({
-        topAllTime,
-        topPeriod,
+        topAllTime: topAllTimeWithLoyal,
+        topPeriod: topPeriodWithLoyal,
         byKota,
         byKecamatan,
         byKelurahan,
@@ -2161,6 +2200,280 @@ app.get('/api/pelayanan/demografi/loyal-pasien/:no_rm', authenticateToken, async
         ORDER BY tanggal_pelayanan DESC
       `, [no_rm, no_rm, no_rm]);
       res.json(history);
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- NEW PASIEN LOYAL ENDPOINTS ---
+
+// GET /api/pelayanan/demografi/loyal -> daftar pasien loyal (join snapshot + status)
+app.get('/api/pelayanan/demografi/loyal', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  try {
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      const plList = vdb.pasien_loyal || [];
+      const patients = vdb.pasien || [];
+      // Join with patients for latest names and numbers
+      const list = plList.map((pl: any) => {
+        const p = patients.find((pas: any) => String(pas.no_rm) === String(pl.pasien_no_rm));
+        return {
+          ...pl,
+          pasien_nama: p ? p.nama : pl.pasien_nama,
+          no_telp: p ? p.no_telp : pl.no_telp
+        };
+      });
+      res.json(list);
+    } else {
+      const list = await db.query(`
+        SELECT pl.*, IFNULL(p.nama, pl.pasien_nama) as pasien_nama, IFNULL(p.no_telp, pl.no_telp) as no_telp
+        FROM pasien_loyal pl
+        LEFT JOIN pasien p ON pl.pasien_no_rm = p.no_rm
+        ORDER BY pl.tanggal_ditetapkan DESC
+      `);
+      res.json(list);
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/pelayanan/demografi/loyal -> bulk insert/upsert status loyal
+app.post('/api/pelayanan/demografi/loyal', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  try {
+    const { pasien_list, catatan } = req.body;
+    if (!pasien_list || !Array.isArray(pasien_list) || pasien_list.length === 0) {
+      return res.status(400).json({ message: 'pasien_list wajib diisi dan berupa array tidak kosong.' });
+    }
+
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    const userId = req.user?.id || null;
+    const userEmail = req.user?.email || 'unknown';
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+
+      for (const item of pasien_list) {
+        const existingIdx = vdb.pasien_loyal.findIndex((pl: any) => String(pl.pasien_no_rm) === String(item.no_rm));
+        if (existingIdx !== -1) {
+          vdb.pasien_loyal[existingIdx] = {
+            ...vdb.pasien_loyal[existingIdx],
+            pasien_nama: item.nama,
+            no_telp: item.no_telp,
+            total_kunjungan_snapshot: item.total_visits || item.total_kunjungan || 0,
+            catatan: catatan || null,
+            status: 'aktif',
+            ditetapkan_oleh: userId,
+            tanggal_ditetapkan: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          };
+        } else {
+          const maxId = vdb.pasien_loyal.length > 0 ? Math.max(...vdb.pasien_loyal.map((pl: any) => pl.id)) : 0;
+          vdb.pasien_loyal.push({
+            id: maxId + 1,
+            pasien_no_rm: item.no_rm,
+            pasien_nama: item.nama,
+            no_telp: item.no_telp,
+            total_kunjungan_snapshot: item.total_visits || item.total_kunjungan || 0,
+            catatan: catatan || null,
+            status: 'aktif',
+            ditetapkan_oleh: userId,
+            tanggal_ditetapkan: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+        }
+      }
+      writeVirtualDb(vdb);
+    } else {
+      for (const item of pasien_list) {
+        await db.query(`
+          INSERT INTO pasien_loyal (pasien_no_rm, pasien_nama, no_telp, total_kunjungan_snapshot, catatan, status, ditetapkan_oleh, tanggal_ditetapkan)
+          VALUES (?, ?, ?, ?, ?, 'aktif', ?, NOW())
+          ON DUPLICATE KEY UPDATE 
+            pasien_nama = VALUES(pasien_nama),
+            no_telp = VALUES(no_telp),
+            total_kunjungan_snapshot = VALUES(total_kunjungan_snapshot),
+            catatan = VALUES(catatan),
+            status = 'aktif',
+            ditetapkan_oleh = VALUES(ditetapkan_oleh),
+            tanggal_ditetapkan = NOW()
+        `, [
+          item.no_rm, 
+          item.nama, 
+          item.no_telp || null, 
+          item.total_visits || item.total_kunjungan || 0, 
+          catatan || null, 
+          userId
+        ]);
+      }
+    }
+
+    // Tulis ke user_logs
+    const rms = pasien_list.map((p: any) => p.no_rm).join(', ');
+    await logActivity(userEmail, 'CREATE', 'Pasien Loyal', `Menetapkan bulk pasien loyal: ${rms}`);
+
+    res.json({ success: true, message: 'Berhasil menetapkan pasien loyal.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// DELETE /api/pelayanan/demografi/loyal/:no_rm -> cabut status loyal (set status 'nonaktif')
+app.delete('/api/pelayanan/demografi/loyal/:no_rm', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  try {
+    const { no_rm } = req.params;
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    const userEmail = req.user?.email || 'unknown';
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+      const idx = vdb.pasien_loyal.findIndex((pl: any) => String(pl.pasien_no_rm) === String(no_rm));
+      if (idx !== -1) {
+        vdb.pasien_loyal[idx].status = 'nonaktif';
+        vdb.pasien_loyal[idx].updated_at = new Date().toISOString();
+        writeVirtualDb(vdb);
+      }
+    } else {
+      await db.query("UPDATE pasien_loyal SET status = 'nonaktif' WHERE pasien_no_rm = ?", [no_rm]);
+    }
+
+    // Tulis ke user_logs
+    await logActivity(userEmail, 'DELETE', 'Pasien Loyal', `Mencabut status loyal pasien: ${no_rm}`);
+
+    res.json({ success: true, message: 'Berhasil mencabut status loyal pasien.' });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/pelayanan/demografi/loyal/send-whatsapp -> kirim WA individual & log ke pasien_loyal_pesan
+app.post('/api/pelayanan/demografi/loyal/send-whatsapp', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  const { no_rm, no_telp, message } = req.body;
+  if (!no_rm || !no_telp || !message) {
+    return res.status(400).json({ message: 'no_rm, no_telp, dan message wajib diisi.' });
+  }
+
+  const isVirtual = db.getDiagnosticStatus().isVirtual;
+  const userId = req.user?.id || null;
+
+  try {
+    let status = 'terkirim';
+    let wahaResponse = null;
+    try {
+      const resWaha = await sendWhatsappViaWaha(no_telp, message);
+      wahaResponse = JSON.stringify(resWaha);
+    } catch (err: any) {
+      status = 'gagal';
+      wahaResponse = err.message;
+    }
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.pasien_loyal_pesan) vdb.pasien_loyal_pesan = [];
+      const maxId = vdb.pasien_loyal_pesan.length > 0 ? Math.max(...vdb.pasien_loyal_pesan.map((p: any) => p.id)) : 0;
+      vdb.pasien_loyal_pesan.push({
+        id: maxId + 1,
+        pasien_no_rm: no_rm,
+        no_telp,
+        message,
+        status,
+        waha_response: wahaResponse,
+        sent_by: userId,
+        sent_at: new Date().toISOString()
+      });
+      writeVirtualDb(vdb);
+    } else {
+      await db.query(
+        'INSERT INTO pasien_loyal_pesan (pasien_no_rm, no_telp, message, status, waha_response, sent_by) VALUES (?, ?, ?, ?, ?, ?)',
+        [no_rm, no_telp, message, status, wahaResponse, userId]
+      );
+    }
+
+    res.json({ success: status === 'terkirim', status, message: status === 'terkirim' ? 'WhatsApp berhasil dikirim.' : 'WhatsApp gagal dikirim.', error: wahaResponse });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/pelayanan/demografi/loyal/broadcast -> kirim WA massal sekuensial & log
+app.post('/api/pelayanan/demografi/loyal/broadcast', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  const { items } = req.body;
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ message: 'items wajib berupa array tidak kosong.' });
+  }
+
+  const isVirtual = db.getDiagnosticStatus().isVirtual;
+  const userId = req.user?.id || null;
+  let successCount = 0;
+  let failCount = 0;
+
+  try {
+    for (const item of items) {
+      const { no_rm, no_telp, message } = item;
+      let status = 'terkirim';
+      let wahaResponse = null;
+      try {
+        const resWaha = await sendWhatsappViaWaha(no_telp, message);
+        wahaResponse = JSON.stringify(resWaha);
+        successCount++;
+      } catch (err: any) {
+        status = 'gagal';
+        wahaResponse = err.message;
+        failCount++;
+      }
+
+      if (isVirtual) {
+        const vdb = readVirtualDb();
+        if (!vdb.pasien_loyal_pesan) vdb.pasien_loyal_pesan = [];
+        const maxId = vdb.pasien_loyal_pesan.length > 0 ? Math.max(...vdb.pasien_loyal_pesan.map((p: any) => p.id)) : 0;
+        vdb.pasien_loyal_pesan.push({
+          id: maxId + 1,
+          pasien_no_rm: no_rm,
+          no_telp,
+          message,
+          status,
+          waha_response: wahaResponse,
+          sent_by: userId,
+          sent_at: new Date().toISOString()
+        });
+        writeVirtualDb(vdb);
+      } else {
+        await db.query(
+          'INSERT INTO pasien_loyal_pesan (pasien_no_rm, no_telp, message, status, waha_response, sent_by) VALUES (?, ?, ?, ?, ?, ?)',
+          [no_rm, no_telp, message, status, wahaResponse, userId]
+        );
+      }
+    }
+
+    res.json({ success: true, successCount, failCount });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /api/pelayanan/demografi/loyal/:no_rm/pesan -> riwayat pesan per pasien
+app.get('/api/pelayanan/demografi/loyal/:no_rm/pesan', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  try {
+    const { no_rm } = req.params;
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      const list = (vdb.pasien_loyal_pesan || [])
+        .filter((p: any) => String(p.pasien_no_rm) === String(no_rm))
+        .sort((a: any, b: any) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime());
+      res.json(list);
+    } else {
+      const list = await db.query(
+        'SELECT * FROM pasien_loyal_pesan WHERE pasien_no_rm = ? ORDER BY sent_at DESC',
+        [no_rm]
+      );
+      res.json(list);
     }
   } catch (err: any) {
     res.status(500).json({ message: err.message });

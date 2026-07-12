@@ -222,7 +222,9 @@ async function runMigrationsIfRequired() {
       !tableList.includes('dokter') ||
       !tableList.includes('kota') ||
       !tableList.includes('kecamatan') ||
-      !tableList.includes('kelurahan')
+      !tableList.includes('kelurahan') ||
+      !tableList.includes('pasien_loyal') ||
+      !tableList.includes('pasien_loyal_pesan')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -429,6 +431,55 @@ async function runMigrationsIfRequired() {
         } catch (err: any) {
           console.warn('Failed to ensure followup_vaksin table:', err.message);
         }
+
+        // Direct check for pasien_loyal table to ensure it exists
+        try {
+          const [loyalTable]: any = await mysqlPool.query("SHOW TABLES LIKE 'pasien_loyal'");
+          if (loyalTable.length === 0) {
+            console.log('Explicitly creating missing pasien_loyal table...');
+            await mysqlPool.query(`
+              CREATE TABLE IF NOT EXISTS pasien_loyal (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                pasien_no_rm VARCHAR(20) NOT NULL UNIQUE,
+                pasien_nama VARCHAR(150),
+                no_telp VARCHAR(20) DEFAULT NULL,
+                total_kunjungan_snapshot INT DEFAULT 0,
+                catatan TEXT DEFAULT NULL,
+                status ENUM('aktif','nonaktif') DEFAULT 'aktif',
+                ditetapkan_oleh INT DEFAULT NULL,
+                tanggal_ditetapkan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            `);
+            console.log('pasien_loyal table created successfully.');
+          }
+        } catch (err: any) {
+          console.warn('Failed to ensure pasien_loyal table:', err.message);
+        }
+
+        // Direct check for pasien_loyal_pesan table to ensure it exists
+        try {
+          const [pesanTable]: any = await mysqlPool.query("SHOW TABLES LIKE 'pasien_loyal_pesan'");
+          if (pesanTable.length === 0) {
+            console.log('Explicitly creating missing pasien_loyal_pesan table...');
+            await mysqlPool.query(`
+              CREATE TABLE IF NOT EXISTS pasien_loyal_pesan (
+                id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                pasien_no_rm VARCHAR(20) NOT NULL,
+                no_telp VARCHAR(20),
+                message TEXT,
+                status ENUM('terkirim','gagal') DEFAULT 'terkirim',
+                waha_response TEXT DEFAULT NULL,
+                sent_by INT DEFAULT NULL,
+                sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            `);
+            console.log('pasien_loyal_pesan table created successfully.');
+          }
+        } catch (err: any) {
+          console.warn('Failed to ensure pasien_loyal_pesan table:', err.message);
+        }
       } catch (colErr: any) {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);
       }
@@ -578,6 +629,8 @@ interface VirtualDatabase {
   kecamatan?: any[];
   kelurahan?: any[];
   followup_vaksin?: any[];
+  pasien_loyal?: any[];
+  pasien_loyal_pesan?: any[];
 }
 
 function initVirtualDb() {
@@ -1014,6 +1067,14 @@ export function readVirtualDb(): VirtualDatabase {
         created_at: new Date().toISOString()
       }
     ];
+    updated = true;
+  }
+  if (!data.pasien_loyal) {
+    data.pasien_loyal = [];
+    updated = true;
+  }
+  if (!data.pasien_loyal_pesan) {
+    data.pasien_loyal_pesan = [];
     updated = true;
   }
   if (updated) {

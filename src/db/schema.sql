@@ -355,5 +355,31 @@ CREATE TABLE IF NOT EXISTS followup_vaksin (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS pasien_loyal (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  pasien_no_rm VARCHAR(20) NOT NULL UNIQUE,
+  pasien_nama VARCHAR(150),
+  no_telp VARCHAR(20) DEFAULT NULL,
+  total_kunjungan_snapshot INT DEFAULT 0,
+  catatan TEXT DEFAULT NULL,
+  status ENUM('aktif','nonaktif') DEFAULT 'aktif',
+  ditetapkan_oleh INT DEFAULT NULL,
+  tanggal_ditetapkan TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS pasien_loyal_pesan (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  pasien_no_rm VARCHAR(20) NOT NULL,
+  no_telp VARCHAR(20),
+  message TEXT,
+  status ENUM('terkirim','gagal') DEFAULT 'terkirim',
+  waha_response TEXT DEFAULT NULL,
+  sent_by INT DEFAULT NULL,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 
 
