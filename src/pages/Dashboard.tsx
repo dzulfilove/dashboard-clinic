@@ -145,23 +145,29 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
-          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
           style={{ willChange: 'transform, opacity' }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
-              <FlaskConical className="h-6 w-6" />
+          <div>
+            <div className="flex items-center gap-3 text-white mb-5">
+              <FlaskConical className="h-5 w-5" />
+              <h3 className="font-semibold text-lg tracking-tight">Laboratorium</h3>
             </div>
-            <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
-              Bulan Ini
-            </span>
+            
+            <div className="text-white/90 text-sm mb-3">
+              <span className="font-bold text-xl mr-2">{loading ? '...' : totalLabExaminations}</span> 
+              <span className="text-xs opacity-80">(Bulan ini)</span>
+            </div>
+            
+            <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
+              <div className="bg-white h-2.5 rounded-full" style={{ width: '75%' }}></div>
+            </div>
           </div>
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">{loading ? '...' : totalLabExaminations}</h3>
-            <p className="text-xxs font-normal text-slate-500 mt-1">Total Pemeriksaan Laboratorium</p>
-          </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+
+          <button className="w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
+            Lihat Rekapitulasi
+          </button>
         </motion.div>
 
         {/* KPI 2 - Medications Catalog */}
@@ -169,23 +175,29 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
-          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
           style={{ willChange: 'transform, opacity' }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
-              <Pill className="h-6 w-6" />
+          <div>
+            <div className="flex items-center gap-3 text-white mb-5">
+              <Pill className="h-5 w-5" />
+              <h3 className="font-semibold text-lg tracking-tight">Katalog Obat</h3>
             </div>
-            <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
-              Katalog
-            </span>
+            
+            <div className="text-white/90 text-sm mb-3">
+              <span className="font-bold text-xl mr-2">{loading ? '...' : medicines.length}</span> 
+              <span className="text-xs opacity-80">(Item aktif)</span>
+            </div>
+            
+            <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
+              <div className="bg-white h-2.5 rounded-full" style={{ width: '85%' }}></div>
+            </div>
           </div>
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">{loading ? '...' : medicines.length}</h3>
-            <p className="text-xxs font-normal text-slate-500 mt-1">Item Obat Aktif</p>
-          </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+
+          <button className="w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
+            Kelola Obat
+          </button>
         </motion.div>
 
         {/* KPI 3 - Low Stock Pharmacy alerts */}
@@ -193,25 +205,29 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
-          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
           style={{ willChange: 'transform, opacity' }}
-          className={`bg-white/70 backdrop-blur-md rounded-2xl p-5 border shadow-sm relative overflow-hidden group transition-all ${criticalItems.length > 0 ? 'border-rose-100 ring-2 ring-rose-500/10' : 'border-slate-100'}`}
+          className={`bg-gradient-to-br backdrop-blur-xl rounded-2xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between ${criticalItems.length > 0 ? 'from-rose-800/80 to-rose-700/80 border-rose-400/40 ring-2 ring-rose-500/20' : 'from-emerald-800/80 to-teal-700/80 border-white/20'}`}
         >
-          <div className="flex items-center justify-between">
-            <div className={`p-3 rounded-xl group-hover:scale-105 transition-transform ${criticalItems.length > 0 ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'}`}>
-              <AlertTriangle className="h-6 w-6" />
+          <div>
+            <div className="flex items-center gap-3 text-white mb-5">
+              <AlertTriangle className={`h-5 w-5 ${criticalItems.length > 0 ? 'animate-pulse' : ''}`} />
+              <h3 className="font-semibold text-lg tracking-tight">Stok Kritis</h3>
             </div>
-            <span className={`text-[10px] font-mono font-medium px-2.5 py-0.5 rounded-full ${criticalItems.length > 0 ? 'bg-rose-100 text-rose-800 animate-pulse' : 'bg-emerald-100 text-emerald-800'}`}>
-              {criticalItems.length > 0 ? 'Kritis' : 'Normal'}
-            </span>
+            
+            <div className="text-white/90 text-sm mb-3">
+              <span className="font-bold text-xl mr-2">{loading ? '...' : criticalItems.length}</span> 
+              <span className="text-xs opacity-80">(Di bawah ROP)</span>
+            </div>
+            
+            <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
+              <div className={`h-2.5 rounded-full ${criticalItems.length > 0 ? 'bg-white' : 'bg-white/50'}`} style={{ width: criticalItems.length > 0 ? '100%' : '10%' }}></div>
+            </div>
           </div>
-          <div className="mt-4">
-            <h3 className={`text-xl font-semibold tracking-tight font-display ${criticalItems.length > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
-              {loading ? '...' : criticalItems.length}
-            </h3>
-            <p className="text-xxs font-normal text-slate-500 mt-1">Obat Dibawah Reorder Point</p>
-          </div>
-          <div className={`absolute bottom-0 inset-x-0 h-1 ${criticalItems.length > 0 ? 'bg-rose-600' : 'bg-emerald-600'}`}></div>
+
+          <button className={`w-full py-2.5 px-4 rounded-full border text-xs font-medium transition-colors ${criticalItems.length > 0 ? 'border-white text-white hover:bg-white hover:text-rose-700' : 'border-white/30 text-white hover:bg-white/10'}`}>
+            {criticalItems.length > 0 ? 'Lihat Peringatan' : 'Stok Aman'}
+          </button>
         </motion.div>
 
         {/* KPI 4 - Staff / Accounts */}
@@ -219,25 +235,29 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
-          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+          whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
           style={{ willChange: 'transform, opacity' }}
-          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all"
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-slate-50 text-slate-700 rounded-xl group-hover:scale-105 transition-transform">
-              <User className="h-6 w-6" />
+          <div>
+            <div className="flex items-center gap-3 text-white mb-5">
+              <User className="h-5 w-5" />
+              <h3 className="font-semibold text-lg tracking-tight">Akses Petugas</h3>
             </div>
-            <span className="text-[10px] font-mono font-medium bg-slate-100/80 text-slate-800 px-2.5 py-0.5 rounded-full">
-              Petugas
-            </span>
+            
+            <div className="text-white/90 text-sm mb-3">
+              <span className="font-bold text-xl mr-2">{loading ? '...' : (user?.role === 'admin' ? userAccounts.length : 'Aktif')}</span> 
+              <span className="text-xs opacity-80">(Akun terdaftar)</span>
+            </div>
+            
+            <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
+              <div className="bg-white h-2.5 rounded-full" style={{ width: '40%' }}></div>
+            </div>
           </div>
-          <div className="mt-4">
-            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-              {loading ? '...' : (user?.role === 'admin' ? userAccounts.length : 'Aktif')}
-            </h3>
-            <p className="text-xxs font-normal text-slate-500 mt-1">Akun Akses Terdaftar</p>
-          </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-600"></div>
+
+          <button className="w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
+            Kelola Akses
+          </button>
         </motion.div>
       </div>
 

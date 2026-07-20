@@ -2806,6 +2806,108 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     return { affectedRows: 1 };
   }
 
+  // --- PASIEN LOYAL SIMULATION ---
+  if (norm.startsWith('SELECT pasien_no_rm FROM pasien_loyal WHERE status = \'aktif\'') || norm.startsWith('SELECT pasien_no_rm FROM pasien_loyal WHERE status = "aktif"')) {
+    if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+    return vdb.pasien_loyal
+      .filter((pl: any) => pl.status === 'aktif')
+      .map((pl: any) => ({ pasien_no_rm: pl.pasien_no_rm }));
+  }
+
+  if (norm.includes('FROM pasien_loyal pl') || norm.includes('FROM pasien_loyal WHERE') || norm.includes('SELECT * FROM pasien_loyal')) {
+    if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+    const patients = vdb.pasien || [];
+    const list = vdb.pasien_loyal.map((pl: any) => {
+      const p = patients.find((pas: any) => String(pas.no_rm) === String(pl.pasien_no_rm));
+      return {
+        ...pl,
+        pasien_nama: p ? p.nama : pl.pasien_nama,
+        no_telp: p ? p.no_telp : pl.no_telp
+      };
+    });
+    list.sort((a: any, b: any) => new Date(b.tanggal_ditetapkan).getTime() - new Date(a.tanggal_ditetapkan).getTime());
+    return list;
+  }
+
+  if (norm.startsWith('INSERT INTO pasien_loyal')) {
+    const [pasien_no_rm, pasien_nama, no_telp, total_kunjungan_snapshot, catatan, ditetapkan_oleh] = params;
+    if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+    const existingIdx = vdb.pasien_loyal.findIndex((pl: any) => String(pl.pasien_no_rm) === String(pasien_no_rm));
+    if (existingIdx !== -1) {
+      vdb.pasien_loyal[existingIdx] = {
+        ...vdb.pasien_loyal[existingIdx],
+        pasien_nama,
+        no_telp,
+        total_kunjungan_snapshot: Number(total_kunjungan_snapshot || 0),
+        catatan,
+        status: 'aktif',
+        ditetapkan_oleh,
+        tanggal_ditetapkan: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    } else {
+      const maxId = vdb.pasien_loyal.length > 0 ? Math.max(...vdb.pasien_loyal.map((pl: any) => pl.id)) : 0;
+      vdb.pasien_loyal.push({
+        id: maxId + 1,
+        pasien_no_rm,
+        pasien_nama,
+        no_telp,
+        total_kunjungan_snapshot: Number(total_kunjungan_snapshot || 0),
+        catatan,
+        status: 'aktif',
+        ditetapkan_oleh,
+        tanggal_ditetapkan: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+    }
+    writeVirtualDb(vdb);
+    return { affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE pasien_loyal SET status = \'nonaktif\' WHERE pasien_no_rm = ?') || norm.startsWith('UPDATE pasien_loyal SET status = "nonaktif" WHERE pasien_no_rm = ?')) {
+    const pasien_no_rm = params[0];
+    if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+    const idx = vdb.pasien_loyal.findIndex((pl: any) => String(pl.pasien_no_rm) === String(pasien_no_rm));
+    if (idx !== -1) {
+      vdb.pasien_loyal[idx].status = 'nonaktif';
+      vdb.pasien_loyal[idx].updated_at = new Date().toISOString();
+      writeVirtualDb(vdb);
+      return { affectedRows: 1 };
+    }
+    return { affectedRows: 0 };
+  }
+
+  // --- PASIEN LOYAL PESAN (WA LOGS) SIMULATION ---
+  if (norm.includes('FROM pasien_loyal_pesan WHERE pasien_no_rm = ?') || norm.includes('FROM pasien_loyal_pesan')) {
+    const pasien_no_rm = params[0];
+    if (!vdb.pasien_loyal_pesan) vdb.pasien_loyal_pesan = [];
+    const list = pasien_no_rm 
+      ? vdb.pasien_loyal_pesan.filter((p: any) => String(p.pasien_no_rm) === String(pasien_no_rm))
+      : vdb.pasien_loyal_pesan;
+    list.sort((a: any, b: any) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime());
+    return list;
+  }
+
+  if (norm.startsWith('INSERT INTO pasien_loyal_pesan')) {
+    const [pasien_no_rm, no_telp, message, status, waha_response, sent_by] = params;
+    if (!vdb.pasien_loyal_pesan) vdb.pasien_loyal_pesan = [];
+    const maxId = vdb.pasien_loyal_pesan.length > 0 ? Math.max(...vdb.pasien_loyal_pesan.map((p: any) => p.id)) : 0;
+    const newRecord = {
+      id: maxId + 1,
+      pasien_no_rm,
+      no_telp,
+      message,
+      status: status || 'terkirim',
+      waha_response,
+      sent_by,
+      sent_at: new Date().toISOString()
+    };
+    vdb.pasien_loyal_pesan.push(newRecord);
+    writeVirtualDb(vdb);
+    return { insertId: maxId + 1, affectedRows: 1 };
+  }
+
   // Fallback defaults for unrecognized queries
   console.log('Unrecognized virtual query fallback simulation:', sqlText.substring(0, 80));
   return [];

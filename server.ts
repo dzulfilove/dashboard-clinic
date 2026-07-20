@@ -279,35 +279,48 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     return res.status(429).json({ message: 'Terlalu banyak permintaan OTP. Tunggu 1 menit sebelum mencoba lagi.' });
   }
 
-  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
-    return res.status(500).json({ 
-      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable (silakan definisikan BASEROW_API_TOKEN, BASEROW_TABLE_URL, dan BASEROW_BASE_URL).'
-    });
-  }
+  let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
+  let userRow;
 
   try {
-    // Fetch all rows from Baserow table 936
-    const url = BASEROW_TABLE_URL;
-    let userRow;
-    let usersFromVirtual: any[] = [];
-    let isVirtual = false;
+    if (!isVirtual) {
+      try {
+        const url = BASEROW_TABLE_URL!;
+        const response = await axios.get(url, {
+          headers: {
+            'Authorization': `Token ${BASEROW_API_TOKEN}`,
+            'Accept': 'application/json'
+          },
+          timeout: 5000
+        });
+        const rows = response.data.results || [];
+        userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
+      } catch (err: any) {
+        console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
+        isVirtual = true;
+      }
+    }
 
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Token ${BASEROW_API_TOKEN}`,
-          'Accept': 'application/json'
-        },
-        timeout: 5000
-      });
-      const rows = response.data.results || [];
-      userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
-    } catch (err: any) {
-      console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
-      isVirtual = true;
+    if (isVirtual) {
       const vdb = readVirtualDb();
-      usersFromVirtual = vdb.users || [];
+      const usersFromVirtual = vdb.users || [];
       userRow = usersFromVirtual.find((u: any) => u.email && u.email.toLowerCase().trim() === email.toLowerCase().trim());
+
+      if (!userRow) {
+        console.log(`Email ${email} not found in virtual database during send-otp. Dynamically adding as virtual admin user...`);
+        const maxId = usersFromVirtual.length > 0 ? Math.max(...usersFromVirtual.map((u: any) => u.id || 0)) : 0;
+        const newVirtualUser = {
+          id: maxId + 1,
+          nama: email.split('@')[0].split(/[._-]/).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') || 'User Puri Medika',
+          email: email.toLowerCase().trim(),
+          role: 'admin',
+          divisi: 'IT',
+          created_at: new Date().toISOString()
+        };
+        vdb.users.push(newVirtualUser);
+        writeVirtualDb(vdb);
+        userRow = newVirtualUser;
+      }
     }
 
     if (!userRow) {
@@ -372,33 +385,48 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
     return res.status(400).json({ message: 'Email dan Kode OTP wajib diisi.' });
   }
 
-  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
-    return res.status(500).json({ 
-      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable (silakan definisikan BASEROW_API_TOKEN, BASEROW_TABLE_URL, dan BASEROW_BASE_URL).'
-    });
-  }
+  let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
+  let userRow;
 
   try {
-    // Fetch all rows from Baserow table 936
-    const url = BASEROW_TABLE_URL;
-    let userRow;
-    let isVirtual = false;
+    if (!isVirtual) {
+      try {
+        const url = BASEROW_TABLE_URL!;
+        const response = await axios.get(url, {
+          headers: {
+            'Authorization': `Token ${BASEROW_API_TOKEN}`,
+            'Accept': 'application/json'
+          },
+          timeout: 5000
+        });
+        const rows = response.data.results || [];
+        userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
+      } catch (err: any) {
+        console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
+        isVirtual = true;
+      }
+    }
 
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          'Authorization': `Token ${BASEROW_API_TOKEN}`,
-          'Accept': 'application/json'
-        },
-        timeout: 5000
-      });
-      const rows = response.data.results || [];
-      userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
-    } catch (err: any) {
-      console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
-      isVirtual = true;
+    if (isVirtual) {
       const vdb = readVirtualDb();
       userRow = (vdb.users || []).find((u: any) => u.email && u.email.toLowerCase().trim() === email.toLowerCase().trim());
+
+      if (!userRow) {
+        console.log(`Email ${email} not found in virtual database during verify-otp. Dynamically adding as virtual admin user...`);
+        const maxId = vdb.users && vdb.users.length > 0 ? Math.max(...vdb.users.map((u: any) => u.id || 0)) : 0;
+        const newVirtualUser = {
+          id: maxId + 1,
+          nama: email.split('@')[0].split(/[._-]/).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') || 'User Puri Medika',
+          email: email.toLowerCase().trim(),
+          role: 'admin',
+          divisi: 'IT',
+          created_at: new Date().toISOString()
+        };
+        if (!vdb.users) vdb.users = [];
+        vdb.users.push(newVirtualUser);
+        writeVirtualDb(vdb);
+        userRow = newVirtualUser;
+      }
     }
 
     if (!userRow) {
@@ -5032,45 +5060,70 @@ app.get('/api/admin/logs', authenticateToken, roleGuard(['admin']), async (req: 
 
 app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req, res) => {
   const { q, role } = req.query;
-  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
-    return res.status(500).json({ 
-      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
-    });
-  }
-  try {
-    const url = BASEROW_TABLE_URL;
-    const response = await axios.get(url, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Accept': 'application/json'
-      }
-    });
-    const rows = response.data.results || [];
-    const formattedUsers = rows.map((r: any) => {
-      const uRole = helperExtractRole(r.Peran, r.Divisi);
-      
-      let divStr = '';
-      if (r.Divisi) {
-        if (typeof r.Divisi === 'string') {
-          divStr = r.Divisi;
-        } else if (Array.isArray(r.Divisi)) {
-          divStr = r.Divisi.map((d: any) => (d && typeof d === 'object') ? (d.value || d.name) : String(d)).join(' ');
-        } else if (typeof r.Divisi === 'object' && r.Divisi !== null) {
-          divStr = r.Divisi.value || r.Divisi.name || JSON.stringify(r.Divisi);
-        } else {
-          divStr = String(r.Divisi);
-        }
-      }
+  let rows: any[] = [];
+  let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
 
-      return {
-        id: r.id,
-        nama: r['Nama Karyawan'] || 'Karyawan Puri Medika',
-        email: r.Email || '',
-        role: uRole,
-        divisi: divStr || 'IT',
-        created_at: r['Created At'] || new Date().toISOString()
-      };
-    });
+  if (!isVirtual) {
+    try {
+      const url = BASEROW_TABLE_URL!;
+      const response = await axios.get(url, {
+        headers: {
+          'Authorization': `Token ${BASEROW_API_TOKEN}`,
+          'Accept': 'application/json'
+        },
+        timeout: 5000
+      });
+      rows = response.data.results || [];
+    } catch (err: any) {
+      console.warn('Failed to fetch users from Baserow, falling back to virtual_db.json:', err.message);
+      isVirtual = true;
+    }
+  }
+
+  try {
+    let formattedUsers: any[] = [];
+
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      const vusers = vdb.users || [];
+      formattedUsers = vusers.map((u: any) => {
+        const uRole = helperExtractRole(u.role || u.Peran, u.divisi || u.Divisi);
+        return {
+          id: u.id,
+          nama: u.nama || u['Nama Karyawan'] || 'Karyawan Puri Medika',
+          email: u.email || u.Email || '',
+          role: uRole,
+          divisi: u.divisi || u.Divisi || 'IT',
+          created_at: u.created_at || u['Created At'] || new Date().toISOString()
+        };
+      });
+    } else {
+      formattedUsers = rows.map((r: any) => {
+        const uRole = helperExtractRole(r.Peran, r.Divisi);
+        
+        let divStr = '';
+        if (r.Divisi) {
+          if (typeof r.Divisi === 'string') {
+            divStr = r.Divisi;
+          } else if (Array.isArray(r.Divisi)) {
+            divStr = r.Divisi.map((d: any) => (d && typeof d === 'object') ? (d.value || d.name) : String(d)).join(' ');
+          } else if (typeof r.Divisi === 'object' && r.Divisi !== null) {
+            divStr = r.Divisi.value || r.Divisi.name || JSON.stringify(r.Divisi);
+          } else {
+            divStr = String(r.Divisi);
+          }
+        }
+
+        return {
+          id: r.id,
+          nama: r['Nama Karyawan'] || 'Karyawan Puri Medika',
+          email: r.Email || '',
+          role: uRole,
+          divisi: divStr || 'IT',
+          created_at: r['Created At'] || new Date().toISOString()
+        };
+      });
+    }
 
     let filteredUsers = formattedUsers;
     if (q) {
@@ -5090,8 +5143,8 @@ app.get('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req,
 
     res.json(filteredUsers);
   } catch (err: any) {
-    console.error('Failed to fetch users from Baserow:', err.message);
-    res.status(500).json({ message: `Gagal mengambil data pengguna dari Baserow: ${err.message}` });
+    console.error('Failed to process users list:', err.message);
+    res.status(500).json({ message: `Gagal mengambil data pengguna: ${err.message}` });
   }
 });
 
@@ -5101,52 +5154,74 @@ app.post('/api/admin/users', authenticateToken, roleGuard(['admin']), async (req
     return res.status(400).json({ message: 'Input pendaftaran akun tidak lengkap.' });
   }
 
-  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
-    return res.status(500).json({ 
-      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
-    });
+  let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
+
+  let divisiVal = 'IT';
+  let peranVal = 'admin';
+  if (role === 'lab' || role === 'analis') {
+    divisiVal = 'Laboratorium';
+    peranVal = 'analis';
+  } else if (role === 'perawat') {
+    divisiVal = 'Laboratorium';
+    peranVal = 'perawat';
+  } else if (role === 'farmasi') {
+    divisiVal = 'Farmasi';
+    peranVal = 'farmasi';
+  } else if (role === 'admin') {
+    divisiVal = 'IT';
+    peranVal = 'admin';
   }
 
-  try {
-    let divisiVal = 'IT';
-    let peranVal = 'admin';
-    if (role === 'lab' || role === 'analis') {
-      divisiVal = 'Laboratorium';
-      peranVal = 'analis';
-    } else if (role === 'perawat') {
-      divisiVal = 'Laboratorium';
-      peranVal = 'perawat';
-    } else if (role === 'farmasi') {
-      divisiVal = 'Farmasi';
-      peranVal = 'farmasi';
-    } else if (role === 'admin') {
-      divisiVal = 'IT';
-      peranVal = 'admin';
+  if (!isVirtual) {
+    try {
+      const payload = {
+        'Nama Karyawan': nama,
+        'Email': email,
+        'Divisi': divisiVal,
+        'Peran': peranVal,
+        'OTP 2': '',
+        'OTP 2 Expired': null
+      };
+
+      const postUrl = `${BASEROW_BASE_URL}/?user_field_names=true`;
+      await axios.post(postUrl, payload, {
+        headers: {
+          'Authorization': `Token ${BASEROW_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000
+      });
+
+      return res.json({ success: true, message: 'Akun petugas baru berhasil didaftarkan langsung ke Baserow!' });
+    } catch (err: any) {
+      console.warn('Failed to create user in Baserow, falling back to virtual_db.json:', err.message);
+      isVirtual = true;
     }
+  }
 
-    const payload = {
-      'Nama Karyawan': nama,
-      'Email': email,
-      'Divisi': divisiVal,
-      'Peran': peranVal,
-      'OTP 2': '',
-      'OTP 2 Expired': null
-    };
-
-    const postUrl = `${BASEROW_BASE_URL}/?user_field_names=true`;
-    await axios.post(postUrl, payload, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Content-Type': 'application/json'
+  if (isVirtual) {
+    try {
+      const vdb = readVirtualDb();
+      if (!vdb.users) vdb.users = [];
+      const existing = vdb.users.find((u: any) => u.email && u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        return res.status(400).json({ message: 'Alamat email sudah terdaftar.' });
       }
-    });
 
-    res.json({ success: true, message: 'Akun petugas baru berhasil didaftarkan langsung ke Baserow!' });
-  } catch (err: any) {
-    console.error('Failed to create user in Baserow:', err.response?.data || err.message);
-    res.status(500).json({ 
-      message: `Gagal mendaftarkan akun di Baserow: ${JSON.stringify(err.response?.data) || err.message}` 
-    });
+      const maxId = vdb.users.length > 0 ? Math.max(...vdb.users.map((u: any) => u.id || 0)) : 0;
+      vdb.users.push({
+        id: maxId + 1,
+        nama,
+        email,
+        role: peranVal,
+        divisi: divisiVal,
+        created_at: new Date().toISOString()
+      });
+      writeVirtualDb(vdb);
+      return res.json({ success: true, message: 'Akun petugas baru berhasil didaftarkan ke database virtual!' });
+    } catch (err: any) {
+      return res.status(500).json({ message: `Gagal mendaftarkan akun di database virtual: ${err.message}` });
+    }
   }
 });
 
@@ -5154,50 +5229,70 @@ app.put('/api/admin/users/:id', authenticateToken, roleGuard(['admin']), async (
   const { id } = req.params;
   const { nama, email, role } = req.body;
 
-  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
-    return res.status(500).json({ 
-      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
-    });
+  let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
+
+  let divisiVal = 'IT';
+  let peranVal = 'admin';
+  if (role === 'lab' || role === 'analis') {
+    divisiVal = 'Laboratorium';
+    peranVal = 'analis';
+  } else if (role === 'perawat') {
+    divisiVal = 'Laboratorium';
+    peranVal = 'perawat';
+  } else if (role === 'farmasi') {
+    divisiVal = 'Farmasi';
+    peranVal = 'farmasi';
+  } else if (role === 'admin') {
+    divisiVal = 'IT';
+    peranVal = 'admin';
   }
 
-  try {
-    let divisiVal = 'IT';
-    let peranVal = 'admin';
-    if (role === 'lab' || role === 'analis') {
-      divisiVal = 'Laboratorium';
-      peranVal = 'analis';
-    } else if (role === 'perawat') {
-      divisiVal = 'Laboratorium';
-      peranVal = 'perawat';
-    } else if (role === 'farmasi') {
-      divisiVal = 'Farmasi';
-      peranVal = 'farmasi';
-    } else if (role === 'admin') {
-      divisiVal = 'IT';
-      peranVal = 'admin';
+  if (!isVirtual) {
+    try {
+      const payload = {
+        'Nama Karyawan': nama,
+        'Email': email,
+        'Divisi': divisiVal,
+        'Peran': peranVal
+      };
+
+      const patchUrl = `${BASEROW_BASE_URL}/${id}/?user_field_names=true`;
+      await axios.patch(patchUrl, payload, {
+        headers: {
+          'Authorization': `Token ${BASEROW_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000
+      });
+
+      return res.json({ success: true, message: 'Akun berhasil diperbarui langsung ke Baserow.' });
+    } catch (err: any) {
+      console.warn('Failed to update user in Baserow, falling back to virtual_db.json:', err.message);
+      isVirtual = true;
     }
+  }
 
-    const payload = {
-      'Nama Karyawan': nama,
-      'Email': email,
-      'Divisi': divisiVal,
-      'Peran': peranVal
-    };
-
-    const patchUrl = `${BASEROW_BASE_URL}/${id}/?user_field_names=true`;
-    await axios.patch(patchUrl, payload, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`,
-        'Content-Type': 'application/json'
+  if (isVirtual) {
+    try {
+      const vdb = readVirtualDb();
+      if (!vdb.users) vdb.users = [];
+      const idx = vdb.users.findIndex((u: any) => String(u.id) === String(id));
+      if (idx !== -1) {
+        vdb.users[idx] = {
+          ...vdb.users[idx],
+          nama,
+          email,
+          role: peranVal,
+          divisi: divisiVal
+        };
+        writeVirtualDb(vdb);
+        return res.json({ success: true, message: 'Akun berhasil diperbarui di database virtual.' });
+      } else {
+        return res.status(404).json({ message: 'User tidak ditemukan di database virtual.' });
       }
-    });
-
-    res.json({ success: true, message: 'Akun berhasil diperbarui langsung ke Baserow.' });
-  } catch (err: any) {
-    console.error('Failed to update user in Baserow:', err.response?.data || err.message);
-    res.status(500).json({ 
-      message: `Gagal memperbarui akun di Baserow: ${JSON.stringify(err.response?.data) || err.message}` 
-    });
+    } catch (err: any) {
+      return res.status(500).json({ message: `Gagal memperbarui akun di database virtual: ${err.message}` });
+    }
   }
 });
 
@@ -5207,25 +5302,39 @@ app.delete('/api/admin/users/:id', authenticateToken, roleGuard(['admin']), asyn
     return res.status(400).json({ message: 'Anda tidak dapat menghapus akun Anda sendiri.' });
   }
 
-  if (!BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL) {
-    return res.status(500).json({ 
-      message: 'Konfigurasi integrasi Baserow belum lengkap di environment variable.'
-    });
+  let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
+
+  if (!isVirtual) {
+    try {
+      const deleteUrl = `${BASEROW_BASE_URL}/${id}/`;
+      await axios.delete(deleteUrl, {
+        headers: {
+          'Authorization': `Token ${BASEROW_API_TOKEN}`
+        },
+        timeout: 5000
+      });
+      return res.json({ success: true, message: 'Akun petugas berhasil dihapus dari Baserow.' });
+    } catch (err: any) {
+      console.warn('Failed to delete user in Baserow, falling back to virtual_db.json:', err.message);
+      isVirtual = true;
+    }
   }
 
-  try {
-    const deleteUrl = `${BASEROW_BASE_URL}/${id}/`;
-    await axios.delete(deleteUrl, {
-      headers: {
-        'Authorization': `Token ${BASEROW_API_TOKEN}`
+  if (isVirtual) {
+    try {
+      const vdb = readVirtualDb();
+      if (!vdb.users) vdb.users = [];
+      const idx = vdb.users.findIndex((u: any) => String(u.id) === String(id));
+      if (idx !== -1) {
+        vdb.users.splice(idx, 1);
+        writeVirtualDb(vdb);
+        return res.json({ success: true, message: 'Akun petugas berhasil dihapus dari database virtual.' });
+      } else {
+        return res.status(404).json({ message: 'User tidak ditemukan di database virtual.' });
       }
-    });
-    res.json({ success: true, message: 'Akun petugas berhasil dihapus dari Baserow.' });
-  } catch (err: any) {
-    console.error('Failed to delete user in Baserow:', err.response?.data || err.message);
-    res.status(500).json({ 
-      message: `Gagal menghapus akun di Baserow: ${JSON.stringify(err.response?.data) || err.message}` 
-    });
+    } catch (err: any) {
+      return res.status(500).json({ message: `Gagal menghapus akun di database virtual: ${err.message}` });
+    }
   }
 });
 

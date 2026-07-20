@@ -1027,14 +1027,14 @@ export default function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.08 }}
-                  className="bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center space-x-4"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-teal-50 text-teal-600">
+                  <div className="p-3 rounded-xl bg-white/20 text-white">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-slate-400 font-bold">Total Wilayah Kota</h4>
-                    <span className="text-xl font-extrabold font-display text-slate-850">
+                    <h4 className="text-xxs uppercase tracking-wider text-white/80 font-bold">Total Wilayah Kota</h4>
+                    <span className="text-xl font-extrabold font-display text-white">
                       {byKota.filter(c => c.kota !== 'Tidak Diketahui').length} Kota/Kab
                     </span>
                   </div>
@@ -1043,14 +1043,14 @@ export default function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.16 }}
-                  className="bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center space-x-4"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600">
+                  <div className="p-3 rounded-xl bg-white/20 text-white">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-slate-400 font-bold">Total Kecamatan</h4>
-                    <span className="text-xl font-extrabold font-display text-slate-850">
+                    <h4 className="text-xxs uppercase tracking-wider text-white/80 font-bold">Total Kecamatan</h4>
+                    <span className="text-xl font-extrabold font-display text-white">
                       {byKecamatan.filter(k => k.kecamatan !== 'Tidak Diketahui').length} Kecamatan
                     </span>
                   </div>
@@ -1059,14 +1059,14 @@ export default function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.24 }}
-                  className="bg-white p-5 rounded-2xl border border-slate-100/80 shadow-sm flex items-center space-x-4"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-sky-50 text-sky-600">
+                  <div className="p-3 rounded-xl bg-white/20 text-white">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-slate-400 font-bold">Total Kelurahan</h4>
-                    <span className="text-xl font-extrabold font-display text-slate-850">
+                    <h4 className="text-xxs uppercase tracking-wider text-white/80 font-bold">Total Kelurahan</h4>
+                    <span className="text-xl font-extrabold font-display text-white">
                       {byKelurahan.filter(k => k.kelurahan !== 'Tidak Diketahui').length} Kelurahan
                     </span>
                   </div>

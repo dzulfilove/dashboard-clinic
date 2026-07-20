@@ -465,24 +465,24 @@ export default function DashboardLab() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.16 }}
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
             >
               <div className="flex items-center justify-between">
-                <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                   <FlaskConical className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                   Volume Total
                 </span>
               </div>
               <div className="mt-4">
-                <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                   {loading ? '...' : totalExams}
                 </h3>
-                <p className="text-xxs font-normal text-slate-500 mt-1">Total Pengujian Rentang Terpilih</p>
+                <p className="text-xxs font-normal text-white/80 mt-1">Total Pengujian Rentang Terpilih</p>
               </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
             </motion.div>
 
             {/* KPI: Highest category or parameter */}
@@ -490,34 +490,34 @@ export default function DashboardLab() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.24 }}
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
             >
               <div className="flex items-center justify-between">
-                <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
-                  <Award className="h-6 w-6 text-emerald-600" />
+                <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                  <Award className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
                   <span>Puncak</span>
-                  <ArrowUp className="h-2.5 w-2.5 text-emerald-600 inline" />
+                  <ArrowUp className="h-2.5 w-2.5 inline" />
                 </span>
               </div>
               <div className="mt-4">
                 {loading ? (
-                  <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">...</h3>
+                  <h3 className="text-xl font-semibold text-white tracking-tight font-display">...</h3>
                 ) : peakParameter ? (
                   <div>
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display truncate leading-tight">
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate leading-tight">
                       {peakParameter.nama_parameter}
                     </h3>
-                    <p className="text-xxs font-mono text-emerald-600 font-bold mt-1">{peakParameter.jumlah} Uji</p>
+                    <p className="text-xxs font-mono text-emerald-200 font-bold mt-1">{peakParameter.jumlah} Uji</p>
                   </div>
                 ) : (
-                  <h3 className="text-sm font-semibold text-slate-400 tracking-tight font-display mt-1">Belum ada data</h3>
+                  <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Belum ada data</h3>
                 )}
-                <p className="text-xxs font-normal text-slate-500 mt-1">Parameter Volume Tertinggi</p>
+                <p className="text-xxs font-normal text-white/80 mt-1">Parameter Volume Tertinggi</p>
               </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
             </motion.div>
 
             {/* KPI: Lowest Parameter count */}
@@ -525,34 +525,34 @@ export default function DashboardLab() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.32 }}
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-              className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
+              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
             >
               <div className="flex items-center justify-between">
-                <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
-                  <Award className="h-6 w-6 text-amber-600" />
+                <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                  <Award className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
                   <span>Terendah</span>
-                  <ArrowDown className="h-2.5 w-2.5 text-amber-600 inline" />
+                  <ArrowDown className="h-2.5 w-2.5 inline" />
                 </span>
               </div>
               <div className="mt-4">
                 {loading ? (
-                  <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">...</h3>
+                  <h3 className="text-xl font-semibold text-white tracking-tight font-display">...</h3>
                 ) : lowParameter ? (
                   <div>
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display truncate leading-tight">
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate leading-tight">
                       {lowParameter.nama_parameter}
                     </h3>
-                    <p className="text-xxs font-mono text-amber-600 font-bold mt-1">{lowParameter.jumlah} Uji</p>
+                    <p className="text-xxs font-mono text-amber-200 font-bold mt-1">{lowParameter.jumlah} Uji</p>
                   </div>
                 ) : (
-                  <h3 className="text-sm font-semibold text-slate-400 tracking-tight font-display mt-1">Belum ada data</h3>
+                  <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Belum ada data</h3>
                 )}
-                <p className="text-xxs font-normal text-slate-500 mt-1">Parameter Volume Terendah</p>
+                <p className="text-xxs font-normal text-white/80 mt-1">Parameter Volume Terendah</p>
               </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
             </motion.div>
 
           </div>
@@ -753,24 +753,24 @@ export default function DashboardLab() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.16 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Layers className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-850 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Kategori
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {categoryTotal} <span className="text-[10px] text-slate-400 font-normal">Uji</span>
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                      {categoryTotal} <span className="text-[10px] text-white/50 font-normal">Uji</span>
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Pengujian Kategori</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Total Pengujian Kategori</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
                 {/* Metric 2 */}
@@ -778,24 +778,24 @@ export default function DashboardLab() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.24 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all"
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <TrendingUp className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-emerald-100/80 text-emerald-850 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Rasio
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-teal-650 tracking-tight font-display">
+                    <h3 className="text-xl font-semibold text-emerald-200 tracking-tight font-display">
                       {categoryContributionPercent}%
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Rasio Penetrasi Lab</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Rasio Penetrasi Lab</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
                 {/* Metric 3 */}
@@ -803,33 +803,33 @@ export default function DashboardLab() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.32 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100/80 shadow-sm relative overflow-hidden group transition-all sm:col-span-2"
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all sm:col-span-2"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-sky-50 text-sky-700 rounded-xl group-hover:scale-105 transition-transform">
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <ArrowUpRight className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-sky-100/80 text-sky-850 px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
                       <span>Teraktif</span>
                     </span>
                   </div>
                   <div className="mt-4">
                     {categoryPeakParam ? (
                       <div>
-                        <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display truncate">
+                        <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate">
                           {categoryPeakParam.nama_parameter}
                         </h3>
-                        <p className="text-xxs font-mono text-sky-655 font-bold mt-1">
+                        <p className="text-xxs font-mono text-sky-200 font-bold mt-1">
                           {categoryPeakParam.jumlah} Uji Kali Ini
                         </p>
                       </div>
                     ) : (
-                      <h3 className="text-sm font-semibold text-slate-400 tracking-tight font-display mt-1">Tidak ada volume</h3>
+                      <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Tidak ada volume</h3>
                     )}
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Pemeriksaan Teraktif ({activeCategory})</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Pemeriksaan Teraktif ({activeCategory})</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-sky-500"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
               </div>
@@ -1087,94 +1087,94 @@ export default function DashboardLab() {
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                         {/* Metric 1: Kuantitas Uji */}
                         <motion.div 
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                         >
                           <div className="flex items-center justify-between">
-                            <div className="p-3 bg-slate-100 text-slate-700 rounded-xl group-hover:scale-105 transition-transform">
+                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <FlaskConical className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-slate-100/80 text-slate-700 px-2 py-0.5 rounded-full">
+                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Volume
                             </span>
                           </div>
                           <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                              {activeParam.total} <span className="text-xs font-normal text-slate-450">Uji</span>
+                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                              {activeParam.total} <span className="text-xs font-normal text-white/50">Uji</span>
                             </h3>
-                            <p className="text-xxs font-normal text-slate-500 mt-1">Volume Kuantitas Uji</p>
+                            <p className="text-xxs font-normal text-white/80 mt-1">Volume Kuantitas Uji</p>
                           </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-400"></div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
 
                         {/* Metric 2: Rata-rata/Hari */}
                         <motion.div 
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                         >
                           <div className="flex items-center justify-between">
-                            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <Activity className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2 py-0.5 rounded-full">
+                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Harian
                             </span>
                           </div>
                           <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                              {dailyAvg} <span className="text-xs font-normal text-slate-450">Uji/hr</span>
+                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                              {dailyAvg} <span className="text-xs font-normal text-white/50">Uji/hr</span>
                             </h3>
-                            <p className="text-xxs font-normal text-slate-500 mt-1">Rerata Frekuensi Uji</p>
+                            <p className="text-xxs font-normal text-white/80 mt-1">Rerata Frekuensi Uji</p>
                           </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
 
                         {/* Metric 3: Puncak Tertinggi */}
                         <motion.div 
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                         >
                           <div className="flex items-center justify-between">
-                            <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <TrendingUp className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-emerald-100/80 text-emerald-800 px-2 py-0.5 rounded-full">
+                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Puncak
                             </span>
                           </div>
                           <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                              {activeParam.maxCount} <span className="text-xs font-normal text-slate-450">Uji</span>
+                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                              {activeParam.maxCount} <span className="text-xs font-normal text-white/50">Uji</span>
                             </h3>
-                            <p className="text-xxs font-normal text-slate-500 mt-1 truncate">Maksimum tgl {activeParam.maxDate}</p>
+                            <p className="text-xxs font-normal text-white/80 mt-1 truncate">Maksimum tgl {activeParam.maxDate}</p>
                           </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-600"></div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
 
                         {/* Metric 4: Konsistensi Data */}
                         <motion.div 
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
+                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
                           transition={{ duration: 0.2 }}
-                          className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                         >
                           <div className="flex items-center justify-between">
-                            <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
+                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <Calendar className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-amber-100/80 text-amber-800 px-2 py-0.5 rounded-full">
+                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Rasio
                             </span>
                           </div>
                           <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
+                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                               {coveragePct}%
                             </h3>
-                            <p className="text-xxs font-normal text-slate-500 mt-1 truncate">{activeParam.activeDays}/{totalDays} Hari Terisi</p>
+                            <p className="text-xxs font-normal text-white/80 mt-1 truncate">{activeParam.activeDays}/{totalDays} Hari Terisi</p>
                           </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
                       </div>
                     </div>

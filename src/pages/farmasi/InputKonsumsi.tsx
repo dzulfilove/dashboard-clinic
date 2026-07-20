@@ -529,94 +529,94 @@ export default function InputKonsumsi() {
                 <motion.div 
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all anim-fade-up anim-delay-1"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-1"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <TrendingUp className="h-6 w-6 text-teal-600" />
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                      <TrendingUp className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Pemakaian
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {statsSummary.totalPemakaian.toLocaleString('id-ID')} <span className="text-xs font-normal text-slate-450">Unit</span>
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                      {statsSummary.totalPemakaian.toLocaleString('id-ID')} <span className="text-xs font-normal text-white/70">Unit</span>
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Pemakaian Obat Klinis</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Total Pemakaian Obat Klinis</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
                 {/* 2. Total Penerimaan */}
                 <motion.div 
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all anim-fade-up anim-delay-2"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-2"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-indigo-50 text-indigo-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <Download className="h-6 w-6 text-indigo-600" />
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                      <Download className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-indigo-100/80 text-indigo-800 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Penerimaan
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {statsSummary.totalPenerimaan.toLocaleString('id-ID')} <span className="text-xs font-normal text-slate-450">Unit</span>
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                      {statsSummary.totalPenerimaan.toLocaleString('id-ID')} <span className="text-xs font-normal text-white/70">Unit</span>
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Penerimaan Stok Penyuplai</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Total Penerimaan Stok Penyuplai</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-indigo-600"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
                 {/* 3. Total Retur/Hilang */}
                 <motion.div 
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all anim-fade-up anim-delay-3"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-3"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <AlertCircle className="h-6 w-6 text-amber-600" />
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                      <AlertCircle className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Penyusutan
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {statsSummary.totalReturHilang.toLocaleString('id-ID')} <span className="text-xs font-normal text-slate-450">Unit</span>
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                      {statsSummary.totalReturHilang.toLocaleString('id-ID')} <span className="text-xs font-normal text-white/70">Unit</span>
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Beban Kerusakan, Hilang, atau Retur</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Beban Kerusakan, Hilang, atau Retur</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
                 {/* 4. Konsumsi Terbanyak */}
                 <motion.div 
                   whileHover={{ y: -2 }}
                   transition={{ duration: 0.15 }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group transition-all anim-fade-up anim-delay-4"
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-4"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-rose-50 text-rose-750 rounded-xl group-hover:scale-105 transition-transform">
-                      <Pill className="h-6 w-6 text-rose-600" />
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                      <Pill className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-rose-100/80 text-rose-800 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Terbanyak
                     </span>
                   </div>
                   <div className="mt-4 min-w-0">
-                    <h3 className="text-sm font-bold text-slate-900 tracking-tight font-display truncate" title={statsSummary.topMedInfo.name}>
+                    <h3 className="text-sm font-bold text-white tracking-tight font-display truncate" title={statsSummary.topMedInfo.name}>
                       {statsSummary.topMedInfo.name || '-'}
                     </h3>
-                    <p className="text-xxs font-mono text-rose-600 font-semibold mt-1">
+                    <p className="text-xxs font-mono text-emerald-200 font-semibold mt-1">
                       {statsSummary.topMedInfo.qty.toLocaleString('id-ID')} Unit Terpakai
                     </p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-rose-500"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
               </div>

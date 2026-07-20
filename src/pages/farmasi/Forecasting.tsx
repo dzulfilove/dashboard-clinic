@@ -168,28 +168,28 @@ export default function Forecasting() {
           {/* Quick Stats overview panel */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div 
-               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-white/70 backdrop-blur-md shadow-sm anim-fade-up anim-delay-1 ${criticalItemsCount > 0 ? 'border-rose-100' : 'border-slate-100'} transition-transform duration-200 hover:-translate-y-1`}
+               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-gradient-to-br backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] anim-fade-up anim-delay-1 ${criticalItemsCount > 0 ? 'from-rose-800/80 to-rose-700/80 border-rose-400/40 ring-2 ring-rose-500/20' : 'from-emerald-800/80 to-teal-700/80 border-white/20'} transition-transform duration-200 hover:-translate-y-1`}
             >
-              <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>
+              <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-500/20 text-rose-200' : 'bg-emerald-500/20 text-emerald-200'}`}>
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Kekurangan Stok Terdeteksi</span>
-                <span className={`text-sm font-semibold font-display block mt-1 ${criticalItemsCount > 0 ? 'text-rose-700' : 'text-slate-800'}`}>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60 block">Kekurangan Stok Terdeteksi</span>
+                <span className={`text-sm font-semibold font-display block mt-1 ${criticalItemsCount > 0 ? 'text-white' : 'text-white/90'}`}>
                   {criticalItemsCount} item obat perlu pemesanan kembali (Qty Order &gt; 0)
                 </span>
               </div>
             </div>
 
             <div 
-              className="p-5 bg-white/70 backdrop-blur-md border border-slate-100 shadow-sm rounded-3xl flex items-center space-x-4 anim-fade-up anim-delay-2 transition-transform duration-200 hover:-translate-y-1"
+              className="p-5 bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl flex items-center space-x-4 anim-fade-up anim-delay-2 transition-transform duration-200 hover:-translate-y-1"
             >
-              <div className="p-4 bg-teal-50 text-teal-600 rounded-2xl">
+              <div className="p-4 bg-teal-500/20 text-teal-200 rounded-2xl">
                 <CheckCircle className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block">Total Obat Diproyeksikan</span>
-                <span className="text-sm font-semibold font-display text-slate-800 block mt-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60 block">Total Obat Diproyeksikan</span>
+                <span className="text-sm font-semibold font-display text-white block mt-1">
                   {forecasts.length} item aktif
                 </span>
               </div>

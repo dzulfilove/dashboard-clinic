@@ -983,43 +983,43 @@ export default function FollowUpVaksinPage() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
-          <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+          <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <ClipboardList className="h-6 w-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium">Total Rencana</span>
-            <h3 className="text-2xl font-bold text-slate-850 mt-0.5">{stats.total}</h3>
+            <span className="text-xs text-white/80 font-medium">Total Rencana</span>
+            <h3 className="text-2xl font-bold text-white mt-0.5">{stats.total}</h3>
           </div>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
-          <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+          <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <Clock className="h-6 w-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium">Terjadwal (Scheduled)</span>
-            <h3 className="text-2xl font-bold text-slate-850 mt-0.5">{stats.scheduled}</h3>
+            <span className="text-xs text-white/80 font-medium">Terjadwal (Scheduled)</span>
+            <h3 className="text-2xl font-bold text-white mt-0.5">{stats.scheduled}</h3>
           </div>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
-          <div className="p-3 bg-sky-50 text-sky-700 rounded-xl group-hover:scale-105 transition-transform">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+          <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <Send className="h-6 w-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium">Notifikasi Terkirim</span>
-            <h3 className="text-2xl font-bold text-slate-850 mt-0.5">{stats.notified}</h3>
+            <span className="text-xs text-white/80 font-medium">Notifikasi Terkirim</span>
+            <h3 className="text-2xl font-bold text-white mt-0.5">{stats.notified}</h3>
           </div>
         </div>
 
-        <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01] hover:shadow-md">
-          <div className="p-3 bg-emerald-50 text-emerald-700 rounded-xl group-hover:scale-105 transition-transform">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+          <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <CheckCircle className="h-6 w-6" />
           </div>
           <div>
-            <span className="text-xs text-slate-500 font-medium">Selesai (Completed)</span>
-            <h3 className="text-2xl font-bold text-slate-850 mt-0.5">{stats.completed}</h3>
+            <span className="text-xs text-white/80 font-medium">Selesai (Completed)</span>
+            <h3 className="text-2xl font-bold text-white mt-0.5">{stats.completed}</h3>
           </div>
         </div>
       </div>

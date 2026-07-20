@@ -1017,24 +1017,24 @@ export default function RawatInap() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.08 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Users className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Kunjungan
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {totalVisits} <span className="text-xs font-normal text-slate-450">Kasus</span>
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                      {totalVisits} <span className="text-xs font-normal text-white/50">Kasus</span>
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Kunjungan Pasien Rawat Inap</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Inap</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
                 {/* 2. Tindakan Medis */}
@@ -1042,24 +1042,24 @@ export default function RawatInap() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.16 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-teal-50 text-teal-700 rounded-xl group-hover:scale-105 transition-transform">
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <ClipboardList className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-teal-100/80 text-teal-800 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Tindakan
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-slate-900 tracking-tight font-display">
-                      {totalProcedures} <span className="text-xs font-normal text-slate-450">Tindakan</span>
+                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                      {totalProcedures} <span className="text-xs font-normal text-white/50">Tindakan</span>
                     </h3>
-                    <p className="text-xxs font-normal text-slate-500 mt-1">Total Tindakan Medis Dilakukan</p>
+                    <p className="text-xxs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
 
 
@@ -1069,26 +1069,26 @@ export default function RawatInap() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.24 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.04)' }}
-                  className="bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-white/60 shadow-sm relative overflow-hidden group transition-all"
+                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="p-3 bg-amber-50 text-amber-700 rounded-xl group-hover:scale-105 transition-transform">
-                      <Bed className="h-6 w-6 text-amber-600" />
+                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                      <Bed className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-amber-100/80 text-amber-850 px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Aktif
                     </span>
                   </div>
                   <div className="mt-4">
-                    <h3 className="text-lg font-semibold text-slate-900 tracking-tight font-display truncate leading-tight uppercase font-sans">
+                    <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase font-sans">
                       {topRoom}
                     </h3>
-                    <p className="text-xxs font-mono text-amber-600 font-bold mt-1">
+                    <p className="text-xxs font-mono text-amber-200 font-bold mt-1">
                       {topRoomCount} Kunjungan
                     </p>
                   </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
               </div>
 

@@ -186,58 +186,58 @@ export default function DashboardDokter() {
 
       {/* SECTION 3 — KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 anim-fade-up anim-delay-1">
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 relative overflow-hidden group">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
           <div className="flex items-center justify-between">
-            <div className="p-3 bg-teal-50 text-teal-700 rounded-xl">
+            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <Users className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-xs font-medium text-slate-500">Total Dokter Aktif</h3>
-            <p className="text-xl font-semibold text-slate-800 mt-1">{data?.total_dokter_aktif || 0}</p>
+            <h3 className="text-xs font-medium text-white/80">Total Dokter Aktif</h3>
+            <p className="text-xl font-semibold text-white mt-1">{data?.total_dokter_aktif || 0}</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-teal-600"></div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 relative overflow-hidden group">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
           <div className="flex items-center justify-between">
-            <div className="p-3 bg-indigo-50 text-indigo-700 rounded-xl">
+            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <Activity className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-xs font-medium text-slate-500">Total Kunjungan</h3>
-            <p className="text-xl font-semibold text-slate-800 mt-1">{data?.total_kunjungan || 0}</p>
+            <h3 className="text-xs font-medium text-white/80">Total Kunjungan</h3>
+            <p className="text-xl font-semibold text-white mt-1">{data?.total_kunjungan || 0}</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-indigo-600"></div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 relative overflow-hidden group">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
           <div className="flex items-center justify-between">
-            <div className="p-3 bg-amber-50 text-amber-700 rounded-xl">
+            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-xs font-medium text-slate-500">Dokter Tersibuk</h3>
-            <p className="text-xl font-semibold text-slate-800 mt-1 truncate" title={tersibuk.nama}>{tersibuk.nama}</p>
-            <p className="text-xs text-amber-600 font-medium mt-1">{tersibuk.jumlah} kunjungan</p>
+            <h3 className="text-xs font-medium text-white/80">Dokter Tersibuk</h3>
+            <p className="text-xl font-semibold text-white mt-1 truncate" title={tersibuk.nama}>{tersibuk.nama}</p>
+            <p className="text-xs text-amber-200 font-medium mt-1">{tersibuk.jumlah} kunjungan</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 relative overflow-hidden group">
+        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
           <div className="flex items-center justify-between">
-            <div className="p-3 bg-rose-50 text-rose-700 rounded-xl">
+            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <BarChart2 className="h-5 w-5" />
             </div>
           </div>
           <div className="mt-4">
-            <h3 className="text-xs font-medium text-slate-500">Rata-rata per Dokter</h3>
-            <p className="text-xl font-semibold text-slate-800 mt-1">{getRataRataKunjungan()}</p>
-            <p className="text-xs text-rose-600 font-medium mt-1">kunjungan / dokter</p>
+            <h3 className="text-xs font-medium text-white/80">Rata-rata per Dokter</h3>
+            <p className="text-xl font-semibold text-white mt-1">{getRataRataKunjungan()}</p>
+            <p className="text-xs text-rose-200 font-medium mt-1">kunjungan / dokter</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-rose-500"></div>
+          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </div>
       </div>
 

@@ -144,20 +144,20 @@ export default function AbcAnalysis() {
             <span className="font-bold text-slate-800">Panduan Pengendalian Stok Metode ABC:</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
-              <span className="font-semibold text-emerald-700 block text-xs">Kelas A (≥70% nilai)</span>
-              <p className="mt-1 text-slate-600 text-xs text-justify">Prioritas utama monitoring & kontrol ketat.</p>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-500"></div>
+            <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all">
+              <span className="font-semibold text-emerald-300 block text-xs">Kelas A (≥70% nilai)</span>
+              <p className="mt-1 text-white/80 text-xs text-justify">Prioritas utama monitoring & kontrol ketat.</p>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-400"></div>
             </div>
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
-              <span className="font-semibold text-amber-700 block text-xs">Kelas B (70-90%)</span>
-              <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring reguler.</p>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-500"></div>
+            <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all">
+              <span className="font-semibold text-amber-300 block text-xs">Kelas B (70-90%)</span>
+              <p className="mt-1 text-white/80 text-xs text-justify">Monitoring reguler.</p>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-amber-400"></div>
             </div>
-            <div className="bg-white/70 backdrop-blur-md rounded-2xl p-4 border border-slate-100 shadow-sm relative overflow-hidden transition-all">
-              <span className="font-semibold text-slate-700 block text-xs">Kelas C (&lt;90%)</span>
-              <p className="mt-1 text-slate-600 text-xs text-justify">Monitoring rutin.</p>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-slate-500"></div>
+            <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all">
+              <span className="font-semibold text-white block text-xs">Kelas C (&lt;90%)</span>
+              <p className="mt-1 text-white/80 text-xs text-justify">Monitoring rutin.</p>
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/50"></div>
             </div>
           </div>
         </div>
@@ -202,39 +202,39 @@ export default function AbcAnalysis() {
 
             {/* Class A summary */}
             <div 
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-2 transition-transform duration-200 ease-out hover:-translate-y-1"
+               className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-3xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all anim-fade-up anim-delay-2 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
-              <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok A (80%)</span>
-              <h3 className="text-2xl font-extrabold text-emerald-600 font-mono mt-2">
-                {classA.length} <span className="text-[14px] font-semibold text-slate-400">Obat</span>
+              <span className="text-[14px] font-bold text-emerald-200 uppercase tracking-wider block">Kelompok A (80%)</span>
+              <h3 className="text-2xl font-extrabold text-white font-mono mt-2">
+                {classA.length} <span className="text-[14px] font-semibold text-white/70">Obat</span>
               </h3>
-              <p className="text-[14px] font-bold text-slate-600 mt-2">
+              <p className="text-[14px] font-bold text-white/90 mt-2">
                 Anggaran: Rp {classASpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classASpend/totalInvestasi)*100) : 0}%)
               </p>
             </div>
 
             {/* Class B summary */}
             <div 
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-3 transition-transform duration-200 ease-out hover:-translate-y-1"
+               className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-3xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all anim-fade-up anim-delay-3 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
-              <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok B (15%)</span>
-              <h3 className="text-2xl font-extrabold text-amber-500 font-mono mt-2">
-                {classB.length} <span className="text-[14px] font-semibold text-slate-400">Obat</span>
+              <span className="text-[14px] font-bold text-amber-200 uppercase tracking-wider block">Kelompok B (15%)</span>
+              <h3 className="text-2xl font-extrabold text-amber-300 font-mono mt-2">
+                {classB.length} <span className="text-[14px] font-semibold text-white/70">Obat</span>
               </h3>
-              <p className="text-[14px] font-bold text-slate-600 mt-2">
+              <p className="text-[14px] font-bold text-white/90 mt-2">
                 Anggaran: Rp {classBSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classBSpend/totalInvestasi)*100) : 0}%)
               </p>
             </div>
 
             {/* Class C summary */}
             <div 
-               className="bg-white/70 backdrop-blur-md rounded-3xl p-5 border border-slate-100 shadow-sm relative overflow-hidden transition-all anim-fade-up anim-delay-4 transition-transform duration-200 ease-out hover:-translate-y-1"
+               className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-3xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all anim-fade-up anim-delay-4 transition-transform duration-200 ease-out hover:-translate-y-1"
             >
-              <span className="text-[14px] font-bold text-slate-500 uppercase tracking-wider block">Kelompok C (5%)</span>
-              <h3 className="text-2xl font-extrabold text-slate-500 font-mono mt-2">
-                {classC.length} <span className="text-[14px] font-semibold text-slate-400">Obat</span>
+              <span className="text-[14px] font-bold text-white/60 uppercase tracking-wider block">Kelompok C (5%)</span>
+              <h3 className="text-2xl font-extrabold text-white font-mono mt-2">
+                {classC.length} <span className="text-[14px] font-semibold text-white/70">Obat</span>
               </h3>
-              <p className="text-[14px] font-bold text-slate-600 mt-2">
+              <p className="text-[14px] font-bold text-white/90 mt-2">
                 Anggaran: Rp {classCSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classCSpend/totalInvestasi)*100) : 0}%)
               </p>
             </div>
