@@ -3,6 +3,8 @@ import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'reac
 import { AnimatePresence } from 'motion/react';
 import { useAuthStore } from './store/authStore.js';
 
+import Loader from './components/Loader.js';
+
 // Layout & guards
 import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
@@ -63,11 +65,7 @@ function AppContent() {
   
   return (
     <AnimatePresence mode="wait">
-      <Suspense fallback={
-        <div className="flex items-center justify-center min-h-screen bg-slate-50">
-          <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
-        </div>
-      }>
+      <Suspense fallback={<Loader />}>
         <Routes>
           {/* Public Login Route */}
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
@@ -92,11 +90,7 @@ function AppContent() {
                   <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
                     <div className="max-w-7xl mx-auto">
                       <AnimatePresence mode="wait">
-                        <Suspense fallback={
-                          <div className="flex items-center justify-center min-h-[50vh]">
-                            <div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
-                          </div>
-                        }>
+                        <Suspense fallback={<Loader />}>
                           <Routes location={location} key={location.pathname}>
                             {/* Integrated Shared Dashboard (Home) */}
                             <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
