@@ -10,6 +10,9 @@ import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import PageTransition from './components/PageTransition.js';
 import { prefetchRoutes } from './routePrefetch.js';
+// Utility to ensure loading spinner is visible for at least 1 second
+// removed delayedLazy as we are using PageTransition to handle delays smoothly
+
 const InteractiveGuide = lazy(() => import('./components/InteractiveGuide.js'));
 
 // Pages
@@ -39,13 +42,6 @@ const DashboardDokter = lazy(() => import('./pages/pelayanan/DashboardDokter.js'
 const FollowUpVaksin = lazy(() => import('./pages/pelayanan/FollowUpVaksin.js'));
 
 export default function App() {
-  const { initialize } = useAuthStore();
-
-  useEffect(() => {
-    // Read cached login sessions on load
-    initialize();
-  }, [initialize]);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       prefetchRoutes();
@@ -84,13 +80,15 @@ function AppContent() {
                   <Sidebar />
 
                   {/* Interactive Guide Widget */}
-                  <InteractiveGuide />
+                  <Suspense fallback={null}>
+                    <InteractiveGuide />
+                  </Suspense>
 
                   {/* Core Main Viewport Stage */}
                   <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
-                    <div className="max-w-7xl mx-auto">
+                    <div className="max-w-7xl mx-auto h-full">
                       <AnimatePresence mode="wait">
-                        <Suspense fallback={<Loader />}>
+                        <Suspense fallback={null}>
                           <Routes location={location} key={location.pathname}>
                             {/* Integrated Shared Dashboard (Home) */}
                             <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
