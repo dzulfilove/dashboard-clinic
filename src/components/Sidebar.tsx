@@ -159,12 +159,12 @@ export default function Sidebar() {
       {/* Mobile Header with Glass Look */}
       <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-slate-950/95 backdrop-blur-md text-white shadow-lg z-40">
         <div className="flex items-center space-x-3">
-          <div className="bg-slate-900 p-1.5 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-slate-800">
+          <div className="bg-slate-100 p-1.5 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-slate-800">
             <Logo size={36} />
           </div>
           <div className="flex flex-col justify-center">
             <span className="font-extrabold text-sm text-white font-display leading-tight">Klinik Puri Medika</span>
-            <span className="font-semibold text-xs text-teal-400 tracking-wider uppercase font-display leading-none">Sistem Informasi Klinik</span>
+            // <span className="font-semibold text-xs text-teal-400 tracking-wider uppercase font-display leading-none"></span>
           </div>
         </div>
         <button 
@@ -210,12 +210,12 @@ export default function Sidebar() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="h-11 w-11 flex-shrink-0 bg-slate-900 p-1.5 rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                  <div className="h-11 w-11 flex-shrink-0 bg-slate-100 p-1 rounded-xl flex items-center justify-center shadow-md border border-slate-800">
                     <Logo size={34} />
                   </div>
                   <div className="flex flex-col justify-center whitespace-nowrap overflow-hidden">
                     <span className="font-extrabold text-base text-white tracking-tight leading-none">Klinik Puri Medika<span className="text-teal-400">.</span></span>
-                    <span className="font-semibold text-xs text-teal-400 tracking-wider uppercase leading-tight mt-1">Sistem Informasi Klinik</span>
+                   
                   </div>
                 </div>
               )}
