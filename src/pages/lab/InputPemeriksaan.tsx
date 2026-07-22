@@ -156,7 +156,7 @@ export default function InputPemeriksaan() {
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`p-3 rounded-xl border flex items-start space-x-2 text-xxs font-normal ${
+          className={`p-3 rounded-xl border flex items-start space-x-2 text-xs font-normal ${
             feedback.type === 'success' 
               ? 'bg-emerald-50/80 backdrop-blur-sm border-emerald-100 text-emerald-800' 
               : 'bg-rose-50/80 backdrop-blur-sm border-rose-100 text-rose-800'
@@ -184,7 +184,7 @@ export default function InputPemeriksaan() {
               <Calendar className="h-4 w-4" />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Pilih Hari Pengujian</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Pilih Hari Pengujian</span>
               <input
                 id="daily-date-picker"
                 type="date"
@@ -201,7 +201,7 @@ export default function InputPemeriksaan() {
             <button
               type="button"
               onClick={() => setSelectedDate(getTodayDateString())}
-              className="text-xxs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-100/50 transition-colors cursor-pointer"
+              className="text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-100/50 transition-colors cursor-pointer"
               style={{ minHeight: '32px' }}
             >
               Hari Ini
@@ -213,7 +213,7 @@ export default function InputPemeriksaan() {
                 prev.setDate(prev.getDate() - 1);
                 setSelectedDate(prev.toISOString().slice(0, 10));
               }}
-              className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 font-medium text-slate-600 border border-slate-200 rounded-lg text-xxs transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 font-medium text-slate-600 border border-slate-200 rounded-lg text-xs transition-colors cursor-pointer"
               style={{ minHeight: '32px' }}
             >
               ◀ Kemarin
@@ -225,7 +225,7 @@ export default function InputPemeriksaan() {
                 next.setDate(next.getDate() + 1);
                 setSelectedDate(next.toISOString().slice(0, 10));
               }}
-              className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 font-medium text-slate-600 border border-slate-200 rounded-lg text-xxs transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 font-medium text-slate-600 border border-slate-200 rounded-lg text-xs transition-colors cursor-pointer"
               style={{ minHeight: '32px' }}
             >
               Besok ▶
@@ -253,14 +253,14 @@ export default function InputPemeriksaan() {
                     transition={{ duration: 0.4, delay: 0.16 + (i * 0.05) }}
                     className="bg-white border border-slate-100/80 rounded-2xl p-4 shadow-sm space-y-3"
                   >
-                    <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 rounded-lg font-semibold uppercase tracking-wider font-mono text-[9px] border border-teal-100">
+                    <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 rounded-lg font-semibold uppercase tracking-wider font-mono text-xs border border-teal-100">
                       {category}
                     </span>
                     
                     <div className="divide-y divide-slate-100">
                       {params.map(p => (
                         <div key={p.id} className="flex items-center justify-between py-1.5 first:pt-0 last:pb-0 gap-3">
-                          <label htmlFor={`qty-${p.id}`} className="text-slate-700 font-medium hover:text-slate-900 cursor-pointer text-xxs flex-1 truncate">
+                          <label htmlFor={`qty-${p.id}`} className="text-slate-700 font-medium hover:text-slate-900 cursor-pointer text-xs flex-1 truncate">
                             {p.nama_parameter}
                           </label>
                           <input
@@ -298,9 +298,9 @@ export default function InputPemeriksaan() {
                   <Calculator className="h-5 w-5" />
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-medium tracking-wider text-slate-400 block">Total Akumulasi Harian ({selectedDate})</span>
+                  <span className="text-xs uppercase font-medium tracking-wider text-slate-400 block">Total Akumulasi Harian ({selectedDate})</span>
                   <h3 className="text-sm font-semibold text-teal-300 font-mono mt-0.5">
-                    {grandTotal} <span className="text-xxs text-slate-400 font-sans font-normal">Pemeriksaan Laboratorium</span>
+                    {grandTotal} <span className="text-xs text-slate-400 font-sans font-normal">Pemeriksaan Laboratorium</span>
                   </h3>
                 </div>
               </div>
@@ -310,7 +310,7 @@ export default function InputPemeriksaan() {
                   id="save-daily-btn"
                   type="submit"
                   disabled={saving}
-                  className="w-full sm:w-auto flex items-center justify-center space-x-1.5 bg-teal-600 hover:bg-teal-550 text-white font-medium py-2 px-5 rounded-xl shadow-xs transition-colors cursor-pointer text-xxs"
+                  className="w-full sm:w-auto flex items-center justify-center space-x-1.5 bg-teal-600 hover:bg-teal-550 text-white font-medium py-2 px-5 rounded-xl shadow-xs transition-colors cursor-pointer text-xs"
                   style={{ minHeight: '36px' }}
                 >
                   <Save className="h-3.5 w-3.5" />

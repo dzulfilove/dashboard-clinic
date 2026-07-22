@@ -403,7 +403,7 @@ export default function UsersManagement() {
                         <div>
                           <h4 className="font-semibold text-slate-900 text-xs">{u.nama}</h4>
                           {u.id === currentUser?.id && (
-                            <span className="text-xxs bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded font-bold font-mono">AKUN ANDA SIKAS</span>
+                            <span className="text-xs bg-teal-50 text-teal-700 px-1.5 py-0.5 rounded font-bold font-mono">AKUN ANDA</span>
                           )}
                         </div>
                       </div>
@@ -412,7 +412,7 @@ export default function UsersManagement() {
                       {u.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xxs font-bold uppercase tracking-wider rounded-lg ${
+                      <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-lg ${
                         u.role === 'admin' ? 'bg-teal-50 text-teal-700' :
                         u.role === 'perawat' ? 'bg-sky-50 text-sky-700' :
                         u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 text-emerald-700' :
@@ -435,7 +435,7 @@ export default function UsersManagement() {
                         <button
                           id={`user-edit-${u.id}`}
                           onClick={() => handleOpenEditForm(u)}
-                          className="p-1 px-2 bg-white text-slate-700 hover:text-teal-600 hover:bg-slate-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
+                          className="p-1 px-2 bg-white text-slate-700 hover:text-teal-600 hover:bg-slate-50 rounded-lg text-xs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
                           title="Edit"
                           style={{ minHeight: '32px' }}
                         >
@@ -445,7 +445,7 @@ export default function UsersManagement() {
                         <button
                           id={`user-pass-reset-${u.id}`}
                           onClick={() => handleOpenResetForm(u)}
-                          className="p-1 px-2 bg-white text-amber-700 hover:bg-amber-50 rounded-lg text-xxs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
+                          className="p-1 px-2 bg-white text-amber-700 hover:bg-amber-50 rounded-lg text-xs font-bold flex items-center space-x-1 cursor-pointer transition-colors"
                           title="Reset Password"
                           style={{ minHeight: '32px' }}
                         >
@@ -456,7 +456,7 @@ export default function UsersManagement() {
                           id={`user-delete-${u.id}`}
                           onClick={() => handleDeleteUser(u.id, u.nama)}
                           disabled={u.id === currentUser?.id}
-                          className="p-1 px-2 bg-white text-rose-700 hover:bg-rose-50 rounded-lg text-xxs font-bold flex items-center space-x-1 disabled:opacity-40 cursor-pointer transition-colors"
+                          className="p-1 px-2 bg-white text-rose-700 hover:bg-rose-50 rounded-lg text-xs font-bold flex items-center space-x-1 disabled:opacity-40 cursor-pointer transition-colors"
                           title="Hapus Akun"
                           style={{ minHeight: '32px' }}
                         >

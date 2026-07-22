@@ -253,7 +253,7 @@ export default function ActivityLogs() {
                 <BarChart3 className="h-4 w-4 text-teal-600" />
                 <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Aktivitas &amp; Kontribusi per Petugas</h2>
               </div>
-              <span className="text-[10px] bg-teal-50 text-teal-700 px-2.5 py-1 rounded font-bold">
+              <span className="text-xs bg-teal-50 text-teal-700 px-2.5 py-1 rounded font-bold">
                 {userStats.length} User Aktif
               </span>
             </div>
@@ -278,14 +278,14 @@ export default function ActivityLogs() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-semibold">
+                  <div className="flex items-center justify-between text-xs text-slate-500 font-semibold">
                     <span>Jumlah Kunjungan / Log</span>
                     <span className="text-slate-800 font-bold">{stat.count} log</span>
                   </div>
                 </div>
               ))}
               {userStats.length > 5 && (
-                <div className="sm:col-span-2 lg:col-span-3 text-center text-[10px] text-slate-400 font-semibold italic">
+                <div className="sm:col-span-2 lg:col-span-3 text-center text-xs text-slate-400 font-semibold italic">
                   + {userStats.length - 5} user lainnya tercatat di log audit
                 </div>
               )}
@@ -427,7 +427,7 @@ export default function ActivityLogs() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center whitespace-nowrap">
-                      <span className={`inline-block text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg tracking-wider ${getActionBadge(log.action_type)}`}>
+                      <span className={`inline-block text-xs font-bold uppercase px-2.5 py-1 rounded-lg tracking-wider ${getActionBadge(log.action_type)}`}>
                         {log.action_type}
                       </span>
                     </td>

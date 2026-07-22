@@ -331,7 +331,7 @@ export default function MasterDokter() {
                       </div>
                     </td>
                     <td className="py-3 px-5 text-xs">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-black uppercase ${
                         item.status === 'aktif' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'
                       }`}>
                         {item.status}

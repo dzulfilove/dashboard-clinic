@@ -562,7 +562,7 @@ export default function FollowUpVaksinPage() {
           <p class="leading-relaxed">Sistem akan mengirimkan pesan pengingat otomatis melalui gateway WhatsApp dengan simulasi pengetikan (typing indicator) demi keamanan akun.</p>
           
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
               Nomor WhatsApp Pasien <span class="text-rose-500">*</span>
             </label>
             <input 
@@ -575,7 +575,7 @@ export default function FollowUpVaksinPage() {
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wide mb-1">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
               Isi Pesan WhatsApp
             </label>
             <textarea 
@@ -1058,7 +1058,7 @@ export default function FollowUpVaksinPage() {
           <div className="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-4 w-full md:w-auto">
               <div className="flex flex-col">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Mulai Tanggal</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Mulai Tanggal</label>
                 <input 
                   type="date" 
                   value={statsDateStart}
@@ -1067,7 +1067,7 @@ export default function FollowUpVaksinPage() {
                 />
               </div>
               <div className="flex flex-col">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Sampai Tanggal</label>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Sampai Tanggal</label>
                 <input 
                   type="date" 
                   value={statsDateEnd}
@@ -1078,7 +1078,7 @@ export default function FollowUpVaksinPage() {
             </div>
             
             <div className="flex flex-col w-full md:w-64">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Filter Paket Vaksin</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-1">Filter Paket Vaksin</label>
               <SearchableSelect
                 value={statsPaketVaksin}
                 onChange={(e: any) => setStatsPaketVaksin(e.target.value)}
@@ -1104,7 +1104,7 @@ export default function FollowUpVaksinPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50/50 border-b border-slate-100/80 text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  <tr className="bg-slate-50/50 border-b border-slate-100/80 text-xs uppercase tracking-wider text-slate-500 font-bold">
                     <th className="p-4">Tgl Rencana</th>
                     <th className="p-4">Pasien</th>
                     <th className="p-4">Paket Vaksin</th>
@@ -1119,12 +1119,12 @@ export default function FollowUpVaksinPage() {
                       <td className="p-4 font-medium">{formatTanggalIndo(item.tanggal_rencana)}</td>
                       <td className="p-4">
                         <div className="font-bold text-slate-800">{item.pasien_nama}</div>
-                        <div className="text-[10px] text-slate-500">{item.pasien_no_rm}</div>
+                        <div className="text-xs text-slate-500">{item.pasien_no_rm}</div>
                       </td>
                       <td className="p-4 text-slate-600">{item.paket_vaksin}</td>
                       <td className="p-4 font-medium">{item.rencana_kunjungan_ke}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold border ${getStatusBadgeStyle(item.status_rencana)}`}>
+                        <span className={`px-2 py-1 rounded-md text-xs font-bold border ${getStatusBadgeStyle(item.status_rencana)}`}>
                           {item.status_rencana}
                         </span>
                       </td>
@@ -1271,7 +1271,7 @@ export default function FollowUpVaksinPage() {
                       {!isCreatingPasien && formData.pasien_no_rm && (
                         <div className="sm:col-span-2 bg-teal-50/30 border border-teal-100/50 rounded-2xl p-4 flex justify-between items-center text-xs shadow-xs">
                           <div>
-                            <span className="font-bold text-teal-800 block uppercase tracking-wide text-[10px]">Identitas Terpilih:</span>
+                            <span className="font-bold text-teal-800 block uppercase tracking-wide text-xs">Identitas Terpilih:</span>
                             <span className="text-slate-800 font-bold block text-sm mt-1">{formData.pasien_nama}</span>
                             {pasienList.find(pt => pt.no_rm === formData.pasien_no_rm)?.no_telp && (
                               <span className="text-teal-700 block text-xs mt-1 font-semibold bg-teal-100/30 px-2.5 py-0.5 rounded-lg w-fit border border-teal-100/50">
@@ -1280,7 +1280,7 @@ export default function FollowUpVaksinPage() {
                             )}
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-teal-800 block uppercase tracking-wide text-[10px]">Estimasi Usia:</span>
+                            <span className="font-bold text-teal-800 block uppercase tracking-wide text-xs">Estimasi Usia:</span>
                             <span className="text-slate-800 font-extrabold block text-sm mt-1">{formData.usia || '-'} Tahun</span>
                           </div>
                         </div>
@@ -1290,7 +1290,7 @@ export default function FollowUpVaksinPage() {
                       {!isCreatingPasien && formData.pasien_no_rm && showPhoneInput && (
                         <div className="sm:col-span-2 bg-amber-50/30 border border-amber-200/60 rounded-2xl p-4 space-y-2 shadow-xs">
                           <div>
-                            <label className="block text-[10px] font-bold text-amber-800 uppercase tracking-wider">
+                            <label className="block text-xs font-bold text-amber-800 uppercase tracking-wider">
                               No. Telepon Pasien Belum Terdaftar. Silakan Isi:
                             </label>
                             <input
@@ -1301,7 +1301,7 @@ export default function FollowUpVaksinPage() {
                               onChange={(e) => setInputPhoneVal(e.target.value)}
                               className="mt-1.5 block w-full px-3 py-2 bg-white border border-amber-200 rounded-2xl text-xs placeholder-slate-400 focus:ring-4 focus:ring-amber-500/5 focus:border-amber-400 focus:outline-none transition-all font-semibold font-mono"
                             />
-                            <p className="text-[9px] text-amber-700 mt-1 font-medium leading-relaxed">
+                            <p className="text-xs text-amber-700 mt-1 font-medium leading-relaxed">
                               Nomor telepon ini akan disimpan langsung ke master rekam medis pasien saat rencana kunjungan disimpan.
                             </p>
                           </div>
@@ -1382,7 +1382,7 @@ export default function FollowUpVaksinPage() {
                         <div>
                           <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">
                             Tanggal Kunjungan Terakhir
-                            <span className="ml-1 text-[9px] text-amber-700 font-bold bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 normal-case inline-flex items-center gap-0.5">
+                            <span className="ml-1 text-xs text-amber-700 font-bold bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5 normal-case inline-flex items-center gap-0.5">
                               (Kunjungan ke-{Number(formData.rencana_kunjungan_ke) - 1})
                             </span>
                           </label>
@@ -1392,7 +1392,7 @@ export default function FollowUpVaksinPage() {
                             onChange={(e) => setFormData({ ...formData, kunjungan_terakhir: e.target.value })}
                             className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all font-bold"
                           />
-                          <span className="text-[10px] text-slate-400 mt-1 block font-medium">
+                          <span className="text-xs text-slate-400 mt-1 block font-medium">
                             {formatTanggalIndo(formData.kunjungan_terakhir)}
                           </span>
                         </div>
@@ -1410,7 +1410,7 @@ export default function FollowUpVaksinPage() {
                           onChange={(e) => setFormData({ ...formData, tanggal_rencana: e.target.value })}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50/50 border border-slate-100 rounded-2xl text-xs focus:ring-4 focus:ring-teal-500/5 focus:outline-none focus:bg-white transition-all font-bold"
                         />
-                        <span className="text-[10px] text-teal-600 font-semibold mt-1 block">
+                        <span className="text-xs text-teal-600 font-semibold mt-1 block">
                           {formatTanggalIndo(formData.tanggal_rencana)}
                         </span>
                       </div>

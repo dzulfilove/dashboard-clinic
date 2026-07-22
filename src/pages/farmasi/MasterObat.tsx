@@ -532,7 +532,7 @@ export default function MasterObat() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-800 text-xs">Import Data Master Obat (.xlsx)</span>
-                  <p className="text-[10px] text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
+                  <p className="text-xs text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
                     Silakan drop file Excel (.xlsx) atau klik tombol di bawah. Kolom yang diimpor: 
                     <span className="text-teal-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Kemasan | Harga Satuan | Safety Stock | Lead Time | Stok Minimum | Reorder Point</span>
                   </p>
@@ -559,12 +559,12 @@ export default function MasterObat() {
                         console.error('Failed to download template excel', err);
                       }
                     }}
-                    className="inline-flex items-center gap-1 text-[10px] text-teal-600 hover:text-teal-800 font-bold bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 cursor-pointer transition-all"
+                    className="inline-flex items-center gap-1 text-xs text-teal-600 hover:text-teal-800 font-bold bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 cursor-pointer transition-all"
                   >
                     📥 Unduh/Download Template Excel (.xlsx)
                   </button>
 
-                  <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-[10px] min-h-[32px] hover:shadow-md">
+                  <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-xs min-h-[32px] hover:shadow-md">
                     <span>{importing ? 'Mengimpor Data...' : 'Pilih File Excel (.xlsx)'}</span>
                     <input 
                       id="excel-file-uploader"
@@ -602,7 +602,7 @@ export default function MasterObat() {
                 </div>
                 <div>
                   <span className="font-bold text-slate-800 text-xs">Import Data Master Obat (.csv)</span>
-                  <p className="text-[10px] text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
+                  <p className="text-xs text-slate-505 mt-1 max-w-lg mx-auto leading-relaxed">
                     Silakan drop file CSV (.csv) atau klik tombol di bawah. Kolom yang diimpor: 
                     <span className="text-teal-600 font-mono font-medium"> Kode Obat | Nama Obat | Satuan | Harga Satuan | Safety Stock</span>
                   </p>
@@ -629,12 +629,12 @@ export default function MasterObat() {
                         console.error('Failed to download template csv', err);
                       }
                     }}
-                    className="inline-flex items-center gap-1 text-[10px] text-teal-700 hover:text-teal-900 font-bold bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 cursor-pointer transition-all"
+                    className="inline-flex items-center gap-1 text-xs text-teal-700 hover:text-teal-900 font-bold bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-200 cursor-pointer transition-all"
                   >
                     📥 Unduh/Download Template CSV (.csv)
                   </button>
 
-                  <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-[10px] min-h-[32px] hover:shadow-md">
+                  <label className="inline-flex items-center justify-center bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 px-3 rounded-lg shadow-xs transition-all cursor-pointer text-xs min-h-[32px] hover:shadow-md">
                     <span>{importing ? 'Mengimpor Data...' : 'Pilih File CSV (.csv)'}</span>
                     <input 
                       id="csv-file-uploader"
@@ -658,7 +658,7 @@ export default function MasterObat() {
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Tempel Data Excel / Spreadsheet</label>
-                <p className="text-[10px] text-slate-500 mb-2 leading-relaxed">
+                <p className="text-xs text-slate-500 mb-2 leading-relaxed">
                   Buka file excel Anda, salin baris data (termasuk baris paling atas untuk nama kolom/header), lalu tempelkan (Ctrl+V) langsung ke kotak di bawah ini. Kolom wajib: <span className="font-semibold text-teal-600">Kode Obat</span> dan <span className="font-semibold text-teal-600">Nama Obat</span>.
                 </p>
                 <textarea
@@ -840,14 +840,14 @@ export default function MasterObat() {
           <table className="min-w-full divide-y divide-slate-100/70 text-left">
             <thead className="bg-slate-50/50">
               <tr>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Kode Obat</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Nama Obat</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Satuan</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Harga Satuan</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
-                <th scope="col" className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">Status</th>
+                <th scope="col" className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Kode Obat</th>
+                <th scope="col" className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Nama Obat</th>
+                <th scope="col" className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Satuan</th>
+                <th scope="col" className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Harga Satuan</th>
+                <th scope="col" className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
+                <th scope="col" className="px-6 py-3 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
                 {(user?.role === 'admin' || user?.role === 'farmasi') && (
-                  <th scope="col" className="px-6 py-3 text-right text-[10px] font-bold uppercase tracking-wider text-slate-500">Aksi</th>
+                  <th scope="col" className="px-6 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Aksi</th>
                 )}
               </tr>
             </thead>
@@ -888,7 +888,7 @@ export default function MasterObat() {
                     className="hover:bg-slate-50/70 transition-colors"
                   >
                     <td className="px-6 py-3.5 whitespace-nowrap">
-                      <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200/60 font-bold">
+                      <span className="font-mono text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200/60 font-bold">
                         {m.kode_obat}
                       </span>
                     </td>
@@ -905,7 +905,7 @@ export default function MasterObat() {
                       {m.safety_stock ?? 0} Unit
                     </td>
                     <td className="px-6 py-3.5 whitespace-nowrap">
-                      <span className={`inline-flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      <span className={`inline-flex items-center space-x-1 text-xs font-bold px-2 py-0.5 rounded-full ${
                         m.is_active === 1 
                           ? 'bg-emerald-100 text-emerald-800' 
                           : 'bg-rose-100 text-rose-800'

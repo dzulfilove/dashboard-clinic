@@ -1076,7 +1076,7 @@ export default function RawatJalan() {
                         <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                           <Users className="h-6 w-6" />
                         </div>
-                        <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                        <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                           Kunjungan
                         </span>
                       </div>
@@ -1084,7 +1084,7 @@ export default function RawatJalan() {
                         <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                           {totalVisits} <span className="text-xs font-normal text-white/50">Kasus</span>
                         </h3>
-                        <p className="text-xxs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
+                        <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                     </motion.div>
@@ -1100,7 +1100,7 @@ export default function RawatJalan() {
                         <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                           <ClipboardList className="h-6 w-6" />
                         </div>
-                        <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                        <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                           Tindakan
                         </span>
                       </div>
@@ -1108,7 +1108,7 @@ export default function RawatJalan() {
                         <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                           {totalProcedures} <span className="text-xs font-normal text-white/50">Tindakan</span>
                         </h3>
-                        <p className="text-xxs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
+                        <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
                       </div>
                       <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                     </motion.div>
@@ -1124,7 +1124,7 @@ export default function RawatJalan() {
                         <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                           <TrendingUp className="h-6 w-6" />
                         </div>
-                        <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                        <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                           DPJP
                         </span>
                       </div>
@@ -1132,7 +1132,7 @@ export default function RawatJalan() {
                         <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase">
                           {topDPJP}
                         </h3>
-                        <p className="text-xxs font-mono text-amber-200 font-bold mt-1">
+                        <p className="text-xs font-mono text-amber-200 font-bold mt-1">
                           {topDPJPCount} Kunjungan
                         </p>
                       </div>
@@ -1152,7 +1152,7 @@ export default function RawatJalan() {
                     >
                       <div>
                         <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian</h3>
-                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
+                        <p className="text-xs text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
                       </div>
 
                       <div className="h-[280px]">
@@ -1164,11 +1164,11 @@ export default function RawatJalan() {
                           <ResponsiveContainer width="100%" height="100%">
                             <ComposedChart data={chartTrendData}>
                               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                              <XAxis dataKey="tanggal" fontSize={10} tickLine={false} stroke="#94a3b8" />
-                              <YAxis yAxisId="left" fontSize={10} tickLine={false} stroke="#2563eb" label={{ value: 'Kunjungan', angle: -90, position: 'insideLeft', style: {fontSize: 9, fill: '#2563eb'} }} />
-                              <YAxis yAxisId="right" orientation="right" fontSize={10} tickLine={false} stroke="#0d9488" label={{ value: 'Pendapatan (K Rp)', angle: 90, position: 'insideRight', style: {fontSize: 9, fill: '#0d9488'} }} />
-                              <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
-                              <Legend wrapperStyle={{ fontSize: '10px' }} />
+                              <XAxis dataKey="tanggal" fontSize={12} tickLine={false} stroke="#94a3b8" />
+                              <YAxis yAxisId="left" fontSize={12} tickLine={false} stroke="#2563eb" label={{ value: 'Kunjungan', angle: -90, position: 'insideLeft', style: {fontSize: 12, fill: '#2563eb'} }} />
+                              <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} stroke="#0d9488" label={{ value: 'Pendapatan (K Rp)', angle: 90, position: 'insideRight', style: {fontSize: 12, fill: '#0d9488'} }} />
+                              <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
+                              <Legend wrapperStyle={{ fontSize: "12px" }} />
                               <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
                               <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Tarif Pendapatan" stroke="#0f766e" strokeWidth={2.5} dot={{ r: 4 }} />
                             </ComposedChart>
@@ -1183,7 +1183,7 @@ export default function RawatJalan() {
                           {procedureFilter && (
                             <button 
                               onClick={() => setProcedureFilter(null)}
-                              className="text-[10px] text-teal-600 hover:text-teal-700 font-medium uppercase tracking-wide cursor-pointer"
+                              className="text-xs text-teal-600 hover:text-teal-700 font-medium uppercase tracking-wide cursor-pointer"
                             >
                               Reset Filter
                             </button>
@@ -1215,7 +1215,7 @@ export default function RawatJalan() {
                     >
                       <div>
                         <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">5 Jenis Tindakan Terbanyak</h3>
-                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan rawat jalan</p>
+                        <p className="text-xs text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan rawat jalan</p>
                       </div>
 
                       <div className="h-[250px] flex items-center justify-center">
@@ -1237,7 +1237,7 @@ export default function RawatJalan() {
                                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                 ))}
                               </Pie>
-                              <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
+                              <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
                             </PieChart>
                           </ResponsiveContainer>
                         )}
@@ -1248,7 +1248,7 @@ export default function RawatJalan() {
                         {chartTreatmentData.map((item, idx) => (
                           <div 
                             key={idx} 
-                            className={`flex items-center justify-between text-[11px] font-medium text-slate-650 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
+                            className={`flex items-center justify-between text-xs font-medium text-slate-650 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
                             onClick={() => setProcedureFilter(procedureFilter === item.name ? item.name : null)}
                           >
                             <div className="flex items-center space-x-2 truncate max-w-[12rem]">
@@ -1275,9 +1275,9 @@ export default function RawatJalan() {
                           <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
                           <span>10 Diagnosa Terbanyak (ICD-10)</span>
                         </h3>
-                        <p className="text-[10px] text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis rawat jalan dengan kunjungan terbanyak</p>
+                        <p className="text-xs text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis rawat jalan dengan kunjungan terbanyak</p>
                       </div>
-                      <span className="text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
+                      <span className="text-xs font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
                         Kunjungan Terbanyak
                       </span>
                     </div>
@@ -1298,7 +1298,7 @@ export default function RawatJalan() {
                                 </span>
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-medium text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
+                                    <span className="font-medium text-xs text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
                                       {item.kode}
                                     </span>
                                     <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
@@ -1318,7 +1318,7 @@ export default function RawatJalan() {
                                 <span className="text-xs font-medium text-slate-800 font-mono">
                                   {item.count}
                                 </span>
-                                <span className="text-[9px] text-slate-450 font-bold block uppercase tracking-wider">
+                                <span className="text-xs text-slate-450 font-bold block uppercase tracking-wider">
                                   Kunjungan ({percentage}%)
                                 </span>
                               </div>
@@ -1389,7 +1389,7 @@ export default function RawatJalan() {
                         {/* Status tag/dot */}
                         <div className="flex items-center justify-between">
                           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                          <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
                             {percent}%
                           </span>
                         </div>
@@ -1402,14 +1402,14 @@ export default function RawatJalan() {
                           <p className="text-xs font-bold text-slate-700 mt-1 uppercase tracking-wide">
                             Triase {item.name}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 font-medium leading-normal">
+                          <p className="text-xs text-slate-400 mt-0.5 font-medium leading-normal">
                             {item.desc}
                           </p>
                         </div>
 
                         {/* Interactive footer indicating click-to-filter */}
                         <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className={`text-[9px] font-medium ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
+                          <span className={`text-xs font-medium ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
                             {isActive ? '✓ Aktif Memfilter' : 'Klik Untuk Filter'}
                           </span>
                           <ArrowRight className={`h-2.5 w-2.5 transition-all ${isActive ? 'text-teal-500 translate-x-1' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'}`} />
@@ -1422,12 +1422,12 @@ export default function RawatJalan() {
                 {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
                 <div className="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
                   <div className="text-left">
-                    <span className="text-slate-400 text-[9px] font-medium uppercase tracking-widest block">Distribusi Persentase</span>
+                    <span className="text-slate-400 text-xs font-medium uppercase tracking-widest block">Distribusi Persentase</span>
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase</span>
                   </div>
                   
                   {records.length === 0 ? (
-                    <div className="text-center py-6 text-slate-400 text-xxs font-medium">
+                    <div className="text-center py-6 text-slate-400 text-xs font-medium">
                       Belum ada data kunjungan
                     </div>
                   ) : (
@@ -1455,7 +1455,7 @@ export default function RawatJalan() {
                         <span className="text-base font-black text-slate-800 font-mono tracking-tight leading-none">
                           {records.length}
                         </span>
-                        <span className="text-[7px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
+                        <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">
                           Total
                         </span>
                       </div>
@@ -1467,7 +1467,7 @@ export default function RawatJalan() {
                     {triageStats.map((item) => (
                       <div key={item.key} className="flex flex-col items-center">
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                        <span className="text-[9px] font-medium text-slate-705 mt-0.5 font-mono">
+                        <span className="text-xs font-medium text-slate-705 mt-0.5 font-mono">
                           {item.count}
                         </span>
                       </div>
@@ -1483,7 +1483,7 @@ export default function RawatJalan() {
                 transition={{ duration: 0.4, delay: 0.16 }}
                 className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-100 p-2.5 rounded-2xl"
               >
-                <span className="text-slate-450 text-[10px] font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
+                <span className="text-slate-450 text-xs font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
@@ -1598,7 +1598,7 @@ export default function RawatJalan() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50/50 border-b border-slate-100/70 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
+                        <tr className="bg-slate-50/50 border-b border-slate-100/70 text-xs text-slate-500 font-semibold tracking-wider uppercase">
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Unit Pelayanan</th>
@@ -1627,8 +1627,8 @@ export default function RawatJalan() {
                                 >
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
-                                    <span className="font-medium text-slate-900 font-mono text-[11.5px]">{rec.no_registrasi}</span>
-                                    <span className="text-slate-400 font-mono text-[10px] mt-0.5">RM: #{rec.no_rm}</span>
+                                    <span className="font-medium text-slate-900 font-mono text-xs">{rec.no_registrasi}</span>
+                                    <span className="text-slate-400 font-mono text-xs mt-0.5">RM: #{rec.no_rm}</span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
@@ -1639,7 +1639,7 @@ export default function RawatJalan() {
                                         {(() => {
                                           const ts = getTriageStyle(rec.triase);
                                           return (
-                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${ts.bg}`}>
+                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${ts.bg}`}>
                                               <span className={`h-1 w-1 rounded-full ${ts.dotBg}`}></span>
                                               <span>{ts.text.split(' / ')[0]}</span>
                                             </span>
@@ -1650,12 +1650,12 @@ export default function RawatJalan() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
-                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-100">
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-50 text-slate-600 border border-slate-100">
                                     {rec.unit || 'Poli Umum'}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4.5">
-                                  <span className="text-[11px] font-medium text-slate-700">
+                                  <span className="text-xs font-medium text-slate-700">
                                     {rec.dpjp || '-'}
                                   </span>
                                 </td>
@@ -1665,11 +1665,11 @@ export default function RawatJalan() {
                                     const icdInfo = icdList.find(i => i.kode_icd === diag);
                                     return diag ? (
                                       <div className="flex flex-col">
-                                        <span className="font-semibold text-slate-800 text-[11px]">{diag}</span>
-                                        {icdInfo && <span className="text-slate-400 text-[10px] truncate max-w-[150px]">{icdInfo.deskripsi}</span>}
+                                        <span className="font-semibold text-slate-800 text-xs">{diag}</span>
+                                        {icdInfo && <span className="text-slate-400 text-xs truncate max-w-[150px]">{icdInfo.deskripsi}</span>}
                                       </div>
                                     ) : (
-                                      <span className="text-[11px] text-slate-400">-</span>
+                                      <span className="text-xs text-slate-400">-</span>
                                     );
                                   })()}
                                 </td>
@@ -1677,7 +1677,7 @@ export default function RawatJalan() {
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </td>
                                 <td className="px-6 py-4.5 text-center">
-                                  <span className="inline-flex items-center px-2.5 py-1 text-xxs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
+                                  <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
                                     {rec.tindakan.length} Tindakan
                                   </span>
                                 </td>
@@ -1722,10 +1722,10 @@ export default function RawatJalan() {
                                   <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-100/70 pb-2">
-                                        <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
+                                        <h4 className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
                                           <span>Rincian Tindakan Pelayanan Medis</span>
                                         </h4>
-                                        <span className="text-[10px] text-slate-400">Kode Kunjungan Unik: ID #{rec.id}</span>
+                                        <span className="text-xs text-slate-400">Kode Kunjungan Unik: ID #{rec.id}</span>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1737,11 +1737,11 @@ export default function RawatJalan() {
                                                 <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
                                                   {t.tindakan_nama}
                                                 </h5>
-                                                <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                                <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
                                                   x{t.jumlah}
                                                 </span>
                                               </div>
-                                              <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                              <p className="text-xs text-slate-400 font-mono mt-1 flex items-center space-x-1">
                                                 <Clock className="h-3 w-3 inline-block" />
                                                 <span>{formatTanggalIndo(t.tindakan_tanggal)} pukul {formatJamIndo(t.tindakan_jam)}</span>
                                               </p>
@@ -1826,7 +1826,7 @@ export default function RawatJalan() {
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4">
                 <div>
-                  <span className="text-[9px] bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
+                  <span className="text-xs bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2">Impor Data Hasil Salinan Excel</h3>
                   <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini. Pastikan menyertakan baris header / judul kolom untuk memudahkan pembacaan.</p>
                 </div>
@@ -1870,7 +1870,7 @@ export default function RawatJalan() {
                     <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
                       <div>
                         <h4 className="text-sm font-extrabold text-slate-850">Pratinjau Hasil Pembacaan</h4>
-                        <p className="text-[10.5px] text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien rawat jalan</p>
+                        <p className="text-xs text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien rawat jalan</p>
                       </div>
                       <span className="h-10 w-10 text-emerald-600 bg-emerald-50 rounded-full flex items-center justify-center font-black text-xs">
                         {parsedData.length}
@@ -1884,20 +1884,20 @@ export default function RawatJalan() {
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
-                              <span className="text-[10px] text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
+                              <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
                             </div>
-                            <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+                            <span className="text-xs text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
                           </div>
 
                           {duplicateMap[p.no_registrasi] ? (
-                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">⚠️</span>
                               <span>
                                 <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
                               </span>
                             </div>
                           ) : (
-                            <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-100 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-100 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">🆕</span>
                               <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
                             </div>
@@ -1907,9 +1907,9 @@ export default function RawatJalan() {
                           <div className="bg-white border border-slate-100/50 p-3 rounded-2xl shadow-sm">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                               <div>
-                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Triase</label>
+                                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Triase</label>
                                 <SearchableSelect 
-                                  className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
+                                  className="text-xs font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.triase || 'hijau'}
                                   onChange={(e) => {
                                     const newData = [...parsedData];
@@ -1925,9 +1925,9 @@ export default function RawatJalan() {
                               </div>
 
                               <div>
-                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Diagnosa (ICD-10)</label>
+                                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1">Diagnosa (ICD-10)</label>
                                 <SearchableSelect 
-                                  className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
+                                  className="text-xs font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.icd_kode || ''}
                                   onChange={(e) => {
                                     const newData = [...parsedData];
@@ -1945,9 +1945,9 @@ export default function RawatJalan() {
                               </div>
 
                               <div>
-                                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">DPJP</label>
+                                <label className="block text-xs font-black text-slate-400 uppercase tracking-wider mb-1">DPJP</label>
                                 <SearchableSelect
-                                  className="text-[10px] font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
+                                  className="text-xs font-bold border border-slate-100 rounded-lg p-1 w-full bg-white text-slate-800 focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 outline-none"
                                   value={p.dpjp || ''}
                                   onChange={(e) => {
                                     const newData = [...parsedData];
@@ -1965,7 +1965,7 @@ export default function RawatJalan() {
                           </div>
 
                           {/* Action list summary */}
-                          <div className="border-t border-slate-100/50 pt-2 space-y-1 text-[10px] font-semibold text-slate-600">
+                          <div className="border-t border-slate-100/50 pt-2 space-y-1 text-xs font-semibold text-slate-600">
                             {p.tindakan.map((t: any, tIdx: number) => (
                               <div key={tIdx} className="flex justify-between">
                                 <span className="truncate max-w-[15rem]">• {t.tindakan_nama}</span>
@@ -1979,7 +1979,7 @@ export default function RawatJalan() {
 
                     <div className="pt-4 border-t border-slate-100">
                       <div className="mb-4">
-                        <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan (Wajib Pilih)</label>
+                        <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Unit Pelayanan (Wajib Pilih)</label>
                         <SearchableSelect
                           value={bulkUnit}
                           onChange={(e) => setBulkUnit(e.target.value)}
@@ -2016,7 +2016,7 @@ export default function RawatJalan() {
                   <div className="bg-slate-50/50 rounded-2xl border border-slate-100/70 p-12 text-center text-slate-400 space-y-3 py-20">
                     <ClipboardList className="h-12 w-12 text-slate-200 mx-auto" />
                     <h4 className="text-xs font-extrabold uppercase text-slate-500">Menunggu Input Data</h4>
-                    <p className="text-xxs leading-relaxed max-w-xs mx-auto">Silakan tempelkan data tindakan rawat jalan dari Excel Anda pada area teks di sebelah kiri, kemudian klik "Proses & Urai Data".</p>
+                    <p className="text-xs leading-relaxed max-w-xs mx-auto">Silakan tempelkan data tindakan rawat jalan dari Excel Anda pada area teks di sebelah kiri, kemudian klik "Proses & Urai Data".</p>
                   </div>
                 )}
               </div>
@@ -2075,10 +2075,10 @@ export default function RawatJalan() {
                           required
                         />
                         {checkingManualDuplicate && (
-                          <p className="text-[10px] text-teal-600 mt-1 font-bold animate-pulse">Memeriksa nomor registrasi...</p>
+                          <p className="text-xs text-teal-600 mt-1 font-bold animate-pulse">Memeriksa nomor registrasi...</p>
                         )}
                         {!checkingManualDuplicate && manualDuplicateData && (
-                          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[10px] p-2.5 rounded-lg mt-1.5 font-sans space-y-0.5 leading-relaxed">
+                          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-2.5 rounded-lg mt-1.5 font-sans space-y-0.5 leading-relaxed">
                             <p className="font-bold flex items-center text-amber-900">
                               <span className="mr-1">⚠️</span> Nomor Registrasi Sudah Terdaftar
                             </p>

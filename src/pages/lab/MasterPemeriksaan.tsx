@@ -380,7 +380,7 @@ export default function MasterPemeriksaan() {
         <button
           id="btn-add-pemeriksaan"
           onClick={handleAddTrigger}
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-xs transition-all cursor-pointer text-xxs inline-flex items-center gap-1.5 self-start sm:self-center"
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-xs transition-all cursor-pointer text-xs inline-flex items-center gap-1.5 self-start sm:self-center"
           style={{ minHeight: '36px' }}
         >
           <Plus className="h-4 w-4" />
@@ -400,7 +400,7 @@ export default function MasterPemeriksaan() {
             <Layers className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Total Kategori</span>
+            <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Total Kategori</span>
             <span className="text-lg font-bold text-slate-800 block leading-tight mt-0.5">{activeCategoriesCount} Kelompok</span>
           </div>
         </motion.div>
@@ -415,7 +415,7 @@ export default function MasterPemeriksaan() {
             <BriefcaseMedical className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Jenis Pemeriksaan (Aktif)</span>
+            <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Jenis Pemeriksaan (Aktif)</span>
             <span className="text-lg font-bold text-slate-800 block leading-tight mt-0.5">{activeParametersCount} / {totalParametersCount} Item</span>
           </div>
         </motion.div>
@@ -430,7 +430,7 @@ export default function MasterPemeriksaan() {
             <RefreshCw className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-[10px] uppercase tracking-wider font-bold text-slate-400">Pembaruan DB Terakhir</span>
+            <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Pembaruan DB Terakhir</span>
             <span className="text-xs font-semibold text-slate-600 block leading-tight mt-0.5">Sinkronisasi Realtime</span>
           </div>
         </motion.div>
@@ -449,13 +449,13 @@ export default function MasterPemeriksaan() {
             transition={{ duration: 0.4, delay: 0.32 }}
             className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
           >
-            <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
               <FolderPlus className="h-4 w-4 text-emerald-600" />
               <span>Registrasi Kelompok Baru</span>
             </h2>
             
             <form onSubmit={handleQuickCreateCategory} className="space-y-2.5">
-              <p className="text-[10px] text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 Daftarkan kelompok uji klinis baru directly ke database dalam sekejap.
               </p>
               
@@ -466,24 +466,24 @@ export default function MasterPemeriksaan() {
                   placeholder="Contoh: HISTOPATOLOGI"
                   value={quickCategoryName}
                   onChange={(e) => setQuickCategoryName(e.target.value)}
-                  className="bg-slate-50 border border-slate-200/70 rounded-xl px-2.5 py-1.5 focus:ring-1 focus:ring-teal-500/20 focus:border-teal-300 focus:outline-none text-xxs font-semibold uppercase tracking-wider text-slate-850 placeholder-slate-400 flex-1"
+                  className="bg-slate-50 border border-slate-200/70 rounded-xl px-2.5 py-1.5 focus:ring-1 focus:ring-teal-500/20 focus:border-teal-300 focus:outline-none text-xs font-semibold uppercase tracking-wider text-slate-850 placeholder-slate-400 flex-1"
                   style={{ minHeight: '34px' }}
                 />
                 <button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 rounded-lg text-xxs transition-colors flex items-center justify-center cursor-pointer min-h-[34px]"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 rounded-lg text-xs transition-colors flex items-center justify-center cursor-pointer min-h-[34px]"
                 >
                   Daftar
                 </button>
               </div>
 
               {quickCategoryError && (
-                <p id="quick-cat-error" className="text-[10px] font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-lg p-2 mt-1">
+                <p id="quick-cat-error" className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-lg p-2 mt-1">
                   ✕ {quickCategoryError}
                 </p>
               )}
               {quickCategorySuccess && (
-                <p id="quick-cat-success" className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg p-2 mt-1">
+                <p id="quick-cat-success" className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg p-2 mt-1">
                   ✓ {quickCategorySuccess}
                 </p>
               )}
@@ -497,20 +497,20 @@ export default function MasterPemeriksaan() {
             transition={{ duration: 0.4, delay: 0.4 }}
             className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
           >
-            <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <UploadCloud className="h-4 w-4 text-teal-600" />
                 <span>Import CSV Pemeriksaan</span>
               </span>
               <button 
                 onClick={handleDownloadTemplateCSV}
-                className="text-[9px] hover:underline text-teal-600 font-semibold cursor-pointer"
+                className="text-xs hover:underline text-teal-600 font-semibold cursor-pointer"
               >
                 Unduh Template
               </button>
             </h2>
             
-            <p className="text-[10px] text-slate-500 leading-relaxed mb-3">
+            <p className="text-xs text-slate-500 leading-relaxed mb-3">
               Impor parameter pemeriksaan sekaligus dengan mengunggah file format CSV (.csv).
             </p>
 
@@ -539,15 +539,15 @@ export default function MasterPemeriksaan() {
                 {importing ? (
                   <div className="flex flex-col items-center justify-center py-2.5">
                     <RefreshCw className="h-6 w-6 text-teal-600 animate-spin mb-1.5" />
-                    <span className="text-xxs font-bold text-slate-700">Memproses Berkas...</span>
+                    <span className="text-xs font-bold text-slate-700">Memproses Berkas...</span>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-1">
                     <UploadCloud className="h-7 w-7 text-slate-400 mb-1.5" />
-                    <span className="text-xxs font-bold text-slate-800">
+                    <span className="text-xs font-bold text-slate-800">
                       Tarik & Lepas berkas di sini
                     </span>
-                    <span className="text-[10px] text-slate-400 mt-0.5">
+                    <span className="text-xs text-slate-400 mt-0.5">
                       atau <span className="text-teal-600 underline">pilih dari file explorer</span>
                     </span>
                   </div>
@@ -566,7 +566,7 @@ export default function MasterPemeriksaan() {
                 ) : (
                   <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
                 )}
-                <span className="text-[10px] font-semibold leading-normal flex-1">
+                <span className="text-xs font-semibold leading-normal flex-1">
                   {importFeedback.msg}
                 </span>
                 <button 
@@ -587,14 +587,14 @@ export default function MasterPemeriksaan() {
             className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
           >
             <div className="flex items-center justify-between mb-3 border-b border-slate-50 pb-2">
-              <h2 className="text-xxs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+              <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                 <FolderOpen className="h-4 w-4 text-sky-650" />
                 <span>Direktori Kelompok Klinis</span>
               </h2>
               {selectedCategoryFilter && (
                 <button
                   onClick={() => setSelectedCategoryFilter(null)}
-                  className="text-[9px] font-semibold text-teal-600 hover:text-teal-800 cursor-pointer"
+                  className="text-xs font-semibold text-teal-600 hover:text-teal-800 cursor-pointer"
                 >
                   Reset Filter
                 </button>
@@ -613,7 +613,7 @@ export default function MasterPemeriksaan() {
                 style={{ minHeight: '34px' }}
               >
                 <span>Semua Jenis Pemeriksaan</span>
-                <span className="bg-slate-200/60 font-mono text-[9px] text-slate-700 px-1.5 py-0.5 rounded-lg">
+                <span className="bg-slate-200/60 font-mono text-xs text-slate-700 px-1.5 py-0.5 rounded-lg">
                   {totalParametersCount}
                 </span>
               </button>
@@ -634,7 +634,7 @@ export default function MasterPemeriksaan() {
                     style={{ minHeight: '34px' }}
                   >
                     <span className="truncate">{cat}</span>
-                    <span className={`font-mono text-[9px] px-1.5 py-0.5 rounded-lg ${isSelected ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-650'}`}>
+                    <span className={`font-mono text-xs px-1.5 py-0.5 rounded-lg ${isSelected ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-650'}`}>
                       {counts.active}/{counts.total}
                     </span>
                   </button>
@@ -662,12 +662,12 @@ export default function MasterPemeriksaan() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari jenis pemeriksaan atau nama kategori..."
-                className="w-full bg-slate-50 border border-slate-200/70 rounded-2xl pl-9 pr-4 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
+                className="w-full bg-slate-50 border border-slate-200/70 rounded-2xl pl-9 pr-4 py-2 text-xs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                 style={{ minHeight: '36px' }}
               />
             </div>
             
-            <div className="text-[10px] font-semibold text-slate-500 px-2">
+            <div className="text-xs font-semibold text-slate-500 px-2">
               <span>Menampilkan {filteredAllParams.length} parameter</span>
             </div>
           </div>
@@ -681,7 +681,7 @@ export default function MasterPemeriksaan() {
           ) : (
             <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse text-xxs">
+                <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50/50 border-b border-slate-100/60 font-semibold text-slate-700">
                       <th className="px-3.5 py-2.5 w-10">No</th>
@@ -699,7 +699,7 @@ export default function MasterPemeriksaan() {
                           <tr key={param.id} className={`hover:bg-slate-50/50 transition-colors ${isPlaceholder ? 'bg-slate-50/50 text-slate-450' : ''}`}>
                             <td className="px-3.5 py-2 font-mono text-slate-400">{index + 1}</td>
                             <td className="px-3.5 py-2">
-                              <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-semibold uppercase tracking-wider font-mono text-[9px]">
+                              <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-semibold uppercase tracking-wider font-mono text-xs">
                                 {param.kategori}
                               </span>
                             </td>
@@ -712,7 +712,7 @@ export default function MasterPemeriksaan() {
                               <button
                                 id={`toggle-active-${param.id}`}
                                 onClick={() => handleToggleActive(param)}
-                                className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg text-[9px] font-semibold border cursor-pointer transition-colors ${
+                                className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg text-xs font-semibold border cursor-pointer transition-colors ${
                                   param.is_active === 1
                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                                     : 'bg-slate-100 text-slate-500 border-slate-200'
@@ -728,7 +728,7 @@ export default function MasterPemeriksaan() {
                                 <button
                                   id={`edit-param-${param.id}`}
                                   onClick={() => handleEditTrigger(param)}
-                                  className="p-1 px-1.5 text-[10px] text-sky-600 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
+                                  className="p-1 px-1.5 text-xs text-sky-600 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
                                   title="Ubah Detail"
                                   disabled={isPlaceholder}
                                 >
@@ -789,13 +789,13 @@ export default function MasterPemeriksaan() {
               >
                 {/* Modal Header */}
                 <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                  <h3 className="text-xxs font-semibold text-slate-900 tracking-tight uppercase flex items-center gap-1.5">
+                  <h3 className="text-xs font-semibold text-slate-900 tracking-tight uppercase flex items-center gap-1.5">
                     <BriefcaseMedical className="h-4 w-4 text-teal-600" />
                     <span>{modalMode === 'add' ? 'Tambah Jenis Pemeriksaan' : 'Ubah Detail Pemeriksaan'}</span>
                   </h3>
                   <button 
                     onClick={() => setIsModalOpen(false)}
-                    className="p-1 text-slate-400 hover:text-slate-600 rounded text-xxs cursor-pointer"
+                    className="p-1 text-slate-400 hover:text-slate-600 rounded text-xs cursor-pointer"
                   >
                     ✕
                   </button>
@@ -806,7 +806,7 @@ export default function MasterPemeriksaan() {
                   {/* Category Field */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-450">
+                      <label className="text-xs font-bold uppercase tracking-wider text-slate-450">
                         Pilih Kategori Kelompok
                       </label>
                       <button
@@ -816,7 +816,7 @@ export default function MasterPemeriksaan() {
                           setFormKategori(uniqueCategories[0] || 'HEMATOLOGI');
                           setFormCustomKategori('');
                         }}
-                        className="text-[10px] font-bold text-teal-600 hover:text-teal-700 flex items-center gap-0.5 cursor-pointer"
+                        className="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-0.5 cursor-pointer"
                       >
                         <span>{isCustomKategori ? 'Grup Eksis' : 'Kategori Baru'}</span>
                       </button>
@@ -827,7 +827,7 @@ export default function MasterPemeriksaan() {
                         id="modal-category-select"
                         value={formKategori}
                         onChange={(e) => setFormKategori(e.target.value)}
-                        className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xxs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
+                        className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                         style={{ minHeight: '36px' }}
                       >
                         {uniqueCategories.map(cat => (
@@ -841,7 +841,7 @@ export default function MasterPemeriksaan() {
                         placeholder="Contoh: HISTOPATOLOGI"
                         value={formCustomKategori}
                         onChange={(e) => setFormCustomKategori(e.target.value)}
-                        className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
+                        className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                         style={{ minHeight: '36px' }}
                       />
                     )}
@@ -849,7 +849,7 @@ export default function MasterPemeriksaan() {
 
                   {/* Parameter Name */}
                   <div className="space-y-1">
-                    <label htmlFor="modal-param-name" className="text-[10px] font-medium uppercase tracking-wider text-slate-450 block">
+                    <label htmlFor="modal-param-name" className="text-xs font-medium uppercase tracking-wider text-slate-450 block">
                       Nama Pemeriksaan (Parameter)
                     </label>
                     <input
@@ -858,7 +858,7 @@ export default function MasterPemeriksaan() {
                       placeholder="Contoh: Darah Lengkap, Glukosa, Asam Urat"
                       value={formNamaParameter}
                       onChange={(e) => setFormNamaParameter(e.target.value)}
-                      className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xxs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
+                      className="w-full mt-1 bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2 text-xs font-normal placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
                       required
                       style={{ minHeight: '36px' }}
                     />
@@ -868,14 +868,14 @@ export default function MasterPemeriksaan() {
                   {modalMode === 'edit' && (
                     <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                       <div>
-                        <span className="text-xxs font-medium text-slate-700 block">Status Keaktifan</span>
-                        <span className="text-[9px] text-slate-400 block mt-0.5">Tampilkan parameter di input harian</span>
+                        <span className="text-xs font-medium text-slate-700 block">Status Keaktifan</span>
+                        <span className="text-xs text-slate-400 block mt-0.5">Tampilkan parameter di input harian</span>
                       </div>
                       <SearchableSelect
                         id="modal-param-active"
                         value={formIsActive}
                         onChange={(e) => setFormIsActive(Number(e.target.value))}
-                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] font-medium text-slate-700 cursor-pointer"
+                        className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 cursor-pointer"
                         style={{ minHeight: '32px' }}
                       >
                         <option value={1}>Aktif</option>
@@ -889,7 +889,7 @@ export default function MasterPemeriksaan() {
                     <button
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium px-4 py-2 rounded-lg cursor-pointer text-xxs"
+                      className="bg-slate-50 hover:bg-slate-100 text-slate-600 font-medium px-4 py-2 rounded-lg cursor-pointer text-xs"
                       style={{ minHeight: '32px' }}
                     >
                       Batal
@@ -898,7 +898,7 @@ export default function MasterPemeriksaan() {
                       id="modal-save-btn"
                       type="submit"
                       disabled={saving}
-                      className="bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-lg shadow-xs cursor-pointer text-xxs flex items-center space-x-1"
+                      className="bg-teal-600 hover:bg-teal-700 text-white font-medium px-4 py-2 rounded-lg shadow-xs cursor-pointer text-xs flex items-center space-x-1"
                       style={{ minHeight: '32px' }}
                     >
                       <Save className="h-3 w-3" />

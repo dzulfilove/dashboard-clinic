@@ -190,7 +190,7 @@ export default function DemografiDiagnosa() {
         <div className="flex flex-wrap items-center gap-2.5 bg-slate-50 p-2 rounded-2xl border border-slate-50">
           <div className="flex items-center space-x-1.5 text-slate-500">
             <Calendar className="h-3.5 w-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Periode:</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Periode:</span>
           </div>
           <input
             type="date"
@@ -269,13 +269,13 @@ export default function DemografiDiagnosa() {
                       </Pie>
                       <Tooltip 
                         contentStyle={{ background: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff' }}
-                        itemStyle={{ color: '#fff', fontSize: '11px' }}
+                        itemStyle={{ color: '#fff', fontSize: "12px" }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
                 {/* Custom list description below chart */}
-                <div className="mt-2 grid grid-cols-5 gap-1 text-[9px] font-bold text-slate-500 text-center">
+                <div className="mt-2 grid grid-cols-5 gap-1 text-xs font-bold text-slate-500 text-center">
                   {topDiagnosa.slice(0, 5).map((item, index) => (
                     <div key={index} className="truncate">
                       <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
@@ -318,7 +318,7 @@ export default function DemografiDiagnosa() {
                         <XAxis 
                           dataKey="tanggal" 
                           stroke="#94a3b8" 
-                          fontSize={9} 
+                          fontSize={12} 
                           tickLine={false} 
                           axisLine={false}
                           tickFormatter={(str) => {
@@ -326,11 +326,11 @@ export default function DemografiDiagnosa() {
                             return p.length === 3 ? `${p[2]}/${p[1]}` : str;
                           }}
                         />
-                        <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} axisLine={false} width={20} />
+                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} width={20} />
                         <Tooltip
                           contentStyle={{ background: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff' }}
-                          labelStyle={{ fontSize: '10px', fontWeight: 'bold' }}
-                          itemStyle={{ fontSize: '11px' }}
+                          labelStyle={{ fontSize: "12px", fontWeight: 'bold' }}
+                          itemStyle={{ fontSize: "12px" }}
                         />
                         {top5Codes.map((code, idx) => (
                           <Area
@@ -365,7 +365,7 @@ export default function DemografiDiagnosa() {
                     <Stethoscope className="h-4.5 w-4.5 text-teal-600" />
                     Daftar Diagnosis Terbanyak
                   </h3>
-                  <p className="text-slate-500 text-[10px]">
+                  <p className="text-slate-500 text-xs">
                     Klik pada baris tabel untuk melihat rincian karakteristik demografi penderita secara mendalam.
                   </p>
                 </div>
@@ -386,7 +386,7 @@ export default function DemografiDiagnosa() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-slate-100/70 text-[10px] font-medium uppercase text-slate-500 tracking-wider">
+                    <tr className="border-b border-slate-100/70 text-xs font-medium uppercase text-slate-500 tracking-wider">
                       <th className="py-3 px-4">Kode ICD-10</th>
                       <th className="py-3 px-4">Nama Penyakit (Deskripsi)</th>
                       <th className="py-3 px-4 text-center">Total Kasus</th>
@@ -453,7 +453,7 @@ export default function DemografiDiagnosa() {
                 >
                   {/* Diagnosis Header */}
                   <div className="space-y-1 pb-4 border-b border-slate-100/70">
-                    <span className="px-2.5 py-0.5 rounded text-[10px] font-medium uppercase bg-teal-50 text-teal-700 border border-teal-150">
+                    <span className="px-2.5 py-0.5 rounded text-xs font-medium uppercase bg-teal-50 text-teal-700 border border-teal-150">
                       Rincian Demografis Penderita
                     </span>
                     <h2 className="text-base font-semibold text-slate-900 tracking-tight flex items-baseline gap-2 mt-2">
@@ -461,7 +461,7 @@ export default function DemografiDiagnosa() {
                       <span className="text-slate-550 font-normal text-xs">|</span>
                       <span className="text-slate-800 line-clamp-1">{selectedDiag.deskripsi}</span>
                     </h2>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-xs text-slate-400">
                       Rangkuman profil gender dan kluster usia khusus untuk diagnosa medis terpilih.
                     </p>
                   </div>
@@ -471,7 +471,7 @@ export default function DemografiDiagnosa() {
                     <div className="bg-gradient-to-r from-teal-50 to-indigo-50 border border-teal-100 rounded-2xl p-4 space-y-3">
                       <div className="flex items-center space-x-1.5 text-teal-900">
                         <Sparkles className="h-4 w-4 text-teal-600 animate-pulse" />
-                        <span className="text-[10px] font-medium uppercase tracking-wider">Statistik Insight</span>
+                        <span className="text-xs font-medium uppercase tracking-wider">Statistik Insight</span>
                       </div>
                       <div className="space-y-1.5 text-slate-650 text-xs">
                         <p>
@@ -489,7 +489,7 @@ export default function DemografiDiagnosa() {
 
                   {/* Gender Distribution Pie Chart */}
                   <div className="space-y-2">
-                    <h4 className="text-[10px] font-medium uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-xs font-medium uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                       <Users className="h-3.5 w-3.5 text-slate-500" />
                       Perbandingan Gender
                     </h4>
@@ -513,14 +513,14 @@ export default function DemografiDiagnosa() {
                             </Pie>
                             <Tooltip
                               contentStyle={{ background: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff' }}
-                              itemStyle={{ fontSize: '10px' }}
+                              itemStyle={{ fontSize: "12px" }}
                             />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>
 
                       {/* Legends with detail counters */}
-                      <div className="flex-1 space-y-2 text-xxs font-medium text-slate-500">
+                      <div className="flex-1 space-y-2 text-xs font-medium text-slate-500">
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5">
                             <span className="w-2.5 h-2.5 bg-sky-500 rounded-xs font-12px"></span>
@@ -556,7 +556,7 @@ export default function DemografiDiagnosa() {
 
                   {/* Age Group Distribution Chart */}
                   <div className="space-y-2.5">
-                    <h4 className="text-[10px] font-medium uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+                    <h4 className="text-xs font-medium uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
                       <BarChart3 className="h-3.5 w-3.5 text-slate-500" />
                       Sebaran Kelompok Usia Pasien
                     </h4>
@@ -569,11 +569,11 @@ export default function DemografiDiagnosa() {
                           margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
                         >
                           <CartesianGrid strokeDasharray="2 2" horizontal={false} stroke="#f1f5f9" />
-                          <XAxis type="number" stroke="#94a3b8" fontSize={9} tickLine={false} axisLine={false} />
-                          <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={8} width={90} tickLine={false} />
+                          <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                          <YAxis dataKey="name" type="category" stroke="#64748b" fontSize={12} width={90} tickLine={false} />
                           <Tooltip
                             contentStyle={{ background: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff' }}
-                            itemStyle={{ fontSize: '10px' }}
+                            itemStyle={{ fontSize: "12px" }}
                           />
                           <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} name="Jumlah Pasien" barSize={12} />
                         </BarChart>
@@ -584,7 +584,7 @@ export default function DemografiDiagnosa() {
                   {/* Diagnostic details footer */}
                   <div className="bg-slate-50 p-3 rounded-2xl flex items-start space-x-2 border border-slate-50">
                     <Info className="h-4 w-4 text-slate-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-[10px] leading-relaxed text-slate-500">
+                    <span className="text-xs leading-relaxed text-slate-500">
                       Data ini diperoleh secara otomatis berdasarkan penegakan diagnosa oleh DPJP pada rekam medis digital di unit Rawat Jalan, IGD, dan Rawat Inap.
                     </span>
                   </div>

@@ -144,7 +144,7 @@ export default function DatabaseSettings() {
                   'bg-rose-50 border-rose-100 text-rose-800'
                 }`}>
                   <Network className="h-8 w-8 mx-auto mb-2" />
-                  <span className="text-xxs uppercase tracking-wider font-medium">STATUS ENGINE</span>
+                  <span className="text-xs uppercase tracking-wider font-medium">STATUS ENGINE</span>
                   <p className="text-lg font-semibold font-mono mt-0.5">{dbStatus.status}</p>
                 </div>
 
@@ -174,7 +174,7 @@ export default function DatabaseSettings() {
                 </div>
 
                 {dbStatus.error && (
-                  <div className="p-3 bg-slate-50 border border-slate-100 text-slate-500 text-xxs font-mono leading-relaxed rounded-xl break-words">
+                  <div className="p-3 bg-slate-50 border border-slate-100 text-slate-500 text-xs font-mono leading-relaxed rounded-xl break-words">
                     <strong>Log Diagnostik:</strong> {dbStatus.error}
                   </div>
                 )}
@@ -238,7 +238,7 @@ export default function DatabaseSettings() {
               </div>
             </div>
             
-            <div className="pt-2 text-xxs text-slate-400 border-t border-slate-100/70 leading-relaxed">
+            <div className="pt-2 text-xs text-slate-400 border-t border-slate-100/70 leading-relaxed">
               * Keamanan Terjamin: Sandi database Anda diproses secara server-side dan tidak pernah dikirimkan atau dipaparkan ke sisi client/browser.
             </div>
           </div>

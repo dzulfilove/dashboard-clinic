@@ -997,7 +997,7 @@ export default function IGD() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Users className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Kunjungan
                     </span>
                   </div>
@@ -1005,7 +1005,7 @@ export default function IGD() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {totalVisits} <span className="text-xs font-normal text-white/50">Kasus</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Kunjungan Pasien IGD</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien IGD</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -1022,7 +1022,7 @@ export default function IGD() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <ClipboardList className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Tindakan
                     </span>
                   </div>
@@ -1030,7 +1030,7 @@ export default function IGD() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {totalProcedures} <span className="text-xs font-normal text-white/50">Tindakan</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Tindakan Medis IGD Dilakukan</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis IGD Dilakukan</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -1049,7 +1049,7 @@ export default function IGD() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <TrendingUp className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       DPJP
                     </span>
                   </div>
@@ -1057,7 +1057,7 @@ export default function IGD() {
                     <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase">
                       {topDPJP}
                     </h3>
-                    <p className="text-xxs font-mono text-amber-200 font-bold mt-1">
+                    <p className="text-xs font-mono text-amber-200 font-bold mt-1">
                       {topDPJPCount} Kunjungan
                     </p>
                   </div>
@@ -1077,7 +1077,7 @@ export default function IGD() {
                 >
                   <div>
                     <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">Grafik Tren Kunjungan & Omset Harian IGD</h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Pendapatan disajikan dalam nominal ribuan rupiah (K)</p>
                   </div>
 
                   <div className="h-[280px]">
@@ -1089,11 +1089,11 @@ export default function IGD() {
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={chartTrendData}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="tanggal" fontSize={10} tickLine={false} stroke="#94a3b8" />
-                          <YAxis yAxisId="left" fontSize={10} tickLine={false} stroke="#2563eb" label={{ value: 'Kunjungan', angle: -90, position: 'insideLeft', style: {fontSize: 9, fill: '#2563eb'} }} />
-                          <YAxis yAxisId="right" orientation="right" fontSize={10} tickLine={false} stroke="#0d9488" label={{ value: 'Pendapatan (K Rp)', angle: 90, position: 'insideRight', style: {fontSize: 9, fill: '#0d9488'} }} />
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
-                          <Legend wrapperStyle={{ fontSize: '10px' }} />
+                          <XAxis dataKey="tanggal" fontSize={12} tickLine={false} stroke="#94a3b8" />
+                          <YAxis yAxisId="left" fontSize={12} tickLine={false} stroke="#2563eb" label={{ value: 'Kunjungan', angle: -90, position: 'insideLeft', style: {fontSize: 12, fill: '#2563eb'} }} />
+                          <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} stroke="#0d9488" label={{ value: 'Pendapatan (K Rp)', angle: 90, position: 'insideRight', style: {fontSize: 12, fill: '#0d9488'} }} />
+                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
+                          <Legend wrapperStyle={{ fontSize: "12px" }} />
                           <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
                           <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Tarif Pendapatan" stroke="#0f766e" strokeWidth={2.5} dot={{ r: 4 }} />
                         </ComposedChart>
@@ -1111,7 +1111,7 @@ export default function IGD() {
                 >
                   <div>
                     <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">5 Jenis Tindakan IGD Terbanyak</h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan Instalasi Gawat Darurat</p>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Distribusi klasifikasi tindakan Instalasi Gawat Darurat</p>
                   </div>
 
                   <div className="h-[250px] flex items-center justify-center">
@@ -1133,7 +1133,7 @@ export default function IGD() {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
+                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     )}
@@ -1144,7 +1144,7 @@ export default function IGD() {
                     {chartTreatmentData.map((item, idx) => (
                       <div 
                         key={idx} 
-                        className={`flex items-center justify-between text-[11px] font-medium text-slate-655 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
+                        className={`flex items-center justify-between text-xs font-medium text-slate-655 cursor-pointer p-1 rounded-md transition-colors ${procedureFilter === item.name ? 'bg-teal-50 text-teal-800' : 'hover:bg-slate-50'}`}
                         onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
                       >
                         <div className="flex items-center space-x-2 truncate max-w-[12rem]">
@@ -1183,9 +1183,9 @@ export default function IGD() {
                       <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
                       <span>10 Diagnosa Terbanyak (ICD-10) - IGD</span>
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis IGD dengan kunjungan terbanyak</p>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa rekam medis IGD dengan kunjungan terbanyak</p>
                   </div>
-                  <span className="text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
+                  <span className="text-xs font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
                     Kunjungan Terbanyak
                   </span>
                 </div>
@@ -1206,7 +1206,7 @@ export default function IGD() {
                             </span>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
+                                <span className="font-medium text-xs text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
                                   {item.kode}
                                 </span>
                                 <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
@@ -1226,7 +1226,7 @@ export default function IGD() {
                             <span className="text-xs font-medium text-slate-800 font-mono">
                               {item.count}
                             </span>
-                            <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
+                            <span className="text-xs text-slate-400 font-bold block uppercase tracking-wider">
                               Kunjungan ({percentage}%)
                             </span>
                           </div>
@@ -1297,7 +1297,7 @@ export default function IGD() {
                         {/* Status tag/dot */}
                         <div className="flex items-center justify-between">
                           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                          <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
                             {percent}%
                           </span>
                         </div>
@@ -1310,14 +1310,14 @@ export default function IGD() {
                           <p className="text-xs font-bold text-slate-700 mt-1 uppercase tracking-wide">
                             Triase {item.name}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 font-medium leading-normal">
+                          <p className="text-xs text-slate-400 mt-0.5 font-medium leading-normal">
                             {item.desc}
                           </p>
                         </div>
 
                         {/* Interactive footer indicating click-to-filter */}
                         <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className={`text-[9px] font-medium ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
+                          <span className={`text-xs font-medium ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
                             {isActive ? '✓ Aktif Memfilter' : 'Klik Untuk Filter'}
                           </span>
                           <ArrowRight className={`h-2.5 w-2.5 transition-all ${isActive ? 'text-teal-500 translate-x-1' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'}`} />
@@ -1330,12 +1330,12 @@ export default function IGD() {
                 {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
                 <div className="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col justify-between shadow-sm">
                   <div className="text-left">
-                    <span className="text-slate-400 text-[9px] font-medium uppercase tracking-widest block">Distribusi Persentase</span>
+                    <span className="text-slate-400 text-xs font-medium uppercase tracking-widest block">Distribusi Persentase</span>
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase IGD</span>
                   </div>
                   
                   {records.length === 0 ? (
-                    <div className="text-center py-6 text-slate-400 text-xxs font-medium">
+                    <div className="text-center py-6 text-slate-400 text-xs font-medium">
                       Belum ada data kunjungan
                     </div>
                   ) : (
@@ -1363,7 +1363,7 @@ export default function IGD() {
                         <span className="text-base font-black text-slate-800 font-mono tracking-tight leading-none">
                           {records.length}
                         </span>
-                        <span className="text-[7px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">
+                        <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mt-0.5">
                           Total
                         </span>
                       </div>
@@ -1375,7 +1375,7 @@ export default function IGD() {
                     {triageStats.map((item) => (
                       <div key={item.key} className="flex flex-col items-center">
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                        <span className="text-[9px] font-medium text-slate-700 mt-0.5 font-mono">
+                        <span className="text-xs font-medium text-slate-700 mt-0.5 font-mono">
                           {item.count}
                         </span>
                       </div>
@@ -1386,7 +1386,7 @@ export default function IGD() {
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
-                <span className="text-slate-450 text-[10px] font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
+                <span className="text-slate-450 text-xs font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
@@ -1488,7 +1488,7 @@ export default function IGD() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-slate-50/50 border-b border-slate-100/70 text-[10.5px] text-slate-500 font-semibold tracking-wider uppercase">
+                          <tr className="bg-slate-50/50 border-b border-slate-100/70 text-xs text-slate-500 font-semibold tracking-wider uppercase">
                           <th className="px-6 py-4.5">No. Registrasi / RM</th>
                           <th className="px-6 py-4.5">Nama Lengkap Pasien</th>
                           <th className="px-6 py-4.5">Diagnosis (ICD-10)</th>
@@ -1516,8 +1516,8 @@ export default function IGD() {
                                 >
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
-                                    <span className="font-medium text-slate-900 font-mono text-[11.5px]">{rec.no_registrasi}</span>
-                                    <span className="text-slate-400 font-mono text-[10px] mt-0.5">RM: #{rec.no_rm}</span>
+                                    <span className="font-medium text-slate-900 font-mono text-xs">{rec.no_registrasi}</span>
+                                    <span className="text-slate-400 font-mono text-xs mt-0.5">RM: #{rec.no_rm}</span>
                                   </div>
                                 </td>
                                 <td className="px-6 py-4.5">
@@ -1528,7 +1528,7 @@ export default function IGD() {
                                         {(() => {
                                           const ts = getTriageStyle(rec.triase);
                                           return (
-                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${ts.bg}`}>
+                                            <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${ts.bg}`}>
                                               <span className={`h-1 w-1 rounded-full ${ts.dotBg}`}></span>
                                               <span>{ts.text.split(' / ')[0]}</span>
                                             </span>
@@ -1544,16 +1544,16 @@ export default function IGD() {
                                     const icdInfo = icdList.find(i => i.kode_icd === diag);
                                     return diag ? (
                                       <div className="flex flex-col">
-                                        <span className="font-semibold text-slate-800 text-[11px]">{diag}</span>
-                                        {icdInfo && <span className="text-slate-400 text-[10px] truncate max-w-[150px]">{icdInfo.deskripsi}</span>}
+                                        <span className="font-semibold text-slate-800 text-xs">{diag}</span>
+                                        {icdInfo && <span className="text-slate-400 text-xs truncate max-w-[150px]">{icdInfo.deskripsi}</span>}
                                       </div>
                                     ) : (
-                                      <span className="text-[11px] text-slate-400">-</span>
+                                      <span className="text-xs text-slate-400">-</span>
                                     );
                                   })()}
                                 </td>
                                 <td className="px-6 py-4.5">
-                                  <span className="text-[11px] font-medium text-slate-700">
+                                  <span className="text-xs font-medium text-slate-700">
                                     {rec.dpjp || '-'}
                                   </span>
                                 </td>
@@ -1561,7 +1561,7 @@ export default function IGD() {
                                   {new Date(rec.tanggal_pelayanan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 </td>
                                 <td className="px-6 py-4.5 text-center">
-                                  <span className="inline-flex items-center px-2.5 py-1 text-xxs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
+                                  <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-teal-50 border border-teal-150 text-teal-700 rounded-lg">
                                     {rec.tindakan.length} Tindakan
                                   </span>
                                 </td>
@@ -1606,10 +1606,10 @@ export default function IGD() {
                                   <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100/80">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                                        <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
+                                        <h4 className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
                                           <span>Rincian Tindakan Pelayanan Medis IGD</span>
                                         </h4>
-                                        <span className="text-[10px] text-slate-400">Kode Kunjungan Unik: ID #{rec.id}</span>
+                                        <span className="text-xs text-slate-400">Kode Kunjungan Unik: ID #{rec.id}</span>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1621,11 +1621,11 @@ export default function IGD() {
                                                 <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
                                                   {t.tindakan_nama}
                                                 </h5>
-                                                <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                                <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
                                                   x{t.jumlah}
                                                 </span>
                                               </div>
-                                              <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                              <p className="text-xs text-slate-400 font-mono mt-1 flex items-center space-x-1">
                                                 <Clock className="h-3 w-3 inline-block" />
                                                 <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
                                               </p>
@@ -1770,14 +1770,14 @@ export default function IGD() {
                             </div>
 
                             {duplicateMap[p.no_registrasi] ? (
-                              <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
+                              <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
                                 <span className="text-xs mt-0.5">⚠️</span>
                                 <span>
                                   <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
                                 </span>
                               </div>
                             ) : (
-                              <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+                              <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
                                 <span className="text-xs mt-0.5">🆕</span>
                                 <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
                               </div>
@@ -1933,10 +1933,10 @@ export default function IGD() {
                           required
                         />
                         {checkingManualDuplicate && (
-                          <p className="text-[10px] text-teal-600 mt-1 font-bold animate-pulse">Memeriksa nomor registrasi...</p>
+                          <p className="text-xs text-teal-600 mt-1 font-bold animate-pulse">Memeriksa nomor registrasi...</p>
                         )}
                         {!checkingManualDuplicate && manualDuplicateData && (
-                          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-[10px] p-2.5 rounded-lg mt-1.5 font-sans space-y-0.5 leading-relaxed">
+                          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-2.5 rounded-lg mt-1.5 font-sans space-y-0.5 leading-relaxed">
                             <p className="font-bold flex items-center text-amber-900">
                               <span className="mr-1">⚠️</span> Nomor Registrasi Sudah Terdaftar
                             </p>

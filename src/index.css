@@ -1,25 +1,58 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300..1000;1,300..1000&display=swap');
+@import "tailwindcss";
 
 @theme {
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Nunito", sans-serif;
   --font-mono: "Nunito", sans-serif;
-  --text-xxs: 0.65rem;
+  --text-xs: 0.75rem;
+  --text-xxs: 0.75rem;
+}
+
+@utility text-xs {
+  font-size: 0.75rem !important;
+  line-height: 1rem;
 }
 
 @utility text-xxs {
-  font-size: 0.65rem;
-  line-height: 0.875rem;
+  font-size: 0.75rem !important;
+  line-height: 1rem;
 }
 
-body {
+body, button, input, select, textarea {
   font-family: var(--font-sans);
 }
 
-th {
-  font-size: 0.75rem;
-  font-weight: 600;
+/* Force minimum font size of 12px (0.75rem) globally */
+th, td, label, span, p, div, a, button, input, select, textarea {
+  min-font-size: 12px;
+}
+
+/* Ensure no font size falls below 12px */
+.text-xs,
+.text-xxs,
+[class*="text-["] {
+  font-size: max(12px, 0.75rem);
+}
+
+/* Specific sub-12px utility overrides */
+[class*="text-[5px]"],
+[class*="text-[6px]"],
+[class*="text-[7px]"],
+[class*="text-[8px]"],
+[class*="text-[9px]"],
+[class*="text-[10px]"],
+[class*="text-[11px]"] {
+  font-size: 12px !important;
+}
+
+/* Recharts & SVG text minimum 12px */
+.recharts-text,
+.recharts-cartesian-axis-tick-value,
+.recharts-legend-item-text,
+.recharts-tooltip-item,
+svg text {
+  font-size: 12px !important;
 }
 
 /* Custom Scrollbar Styling */

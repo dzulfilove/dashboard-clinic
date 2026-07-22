@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { motion, AnimatePresence } from 'motion/react';
+import Logo from './Logo.js';
 import { 
   Home, 
   FlaskConical, 
@@ -158,17 +159,12 @@ export default function Sidebar() {
       {/* Mobile Header with Glass Look */}
       <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-slate-950/95 backdrop-blur-md text-white shadow-lg z-40">
         <div className="flex items-center space-x-3">
-          <div className="bg-white p-0.5 rounded-xl flex items-center justify-center shadow-md h-11 w-11 overflow-hidden flex-shrink-0">
-            <img 
-              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779718724/ChatGPT_Image_May_25_2026_09_17_41_PM_u7zjgg.png" 
-              alt="Logo Klinik Puri Medika" 
-              className="h-full w-auto object-contain"
-              referrerPolicy="no-referrer"
-            />
+          <div className="bg-slate-900 p-1.5 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-slate-800">
+            <Logo size={36} />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="font-semibold text-[10px] text-teal-400 tracking-wider uppercase font-display leading-none">Klinik</span>
-            <span className="font-bold text-sm text-white font-display leading-tight mt-0.5">Puri Medika</span>
+            <span className="font-extrabold text-sm text-white font-display leading-tight">Klinik Puri Medika</span>
+            <span className="font-semibold text-xs text-teal-400 tracking-wider uppercase font-display leading-none">Sistem Informasi Klinik</span>
           </div>
         </div>
         <button 
@@ -209,27 +205,17 @@ export default function Sidebar() {
           <div className="flex items-center justify-between px-6 py-5 bg-slate-950/40 backdrop-blur-md">
             <div className="flex items-center space-x-3 overflow-hidden">
               {collapsed ? (
-                <div className="h-11 w-11 flex-shrink-0 bg-white p-0.5 rounded-xl flex items-center justify-center shadow-md overflow-hidden">
-                  <img 
-                    src="https://res.cloudinary.com/diipdl14x/image/upload/v1779718724/ChatGPT_Image_May_25_2026_09_17_41_PM_u7zjgg.png" 
-                    alt="Logo" 
-                    className="h-full w-auto object-contain" 
-                    referrerPolicy="no-referrer"
-                  />
+                <div className="h-11 w-11 flex-shrink-0 bg-slate-900 p-1.5 rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                  <Logo size={32} />
                 </div>
               ) : (
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="h-12 w-12 flex-shrink-0 bg-white p-0.5 rounded-xl flex items-center justify-center shadow-md overflow-hidden">
-                    <img 
-                      src="https://res.cloudinary.com/diipdl14x/image/upload/v1779718724/ChatGPT_Image_May_25_2026_09_17_41_PM_u7zjgg.png" 
-                      alt="Logo Klinik Puri Medika" 
-                      className="h-full w-auto object-contain"
-                      referrerPolicy="no-referrer"
-                    />
+                  <div className="h-11 w-11 flex-shrink-0 bg-slate-900 p-1.5 rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                    <Logo size={34} />
                   </div>
                   <div className="flex flex-col justify-center whitespace-nowrap overflow-hidden">
-                    <span className="font-semibold text-[10px] text-teal-400 tracking-wider uppercase font-display leading-none">Klinik</span>
-                    <span className="font-bold text-sm text-white font-display leading-tight mt-1">Puri Medika</span>
+                    <span className="font-extrabold text-base text-white tracking-tight leading-none">Klinik Puri Medika<span className="text-teal-400">.</span></span>
+                    <span className="font-semibold text-xs text-teal-400 tracking-wider uppercase leading-tight mt-1">Sistem Informasi Klinik</span>
                   </div>
                 </div>
               )}
@@ -316,7 +302,7 @@ export default function Sidebar() {
                                   <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-650" />
                                   <span className="truncate">{subItem.name}</span>
                                 </div>
-                                <span className="text-[8px] leading-none bg-slate-900 text-teal-400/80 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">Segera</span>
+                                <span className="text-xs leading-none bg-slate-900 text-teal-400/80 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">Segera</span>
                               </div>
                             );
                           }
@@ -358,7 +344,7 @@ export default function Sidebar() {
                 </div>
                 <div className="flex flex-col truncate">
                   <span className="text-xs font-semibold text-slate-200 truncate">{user.nama}</span>
-                  <span className="text-xxs font-mono uppercase bg-teal-950/60 text-teal-350 px-2 py-0.5 rounded self-start mt-0.5 tracking-wider font-medium">
+                  <span className="text-xs font-mono uppercase bg-teal-950/60 text-teal-350 px-2 py-0.5 rounded self-start mt-0.5 tracking-wider font-medium">
                     {user.role}
                   </span>
                 </div>

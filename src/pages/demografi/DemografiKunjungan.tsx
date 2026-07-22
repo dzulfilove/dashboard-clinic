@@ -564,7 +564,7 @@ export default function DemografiKunjungan() {
                     <Filter className="h-4.5 w-4.5 text-teal-600" />
                     <div>
                       <h3 className="text-sm font-bold font-display">Filter Periode Kunjungan</h3>
-                      <p className="text-xxs text-slate-400">Pilih rentang tanggal untuk menganalisis loyalitas kunjungan.</p>
+                      <p className="text-xs text-slate-400">Pilih rentang tanggal untuk menganalisis loyalitas kunjungan.</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -594,7 +594,7 @@ export default function DemografiKunjungan() {
                     <Star className="h-5 w-5 fill-amber-400" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-slate-400 font-bold">Pasien Loyal Terdaftar</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-slate-400 font-bold">Pasien Loyal Terdaftar</h4>
                     <span className="text-xl font-extrabold font-display text-slate-850">
                       {loyalPatients.length} Pasien
                     </span>
@@ -618,7 +618,7 @@ export default function DemografiKunjungan() {
                         </div>
                         <div>
                           <h2 className="text-sm font-bold text-slate-850 font-display">Top 20 Pasien Terloyal (All-Time)</h2>
-                          <p className="text-xxs text-slate-400">Urutan pasien dengan total kunjungan kumulatif terbanyak.</p>
+                          <p className="text-xs text-slate-400">Urutan pasien dengan total kunjungan kumulatif terbanyak.</p>
                         </div>
                       </div>
                       
@@ -630,7 +630,7 @@ export default function DemografiKunjungan() {
                           placeholder="Cari pasien..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-8 pr-3 py-1 text-xxs w-full rounded-lg border border-slate-100 outline-none focus:ring-1 focus:ring-teal-550 bg-slate-50 text-slate-800"
+                          className="pl-8 pr-3 py-1 text-xs w-full rounded-lg border border-slate-100 outline-none focus:ring-1 focus:ring-teal-550 bg-slate-50 text-slate-800"
                         />
                       </div>
                     </div>
@@ -641,7 +641,7 @@ export default function DemografiKunjungan() {
                       ) : (
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="text-xxs font-bold text-slate-400 border-b border-slate-100 uppercase tracking-wider">
+                            <tr className="text-xs font-bold text-slate-400 border-b border-slate-100 uppercase tracking-wider">
                               <th className="py-2.5 pl-2 w-10">
                                 <input
                                   type="checkbox"
@@ -686,16 +686,16 @@ export default function DemografiKunjungan() {
                                 </td>
                                 <td className="py-2">
                                   <div className="flex items-center space-x-2">
-                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${index < 3 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
                                       {index + 1}
                                     </span>
                                     <div>
                                       <div className="font-semibold text-slate-850 text-xs truncate max-w-[140px]">{p.nama}</div>
-                                      <span className="text-[9px] text-slate-400 block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
+                                      <span className="text-xs text-slate-400 block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-2 text-xxs font-mono font-medium text-slate-500">{p.no_rm}</td>
+                                <td className="py-2 text-xs font-mono font-medium text-slate-500">{p.no_rm}</td>
                                 <td className="py-2 text-right text-xs font-bold text-slate-850 pr-2">{p.total_visits}x</td>
                                 <td className="py-2 text-center">
                                   <div className="flex items-center justify-center space-x-1">
@@ -727,12 +727,12 @@ export default function DemografiKunjungan() {
 
                   {selectedAllTime.length > 0 && (
                     <div className="mt-4 p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl flex items-center justify-between">
-                      <span className="text-xxs font-semibold text-indigo-750">
+                      <span className="text-xs font-semibold text-indigo-750">
                         {selectedAllTime.length} Pasien Terpilih
                       </span>
                       <button
                         onClick={() => handleSetLoyalBulk('alltime')}
-                        className="px-3 py-1.5 text-xxs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                        className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
                       >
                         <UserPlus className="h-3.5 w-3.5" />
                         Tetapkan Loyal
@@ -756,7 +756,7 @@ export default function DemografiKunjungan() {
                         </div>
                         <div>
                           <h2 className="text-sm font-bold text-slate-850 font-display">Top Pasien Periode Terpilih</h2>
-                          <p className="text-xxs text-slate-400">Total kunjungan dalam rentang tanggal terfilter.</p>
+                          <p className="text-xs text-slate-400">Total kunjungan dalam rentang tanggal terfilter.</p>
                         </div>
                       </div>
                     </div>
@@ -767,7 +767,7 @@ export default function DemografiKunjungan() {
                       ) : (
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="text-xxs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
+                            <tr className="text-xs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
                               <th className="py-2.5 pl-2 w-10 text-center">
                                 <input
                                   type="checkbox"
@@ -812,16 +812,16 @@ export default function DemografiKunjungan() {
                                 </td>
                                 <td className="py-2">
                                   <div className="flex items-center space-x-2">
-                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-bold ${index < 3 ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
                                       {index + 1}
                                     </span>
                                     <div>
                                       <div className="font-semibold text-slate-850 text-xs truncate max-w-[140px]">{p.nama}</div>
-                                      <span className="text-[9px] text-slate-400 block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
+                                      <span className="text-xs text-slate-400 block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-2 text-xxs font-mono font-medium text-slate-500">{p.no_rm}</td>
+                                <td className="py-2 text-xs font-mono font-medium text-slate-500">{p.no_rm}</td>
                                 <td className="py-2 text-right text-xs font-bold text-slate-850 pr-2">{p.total_visits}x</td>
                                 <td className="py-2 text-center">
                                   <div className="flex items-center justify-center space-x-1">
@@ -853,12 +853,12 @@ export default function DemografiKunjungan() {
 
                   {selectedPeriod.length > 0 && (
                     <div className="mt-4 p-3 bg-teal-50/75 border border-teal-100 rounded-xl flex items-center justify-between">
-                      <span className="text-xxs font-semibold text-teal-850">
+                      <span className="text-xs font-semibold text-teal-850">
                         {selectedPeriod.length} Pasien Terpilih
                       </span>
                       <button
                         onClick={() => handleSetLoyalBulk('period')}
-                        className="px-3 py-1.5 text-xxs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                        className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
                       >
                         <UserPlus className="h-3.5 w-3.5" />
                         Tetapkan Loyal
@@ -882,7 +882,7 @@ export default function DemografiKunjungan() {
                     </div>
                     <div>
                       <h2 className="text-sm font-bold text-slate-850 font-display">Daftar Pasien Loyal Terdaftar</h2>
-                      <p className="text-xxs text-slate-400">Kelola komunikasi broadcast WhatsApp dan riwayat follow-up pasien loyal terdaftar.</p>
+                      <p className="text-xs text-slate-400">Kelola komunikasi broadcast WhatsApp dan riwayat follow-up pasien loyal terdaftar.</p>
                     </div>
                   </div>
 
@@ -901,14 +901,14 @@ export default function DemografiKunjungan() {
                   {loyalLoading ? (
                     <div className="py-12 text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div>
-                      <span className="text-xxs text-slate-400 mt-2 block">Memuat daftar pasien loyal...</span>
+                      <span className="text-xs text-slate-400 mt-2 block">Memuat daftar pasien loyal...</span>
                     </div>
                   ) : loyalPatients.length === 0 ? (
                     <div className="py-12 text-center text-slate-400 text-xs">Belum ada pasien loyal yang terdaftar secara aktif.</div>
                   ) : (
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="text-xxs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
+                        <tr className="text-xs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
                           <th className="py-2.5 pl-2 w-10 text-center">
                             <input
                               type="checkbox"
@@ -951,14 +951,14 @@ export default function DemografiKunjungan() {
                             <td className="py-3">
                               <div>
                                 <span className="font-semibold text-slate-850 text-xs block">{p.pasien_nama}</span>
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-medium bg-slate-100 text-slate-500 border border-slate-200 inline-block mt-0.5">
+                                <span className="px-1.5 py-0.5 rounded text-xs font-mono font-medium bg-slate-100 text-slate-500 border border-slate-200 inline-block mt-0.5">
                                   RM: {p.pasien_no_rm}
                                 </span>
                               </div>
                             </td>
                             <td className="py-3">
                               <div className="flex items-center space-x-1.5">
-                                <span className="text-xxs font-mono font-medium text-slate-700">{p.no_telp || '-'}</span>
+                                <span className="text-xs font-mono font-medium text-slate-700">{p.no_telp || '-'}</span>
                                 <button
                                   onClick={() => handleUpdatePhone(p.pasien_no_rm, p.no_telp)}
                                   className="p-1 rounded text-slate-400 hover:text-teal-600 hover:bg-teal-550/10 transition-colors cursor-pointer"
@@ -971,10 +971,10 @@ export default function DemografiKunjungan() {
                             <td className="py-3 text-xs font-semibold text-slate-850">
                               {p.total_visits_snapshot} Kunjungan
                             </td>
-                            <td className="py-3 text-xxs font-medium text-slate-500">
+                            <td className="py-3 text-xs font-medium text-slate-500">
                               {new Date(p.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
                             </td>
-                            <td className="py-3 text-xxs text-slate-500 max-w-[180px] truncate" title={p.catatan}>
+                            <td className="py-3 text-xs text-slate-500 max-w-[180px] truncate" title={p.catatan}>
                               {p.catatan || '-'}
                             </td>
                             <td className="py-3 text-center">
@@ -1033,7 +1033,7 @@ export default function DemografiKunjungan() {
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-white/80 font-bold">Total Wilayah Kota</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-white/80 font-bold">Total Wilayah Kota</h4>
                     <span className="text-xl font-extrabold font-display text-white">
                       {byKota.filter(c => c.kota !== 'Tidak Diketahui').length} Kota/Kab
                     </span>
@@ -1049,7 +1049,7 @@ export default function DemografiKunjungan() {
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-white/80 font-bold">Total Kecamatan</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-white/80 font-bold">Total Kecamatan</h4>
                     <span className="text-xl font-extrabold font-display text-white">
                       {byKecamatan.filter(k => k.kecamatan !== 'Tidak Diketahui').length} Kecamatan
                     </span>
@@ -1065,7 +1065,7 @@ export default function DemografiKunjungan() {
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-xxs uppercase tracking-wider text-white/80 font-bold">Total Kelurahan</h4>
+                    <h4 className="text-xs uppercase tracking-wider text-white/80 font-bold">Total Kelurahan</h4>
                     <span className="text-xl font-extrabold font-display text-white">
                       {byKelurahan.filter(k => k.kelurahan !== 'Tidak Diketahui').length} Kelurahan
                     </span>
@@ -1084,7 +1084,7 @@ export default function DemografiKunjungan() {
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h2 className="text-sm font-bold text-slate-850 font-display">Grafik Pasien & Kunjungan Berdasarkan Kota/Kabupaten</h2>
-                      <p className="text-xxs text-slate-400">Membandingkan jumlah pasien terdaftar (Bar) dengan total kunjungan (Line).</p>
+                      <p className="text-xs text-slate-400">Membandingkan jumlah pasien terdaftar (Bar) dengan total kunjungan (Line).</p>
                     </div>
                   </div>
 
@@ -1095,10 +1095,10 @@ export default function DemografiKunjungan() {
                         margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="kota" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                        <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                        <XAxis dataKey="kota" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                         <Tooltip />
-                        <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                        <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                         <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={28} />
                         <Bar dataKey="jumlah_kunjungan" name="Total Kunjungan" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={28} />
                       </BarChart>
@@ -1115,12 +1115,12 @@ export default function DemografiKunjungan() {
                 >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Data Populasi Wilayah (Kota)</h3>
-                    <p className="text-xxs text-slate-400">Detail rincian pasien per domisili kabupaten/kota.</p>
+                    <p className="text-xs text-slate-400">Detail rincian pasien per domisili kabupaten/kota.</p>
                   </div>
                   <div className="overflow-y-auto max-h-72">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
-                        <tr className="text-xxs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                           <th className="py-2">Kabupaten / Kota</th>
                           <th className="py-2 text-right">Pasien</th>
                           <th className="py-2 text-right">Kunjungan</th>
@@ -1151,7 +1151,7 @@ export default function DemografiKunjungan() {
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kecamatan</h3>
-                      <p className="text-xxs text-slate-400 font-medium text-slate-500">Kecamatan teraktif berdasarkan jumlah pasien.</p>
+                      <p className="text-xs text-slate-400 font-medium text-slate-500">Kecamatan teraktif berdasarkan jumlah pasien.</p>
                     </div>
                   </div>
                   <div className="h-64">
@@ -1162,8 +1162,8 @@ export default function DemografiKunjungan() {
                         margin={{ top: 10, right: 10, left: 30, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                        <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                        <YAxis type="category" dataKey="kecamatan" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
+                        <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                        <YAxis type="category" dataKey="kecamatan" stroke="#94a3b8" fontSize={12} tickLine={false} width={80} />
                         <Tooltip />
                         <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#0ea5e9" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kecamatan && handleGroupClick('kecamatan', data.kecamatan)} cursor="pointer" />
                       </BarChart>
@@ -1180,7 +1180,7 @@ export default function DemografiKunjungan() {
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
                       <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kelurahan</h3>
-                      <p className="text-xxs text-slate-400 font-medium text-slate-500">Kelurahan teraktif berdasarkan jumlah pasien.</p>
+                      <p className="text-xs text-slate-400 font-medium text-slate-500">Kelurahan teraktif berdasarkan jumlah pasien.</p>
                     </div>
                   </div>
                   <div className="h-64">
@@ -1191,8 +1191,8 @@ export default function DemografiKunjungan() {
                         margin={{ top: 10, right: 10, left: 30, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                        <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                        <YAxis type="category" dataKey="kelurahan" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
+                        <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                        <YAxis type="category" dataKey="kelurahan" stroke="#94a3b8" fontSize={12} tickLine={false} width={80} />
                         <Tooltip />
                         <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kelurahan && handleGroupClick('kelurahan', data.kelurahan)} cursor="pointer" />
                       </BarChart>
@@ -1222,7 +1222,7 @@ export default function DemografiKunjungan() {
                 >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Proporsi Gender Pasien</h3>
-                    <p className="text-xxs text-slate-400">Pembagian jumlah pasien terdaftar berdasarkan jenis kelamin.</p>
+                    <p className="text-xs text-slate-400">Pembagian jumlah pasien terdaftar berdasarkan jenis kelamin.</p>
                   </div>
 
                   <div className="h-64 flex items-center justify-center relative">
@@ -1245,7 +1245,7 @@ export default function DemografiKunjungan() {
                           ))}
                         </Pie>
                         <Tooltip formatter={(value) => `${value} Pasien`} />
-                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -1254,9 +1254,9 @@ export default function DemografiKunjungan() {
                   <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                     {byGender.map((item, index) => (
                       <div key={index} className="text-center">
-                        <span className="text-xxs text-slate-400 font-bold block">{item.jenis_kelamin}</span>
+                        <span className="text-xs text-slate-400 font-bold block">{item.jenis_kelamin}</span>
                         <span className="text-base font-extrabold text-slate-850">
-                          {item.jumlah} <span className="text-xxs text-slate-400 font-normal">({totalPatients > 0 ? ((item.jumlah / totalPatients) * 100).toFixed(1) : 0}%)</span>
+                          {item.jumlah} <span className="text-xs text-slate-400 font-normal">({totalPatients > 0 ? ((item.jumlah / totalPatients) * 100).toFixed(1) : 0}%)</span>
                         </span>
                       </div>
                     ))}
@@ -1272,7 +1272,7 @@ export default function DemografiKunjungan() {
                 >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Distribusi Berdasarkan Kelompok Usia</h3>
-                    <p className="text-xxs text-slate-400">Pengelompokan usia klinis pasien terdaftar di database.</p>
+                    <p className="text-xs text-slate-400">Pengelompokan usia klinis pasien terdaftar di database.</p>
                   </div>
 
                   <div className="h-80 w-full text-xs">
@@ -1282,8 +1282,8 @@ export default function DemografiKunjungan() {
                         margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="kelompok_usia" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                        <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                        <XAxis dataKey="kelompok_usia" stroke="#94a3b8" fontSize={12} tickLine={false} />
+                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                         <Tooltip />
                         <Bar dataKey="jumlah" name="Jumlah Pasien" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={34} onClick={(data: any) => data?.kelompok_usia && handleGroupClick('usia', data.kelompok_usia)} cursor="pointer">
                           {byAgeGroup.map((entry, index) => (
@@ -1313,7 +1313,7 @@ export default function DemografiKunjungan() {
                   </p>
                 </div>
                 <div className="bg-white border border-teal-100 rounded-xl px-5 py-3 relative z-10 text-center flex-shrink-0 min-w-[160px] shadow-xs">
-                  <span className="text-xxs text-slate-400 block uppercase font-bold tracking-wider">Total Pasien Terdaftar</span>
+                  <span className="text-xs text-slate-400 block uppercase font-bold tracking-wider">Total Pasien Terdaftar</span>
                   <span className="text-2xl font-black text-teal-600">{totalPatients} Jiwa</span>
                 </div>
               </motion.div>
@@ -1437,7 +1437,7 @@ export default function DemografiKunjungan() {
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-slate-900 font-display uppercase tracking-wider">Profil & Riwayat Pasien</h3>
-                    <span className="text-xxs text-teal-600 font-mono">No. RM: {selectedPatient.no_rm}</span>
+                    <span className="text-xs text-teal-600 font-mono">No. RM: {selectedPatient.no_rm}</span>
                   </div>
                 </div>
                 <button
@@ -1451,8 +1451,8 @@ export default function DemografiKunjungan() {
 
               {/* Patient Basic Profile details */}
               <div className="p-6 bg-slate-50/50 border-b border-slate-200 space-y-4">
-                <h4 className="text-xxs uppercase tracking-wider text-teal-650 font-bold">Informasi Demografis</h4>
-                <div className="grid grid-cols-2 gap-4 text-xxs font-medium text-slate-550">
+                <h4 className="text-xs uppercase tracking-wider text-teal-650 font-bold">Informasi Demografis</h4>
+                <div className="grid grid-cols-2 gap-4 text-xs font-medium text-slate-550">
                   <div>
                     <span className="text-slate-450 block">Nama Pasien</span>
                     <span className="text-slate-800 text-xs font-semibold">{selectedPatient.nama}</span>
@@ -1479,8 +1479,8 @@ export default function DemografiKunjungan() {
               {/* History Timeline of Visits */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xxs uppercase tracking-wider text-teal-650 font-bold">Daftar Kunjungan All-Time</h4>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-550 text-teal-750 border border-teal-150">
+                  <h4 className="text-xs uppercase tracking-wider text-teal-650 font-bold">Daftar Kunjungan All-Time</h4>
+                  <span className="px-2 py-0.5 rounded text-xs font-bold bg-teal-550 text-teal-750 border border-teal-150">
                     {selectedPatient.total_visits} Kali
                   </span>
                 </div>
@@ -1488,7 +1488,7 @@ export default function DemografiKunjungan() {
                 {historyLoading ? (
                   <div className="flex flex-col items-center justify-center py-10 bg-white">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
-                    <span className="text-xxs text-slate-400 mt-2">Memuat riwayat...</span>
+                    <span className="text-xs text-slate-400 mt-2">Memuat riwayat...</span>
                   </div>
                 ) : patientHistory.length === 0 ? (
                   <div className="py-12 text-center text-xs text-slate-550 font-medium">Belum ada catatan riwayat kunjungan pelayanan.</div>
@@ -1501,11 +1501,11 @@ export default function DemografiKunjungan() {
                         
                         <div className="bg-slate-50 hover:bg-slate-100/70 transition-colors p-4 rounded-xl border border-slate-200/85 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono font-medium text-slate-550 flex items-center gap-1">
+                            <span className="text-xs font-mono font-medium text-slate-550 flex items-center gap-1">
                               <Clock className="h-3 w-3 text-slate-400" />
                               {item.tanggal_pelayanan}
                             </span>
-                            <span className={`text-[9px] font-medium px-2 py-0.5 rounded border ${
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded border ${
                               item.tipe === 'Rawat Jalan' ? 'bg-teal-50 text-teal-700 border-teal-150' :
                               item.tipe === 'IGD' ? 'bg-amber-50 text-amber-700 border-amber-150' :
                               'bg-indigo-50 text-indigo-700 border-indigo-150'
@@ -1514,12 +1514,12 @@ export default function DemografiKunjungan() {
                             </span>
                           </div>
 
-                          <div className="text-xxs font-medium">
+                          <div className="text-xs font-medium">
                             <span className="text-slate-400 block">DPJP / Dokter Pelaksana</span>
                             <span className="text-slate-700 font-semibold">{item.dpjp}</span>
                           </div>
 
-                          <div className="text-xxs font-medium bg-white p-2 rounded-lg border border-slate-200/70">
+                          <div className="text-xs font-medium bg-white p-2 rounded-lg border border-slate-200/70">
                             <span className="text-slate-400 block">Diagnosa ICD-10</span>
                             <span className="text-slate-600 font-mono font-medium">{item.icd}</span>
                           </div>
@@ -1566,7 +1566,7 @@ export default function DemografiKunjungan() {
                     <h3 className="text-xs font-bold uppercase tracking-wider font-display">
                       {showWaModal.isBroadcast ? 'Broadcast WhatsApp Pasien Loyal' : 'Kirim WhatsApp Pasien'}
                     </h3>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-xs text-slate-400">
                       {showWaModal.isBroadcast 
                         ? `Akan dikirim ke ${selectedRegisteredLoyal.length} pasien secara berurutan.`
                         : `Kirim ke: ${showWaModal.patient?.pasien_nama} (${showWaModal.patient?.no_telp || '-'})`
@@ -1584,7 +1584,7 @@ export default function DemografiKunjungan() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xxs uppercase tracking-wider text-slate-450 font-bold block">Pesan WhatsApp</label>
+                <label className="text-xs uppercase tracking-wider text-slate-450 font-bold block">Pesan WhatsApp</label>
                 <textarea
                   value={waMessage}
                   onChange={(e) => setWaMessage(e.target.value)}
@@ -1593,7 +1593,7 @@ export default function DemografiKunjungan() {
                   placeholder="Tulis pesan Anda di sini..."
                 />
                 {showWaModal.isBroadcast && (
-                  <p className="text-[9px] text-slate-400">
+                  <p className="text-xs text-slate-400">
                     <span className="font-semibold text-teal-600">Info:</span> Gunakan tag <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-teal-700">[Nama]</code> untuk menyisipkan nama masing-masing pasien secara dinamis saat broadcast.
                   </p>
                 )}
@@ -1663,7 +1663,7 @@ export default function DemografiKunjungan() {
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-slate-900 font-display uppercase tracking-wider">Riwayat WhatsApp Pasien</h3>
-                    <span className="text-xxs text-indigo-600 font-mono">Pasien: {showHistoryModal.patient?.pasien_nama || showHistoryModal.patient?.nama}</span>
+                    <span className="text-xs text-indigo-600 font-mono">Pasien: {showHistoryModal.patient?.pasien_nama || showHistoryModal.patient?.nama}</span>
                   </div>
                 </div>
                 <button
@@ -1680,7 +1680,7 @@ export default function DemografiKunjungan() {
                 {waHistoryLoading ? (
                   <div className="flex flex-col items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-                    <span className="text-xxs text-slate-400 mt-2 block">Memuat riwayat pesan...</span>
+                    <span className="text-xs text-slate-400 mt-2 block">Memuat riwayat pesan...</span>
                   </div>
                 ) : waHistory.length === 0 ? (
                   <div className="py-12 text-center text-xs text-slate-400 font-medium">Belum ada riwayat pesan WhatsApp yang terekam untuk pasien ini.</div>
@@ -1693,11 +1693,11 @@ export default function DemografiKunjungan() {
                         
                         <div className="bg-slate-50 hover:bg-slate-100/70 transition-colors p-4 rounded-xl border border-slate-200/85 space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono font-medium text-slate-550 flex items-center gap-1">
+                            <span className="text-xs font-mono font-medium text-slate-550 flex items-center gap-1">
                               <Clock className="h-3 w-3 text-slate-400" />
                               {new Date(item.sent_at).toLocaleString('id-ID')}
                             </span>
-                            <span className={`text-[9px] font-semibold px-2 py-0.5 rounded border ${
+                            <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
                               item.status === 'success' 
                                 ? 'bg-emerald-50 text-emerald-700 border-emerald-150' 
                                 : 'bg-rose-50 text-rose-700 border-rose-150'
@@ -1706,11 +1706,11 @@ export default function DemografiKunjungan() {
                             </span>
                           </div>
 
-                          <div className="text-xxs font-medium text-slate-700 whitespace-pre-wrap bg-white p-3 rounded-lg border border-slate-200/75">
+                          <div className="text-xs font-medium text-slate-700 whitespace-pre-wrap bg-white p-3 rounded-lg border border-slate-200/75">
                             {item.message}
                           </div>
 
-                          <div className="text-[9px] text-slate-400 font-medium text-right">
+                          <div className="text-xs text-slate-400 font-medium text-right">
                             Dikirim oleh: <span className="font-semibold text-slate-600">{item.sender_username || 'System'}</span>
                           </div>
                         </div>

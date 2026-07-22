@@ -223,11 +223,11 @@ export default function MasterICD10() {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/50 backdrop-blur-xs">
           <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl w-full max-w-sm shadow-xl border border-slate-100">
             <h3 className="font-bold text-lg mb-1 text-slate-850">{editingItem ? 'Edit ICD-10' : 'Tambah ICD-10'}</h3>
-            <p className="text-slate-500 text-[10px] font-medium mb-5 uppercase tracking-wider">Diagnosis WHO untuk standarisasi rekam medis.</p>
+            <p className="text-slate-500 text-xs font-medium mb-5 uppercase tracking-wider">Diagnosis WHO untuk standarisasi rekam medis.</p>
             
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Kode ICD-10</label>
+                <label className="text-xs uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Kode ICD-10</label>
                 <input 
                   type="text" 
                   placeholder="Contoh: A09 atau J00" 
@@ -238,7 +238,7 @@ export default function MasterICD10() {
                 />
               </div>
               <div>
-                <label className="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Nama Penyakit / Deskripsi</label>
+                <label className="text-xs uppercase tracking-wider font-extrabold text-slate-400 block mb-1">Nama Penyakit / Deskripsi</label>
                 <input 
                   type="text" 
                   placeholder="Contoh: Gastrointestinal Acute" 

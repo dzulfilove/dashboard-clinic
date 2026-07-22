@@ -201,7 +201,7 @@ export default function MasterWilayah() {
             {showAddKota && (
               <form onSubmit={handleAddKota} className="bg-slate-50 p-3 rounded-xl mb-4 border border-slate-100">
                 <div className="mb-2.5">
-                  <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kota</label>
+                  <label className="block text-xs font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kota</label>
                   <input
                     type="text"
                     required
@@ -215,13 +215,13 @@ export default function MasterWilayah() {
                   <button 
                     type="button" 
                     onClick={() => { setShowAddKota(false); setNewKotaNama(''); }}
-                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-white border border-slate-200 text-slate-500 rounded-lg"
+                    className="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-200 text-slate-500 rounded-lg"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit" 
-                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1"
+                    className="px-2.5 py-1.5 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1"
                   >
                     <Check className="w-3 h-3" /> Simpan
                   </button>
@@ -235,7 +235,7 @@ export default function MasterWilayah() {
               ) : (
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
+                    <tr className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
                       <th className="pb-2">Nama Kota</th>
                       <th className="pb-2 text-right">Aksi</th>
                     </tr>
@@ -294,7 +294,7 @@ export default function MasterWilayah() {
             {showAddKecamatan && (
               <form onSubmit={handleAddKecamatan} className="bg-slate-50 p-3 rounded-xl mb-4 border border-slate-100">
                 <div className="mb-2">
-                  <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Kota</label>
+                  <label className="block text-xs font-bold text-slate-500 tracking-wider uppercase mb-1">Kota</label>
                   <SearchableSelect
                     required
                     value={newKecamatanKotaId}
@@ -306,7 +306,7 @@ export default function MasterWilayah() {
                   </SearchableSelect>
                 </div>
                 <div className="mb-2.5">
-                  <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kecamatan</label>
+                  <label className="block text-xs font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kecamatan</label>
                   <input
                     type="text"
                     required
@@ -320,13 +320,13 @@ export default function MasterWilayah() {
                   <button 
                     type="button" 
                     onClick={() => { setShowAddKecamatan(false); setNewKecamatanNama(''); setNewKecamatanKotaId(''); }}
-                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-white border border-slate-200 text-slate-500 rounded-lg"
+                    className="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-200 text-slate-500 rounded-lg"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit" 
-                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1"
+                    className="px-2.5 py-1.5 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1"
                   >
                     <Check className="w-3 h-3" /> Simpan
                   </button>
@@ -340,7 +340,7 @@ export default function MasterWilayah() {
               ) : (
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
+                    <tr className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
                       <th className="pb-2">Kecamatan</th>
                       <th className="pb-2">Kota</th>
                       <th className="pb-2 text-right">Aksi</th>
@@ -401,7 +401,7 @@ export default function MasterWilayah() {
             {showAddKelurahan && (
               <form onSubmit={handleAddKelurahan} className="bg-slate-50 p-3 rounded-xl mb-4 border border-slate-100">
                 <div className="mb-2">
-                  <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Kecamatan</label>
+                  <label className="block text-xs font-bold text-slate-500 tracking-wider uppercase mb-1">Kecamatan</label>
                   <SearchableSelect
                     required
                     value={newKelurahanKecamatanId}
@@ -413,7 +413,7 @@ export default function MasterWilayah() {
                   </SearchableSelect>
                 </div>
                 <div className="mb-2.5">
-                  <label className="block text-[10px] font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kelurahan</label>
+                  <label className="block text-xs font-bold text-slate-500 tracking-wider uppercase mb-1">Nama Kelurahan</label>
                   <input
                     type="text"
                     required
@@ -427,13 +427,13 @@ export default function MasterWilayah() {
                   <button 
                     type="button" 
                     onClick={() => { setShowAddKelurahan(false); setNewKelurahanNama(''); setNewKelurahanKecamatanId(''); }}
-                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-white border border-slate-200 text-slate-500 rounded-lg"
+                    className="px-2.5 py-1.5 text-xs font-semibold bg-white border border-slate-200 text-slate-500 rounded-lg"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit" 
-                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1"
+                    className="px-2.5 py-1.5 text-xs font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 flex items-center gap-1"
                   >
                     <Check className="w-3 h-3" /> Simpan
                   </button>
@@ -447,7 +447,7 @@ export default function MasterWilayah() {
               ) : (
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
+                    <tr className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-50">
                       <th className="pb-2">Kelurahan</th>
                       <th className="pb-2">Kecamatan</th>
                       <th className="pb-2 text-right">Aksi</th>

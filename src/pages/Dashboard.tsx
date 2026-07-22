@@ -127,11 +127,11 @@ export default function Dashboard() {
         <div className="flex items-center space-x-3 bg-white/55 px-4 py-2.5 rounded-xl text-slate-800 shadow-sm">
           <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-emerald-500 animate-pulse' : 'text-amber-500 animate-pulse'}`} />
           <div>
-            <div className="text-xxs font-medium flex items-center gap-1.5">
+            <div className="text-xs font-medium flex items-center gap-1.5">
               <span>Database Sync</span>
               <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
             </div>
-            <p className="text-xxs text-slate-400 font-mono">
+            <p className="text-xs text-slate-400 font-mono">
               {dbStatus?.status === 'ONLINE' ? 'VPS MySQL Terkoneksi' : 'Menggunakan Mode Virtual'}
             </p>
           </div>
@@ -278,7 +278,7 @@ export default function Dashboard() {
               <h2 className="text-sm font-semibold text-slate-900 font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
             </div>
             {criticalItems.length > 0 && (
-              <span className="bg-rose-50 text-rose-800 text-[10px] font-medium px-2 py-0.5 rounded border border-rose-100/55 font-mono animate-pulse">
+              <span className="bg-rose-50 text-rose-800 text-xs font-medium px-2 py-0.5 rounded border border-rose-100/55 font-mono animate-pulse">
                 Butuh Order Darurat
               </span>
             )}
@@ -290,18 +290,18 @@ export default function Dashboard() {
             <div className="bg-emerald-50/40 backdrop-blur-sm border border-emerald-100/60 rounded-xl p-6 text-center text-emerald-800">
               <CheckCircle className="h-8 w-8 text-emerald-600 mx-auto mb-2" />
               <p className="font-semibold text-xs">Semua stok obat aman!</p>
-              <p className="text-xxs text-emerald-650 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
+              <p className="text-xs text-emerald-650 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
             </div>
           ) : (
             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
               {criticalItems.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3.5 bg-rose-50/30 backdrop-blur-sm border border-rose-100/50 rounded-xl hover:bg-rose-50/70 transition-colors text-xxs">
+                <div key={idx} className="flex items-center justify-between p-3.5 bg-rose-50/30 backdrop-blur-sm border border-rose-100/50 rounded-xl hover:bg-rose-50/70 transition-colors text-xs">
                   <div>
-                    <span className="text-[10px] font-mono font-medium text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
+                    <span className="text-xs font-mono font-medium text-rose-800 bg-rose-100 px-2 py-0.5 rounded">
                       {item.kode_obat}
                     </span>
                     <h4 className="font-medium text-slate-800 mt-1.5 text-xs">{item.nama_obat}</h4>
-                    <div className="flex items-center space-x-3 text-[10px] text-slate-400 mt-1 font-normal">
+                    <div className="flex items-center space-x-3 text-xs text-slate-400 mt-1 font-normal">
                       <span>Proyeksi Kebutuhan (3 bln): <span className="font-medium text-slate-705">{item.proyeksi_kebutuhan}</span></span>
                       <span>•</span>
                       <span>Lead Time: <span className="font-medium text-slate-705">{item.lead_time_hari} Hari</span></span>
@@ -309,11 +309,11 @@ export default function Dashboard() {
                   </div>
 
                   <div className="text-right">
-                    <p className="text-[10px] text-slate-400 font-normal">Stok Saat Ini / Reorder Point</p>
+                    <p className="text-xs text-slate-400 font-normal">Stok Saat Ini / Reorder Point</p>
                     <p className="text-sm font-semibold text-rose-600 mt-0.5 font-mono">
-                      {item.current_stock} <span className="text-xxs font-normal text-slate-400">/ {item.reorder_qty}</span>
+                      {item.current_stock} <span className="text-xs font-normal text-slate-400">/ {item.reorder_qty}</span>
                     </p>
-                    <span className="text-[10px] inline-block bg-white text-rose-750 px-1.5 py-0.5 rounded border border-rose-100 mt-1 font-medium">
+                    <span className="text-xs inline-block bg-white text-rose-750 px-1.5 py-0.5 rounded border border-rose-100 mt-1 font-medium">
                       Defisit: {item.reorder_qty - item.current_stock}
                     </span>
                   </div>
@@ -325,7 +325,7 @@ export default function Dashboard() {
           <div className="mt-4 border-t border-slate-100 pt-4 flex justify-end">
             <Link 
               to="/farmasi/forecast" 
-              className="text-xxs font-medium text-teal-600 hover:text-teal-800 flex items-center space-x-1"
+              className="text-xs font-medium text-teal-600 hover:text-teal-800 flex items-center space-x-1"
             >
               <span>Lihat Detail Peramalan</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -356,7 +356,7 @@ export default function Dashboard() {
                 >
                   <div>
                     <h4 className="font-semibold text-teal-900 text-xs">Input Laboratorium</h4>
-                    <p className="text-xxs text-teal-600 mt-1 font-normal">Submit jumlah pemeriksaan bulanan klinis</p>
+                    <p className="text-xs text-teal-600 mt-1 font-normal">Submit jumlah pemeriksaan bulanan klinis</p>
                   </div>
                   <ArrowRight className="h-4.5 w-4.5 text-teal-600 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -370,7 +370,7 @@ export default function Dashboard() {
                 >
                   <div>
                     <h4 className="font-semibold text-teal-900 text-xs">Konsumsi Obat</h4>
-                    <p className="text-xxs text-teal-600 mt-1 font-normal">Input log penerimaan & pemakaian obat</p>
+                    <p className="text-xs text-teal-600 mt-1 font-normal">Input log penerimaan & pemakaian obat</p>
                   </div>
                   <ArrowRight className="h-4.5 w-4.5 text-teal-600 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -384,7 +384,7 @@ export default function Dashboard() {
                 >
                   <div>
                     <h4 className="font-semibold text-slate-800 text-xs">Analisis ABC (Spend)</h4>
-                    <p className="text-xxs text-slate-500 mt-1 font-normal">Klasifikasi nilai kontribusi biaya obat</p>
+                    <p className="text-xs text-slate-500 mt-1 font-normal">Klasifikasi nilai kontribusi biaya obat</p>
                   </div>
                   <ArrowRight className="h-4.5 w-4.5 text-slate-600 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -398,7 +398,7 @@ export default function Dashboard() {
                 >
                   <div>
                     <h4 className="font-semibold text-slate-800 text-xs">Kelola Petugas</h4>
-                    <p className="text-xxs text-slate-500 mt-1 font-normal">Tambah akun & ubah hak akses role</p>
+                    <p className="text-xs text-slate-500 mt-1 font-normal">Tambah akun & ubah hak akses role</p>
                   </div>
                   <ArrowRight className="h-4.5 w-4.5 text-slate-600 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -407,7 +407,7 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-100/50 text-center">
-            <span className="text-xxs text-slate-400 font-mono tracking-wider">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
+            <span className="text-xs text-slate-400 font-mono tracking-wider">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
           </div>
         </motion.div>
       </div>

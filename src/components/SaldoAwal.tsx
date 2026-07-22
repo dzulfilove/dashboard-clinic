@@ -313,14 +313,14 @@ export default function SaldoAwal() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">Info Obat</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">Golongan</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider text-center">Saldo Awal (A)</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">Periode Mulai</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider text-center text-teal-600">Total Masuk (B)</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider text-center text-rose-600">Total Keluar (C)</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider text-center bg-teal-50/50 text-teal-800">Stok Akhir (A + B - C)</th>
-                  <th className="px-4 py-3 text-[10px] font-extrabold uppercase text-slate-500 tracking-wider text-right">Aksi</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider">Info Obat</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider">Golongan</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider text-center">Saldo Awal (A)</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider">Periode Mulai</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider text-center text-teal-600">Total Masuk (B)</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider text-center text-rose-600">Total Keluar (C)</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider text-center bg-teal-50/50 text-teal-800">Stok Akhir (A + B - C)</th>
+                  <th className="px-4 py-3 text-xs font-extrabold uppercase text-slate-500 tracking-wider text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -340,7 +340,7 @@ export default function SaldoAwal() {
                         {/* Info Obat */}
                         <td className="px-4 py-3.5">
                           <span className="font-extrabold text-slate-800 text-xs block">{med.nama_obat}</span>
-                          <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">{med.kode_obat} • {med.kemasan}</span>
+                          <span className="text-xs text-slate-400 font-mono mt-0.5 block">{med.kode_obat} • {med.kemasan}</span>
                         </td>
 
                         {/* Golongan */}
@@ -393,7 +393,7 @@ export default function SaldoAwal() {
                               {MONTHS[Number(med.saldo_awal_bulan) - 1]} {med.saldo_awal_tahun}
                             </span>
                           ) : (
-                            <span className="text-[10px] text-slate-400 font-semibold italic">Belum Di-Set</span>
+                            <span className="text-xs text-slate-400 font-semibold italic">Belum Di-Set</span>
                           )}
                         </td>
 
@@ -411,10 +411,10 @@ export default function SaldoAwal() {
                         <td className="px-4 py-3.5 text-center bg-teal-50/30">
                           {isConfigured ? (
                             <span className={`text-xs font-extrabold ${med.stok_akhir <= 5 ? 'text-rose-600' : 'text-teal-800'}`}>
-                              {med.stok_akhir} <span className="text-[10px] font-normal text-slate-400">({med.satuan})</span>
+                              {med.stok_akhir} <span className="text-xs font-normal text-slate-400">({med.satuan})</span>
                             </span>
                           ) : (
-                            <span className="text-[10px] text-slate-400 font-semibold italic">Atur Saldo Awal</span>
+                            <span className="text-xs text-slate-400 font-semibold italic">Atur Saldo Awal</span>
                           )}
                         </td>
 
@@ -491,7 +491,7 @@ export default function SaldoAwal() {
 
               <div className="flex gap-4 mb-2">
                 <div className="flex-1">
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bulan Saldo</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bulan Saldo</label>
                   <SearchableSelect 
                     value={importMonth}
                     onChange={e => setImportMonth(Number(e.target.value))}
@@ -503,7 +503,7 @@ export default function SaldoAwal() {
                   </SearchableSelect>
                 </div>
                 <div className="flex-1">
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tahun Saldo</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tahun Saldo</label>
                   <SearchableSelect 
                     value={importYear}
                     onChange={e => setImportYear(Number(e.target.value))}
@@ -518,7 +518,7 @@ export default function SaldoAwal() {
 
               {importPreview.length === 0 ? (
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Paste Text dari Excel</label>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Paste Text dari Excel</label>
                   <textarea
                     rows={8}
                     className="w-full text-xs font-mono bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
@@ -543,19 +543,19 @@ export default function SaldoAwal() {
                       <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
                         <button
                           onClick={() => setPreviewFilter('all')}
-                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${previewFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                          className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${previewFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                           Semua
                         </button>
                         <button
                           onClick={() => setPreviewFilter('matched')}
-                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${previewFilter === 'matched' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                          className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${previewFilter === 'matched' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                           {importPreview.filter(p => p.matched).length} Match
                         </button>
                         <button
                           onClick={() => setPreviewFilter('not_found')}
-                          className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors ${previewFilter === 'not_found' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                          className={`px-2.5 py-1 rounded-md text-xs font-bold transition-colors ${previewFilter === 'not_found' ? 'bg-white text-rose-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                         >
                           {importPreview.filter(p => !p.matched).length} Not Found
                         </button>
@@ -563,7 +563,7 @@ export default function SaldoAwal() {
                     </div>
                     <button
                       onClick={() => setImportPreview([])}
-                      className="text-[10px] font-bold text-slate-500 hover:text-slate-700 underline"
+                      className="text-xs font-bold text-slate-500 hover:text-slate-700 underline"
                     >
                       Edit Teks
                     </button>
@@ -573,10 +573,10 @@ export default function SaldoAwal() {
                     <table className="w-full text-left">
                       <thead className="bg-slate-100 sticky top-0">
                         <tr>
-                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500">Status</th>
-                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500">Kode Barang</th>
-                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500">Nama (di sistem)</th>
-                          <th className="px-3 py-2 text-[10px] font-extrabold uppercase text-slate-500 text-right">Saldo Awal</th>
+                          <th className="px-3 py-2 text-xs font-extrabold uppercase text-slate-500">Status</th>
+                          <th className="px-3 py-2 text-xs font-extrabold uppercase text-slate-500">Kode Barang</th>
+                          <th className="px-3 py-2 text-xs font-extrabold uppercase text-slate-500">Nama (di sistem)</th>
+                          <th className="px-3 py-2 text-xs font-extrabold uppercase text-slate-500 text-right">Saldo Awal</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -586,11 +586,11 @@ export default function SaldoAwal() {
                           <tr key={idx} className={item.matched ? 'bg-white' : 'bg-rose-50/50'}>
                             <td className="px-3 py-2">
                               {item.matched ? (
-                                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
                                   <CheckCircle className="h-3 w-3" /> MATCH
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">
                                   <X className="h-3 w-3" /> NOT FOUND
                                 </span>
                               )}

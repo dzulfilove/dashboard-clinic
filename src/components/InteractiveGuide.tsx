@@ -646,7 +646,7 @@ export default function InteractiveGuide() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.2 }}
             style={{ willChange: 'transform, opacity' }}
-            className="bg-teal-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center space-x-1 max-w-[190px] mr-1"
+            className="bg-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center space-x-1 max-w-[190px] mr-1"
           >
             <Lightbulb className="h-3.5 w-3.5 flex-shrink-0 animate-bounce" />
             <span>Butuh Panduan Peran? Klik di sini!</span>
@@ -715,14 +715,14 @@ export default function InteractiveGuide() {
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2.5 py-0.5 rounded text-[10px] font-medium uppercase border ${currentMeta.badgeColor}`}>
+                    <span className={`px-2.5 py-0.5 rounded text-xs font-medium uppercase border ${currentMeta.badgeColor}`}>
                       Role: {currentMeta.roleName}
                     </span>
                   </div>
                   <h2 className="text-base font-semibold text-slate-900 tracking-tight">
                     Panduan Interaktif Staf
                   </h2>
-                  <p className="text-xxs text-slate-500 leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed">
                     {currentMeta.intro}
                   </p>
                 </div>
@@ -731,25 +731,25 @@ export default function InteractiveGuide() {
                 <div className="flex bg-slate-200/60 p-1 rounded-xl border border-slate-200/30 gap-1">
                   <button
                     onClick={() => setActiveTab('tour')}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'tour' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'tour' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     Mulai Tur
                   </button>
                   <button
                     onClick={() => setActiveTab('workflow')}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'workflow' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'workflow' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     Peta Alur
                   </button>
                   <button
                     onClick={() => setActiveTab('tasks')}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'tasks' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'tasks' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     Checklist
                   </button>
                   <button
                     onClick={() => setActiveTab('faq')}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'faq' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'faq' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     FAQ
                   </button>
@@ -790,7 +790,7 @@ export default function InteractiveGuide() {
                         <span>Mulai Tur Panduan Sekarang</span>
                       </button>
 
-                      <div className="pt-4 border-t border-slate-100 flex items-start gap-2.5 text-left text-xxs leading-relaxed text-slate-500">
+                      <div className="pt-4 border-t border-slate-100 flex items-start gap-2.5 text-left text-xs leading-relaxed text-slate-500">
                         <Lightbulb className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
                         <span>
                           Tips: Setiap kali klinik menambahkan menu atau modul baru, kami menyarankan Anda mengikuti kembali tur interaktif ini untuk memastikan kelancaran operasional.
@@ -815,7 +815,7 @@ export default function InteractiveGuide() {
                           <Activity className="h-4 w-4 text-teal-600" />
                           Alur Kerja Operasional Anda
                         </h3>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-xs text-slate-400">
                           Klik pada setiap simpul (node) di bawah untuk mempelajari rincian tugas dan beralih ke fitur secara langsung.
                         </p>
                       </div>
@@ -827,7 +827,7 @@ export default function InteractiveGuide() {
                             {/* Circle Node indicator */}
                             <button
                               onClick={() => setSelectedNode(node)}
-                              className={`absolute -left-6 top-1.5 h-5.5 w-5.5 rounded-full flex items-center justify-center font-bold text-[10px] border-2 transition-all cursor-pointer ${
+                              className={`absolute -left-6 top-1.5 h-5.5 w-5.5 rounded-full flex items-center justify-center font-bold text-xs border-2 transition-all cursor-pointer ${
                                 selectedNode?.id === node.id 
                                   ? 'bg-slate-900 border-slate-900 text-white scale-110' 
                                   : 'bg-white border-teal-500 text-teal-600 group-hover:bg-teal-50'
@@ -844,11 +844,11 @@ export default function InteractiveGuide() {
                                   : 'bg-white border-slate-150 hover:bg-slate-50/50'
                               }`}
                             >
-                              <h4 className="text-xxs font-semibold uppercase tracking-wider text-slate-900 flex items-center justify-between">
+                              <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 flex items-center justify-between">
                                 {node.label}
                                 <ChevronRight className="h-3 w-3 text-slate-400" />
                               </h4>
-                              <p className="text-[10px] text-slate-500 line-clamp-2 mt-1 font-medium leading-relaxed">
+                              <p className="text-xs text-slate-500 line-clamp-2 mt-1 font-medium leading-relaxed">
                                 {node.desc}
                               </p>
                             </div>
@@ -871,7 +871,7 @@ export default function InteractiveGuide() {
                               <Sparkles className="h-4 w-4 text-teal-600" />
                               Rincian Modul: {selectedNode.label}
                             </h4>
-                            <p className="text-xxs leading-relaxed text-slate-650 font-medium">
+                            <p className="text-xs leading-relaxed text-slate-650 font-medium">
                               {selectedNode.desc}
                             </p>
                             <button
@@ -879,7 +879,7 @@ export default function InteractiveGuide() {
                                 setIsOpen(false);
                                 navigate(selectedNode.path);
                               }}
-                              className="w-full bg-slate-900 hover:bg-slate-800 text-white text-[10px] font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                              className="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                             >
                               <span>Buka Menu: {selectedNode.actionLabel}</span>
                               <ArrowRight className="h-3.5 w-3.5" />
@@ -907,7 +907,7 @@ export default function InteractiveGuide() {
                           <ClipboardList className="h-4 w-4 text-teal-600" />
                           Misi Pengenalan Sistem
                         </h3>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-xs text-slate-400">
                           Selesaikan daftar misi di bawah untuk melatih keahlian Anda dalam menggunakan sistem klinik kami.
                         </p>
                       </div>
@@ -942,7 +942,7 @@ export default function InteractiveGuide() {
                                 <h4 className={`text-xs font-bold leading-tight ${isDone ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                                   {task.title}
                                 </h4>
-                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                                <p className="text-xs text-slate-500 leading-relaxed font-medium">
                                   {task.desc}
                                 </p>
                                 
@@ -952,7 +952,7 @@ export default function InteractiveGuide() {
                                       setIsOpen(false);
                                       navigate(task.path);
                                     }}
-                                    className="text-[9px] font-bold text-teal-650 hover:text-teal-700 mt-2 flex items-center gap-1 cursor-pointer"
+                                    className="text-xs font-bold text-teal-650 hover:text-teal-700 mt-2 flex items-center gap-1 cursor-pointer"
                                   >
                                     <span>Buka Fitur</span>
                                     <ArrowRight className="h-3 w-3" />
@@ -967,7 +967,7 @@ export default function InteractiveGuide() {
                       {/* Completion Progress Bar */}
                       {currentMeta.tasks.length > 0 && (
                         <div className="bg-slate-50 border border-slate-150 rounded-2xl p-4 mt-2 space-y-2">
-                          <div className="flex items-center justify-between text-xxs font-bold text-slate-500 uppercase tracking-wide">
+                          <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wide">
                             <span>Selesai Belajar</span>
                             <span className="font-mono text-slate-900">
                               {Object.values(completedTasks).filter(Boolean).length} / {currentMeta.tasks.length} Misi
@@ -1001,7 +1001,7 @@ export default function InteractiveGuide() {
                           <BookOpen className="h-4 w-4 text-teal-600" />
                           Tanya Jawab (FAQ) Peran
                         </h3>
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-xs text-slate-400">
                           Daftar solusi atas kendala operasional yang paling sering ditemui oleh staf {user.role}.
                         </p>
                       </div>
@@ -1013,7 +1013,7 @@ export default function InteractiveGuide() {
                               <AlertCircle className="h-4 w-4 text-teal-600 flex-shrink-0 mt-0.5" />
                               {faq.q}
                             </h4>
-                            <p className="text-[10px] leading-relaxed text-slate-500 font-medium pl-5.5">
+                            <p className="text-xs leading-relaxed text-slate-500 font-medium pl-5.5">
                               {faq.a}
                             </p>
                           </div>
@@ -1027,7 +1027,7 @@ export default function InteractiveGuide() {
               </div>
 
               {/* Drawer Sticky Footer with Help Contact */}
-              <div className="p-4 border-t border-slate-150 bg-slate-50 text-center flex justify-between items-center text-[10px] text-slate-400">
+              <div className="p-4 border-t border-slate-150 bg-slate-50 text-center flex justify-between items-center text-xs text-slate-400">
                 <span className="font-mono">KPM-v2.6-Live</span>
                 <span className="flex items-center gap-1 text-slate-500">
                   <FileText className="h-3 w-3" />

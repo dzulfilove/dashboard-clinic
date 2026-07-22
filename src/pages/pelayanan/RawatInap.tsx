@@ -1024,7 +1024,7 @@ export default function RawatInap() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Users className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Kunjungan
                     </span>
                   </div>
@@ -1032,7 +1032,7 @@ export default function RawatInap() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {totalVisits} <span className="text-xs font-normal text-white/50">Kasus</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Inap</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Inap</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -1049,7 +1049,7 @@ export default function RawatInap() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <ClipboardList className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Tindakan
                     </span>
                   </div>
@@ -1057,7 +1057,7 @@ export default function RawatInap() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {totalProcedures} <span className="text-xs font-normal text-white/50">Tindakan</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -1076,7 +1076,7 @@ export default function RawatInap() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Bed className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Aktif
                     </span>
                   </div>
@@ -1084,7 +1084,7 @@ export default function RawatInap() {
                     <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase font-sans">
                       {topRoom}
                     </h3>
-                    <p className="text-xxs font-mono text-amber-200 font-bold mt-1">
+                    <p className="text-xs font-mono text-amber-200 font-bold mt-1">
                       {topRoomCount} Kunjungan
                     </p>
                   </div>
@@ -1114,11 +1114,11 @@ export default function RawatInap() {
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={chartTrendData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                          <XAxis dataKey="tanggal" fontSize={10} tickLine={false} stroke="#94a3b8" />
-                          <YAxis yAxisId="left" fontSize={10} tickLine={false} axisLine={false} label={{ value: 'Kunjungan (org)', angle: -90, position: 'insideLeft', style: { fontSize: 10, fill: '#64748b' } }} />
-                          <YAxis yAxisId="right" orientation="right" fontSize={10} tickLine={false} axisLine={false} label={{ value: 'Pendapatan (Ribu Rp)', angle: 90, position: 'insideRight', style: { fontSize: 10, fill: '#64748b' } }} />
-                          <Tooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                          <Legend wrapperStyle={{ fontSize: '11px' }} />
+                          <XAxis dataKey="tanggal" fontSize={12} tickLine={false} stroke="#94a3b8" />
+                          <YAxis yAxisId="left" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Kunjungan (org)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#64748b' } }} />
+                          <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Pendapatan (Ribu Rp)', angle: 90, position: 'insideRight', style: { fontSize: 12, fill: '#64748b' } }} />
+                          <Tooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '12px', fontSize: "12px", color: '#fff' }} />
+                          <Legend wrapperStyle={{ fontSize: "12px" }} />
                           <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#0d9488" radius={[4, 4, 0, 0]} />
                           <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Pendapatan (kRp)" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 3 }} />
                         </ComposedChart>
@@ -1158,14 +1158,14 @@ export default function RawatInap() {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '8px' }} />
+                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     )}
                   </div>
                   <div className="space-y-1.5 font-sans">
                     {chartRoomData.map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between text-[11px] text-slate-600 font-semibold">
+                      <div key={idx} className="flex items-center justify-between text-xs text-slate-600 font-semibold">
                         <div className="flex items-center space-x-1.5">
                           <span className="h-2 w-2 rounded-full block" style={{ background: COLORS[idx % COLORS.length] }}></span>
                           <span className="truncate max-w-[12rem]">{item.name}</span>
@@ -1196,7 +1196,7 @@ export default function RawatInap() {
                             </span>
                             <div>
                               <span className="text-xs font-extrabold text-slate-800 block leading-none">{item.name}</span>
-                              <span className="text-[10px] text-slate-400 font-medium">{item.desc}</span>
+                              <span className="text-xs text-slate-400 font-medium">{item.desc}</span>
                             </div>
                           </div>
                           <span className="font-mono text-xs font-black text-slate-900">{item.count} org</span>
@@ -1221,7 +1221,7 @@ export default function RawatInap() {
                       chartTreatmentData.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between py-2.5">
                           <div className="flex items-center space-x-2.5 min-w-0">
-                            <span className="h-6 w-6 rounded-lg bg-teal-50 border border-teal-150/50 flex items-center justify-center font-bold text-[10.5px] text-teal-600 flex-shrink-0">
+                            <span className="h-6 w-6 rounded-lg bg-teal-50 border border-teal-150/50 flex items-center justify-center font-bold text-xs text-teal-600 flex-shrink-0">
                               #{idx + 1}
                             </span>
                             <span className="text-xs font-extrabold text-slate-700 truncate">{item.name}</span>
@@ -1244,9 +1244,9 @@ export default function RawatInap() {
                       <Heart className="h-4.5 w-4.5 text-rose-500 fill-rose-100" />
                       <span>10 Diagnosa Terbanyak (ICD-10) - Rawat Inap</span>
                     </h3>
-                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa (Masuk & Pulang) rekam medis Rawat Inap dengan kunjungan terbanyak</p>
+                    <p className="text-xs text-slate-400 font-medium mt-0.5">Daftar klasifikasi diagnosa (Masuk & Pulang) rekam medis Rawat Inap dengan kunjungan terbanyak</p>
                   </div>
-                  <span className="text-[10px] font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
+                  <span className="text-xs font-mono font-medium bg-rose-50 text-rose-700 border border-rose-100 px-2.5 py-0.5 rounded-full self-start sm:self-auto shrink-0">
                     Kunjungan Terbanyak
                   </span>
                 </div>
@@ -1267,7 +1267,7 @@ export default function RawatInap() {
                             </span>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="font-extrabold text-[10px] text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
+                                <span className="font-extrabold text-xs text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded-md font-mono shrink-0">
                                   {item.kode}
                                 </span>
                                 <span className="font-bold text-xs text-slate-800 truncate" title={`${item.kode} - ${item.deskripsi}`}>
@@ -1287,7 +1287,7 @@ export default function RawatInap() {
                             <span className="text-xs font-black text-slate-800 font-mono">
                               {item.count}
                             </span>
-                            <span className="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">
+                            <span className="text-xs text-slate-400 font-bold block uppercase tracking-wider">
                               Kemunculan ({percentage}%)
                             </span>
                           </div>
@@ -1332,7 +1332,7 @@ export default function RawatInap() {
                         {/* Status tag/dot */}
                         <div className="flex items-center justify-between">
                           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                          <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
                             {percent}%
                           </span>
                         </div>
@@ -1345,14 +1345,14 @@ export default function RawatInap() {
                           <p className="text-xs font-bold text-slate-700 mt-1 uppercase tracking-wide">
                             Triase {item.name}
                           </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5 font-medium leading-normal">
+                          <p className="text-xs text-slate-400 mt-0.5 font-medium leading-normal">
                             {item.desc}
                           </p>
                         </div>
 
                         {/* Interactive footer indicating click-to-filter */}
                         <div className="mt-3.5 pt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className={`text-[9px] font-extrabold ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
+                          <span className={`text-xs font-extrabold ${isActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-650'}`}>
                             {isActive ? '✓ Aktif Memfilter' : 'Klik Untuk Filter'}
                           </span>
                           <ArrowRight className={`h-2.5 w-2.5 transition-all ${isActive ? 'text-teal-500 translate-x-1' : 'text-slate-300 group-hover:translate-x-0.5 group-hover:text-slate-500'}`} />
@@ -1365,12 +1365,12 @@ export default function RawatInap() {
                 {/* Right side: Mini pie chart viz of triage distribution (Col-span 1) */}
                 <div className="bg-white border border-slate-200/90 p-4 rounded-2xl flex flex-col justify-between">
                   <div className="text-left">
-                    <span className="text-slate-400 text-[9px] font-extrabold uppercase tracking-widest block">Distribusi Persentase</span>
+                    <span className="text-slate-400 text-xs font-extrabold uppercase tracking-widest block">Distribusi Persentase</span>
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase</span>
                   </div>
                   
                   {records.length === 0 ? (
-                    <div className="text-center py-6 text-slate-400 text-xxs font-medium">
+                    <div className="text-center py-6 text-slate-400 text-xs font-medium">
                       Belum ada data kunjungan
                     </div>
                   ) : (
@@ -1398,7 +1398,7 @@ export default function RawatInap() {
                         <span className="text-base font-black text-slate-800 font-mono tracking-tight leading-none">
                           {records.length}
                         </span>
-                        <span className="text-[7px] text-slate-400 font-extrabold uppercase tracking-wider mt-0.5">
+                        <span className="text-xs text-slate-400 font-extrabold uppercase tracking-wider mt-0.5">
                           Total
                         </span>
                       </div>
@@ -1410,7 +1410,7 @@ export default function RawatInap() {
                     {triageStats.map((item) => (
                       <div key={item.key} className="flex flex-col items-center">
                         <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }}></span>
-                        <span className="text-[9px] font-black text-slate-700 mt-0.5 font-mono">
+                        <span className="text-xs font-black text-slate-700 mt-0.5 font-mono">
                           {item.count}
                         </span>
                       </div>
@@ -1421,7 +1421,7 @@ export default function RawatInap() {
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
-                <span className="text-slate-450 text-[10px] font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
+                <span className="text-slate-450 text-xs font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
@@ -1531,7 +1531,7 @@ export default function RawatInap() {
                   <ClipboardList className="h-10 w-10 text-slate-300 mx-auto" strokeWidth={1.5} />
                   <div>
                     <p className="text-sm font-extrabold text-slate-700">Tidak Ada Kunjungan Terbaca</p>
-                    <p className="text-[10.5px] text-slate-400 max-w-sm mx-auto mt-1">Gunakan formulir manual atau impor teks excel salinan untuk memasukkan records pelayanan inap.</p>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">Gunakan formulir manual atau impor teks excel salinan untuk memasukkan records pelayanan inap.</p>
                   </div>
                 </div>
               ) : (
@@ -1565,14 +1565,14 @@ export default function RawatInap() {
                                 <span className="font-extrabold text-slate-800 text-sm tracking-wide uppercase hover:text-teal-700 block transition-colors leading-none">
                                   {rec.nama_pasien}
                                 </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 border border-teal-100 text-teal-700">
+                                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 border border-teal-100 text-teal-700">
                                   {rec.kamar}
                                 </span>
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-slate-600">
+                                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100 text-slate-600">
                                   DPJP: {rec.dpjp || '-'}
                                 </span>
                               </div>
-                              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[10px] text-slate-400 font-mono">
+                              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-slate-400 font-mono">
                                 <span className="font-black text-slate-600">Reg: {rec.no_registrasi}</span>
                                 <span>•</span>
                                 <span>RM Code: #{rec.no_rm}</span>
@@ -1584,7 +1584,7 @@ export default function RawatInap() {
                               </div>
                               
                               {/* DIAGNOSA MASUK & PULANG LINE */}
-                              <div className="flex flex-wrap gap-2 text-[10px] mt-1 text-slate-500">
+                              <div className="flex flex-wrap gap-2 text-xs mt-1 text-slate-500">
                                 {rec.icd_masuk && (
                                   <span className="bg-indigo-50 border border-indigo-100 text-indigo-700 px-2 py-0.5 rounded-lg font-semibold">
                                     Diagnosa Masuk: <strong className="font-extrabold">{rec.icd_masuk}</strong>
@@ -1602,14 +1602,14 @@ export default function RawatInap() {
                           {/* Right functional action buttons columns */}
                           <div className="flex items-center justify-between md:justify-end gap-3 flex-shrink-0">
                             {/* Triage pill tag */}
-                            <span className={`text-[10px] font-extrabold px-3 py-1.5 border rounded-xl leading-none flex items-center space-x-1.5 transition-all ${triageStyle.bg}`}>
+                            <span className={`text-xs font-extrabold px-3 py-1.5 border rounded-xl leading-none flex items-center space-x-1.5 transition-all ${triageStyle.bg}`}>
                               <span className={`h-1.5 w-1.5 rounded-full ${triageStyle.dotBg}`}></span>
                               <span>{triageStyle.text}</span>
                             </span>
 
                             {/* Total bill count */}
                             <div className="text-right">
-                              <span className="text-[9.5px] text-slate-400 uppercase tracking-wider font-extrabold block leading-none">Jumlah Tindakan</span>
+                              <span className="text-xs text-slate-400 uppercase tracking-wider font-extrabold block leading-none">Jumlah Tindakan</span>
                               <span className="text-xs font-sans font-extrabold text-slate-800">{rec.tindakan.length} Tindakan</span>
                             </div>
 
@@ -1653,7 +1653,7 @@ export default function RawatInap() {
                               className="overflow-hidden"
                             >
                               <div className="mt-3.5 px-4 py-3 border-t border-slate-100">
-                                <h4 className="text-[11px] font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5 mb-3">
+                                <h4 className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5 mb-3">
                                   <span>Tindakan Medis Ranap ({rec.tindakan.length})</span>
                                 </h4>
 
@@ -1666,11 +1666,11 @@ export default function RawatInap() {
                                           <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
                                             {t.tindakan_nama}
                                           </h5>
-                                          <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                          <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
                                             x{t.jumlah}
                                           </span>
                                         </div>
-                                        <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                        <p className="text-xs text-slate-400 font-mono mt-1 flex items-center space-x-1">
                                           <Clock className="h-3 w-3 inline-block" />
                                           <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
                                         </p>
@@ -1719,7 +1719,7 @@ export default function RawatInap() {
               {/* Text Area Input Card */}
                <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
                 <div>
-                  <span className="text-[9px] bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
+                  <span className="text-xs bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2 font-black">Impor Data Hasil Salinan Excel</h3>
                   <p className="text-xs text-slate-400 mt-1">Tempelkan seluruh baris tabel spreadsheet Anda di bawah ini sesuai pola kolom rawat inap (mendukung format pendaftaran & Unit).</p>
                 </div>
@@ -1731,7 +1731,7 @@ export default function RawatInap() {
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
                     className="w-full p-4 bg-slate-50 border border-slate-100 text-slate-755 font-mono leading-relaxed rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-500/5 focus:outline-none"
-                    style={{ fontSize: '11px', fontWeight: 'normal' }}
+                    style={{ fontSize: "12px", fontWeight: 'normal' }}
                     disabled={submitting}
                   />
 
@@ -1763,7 +1763,7 @@ export default function RawatInap() {
                     <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                       <div>
                         <h4 className="text-sm font-extrabold text-slate-850">Pratinjau Hasil Pembacaan</h4>
-                        <p className="text-[10.5px] text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien rawat inap</p>
+                        <p className="text-xs text-emerald-600 font-bold mt-1">Ditemukan {parsedData.length} grup kunjungan pasien rawat inap</p>
                       </div>
                       <span className="h-10 w-10 text-emerald-600 bg-emerald-50 rounded-full flex items-center justify-center font-black text-xs">
                         {parsedData.length}
@@ -1776,12 +1776,12 @@ export default function RawatInap() {
                           <div className="flex justify-between items-start">
                             <div>
                               <span className="font-extrabold tracking-wide text-slate-800 text-xs block uppercase">{p.nama_pasien}</span>
-                              <span className="text-[10px] text-slate-500 font-mono">Reg: {p.no_registrasi} • RM Code: #{p.no_rm}</span>
+                              <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM Code: #{p.no_rm}</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <span className="text-[10px] text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+                              <span className="text-xs text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
                               <SearchableSelect 
-                                className="text-[10px] font-bold border rounded-lg p-1 bg-white focus:ring-1 focus:ring-teal-500 outline-none"
+                                className="text-xs font-bold border rounded-lg p-1 bg-white focus:ring-1 focus:ring-teal-500 outline-none"
                                 value={p.triase || 'hijau'}
                                 onChange={(e) => {
                                   const newData = [...parsedData];
@@ -1798,23 +1798,23 @@ export default function RawatInap() {
                           </div>
 
                           {duplicateMap[p.no_registrasi] ? (
-                            <div className="bg-amber-50 text-amber-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">⚠️</span>
                               <span>
                                 <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
                               </span>
                             </div>
                           ) : (
-                            <div className="bg-emerald-50 text-emerald-800 text-[10px] sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+                            <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
                               <span className="text-xs mt-0.5">🆕</span>
                               <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
                             </div>
                           )}
 
                           {/* Extra Inputs: Room/Kamar Bed Code, ICD-10 admission/discharge */}
-                          <div className="grid grid-cols-4 gap-2 border-t border-slate-100/40 pt-2 text-[10px]">
+                          <div className="grid grid-cols-4 gap-2 border-t border-slate-100/40 pt-2 text-xs">
                             <div>
-                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
+                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
                               <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
                                 value={p.dpjp || ''}
@@ -1831,7 +1831,7 @@ export default function RawatInap() {
                               </SearchableSelect>
                             </div>
                             <div>
-                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
+                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
                               <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none"
                                 value={p.kamar || 'Kamar Sinta'}
@@ -1847,7 +1847,7 @@ export default function RawatInap() {
                               </SearchableSelect>
                             </div>
                             <div>
-                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Masuk (ICD)</label>
+                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Masuk (ICD)</label>
                               <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none"
                                 value={p.icd_masuk || ''}
@@ -1864,7 +1864,7 @@ export default function RawatInap() {
                               </SearchableSelect>
                             </div>
                             <div>
-                              <label className="block text-[8.5px] font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Pulang (ICD)</label>
+                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Pulang (ICD)</label>
                               <SearchableSelect
                                 className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none"
                                 value={p.icd_pulang || ''}
@@ -1883,7 +1883,7 @@ export default function RawatInap() {
                           </div>
 
                           {/* Action list summary summary */}
-                          <div className="border-t border-slate-200/50 pt-2 space-y-1 text-[10px] font-semibold text-slate-655">
+                          <div className="border-t border-slate-200/50 pt-2 space-y-1 text-xs font-semibold text-slate-655">
                             {p.tindakan.map((t: any, tIdx: number) => (
                               <div key={tIdx} className="flex justify-between">
                                 <span className="truncate max-w-[15rem]">• {t.tindakan_nama}</span>
@@ -1919,7 +1919,7 @@ export default function RawatInap() {
                   <div className="h-72 bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl border border-slate-100/70 border-dashed flex flex-col items-center justify-center text-center p-6 text-slate-400">
                     <Layers strokeWidth={1} className="h-10 w-10 mb-2 text-slate-300" />
                     <span className="text-xs font-bold uppercase tracking-widest block">Aesthetic Layout Stage Preview</span>
-                    <p className="text-[11px] text-slate-400 max-w-xs mt-1">Lakukan pemrosesan teks di panel sebelah kiri untuk menampilkan pratinjau hasil penataan kolom pasien secara otomatis.</p>
+                    <p className="text-xs text-slate-400 max-w-xs mt-1">Lakukan pemrosesan teks di panel sebelah kiri untuk menampilkan pratinjau hasil penataan kolom pasien secara otomatis.</p>
                   </div>
                 )}
               </div>

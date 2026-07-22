@@ -308,7 +308,7 @@ export default function DashboardDokter() {
                               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 border-b border-slate-200/60 pb-4">
                                 <div>
                                   <h3 className="text-sm font-bold text-slate-800">Analisis Kinerja Dokter: {dokter.nama_dokter}</h3>
-                                  <p className="text-xxs text-slate-500">Rincian aktivitas pelayanan klinis untuk periode terpilih.</p>
+                                  <p className="text-xs text-slate-500">Rincian aktivitas pelayanan klinis untuk periode terpilih.</p>
                                 </div>
                                 <button
                                   type="button"
@@ -336,13 +336,13 @@ export default function DashboardDokter() {
                                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                                           <XAxis 
                                             dataKey="tanggal" 
-                                            tick={{ fontSize: 10, fill: '#64748b' }} 
+                                            tick={{ fontSize: 12, fill: '#64748b' }} 
                                             axisLine={false} 
                                             tickLine={false} 
                                             tickFormatter={(val) => formatIndonesianDate(val)}
                                           />
                                           <YAxis 
-                                            tick={{ fontSize: 10, fill: '#64748b' }} 
+                                            tick={{ fontSize: 12, fill: '#64748b' }} 
                                             axisLine={false} 
                                             tickLine={false}
                                             allowDecimals={false}
@@ -350,7 +350,7 @@ export default function DashboardDokter() {
                                           <Tooltip 
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                             itemStyle={{ fontSize: '12px', fontWeight: 600 }}
-                                            labelStyle={{ fontSize: '10px', color: '#64748b', marginBottom: '4px' }}
+                                            labelStyle={{ fontSize: "12px", color: '#64748b', marginBottom: '4px' }}
                                             labelFormatter={(val) => formatIndonesianDate(val)}
                                           />
                                           <Line 
@@ -408,12 +408,12 @@ export default function DashboardDokter() {
                                               </Pie>
                                               <Tooltip 
                                                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 4px rgb(0 0 0 / 0.1)', padding: '4px 8px' }}
-                                                itemStyle={{ fontSize: '11px', fontWeight: 600, color: '#333' }}
+                                                itemStyle={{ fontSize: "12px", fontWeight: 600, color: '#333' }}
                                               />
                                             </PieChart>
                                           </ResponsiveContainer>
                                         ) : (
-                                          <div className="h-full flex items-center justify-center text-[10px] text-slate-400 text-center">
+                                          <div className="h-full flex items-center justify-center text-xs text-slate-400 text-center">
                                             Belum ada IGD
                                           </div>
                                         )}
@@ -447,7 +447,7 @@ export default function DashboardDokter() {
                                         {dokter.diagnosa_terbanyak.map((diag: any, dIdx: number) => (
                                           <div key={dIdx} className="flex items-center justify-between">
                                             <div className="flex items-center gap-2 overflow-hidden mr-2">
-                                              <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded border border-indigo-100 shrink-0">
+                                              <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded border border-indigo-100 shrink-0">
                                                 {diag.kode}
                                               </span>
                                               <span className="text-xs text-slate-600 truncate" title={diag.deskripsi}>
@@ -499,7 +499,7 @@ export default function DashboardDokter() {
                 <h3 className="text-base font-bold text-slate-800">
                   Daftar Kunjungan: {activeDoctorForVisits.nama_dokter}
                 </h3>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Periode: {formatIndonesianDate(startDate)} s/d {formatIndonesianDate(endDate)}
                 </p>
               </div>
@@ -571,7 +571,7 @@ export default function DashboardDokter() {
                               <td className="py-2.5 px-4 text-xs font-medium text-slate-800">{visit.nama_pasien}</td>
                               <td className="py-2.5 px-4 text-xs text-slate-600">{formatIndonesianDate(visit.tanggal_pelayanan)}</td>
                               <td className="py-2.5 px-4 text-center">
-                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold ${
                                   visit.tipe === 'Rawat Jalan' ? 'bg-teal-50 text-teal-700 border border-teal-100' :
                                   visit.tipe === 'IGD' ? 'bg-orange-50 text-orange-700 border border-orange-100' :
                                   'bg-indigo-50 text-indigo-700 border border-indigo-100'
@@ -581,13 +581,13 @@ export default function DashboardDokter() {
                               </td>
                               <td className="py-2.5 px-4 text-xs text-slate-600">{visit.info}</td>
                               <td className="py-2.5 px-4 text-center">
-                                <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded border border-slate-200">
+                                <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-700 text-xs font-bold rounded border border-slate-200">
                                   {visit.icd}
                                 </span>
                               </td>
                               <td className="py-2.5 px-4 text-center">
                                 {visit.triase ? (
-                                  <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${triaseBg}`}>
+                                  <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold border ${triaseBg}`}>
                                     {triaseLabel}
                                   </span>
                                 ) : (

@@ -331,12 +331,12 @@ export default function DashboardLab() {
           <div className="flex items-center space-x-1.5 bg-white px-3 py-1 border border-slate-100 rounded-2xl shadow-sm">
             <Calendar className="h-4 w-4 text-teal-605 flex-shrink-0" />
             <div className="flex items-center space-x-1">
-              <span className="text-slate-400 font-normal text-[9px] uppercase">Dari:</span>
+              <span className="text-slate-400 font-normal text-xs uppercase">Dari:</span>
               <SearchableSelect 
                 id="select-start-month-anal"
                 value={startMonth} 
                 onChange={(e) => setStartMonth(Number(e.target.value))}
-                className="text-xxs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {months.map(m => (
@@ -347,7 +347,7 @@ export default function DashboardLab() {
                 id="select-start-year-anal"
                 value={startYear} 
                 onChange={(e) => setStartYear(Number(e.target.value))}
-                className="text-xxs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {years.map(y => (
@@ -359,12 +359,12 @@ export default function DashboardLab() {
             <span className="text-slate-300">|</span>
             
             <div className="flex items-center space-x-1">
-              <span className="text-slate-400 font-normal text-[9px] uppercase">Selesai:</span>
+              <span className="text-slate-400 font-normal text-xs uppercase">Selesai:</span>
               <SearchableSelect 
                 id="select-end-month-anal"
                 value={endMonth} 
                 onChange={(e) => setEndMonth(Number(e.target.value))}
-                className="text-xxs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {months.map(m => (
@@ -375,7 +375,7 @@ export default function DashboardLab() {
                 id="select-end-year-anal"
                 value={endYear} 
                 onChange={(e) => setEndYear(Number(e.target.value))}
-                className="text-xxs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {years.map(y => (
@@ -390,7 +390,7 @@ export default function DashboardLab() {
             <button
               id="export-lab-btn"
               onClick={handleExportXlsx}
-              className="flex items-center space-x-1 bg-teal-600 hover:bg-teal-700 text-white text-xxs font-medium py-2 px-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+              className="flex items-center space-x-1 bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium py-2 px-3 rounded-xl shadow-xs transition-colors cursor-pointer"
               style={{ minHeight: '36px' }}
             >
               <Download className="h-3.5 w-3.5" />
@@ -416,7 +416,7 @@ export default function DashboardLab() {
       >
         <button
           onClick={() => setSubTab('overview')}
-          className={`px-4 py-2 rounded-xl text-xxs font-medium transition-all flex items-center gap-1.5 cursor-pointer border ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer border ${
             subTab === 'overview'
               ? 'bg-teal-50 border-teal-100/60 text-teal-750 font-semibold'
               : 'bg-transparent border-transparent text-slate-600 hover:bg-slate-50'
@@ -428,7 +428,7 @@ export default function DashboardLab() {
         </button>
         <button
           onClick={() => setSubTab('category')}
-          className={`px-4 py-2 rounded-xl text-xxs font-medium transition-all flex items-center gap-1.5 cursor-pointer border ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer border ${
             subTab === 'category'
               ? 'bg-teal-50 border-teal-100/60 text-teal-750 font-semibold'
               : 'bg-transparent border-transparent text-slate-600 hover:bg-slate-50'
@@ -441,7 +441,7 @@ export default function DashboardLab() {
         <button
           id="tab-progress-toggle"
           onClick={() => setSubTab('progress')}
-          className={`px-4 py-2 rounded-xl text-xxs font-medium transition-all flex items-center gap-1.5 cursor-pointer border ${
+          className={`px-4 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer border ${
             subTab === 'progress'
               ? 'bg-teal-50 border-teal-100/60 text-teal-750 font-semibold'
               : 'bg-transparent border-transparent text-slate-600 hover:bg-slate-50'
@@ -472,7 +472,7 @@ export default function DashboardLab() {
                 <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                   <FlaskConical className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                   Volume Total
                 </span>
               </div>
@@ -480,7 +480,7 @@ export default function DashboardLab() {
                 <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                   {loading ? '...' : totalExams}
                 </h3>
-                <p className="text-xxs font-normal text-white/80 mt-1">Total Pengujian Rentang Terpilih</p>
+                <p className="text-xs font-normal text-white/80 mt-1">Total Pengujian Rentang Terpilih</p>
               </div>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
             </motion.div>
@@ -497,7 +497,7 @@ export default function DashboardLab() {
                 <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                   <Award className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
                   <span>Puncak</span>
                   <ArrowUp className="h-2.5 w-2.5 inline" />
                 </span>
@@ -510,12 +510,12 @@ export default function DashboardLab() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate leading-tight">
                       {peakParameter.nama_parameter}
                     </h3>
-                    <p className="text-xxs font-mono text-emerald-200 font-bold mt-1">{peakParameter.jumlah} Uji</p>
+                    <p className="text-xs font-mono text-emerald-200 font-bold mt-1">{peakParameter.jumlah} Uji</p>
                   </div>
                 ) : (
                   <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Belum ada data</h3>
                 )}
-                <p className="text-xxs font-normal text-white/80 mt-1">Parameter Volume Tertinggi</p>
+                <p className="text-xs font-normal text-white/80 mt-1">Parameter Volume Tertinggi</p>
               </div>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
             </motion.div>
@@ -532,7 +532,7 @@ export default function DashboardLab() {
                 <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                   <Award className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
                   <span>Terendah</span>
                   <ArrowDown className="h-2.5 w-2.5 inline" />
                 </span>
@@ -545,12 +545,12 @@ export default function DashboardLab() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate leading-tight">
                       {lowParameter.nama_parameter}
                     </h3>
-                    <p className="text-xxs font-mono text-amber-200 font-bold mt-1">{lowParameter.jumlah} Uji</p>
+                    <p className="text-xs font-mono text-amber-200 font-bold mt-1">{lowParameter.jumlah} Uji</p>
                   </div>
                 ) : (
                   <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Belum ada data</h3>
                 )}
-                <p className="text-xxs font-normal text-white/80 mt-1">Parameter Volume Terendah</p>
+                <p className="text-xs font-normal text-white/80 mt-1">Parameter Volume Terendah</p>
               </div>
               <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
             </motion.div>
@@ -574,11 +574,11 @@ export default function DashboardLab() {
                 className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-2"
               >
                 <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
-                  <h3 className="font-medium text-slate-700 flex items-center gap-1.5 text-xxs tracking-wider uppercase">
+                  <h3 className="font-medium text-slate-700 flex items-center gap-1.5 text-xs tracking-wider uppercase">
                     <Layers className="h-4 w-4 text-teal-605" />
                     <span>Perbandingan Volume Aktivitas per Kategori Lab</span>
                   </h3>
-                  <span className="text-[10px] font-normal text-slate-400 font-mono">
+                  <span className="text-xs font-normal text-slate-400 font-mono">
                     {months.find(m => m.value === startMonth)?.name} {startYear} - {months.find(m => m.value === endMonth)?.name} {endYear}
                   </span>
                 </div>
@@ -588,9 +588,9 @@ export default function DashboardLab() {
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={comparisonChartData} margin={{ top: 10, right: 10, left: -25, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                        <XAxis dataKey="name" fontSize={9} tickLine={false} axisLine={false} stroke="#64748B" />
-                        <YAxis fontSize={9} tickLine={false} axisLine={false} stroke="#64748B" />
-                        <Tooltip contentStyle={{ fontSize: '10px', borderRadius: '8px', padding: '6px' }} />
+                        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
+                        <YAxis fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
+                        <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px', padding: '6px' }} />
                         <Bar dataKey="Jumlah Pengujian" fill="#0EA5E9" radius={[4, 4, 0, 0]}>
                           {comparisonChartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -613,7 +613,7 @@ export default function DashboardLab() {
               >
                 <div>
                   <div className="border-b border-slate-100 pb-2 mb-3">
-                    <h3 className="font-medium text-slate-700 text-xxs tracking-wider uppercase">
+                    <h3 className="font-medium text-slate-700 text-xs tracking-wider uppercase">
                       Persentase Kontribusi Kategori
                     </h3>
                   </div>
@@ -635,7 +635,7 @@ export default function DashboardLab() {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={{ borderRadius: '8px', fontSize: '9px' }} />
+                          <Tooltip contentStyle={{ borderRadius: '8px', fontSize: "12px" }} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
@@ -644,7 +644,7 @@ export default function DashboardLab() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 border-t border-slate-50 pt-2 text-[10px]">
+                <div className="space-y-1.5 border-t border-slate-50 pt-2 text-xs">
                   {categoryChartData.map((cat, idx) => (
                     <div key={idx} className="flex items-center justify-between">
                       <div className="flex items-center space-x-1.5 min-w-0">
@@ -669,7 +669,7 @@ export default function DashboardLab() {
             transition={{ duration: 0.4, delay: 0.56 }}
             className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm"
           >
-            <h3 className="font-medium text-slate-700 text-xxs tracking-wider uppercase mb-3 flex items-center gap-1.5">
+            <h3 className="font-medium text-slate-700 text-xs tracking-wider uppercase mb-3 flex items-center gap-1.5">
               <Activity className="h-4 w-4 text-slate-500" />
               <span>Analisis Tren &amp; Perkembangan Pengujian Lab (12 Bulan)</span>
             </h3>
@@ -689,10 +689,10 @@ export default function DashboardLab() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                    <XAxis dataKey="name" fontSize={9} tickLine={false} axisLine={false} stroke="#64748B" />
-                    <YAxis fontSize={9} tickLine={false} axisLine={false} stroke="#64748B" />
-                    <Tooltip contentStyle={{ fontSize: '10px', borderRadius: '8px' }} />
-                    <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
+                    <YAxis fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
+                    <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px' }} />
+                    <Legend wrapperStyle={{ fontSize: "12px", paddingTop: '10px' }} />
                     <Area type="monotone" dataKey="HEMATOLOGI" name="Hematologi" stroke="#0EA5E9" fillOpacity={1} fill="url(#colorHematologi)" />
                     <Area type="monotone" dataKey="KIMIA DARAH" name="Kimia Darah" stroke="#10B981" fillOpacity={1} fill="url(#colorKimia)" />
                     <Area type="monotone" dataKey="Total" name="Total Pengujian" stroke="#64748B" strokeWidth={2} fill="transparent" strokeDasharray="4 4" />
@@ -718,7 +718,7 @@ export default function DashboardLab() {
             transition={{ duration: 0.4, delay: 0.08 }}
             className="bg-slate-50/50 border border-slate-100/60 p-3 rounded-2xl flex flex-wrap items-center gap-1.5 shadow-sm"
           >
-            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider mr-2 flex items-center gap-1">
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mr-2 flex items-center gap-1">
               <Filter className="h-3.5 w-3.5 text-teal-600" />
               <span>Pilih Kategori:</span>
             </span>
@@ -726,7 +726,7 @@ export default function DashboardLab() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xxs font-medium uppercase transition-all tracking-wide cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium uppercase transition-all tracking-wide cursor-pointer ${
                   activeCategory === cat
                     ? 'bg-slate-950 text-white shadow-xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-850'
@@ -760,15 +760,15 @@ export default function DashboardLab() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Layers className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Kategori
                     </span>
                   </div>
                   <div className="mt-4">
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                      {categoryTotal} <span className="text-[10px] text-white/50 font-normal">Uji</span>
+                      {categoryTotal} <span className="text-xs text-white/50 font-normal">Uji</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Pengujian Kategori</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Pengujian Kategori</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -785,7 +785,7 @@ export default function DashboardLab() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <TrendingUp className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Rasio
                     </span>
                   </div>
@@ -793,7 +793,7 @@ export default function DashboardLab() {
                     <h3 className="text-xl font-semibold text-emerald-200 tracking-tight font-display">
                       {categoryContributionPercent}%
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Rasio Penetrasi Lab</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Rasio Penetrasi Lab</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -810,7 +810,7 @@ export default function DashboardLab() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <ArrowUpRight className="h-5 w-5" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
                       <span>Teraktif</span>
                     </span>
                   </div>
@@ -820,14 +820,14 @@ export default function DashboardLab() {
                         <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate">
                           {categoryPeakParam.nama_parameter}
                         </h3>
-                        <p className="text-xxs font-mono text-sky-200 font-bold mt-1">
+                        <p className="text-xs font-mono text-sky-200 font-bold mt-1">
                           {categoryPeakParam.jumlah} Uji Kali Ini
                         </p>
                       </div>
                     ) : (
                       <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Tidak ada volume</h3>
                     )}
-                    <p className="text-xxs font-normal text-white/80 mt-1">Pemeriksaan Teraktif ({activeCategory})</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Pemeriksaan Teraktif ({activeCategory})</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -845,10 +845,10 @@ export default function DashboardLab() {
                   className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-3"
                 >
                   <div className="border-b border-slate-100 pb-2 mb-3 flex items-center justify-between">
-                    <span className="font-semibold text-slate-800 text-xxs uppercase tracking-wider">
+                    <span className="font-semibold text-slate-800 text-xs uppercase tracking-wider">
                       Distribusi Volume Antar Jenis Pemeriksaan ({activeCategory})
                     </span>
-                    <span className="text-[9px] bg-slate-100 text-slate-500 font-medium px-1.5 py-0.5 rounded">
+                    <span className="text-xs bg-slate-100 text-slate-500 font-medium px-1.5 py-0.5 rounded">
                       {categorySpecificParams.length} Parameter
                     </span>
                   </div>
@@ -862,17 +862,17 @@ export default function DashboardLab() {
                            margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#F1F5F9" />
-                          <XAxis type="number" fontSize={9} tickLine={false} axisLine={false} stroke="#64748B" />
+                          <XAxis type="number" fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
                           <YAxis 
                             type="category" 
                             dataKey="nama_parameter" 
-                            fontSize={8} 
+                            fontSize={12} 
                             tickLine={false} 
                             axisLine={false} 
                             stroke="#1E293B" 
                             width={110}
                           />
-                          <Tooltip contentStyle={{ fontSize: '10px' }} />
+                          <Tooltip contentStyle={{ fontSize: "12px" }} />
                           <Bar dataKey="jumlah" fill="#14B8A6" radius={[0, 4, 4, 0]} name="Hasil Rentang Terpilih" />
                         </BarChart>
                       </ResponsiveContainer>
@@ -892,13 +892,13 @@ export default function DashboardLab() {
                   className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-2 space-y-3"
                 >
                   <div className="border-b border-slate-100 pb-2">
-                    <span className="font-semibold text-slate-800 text-xxs uppercase tracking-wider block">
+                    <span className="font-semibold text-slate-800 text-xs uppercase tracking-wider block">
                       Tabel Rincian parameter ({activeCategory})
                     </span>
                   </div>
 
                   <div className="border border-slate-100 rounded-2xl overflow-hidden max-h-64 overflow-y-auto shadow-sm">
-                    <table className="w-full text-left text-[10px]">
+                    <table className="w-full text-left text-xs">
                       <thead>
                         <tr className="bg-slate-50 font-semibold text-slate-605 border-b border-slate-100/60">
                           <th className="px-3 py-2">Jenis Pemeriksaan</th>
@@ -922,7 +922,7 @@ export default function DashboardLab() {
                     </table>
                   </div>
 
-                  <div className="bg-teal-50/40 p-2.5 rounded-lg border border-teal-100/60 text-[10px] text-teal-850 flex items-center justify-between font-medium">
+                  <div className="bg-teal-50/40 p-2.5 rounded-lg border border-teal-100/60 text-xs text-teal-850 flex items-center justify-between font-medium">
                     <span>Grand Total Kategori ({activeCategory}):</span>
                     <span className="font-mono text-xs text-teal-700 font-semibold">{categoryTotal}</span>
                   </div>
@@ -946,7 +946,7 @@ export default function DashboardLab() {
               <Activity className="h-4 w-4 text-teal-600 animate-pulse" />
               <span>Progres Data Pemeriksaan per Jenis Pemeriksaan (Parameter Klinis)</span>
             </h2>
-            <p className="text-slate-500 mt-1 text-xxs font-normal">
+            <p className="text-slate-500 mt-1 text-xs font-normal">
               Analisa harian kuantitas pengujian laboratorium, dinamika pemeriksaan dari waktu ke waktu, serta frekuensi keberadaan data di Klinik Puri Medika.
             </p>
           </motion.div>
@@ -961,8 +961,8 @@ export default function DashboardLab() {
               className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm space-y-3 lg:col-span-1"
             >
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Pilih Jenis Pemeriksaan</span>
-                <span className="text-[10px] font-mono text-slate-400">Total: {getProgressList().length} Jenis</span>
+                <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Pilih Jenis Pemeriksaan</span>
+                <span className="text-xs font-mono text-slate-400">Total: {getProgressList().length} Jenis</span>
               </div>
 
               {/* Local Search Input */}
@@ -973,7 +973,7 @@ export default function DashboardLab() {
                   placeholder="Cari nama pemeriksaan/parameter..."
                   value={progressSearch}
                   onChange={(e) => setProgressSearch(e.target.value)}
-                  className="w-full pl-3 pr-8 py-1.5 bg-slate-50 border border-slate-200/70 rounded-xl text-xxs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 font-normal shadow-sm"
+                  className="w-full pl-3 pr-8 py-1.5 bg-slate-50 border border-slate-200/70 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 font-normal shadow-sm"
                   style={{ minHeight: '32px' }}
                 />
               </div>
@@ -988,7 +988,7 @@ export default function DashboardLab() {
 
                   if (items.length === 0) {
                     return (
-                      <div className="text-center py-8 text-slate-400 text-xxs font-normal">
+                      <div className="text-center py-8 text-slate-400 text-xs font-normal">
                         Parameter tidak ditemukan.
                       </div>
                     );
@@ -1006,7 +1006,7 @@ export default function DashboardLab() {
                         key={p.id}
                         id={`progress-param-btn-${p.id}`}
                         onClick={() => setSelectedProgressParam(p.id)}
-                        className={`w-full text-left p-2.5 rounded-xl border transition-all text-xxs cursor-pointer block ${
+                        className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs cursor-pointer block ${
                           isSelected
                             ? 'bg-teal-50 border-teal-200 text-teal-800 shadow-sm scale-[1.01]'
                             : 'bg-white border-slate-100/80 text-slate-700 hover:bg-slate-50 hover:border-slate-200'
@@ -1014,13 +1014,13 @@ export default function DashboardLab() {
                       >
                         <div className="flex items-center justify-between gap-1.5">
                           <span className="font-semibold truncate max-w-[150px]">{p.nama_parameter}</span>
-                          <span className="font-mono text-[9px] font-semibold bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 block flex-shrink-0">
+                          <span className="font-mono text-xs font-semibold bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 block flex-shrink-0">
                             {p.total} uji
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-[10px] text-slate-400 mt-1">
-                          <span className="uppercase tracking-wider text-[9px] font-medium font-mono truncate">{p.kategori}</span>
-                          <span className="font-mono text-[9px]">{p.activeDays} hari ({coveragePct}%)</span>
+                        <div className="flex items-center justify-between text-xs text-slate-400 mt-1">
+                          <span className="uppercase tracking-wider text-xs font-medium font-mono truncate">{p.kategori}</span>
+                          <span className="font-mono text-xs">{p.activeDays} hari ({coveragePct}%)</span>
                         </div>
                         
                         {/* Custom micro-progress consistency bar */}
@@ -1051,7 +1051,7 @@ export default function DashboardLab() {
 
                 if (!activeParam) {
                   return (
-                    <div className="bg-white p-12 text-center rounded-2xl border border-slate-100/80 text-slate-400 text-xxs shadow-sm">
+                    <div className="bg-white p-12 text-center rounded-2xl border border-slate-100/80 text-slate-400 text-xs shadow-sm">
                       Silakan pilih jenis pemeriksaan di panel sebelah kiri untuk memuat rekap analisis.
                     </div>
                   );
@@ -1068,7 +1068,7 @@ export default function DashboardLab() {
                     <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                         <div>
-                          <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-bold uppercase tracking-wider font-mono text-[9px] mb-1">
+                          <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-bold uppercase tracking-wider font-mono text-xs mb-1">
                             {activeParam.kategori}
                           </span>
                           <h3 className="text-sm font-semibold text-slate-800 leading-tight">
@@ -1076,8 +1076,8 @@ export default function DashboardLab() {
                           </h3>
                         </div>
                         <div className="text-right sm:text-right">
-                          <span className="text-[10px] text-slate-400 block font-medium">Rentang Aktif</span>
-                          <span className="text-[10px] font-semibold text-teal-700 font-mono">
+                          <span className="text-xs text-slate-400 block font-medium">Rentang Aktif</span>
+                          <span className="text-xs font-semibold text-teal-700 font-mono">
                             {months[startMonth - 1]?.name} {startYear} - {months[endMonth - 1]?.name} {endYear}
                           </span>
                         </div>
@@ -1095,7 +1095,7 @@ export default function DashboardLab() {
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <FlaskConical className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
+                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Volume
                             </span>
                           </div>
@@ -1103,7 +1103,7 @@ export default function DashboardLab() {
                             <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                               {activeParam.total} <span className="text-xs font-normal text-white/50">Uji</span>
                             </h3>
-                            <p className="text-xxs font-normal text-white/80 mt-1">Volume Kuantitas Uji</p>
+                            <p className="text-xs font-normal text-white/80 mt-1">Volume Kuantitas Uji</p>
                           </div>
                           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
@@ -1118,7 +1118,7 @@ export default function DashboardLab() {
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <Activity className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
+                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Harian
                             </span>
                           </div>
@@ -1126,7 +1126,7 @@ export default function DashboardLab() {
                             <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                               {dailyAvg} <span className="text-xs font-normal text-white/50">Uji/hr</span>
                             </h3>
-                            <p className="text-xxs font-normal text-white/80 mt-1">Rerata Frekuensi Uji</p>
+                            <p className="text-xs font-normal text-white/80 mt-1">Rerata Frekuensi Uji</p>
                           </div>
                           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
@@ -1141,7 +1141,7 @@ export default function DashboardLab() {
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <TrendingUp className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
+                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Puncak
                             </span>
                           </div>
@@ -1149,7 +1149,7 @@ export default function DashboardLab() {
                             <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                               {activeParam.maxCount} <span className="text-xs font-normal text-white/50">Uji</span>
                             </h3>
-                            <p className="text-xxs font-normal text-white/80 mt-1 truncate">Maksimum tgl {activeParam.maxDate}</p>
+                            <p className="text-xs font-normal text-white/80 mt-1 truncate">Maksimum tgl {activeParam.maxDate}</p>
                           </div>
                           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
@@ -1164,7 +1164,7 @@ export default function DashboardLab() {
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                               <Calendar className="h-5 w-5" />
                             </div>
-                            <span className="text-[9px] font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
+                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
                               Rasio
                             </span>
                           </div>
@@ -1172,7 +1172,7 @@ export default function DashboardLab() {
                             <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                               {coveragePct}%
                             </h3>
-                            <p className="text-xxs font-normal text-white/80 mt-1 truncate">{activeParam.activeDays}/{totalDays} Hari Terisi</p>
+                            <p className="text-xs font-normal text-white/80 mt-1 truncate">{activeParam.activeDays}/{totalDays} Hari Terisi</p>
                           </div>
                           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                         </motion.div>
@@ -1182,7 +1182,7 @@ export default function DashboardLab() {
                     {/* Progression Timeline Chart */}
                     <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
                       <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                        <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Dinamika Kuantitas Harian (Tanggal-ke-Tanggal)</span>
+                        <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Dinamika Kuantitas Harian (Tanggal-ke-Tanggal)</span>
                       </div>
 
                       <div className="h-64 mt-2">
@@ -1208,19 +1208,19 @@ export default function DashboardLab() {
                               <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                               <XAxis 
                                 dataKey="formattedDate" 
-                                fontSize={8} 
+                                fontSize={12} 
                                 tickLine={false} 
                                 dy={6}
                                 stroke="#64748B" 
                               />
                               <YAxis 
-                                fontSize={8} 
+                                fontSize={12} 
                                 tickLine={false} 
                                 axisLine={false} 
                                 dx={-6}
                                 stroke="#64748B" 
                               />
-                              <Tooltip contentStyle={{ fontSize: '10px', borderRadius: '8px' }} />
+                              <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px' }} />
                               <Area 
                                 type="monotone" 
                                 dataKey="jumlah" 
@@ -1233,7 +1233,7 @@ export default function DashboardLab() {
                             </AreaChart>
                           </ResponsiveContainer>
                         ) : (
-                          <div className="h-full flex items-center justify-center text-slate-400 text-xxs">
+                          <div className="h-full flex items-center justify-center text-slate-400 text-xs">
                             Belum ada rekam transaksi harian pada rentang bulan terpilih.
                           </div>
                         )}
@@ -1243,7 +1243,7 @@ export default function DashboardLab() {
                     {/* Calendar Daily Heatmap Log Grid */}
                     <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
                       <div className="border-b border-slate-100 pb-2">
-                        <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">
+                        <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">
                           Log Input Harian Kronologis ({activeParam.nama_parameter})
                         </span>
                       </div>
@@ -1251,7 +1251,7 @@ export default function DashboardLab() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-1">
                         {(() => {
                           if (activeParam.dailySeries.length === 0) {
-                            return <div className="text-slate-400 col-span-full text-center py-4 text-xxs">Tidak ada log data ditemukan untuk parameter ini.</div>;
+                            return <div className="text-slate-400 col-span-full text-center py-4 text-xs">Tidak ada log data ditemukan untuk parameter ini.</div>;
                           }
                           return activeParam.dailySeries.map((day, idx) => {
                             let dayName = '';
@@ -1269,10 +1269,10 @@ export default function DashboardLab() {
                                   : 'bg-slate-50/50 border-slate-100 text-slate-400'
                               }`}>
                                 <div>
-                                  <span className="text-[8px] font-semibold text-slate-400 block tracking-wider uppercase">{dayName}</span>
-                                  <span className="text-[10px] font-medium leading-none block mt-0.5 truncate">{formattedDateStr}</span>
+                                  <span className="text-xs font-semibold text-slate-400 block tracking-wider uppercase">{dayName}</span>
+                                  <span className="text-xs font-medium leading-none block mt-0.5 truncate">{formattedDateStr}</span>
                                 </div>
-                                <span className={`text-[10px] font-bold font-mono px-1.5 py-0.5 rounded ${
+                                <span className={`text-xs font-bold font-mono px-1.5 py-0.5 rounded ${
                                   day.jumlah > 0 ? 'bg-teal-600 text-white' : 'bg-slate-200/50 text-slate-400'
                                 }`}>
                                   {day.jumlah}

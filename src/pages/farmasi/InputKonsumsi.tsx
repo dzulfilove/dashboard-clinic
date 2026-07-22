@@ -535,7 +535,7 @@ export default function InputKonsumsi() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <TrendingUp className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Pemakaian
                     </span>
                   </div>
@@ -543,7 +543,7 @@ export default function InputKonsumsi() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {statsSummary.totalPemakaian.toLocaleString('id-ID')} <span className="text-xs font-normal text-white/70">Unit</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Pemakaian Obat Klinis</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Pemakaian Obat Klinis</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -558,7 +558,7 @@ export default function InputKonsumsi() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Download className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Penerimaan
                     </span>
                   </div>
@@ -566,7 +566,7 @@ export default function InputKonsumsi() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {statsSummary.totalPenerimaan.toLocaleString('id-ID')} <span className="text-xs font-normal text-white/70">Unit</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Total Penerimaan Stok Penyuplai</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Total Penerimaan Stok Penyuplai</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -581,7 +581,7 @@ export default function InputKonsumsi() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <AlertCircle className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Penyusutan
                     </span>
                   </div>
@@ -589,7 +589,7 @@ export default function InputKonsumsi() {
                     <h3 className="text-xl font-semibold text-white tracking-tight font-display">
                       {statsSummary.totalReturHilang.toLocaleString('id-ID')} <span className="text-xs font-normal text-white/70">Unit</span>
                     </h3>
-                    <p className="text-xxs font-normal text-white/80 mt-1">Beban Kerusakan, Hilang, atau Retur</p>
+                    <p className="text-xs font-normal text-white/80 mt-1">Beban Kerusakan, Hilang, atau Retur</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
                 </motion.div>
@@ -604,7 +604,7 @@ export default function InputKonsumsi() {
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
                       <Pill className="h-6 w-6" />
                     </div>
-                    <span className="text-[10px] font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
                       Terbanyak
                     </span>
                   </div>
@@ -612,7 +612,7 @@ export default function InputKonsumsi() {
                     <h3 className="text-sm font-bold text-white tracking-tight font-display truncate" title={statsSummary.topMedInfo.name}>
                       {statsSummary.topMedInfo.name || '-'}
                     </h3>
-                    <p className="text-xxs font-mono text-emerald-200 font-semibold mt-1">
+                    <p className="text-xs font-mono text-emerald-200 font-semibold mt-1">
                       {statsSummary.topMedInfo.qty.toLocaleString('id-ID')} Unit Terpakai
                     </p>
                   </div>
@@ -638,18 +638,18 @@ export default function InputKonsumsi() {
                   <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
                     <div>
                       <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">Grafik Tren Arus Logistik Obat Harian</h3>
-                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">Laporan pemakaian dan penerimaan obat klinis (dalam satuan unit)</p>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">Laporan pemakaian dan penerimaan obat klinis (dalam satuan unit)</p>
                     </div>
 
                     <div className="h-[280px]">
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={statsSummary.timelineData}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="tanggal_label" fontSize={10} tickLine={false} stroke="#94a3b8" />
-                          <YAxis yAxisId="left" fontSize={10} tickLine={false} stroke="#0d9488" label={{ value: 'Pemakaian (unit)', angle: -90, position: 'insideLeft', style: {fontSize: 9, fill: '#0d9488'} }} />
-                          <YAxis yAxisId="right" orientation="right" fontSize={10} tickLine={false} stroke="#4f46e5" label={{ value: 'Penerimaan (unit)', angle: 90, position: 'insideRight', style: {fontSize: 9, fill: '#4f46e5'} }} />
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px', border: 'none', backgroundColor: '#0f172a', color: '#fff' }} />
-                          <Legend wrapperStyle={{ fontSize: '10px' }} />
+                          <XAxis dataKey="tanggal_label" fontSize={12} tickLine={false} stroke="#94a3b8" />
+                          <YAxis yAxisId="left" fontSize={12} tickLine={false} stroke="#0d9488" label={{ value: 'Pemakaian (unit)', angle: -90, position: 'insideLeft', style: {fontSize: 12, fill: '#0d9488'} }} />
+                          <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} stroke="#4f46e5" label={{ value: 'Penerimaan (unit)', angle: 90, position: 'insideRight', style: {fontSize: 12, fill: '#4f46e5'} }} />
+                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px', border: 'none', backgroundColor: '#0f172a', color: '#fff' }} />
+                          <Legend wrapperStyle={{ fontSize: "12px" }} />
                           <Bar yAxisId="left" dataKey="pemakaian" name="Pemakaian" fill="#0d9488" radius={[4, 4, 0, 0]} maxBarSize={30} />
                           <Line yAxisId="right" type="monotone" dataKey="penerimaan" name="Penerimaan" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 4 }} />
                         </ComposedChart>
@@ -661,7 +661,7 @@ export default function InputKonsumsi() {
                   <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                     <div>
                       <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">5 Obat Berpengaruh Terbesar</h3>
-                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">Proporsi volume pemakaian obat kumulatif harian</p>
+                      <p className="text-xs text-slate-400 font-medium mt-0.5">Proporsi volume pemakaian obat kumulatif harian</p>
                     </div>
 
                     <div className="h-[250px] flex items-center justify-center">
@@ -683,7 +683,7 @@ export default function InputKonsumsi() {
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                               ))}
                             </Pie>
-                            <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
+                            <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
                           </PieChart>
                         </ResponsiveContainer>
                       )}
@@ -694,7 +694,7 @@ export default function InputKonsumsi() {
                       {statsSummary.topMedicines.map((item, idx) => (
                         <div 
                           key={idx} 
-                          className="flex items-center justify-between text-[11px] font-medium text-slate-650 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                          className="flex items-center justify-between text-xs font-medium text-slate-650 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
                         >
                           <div className="flex items-center space-x-2 truncate max-w-[12rem]">
                             <span className="h-2 w-2 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }} />
@@ -718,7 +718,7 @@ export default function InputKonsumsi() {
                     <h3 className="text-sm font-bold text-slate-800">
                       Rincian Konsumsi Kumulatif per Obat
                     </h3>
-                    <p className="text-slate-450 text-xxs mt-0.5 font-medium">Laporan total pemakaian, penerimaan, retur, serta sisa stok logistik obat pada periode terpilih.</p>
+                    <p className="text-slate-450 text-xs mt-0.5 font-medium">Laporan total pemakaian, penerimaan, retur, serta sisa stok logistik obat pada periode terpilih.</p>
                   </div>
 
                   {/* Search inside compiled stats */}
@@ -762,7 +762,7 @@ export default function InputKonsumsi() {
                             <tr key={m.id} className="hover:bg-slate-50/70 transition-colors">
                               <td className="px-6 py-3.5">
                                 <div>
-                                  <span className="font-mono text-xxs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
+                                  <span className="font-mono text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-1.5 py-0.5 rounded">
                                     {m.kode}
                                   </span>
                                   <h4 className="font-bold text-slate-900 mt-1 text-xs">{m.nama}</h4>
@@ -772,16 +772,16 @@ export default function InputKonsumsi() {
                                 {m.golongan}
                               </td>
                               <td className="px-5 py-3.5 text-center whitespace-nowrap font-mono font-bold text-teal-700">
-                                {m.pemakaian} <span className="text-[10px] font-normal text-slate-400">unit</span>
+                                {m.pemakaian} <span className="text-xs font-normal text-slate-400">unit</span>
                               </td>
                               <td className="px-5 py-3.5 text-center whitespace-nowrap font-mono text-slate-700">
-                                {m.penerimaan} <span className="text-[10px] font-normal text-slate-400">unit</span>
+                                {m.penerimaan} <span className="text-xs font-normal text-slate-400">unit</span>
                               </td>
                               <td className="px-5 py-3.5 text-center whitespace-nowrap font-mono text-slate-600">
-                                {m.retur} <span className="text-[10px] font-normal text-slate-400">unit</span>
+                                {m.retur} <span className="text-xs font-normal text-slate-400">unit</span>
                               </td>
                               <td className="px-6 py-3.5 text-right whitespace-nowrap font-mono font-bold text-slate-900 bg-slate-50/30">
-                                {m.sisa} <span className="text-[10px] font-normal text-slate-450">unit</span>
+                                {m.sisa} <span className="text-xs font-normal text-slate-450">unit</span>
                               </td>
                             </tr>
                           ))
@@ -813,7 +813,7 @@ export default function InputKonsumsi() {
               />
             </div>
             
-            <div className="text-xxs font-medium text-slate-400">
+            <div className="text-xs font-medium text-slate-400">
               Menampilkan {filteredMedicines.length} dari {medicines.length} master obat aktif
             </div>
           </div>
@@ -900,14 +900,14 @@ export default function InputKonsumsi() {
                             <tr key={m.id} className={`transition-colors ${hasNoSaldoAwal ? 'bg-slate-50/40 hover:bg-slate-55/40 opacity-80' : 'hover:bg-slate-50/70'}`}>
                               <td className="px-6 py-3">
                                 <div>
-                                  <span className="font-mono text-xxs font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                                  <span className="font-mono text-xs font-semibold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
                                     {m.kode_obat}
                                   </span>
                                   <h4 className="font-medium text-slate-900 mt-1 text-xs">{m.nama_obat}</h4>
-                                  <p className="text-xxs text-slate-400 font-medium mt-0.5 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
+                                  <p className="text-xs text-slate-400 font-medium mt-0.5 uppercase tracking-wider">{m.golongan} • {m.kemasan}</p>
                                   {hasNoSaldoAwal && (
                                     <div className="mt-1.5">
-                                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                      <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
                                         <AlertCircle className="h-3 w-3 text-rose-500" />
                                         Saldo {inputYear} Belum Diinput
                                       </span>
@@ -915,7 +915,7 @@ export default function InputKonsumsi() {
                                   )}
                                   {isSaved && !hasNoSaldoAwal && (
                                     <div className="mt-1.5">
-                                      <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                      <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
                                         <CheckCircle className="h-3 w-3 text-emerald-500" />
                                         Tersimpan
                                       </span>
@@ -1031,7 +1031,7 @@ export default function InputKonsumsi() {
                     </div>
                     <div>
                       <h4 className="font-bold text-slate-200 text-sm">Lembar Form Konsumsi Obat Harian</h4>
-                      <p className="text-xxs text-slate-400 mt-1">Anda dapat memperbarui semua data inventori hari ini dengan satu klik tindakan.</p>
+                      <p className="text-xs text-slate-400 mt-1">Anda dapat memperbarui semua data inventori hari ini dengan satu klik tindakan.</p>
                     </div>
                   </div>
 

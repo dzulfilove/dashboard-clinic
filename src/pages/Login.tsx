@@ -4,6 +4,8 @@ import { useAuthStore } from '../store/authStore.js';
 import { Activity, Mail, Lock, ArrowRight, ArrowLeft, AlertCircle, Info, Key } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import api from '../services/api.js';
+import Logo from '../components/Logo.js';
+import SplashScreen from '../components/SplashScreen.js';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,6 +21,9 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Splash state for post-login
+  const [loginSuccessData, setLoginSuccessData] = useState<{ token: string; user: any } | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -69,16 +74,22 @@ export default function Login() {
     try {
       const response = await api.post('/auth/verify-otp', { email, otp });
       const { token, user } = response.data;
-      setAuth(token, user);
-      navigate(from, { replace: true });
+      // Trigger Login Splash Screen before saving auth
+      setLoginSuccessData({ token, user });
     } catch (err: any) {
       console.error(err);
       setError(
         err.response?.data?.message || 
         'Kode OTP salah atau telah kedaluwarsa. Silakan periksa kembali.'
       );
-    } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCompleteLoginSplash = () => {
+    if (loginSuccessData) {
+      setAuth(loginSuccessData.token, loginSuccessData.user);
+      navigate(from, { replace: true });
     }
   };
 
@@ -117,6 +128,17 @@ export default function Login() {
 
   return (
     <div id="login-container" className="relative min-h-screen bg-slate-50/50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
+      {/* Post-Login Splash Screen */}
+      <AnimatePresence>
+        {loginSuccessData && (
+          <SplashScreen
+            mode="login"
+            user={loginSuccessData.user}
+            onComplete={handleCompleteLoginSplash}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Dynamic Background Glass Blows */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '12s' }} />
@@ -128,31 +150,18 @@ export default function Login() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex justify-center"
+          className="flex justify-center mb-2"
         >
-          <div className="max-w-[400px]">
-            <img 
-              src="https://res.cloudinary.com/diipdl14x/image/upload/v1779637884/Logo_Klinik_Akre-03_1_mcd2pu.png "
-              alt="Logo Klinik Puri Medika" 
-              className="w-full h-auto object-contain"
-              referrerPolicy="no-referrer"
-            />
+          <div className="p-3 bg-white/80 rounded-2xl shadow-xl border border-slate-100 backdrop-blur-md">
+            <Logo size={72} showText={true} />
           </div>
         </motion.div>
         
-        <motion.h2 
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.4 }}
-          className=" text-center text-2xl font-semibold text-slate-900 tracking-tight"
-        >
-          Sistem Informasi Klinik
-        </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.22, duration: 0.4 }}
-          className="mt-2 text-center text-sm text-slate-500 font-medium"
+          className="mt-2 text-center text-xs text-slate-500 font-medium"
         >
           Otentikasi Aman OTP Baserow (Kolom OTP)
         </motion.p>

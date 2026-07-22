@@ -454,11 +454,11 @@ export default function MasterPasien() {
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">No Rekam Medis</p>
+                  <p className="text-xs font-medium text-slate-500 tracking-wider uppercase">No Rekam Medis</p>
                   <p className="font-mono font-semibold text-slate-800">{selectedPasien.no_rm}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Nama Pasien</p>
+                  <p className="text-xs font-medium text-slate-500 tracking-wider uppercase">Nama Pasien</p>
                   <p className="font-semibold text-slate-800">{selectedPasien.nama}</p>
                 </div>
               </div>
@@ -526,19 +526,19 @@ export default function MasterPasien() {
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Tanggal</p>
+                  <p className="text-xs font-medium text-slate-500 tracking-wider uppercase">Tanggal</p>
                   <p className="font-semibold text-slate-800">{selectedVisit.tanggal_pelayanan}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Unit</p>
+                  <p className="text-xs font-medium text-slate-500 tracking-wider uppercase">Unit</p>
                   <p className="font-semibold text-slate-800">{selectedVisit.unit}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Triase</p>
+                  <p className="text-xs font-medium text-slate-500 tracking-wider uppercase">Triase</p>
                   <p className="font-semibold text-slate-800 capitalize">{selectedVisit.triase || 'Hijau'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-slate-500 tracking-wider uppercase">Diagnosis (ICD-10)</p>
+                  <p className="text-xs font-medium text-slate-500 tracking-wider uppercase">Diagnosis (ICD-10)</p>
                   <p className="font-semibold text-slate-800">{selectedVisit.icd_kode || '-'}</p>
                 </div>
               </div>

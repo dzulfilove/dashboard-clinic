@@ -1,9 +1,10 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { useAuthStore } from './store/authStore.js';
 
 import Loader from './components/Loader.js';
+import SplashScreen from './components/SplashScreen.js';
 
 // Layout & guards
 import Sidebar from './components/Sidebar.js';
@@ -58,11 +59,30 @@ export default function App() {
 
 function AppContent() {
   const location = useLocation();
+  const [showInitialSplash, setShowInitialSplash] = useState(() => {
+    // Show initial splash on page load or refresh ONLY if on Dashboard Terpadu ('/')
+    const path = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
+    return path === '' || path === '/';
+  });
+
+  const handleInitialSplashComplete = () => {
+    setShowInitialSplash(false);
+  };
   
   return (
-    <AnimatePresence mode="wait">
-      <Suspense fallback={<Loader />}>
-        <Routes>
+    <>
+      <AnimatePresence mode="wait">
+        {showInitialSplash && (
+          <SplashScreen
+            mode="initial"
+            onComplete={handleInitialSplashComplete}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence mode="wait">
+        <Suspense fallback={<Loader />}>
+          <Routes>
           {/* Public Login Route */}
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
 
@@ -293,5 +313,6 @@ function AppContent() {
       </Routes>
     </Suspense>
   </AnimatePresence>
+  </>
   );
 }

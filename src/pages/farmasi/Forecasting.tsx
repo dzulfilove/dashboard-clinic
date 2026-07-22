@@ -174,7 +174,7 @@ export default function Forecasting() {
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60 block">Kekurangan Stok Terdeteksi</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-white/60 block">Kekurangan Stok Terdeteksi</span>
                 <span className={`text-sm font-semibold font-display block mt-1 ${criticalItemsCount > 0 ? 'text-white' : 'text-white/90'}`}>
                   {criticalItemsCount} item obat perlu pemesanan kembali (Qty Order &gt; 0)
                 </span>
@@ -188,7 +188,7 @@ export default function Forecasting() {
                 <CheckCircle className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60 block">Total Obat Diproyeksikan</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-white/60 block">Total Obat Diproyeksikan</span>
                 <span className="text-sm font-semibold font-display text-white block mt-1">
                   {forecasts.length} item aktif
                 </span>
@@ -403,7 +403,7 @@ export default function Forecasting() {
 
                         {/* Status */}
                         <td className="px-6 py-3.5 text-right whitespace-nowrap">
-                          <span className={`inline-flex items-center space-x-1 text-[11px] font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                          <span className={`inline-flex items-center space-x-1 text-xs font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
                             (f.qty_order ?? 0) > 0
                               ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-150'
                               : 'bg-emerald-100 text-emerald-800 border border-emerald-150'
