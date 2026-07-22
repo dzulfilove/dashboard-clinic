@@ -117,9 +117,9 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
         
         {/* Logo Container with Fade-Up Animation */}
         <motion.div
-          initial={{ opacity: 0, y: 45, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0.8, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="relative mb-6 flex flex-col items-center"
         >
           {/* Subtle Ambient Logo Glow */}
@@ -141,6 +141,10 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
             <img 
               src={logoImg} 
               alt="Logo Klinik Puri Medika" 
+              width={128}
+              height={128}
+              // @ts-ignore
+              fetchpriority="high"
               className="w-full h-full object-contain drop-shadow-md"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/logo.png';
@@ -152,7 +156,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
             <motion.div
               initial={{ scale: 0, y: 10 }}
               animate={{ scale: 1, y: 0 }}
-              transition={{ delay: 0.35, type: 'spring', stiffness: 260, damping: 20 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 20 }}
               className="absolute -bottom-2 -right-2 bg-emerald-400 text-slate-900 p-2 rounded-full shadow-lg border-2 border-emerald-900"
             >
               <CheckCircle2 className="w-5 h-5 font-bold" />
@@ -160,12 +164,12 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
           )}
         </motion.div>
 
-        {/* Title & Description with Fade-Up Animation */}
+        {/* Title & Description with Immediate Paint for Optimal LCP */}
         {mode === 'initial' ? (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="space-y-1.5 mb-8"
           >
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center justify-center gap-1 drop-shadow-md font-display">
@@ -177,9 +181,9 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
           </motion.div>
         ) : (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 1, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="space-y-2 mb-8"
           >
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-teal-300/15 border border-teal-300/30 text-teal-200 text-xs font-bold tracking-wider uppercase mb-1 backdrop-blur-md">
