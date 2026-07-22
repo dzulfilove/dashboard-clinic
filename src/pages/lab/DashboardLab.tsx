@@ -312,7 +312,7 @@ export default function DashboardLab() {
   return (
     <div className="space-y-6 font-sans text-xs">
       
-        {/* 1. Header controls (High Density, Poppins) */}
+        {/* 1. Header controls (High Density, Nunito) */}
         <div 
           className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100/60 pb-3"
         >

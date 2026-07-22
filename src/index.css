@@ -1,54 +1,25 @@
- 
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./fonts/poppins-400.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('./fonts/poppins-500.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('./fonts/poppins-600.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./fonts/poppins-700.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 800;
-  font-display: swap;
-  src: url('./fonts/poppins-800.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 900;
-  font-display: swap;
-  src: url('./fonts/poppins-900.woff2') format('woff2');
-}
-
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300..1000;1,300..1000&display=swap');
 
 @theme {
-  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", sans-serif;
-  --font-mono: "Poppins", sans-serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Nunito", sans-serif;
+  --font-mono: "Nunito", sans-serif;
+  --text-xxs: 0.65rem;
+}
+
+@utility text-xxs {
+  font-size: 0.65rem;
+  line-height: 0.875rem;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+th {
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 /* Custom Scrollbar Styling */

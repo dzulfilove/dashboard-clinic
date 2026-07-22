@@ -533,16 +533,16 @@ export default function DashboardDokter() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 text-xxs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                          <th className="py-3 px-4 text-center w-12">No</th>
-                          <th className="py-3 px-4">No. Registrasi</th>
-                          <th className="py-3 px-4">No. RM</th>
-                          <th className="py-3 px-4">Nama Pasien</th>
-                          <th className="py-3 px-4">Tanggal</th>
-                          <th className="py-3 px-4 text-center">Tipe</th>
-                          <th className="py-3 px-4">Detail Unit</th>
-                          <th className="py-3 px-4 text-center">ICD-10</th>
-                          <th className="py-3 px-4 text-center">Triase</th>
+                        <tr className="bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
+                          <th className="py-2.5 px-4 text-center w-12 font-semibold">No</th>
+                          <th className="py-2.5 px-4 font-semibold">No. Registrasi</th>
+                          <th className="py-2.5 px-4 font-semibold">No. RM</th>
+                          <th className="py-2.5 px-4 font-semibold">Nama Pasien</th>
+                          <th className="py-2.5 px-4 font-semibold">Tanggal</th>
+                          <th className="py-2.5 px-4 text-center font-semibold">Tipe</th>
+                          <th className="py-2.5 px-4 font-semibold">Detail Unit</th>
+                          <th className="py-2.5 px-4 text-center font-semibold">ICD-10</th>
+                          <th className="py-2.5 px-4 text-center font-semibold">Triase</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
