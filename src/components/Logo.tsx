@@ -31,8 +31,9 @@ export default function Logo({
           className="shrink-0 object-contain drop-shadow-md select-none"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.onerror = null; // Prevent infinite loop
-            target.src = '/logo.png';
+            if (!target.src.endsWith('/logo.png')) {
+              target.src = '/logo.png';
+            }
           }}
         />
       ) : (

@@ -148,8 +148,9 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
               className="w-full h-full object-contain drop-shadow-md"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.onerror = null;
-                target.src = '/logo.png';
+                if (!target.src.endsWith('/logo.png')) {
+                  target.src = '/logo.png';
+                }
               }}
             />
           </div>
