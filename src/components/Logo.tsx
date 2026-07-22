@@ -30,8 +30,9 @@ export default function Logo({
           style={{ width: pixelSize, height: 'auto', maxHeight: pixelSize }}
           className="shrink-0 object-contain drop-shadow-md select-none"
           onError={(e) => {
-            // Fallback to /logo.png or /assets/logo.png if import has issue
-            (e.target as HTMLImageElement).src = '/logo.png';
+            const target = e.target as HTMLImageElement;
+            target.onerror = null; // Prevent infinite loop
+            target.src = '/logo.png';
           }}
         />
       ) : (
