@@ -44,6 +44,7 @@ import {
 } from 'recharts';
 import api from '../../services/api.js';
 import { ICD10, TIPE_UNIT_RAWAT_JALAN } from '../../types.js';
+import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 interface Tindakan {
   id?: number;
@@ -147,6 +148,7 @@ const getTriageStyle = (triase?: string) => {
 export default function RawatJalan() {
   const [records, setRecords] = useState<OutpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isVisualizing, setIsVisualizing] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -262,6 +264,14 @@ export default function RawatJalan() {
     fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    setIsVisualizing(true);
+    const timer = setTimeout(() => {
+      setIsVisualizing(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [activeTab, startDate, endDate, triageFilter, unitFilter]);
 
   /* useEffect for patient auto-check removed */
 
@@ -1045,7 +1055,10 @@ export default function RawatJalan() {
       </AnimatePresence>
 
       {/* TAB CONTENT WITH ANIMATION */}
-      <AnimatePresence mode="wait">
+      {loading || isVisualizing ? (
+        <AnalyticLoader message="Menganalisis data pelayanan & visualisasi..." />
+      ) : (
+        <AnimatePresence mode="wait">
         {activeTab === 'statistik' && (
           <motion.div
             key="statistik"
@@ -2017,6 +2030,7 @@ export default function RawatJalan() {
             </motion.div>
           )}
         </AnimatePresence>
+      )}
 
       {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
       {createPortal(

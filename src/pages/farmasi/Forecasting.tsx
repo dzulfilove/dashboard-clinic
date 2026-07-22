@@ -16,10 +16,12 @@ import {
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { ForecastResult } from '../../types.js';
+import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 export default function Forecasting() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
+  const [isVisualizing, setIsVisualizing] = useState(true);
   const [forecasts, setForecasts] = useState<ForecastResult[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -68,6 +70,14 @@ export default function Forecasting() {
   useEffect(() => {
     loadForecastData();
   }, [projMonth, projYear]);
+
+  useEffect(() => {
+    setIsVisualizing(true);
+    const timer = setTimeout(() => {
+      setIsVisualizing(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [projMonth, projYear, statusFilter, kelasFilter, sortBy]);
 
   // Calculations for total statistics
   const criticalItemsCount = forecasts.filter(f => f.status_stok === 'Kritis (Perlu Order)').length;
@@ -157,11 +167,8 @@ export default function Forecasting() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
-          <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
-          <span>Mengkalkulasi moving average dan safety stocks...</span>
-        </div>
+      {loading || isVisualizing ? (
+        <AnalyticLoader message="Mengkalkulasi moving average & menganalisis safety stocks..." />
       ) : (
         <div className="space-y-4">
           

@@ -47,6 +47,7 @@ import {
   Cell, 
   Legend 
 } from 'recharts';
+import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 interface DemografiProps {
   activeTab: 'loyal' | 'wilayah' | 'pasien';
@@ -96,6 +97,7 @@ export default function DemografiKunjungan() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'loyal' | 'wilayah' | 'pasien'>('pasien');
   const [loading, setLoading] = useState(true);
+  const [isVisualizing, setIsVisualizing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // States for API data
@@ -451,6 +453,14 @@ export default function DemografiKunjungan() {
     fetchData();
   }, [startDate, endDate]);
 
+  useEffect(() => {
+    setIsVisualizing(true);
+    const timer = setTimeout(() => {
+      setIsVisualizing(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [activeTab, startDate, endDate]);
+
   const fetchPatientHistory = async (patient: Patient) => {
     setSelectedPatient(patient);
     setHistoryLoading(true);
@@ -528,14 +538,8 @@ export default function DemografiKunjungan() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xs">
-          <div className="relative flex items-center justify-center">
-            <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600"></div>
-            <Activity className="absolute h-4 w-4 text-teal-600 animate-pulse" />
-          </div>
-          <p className="text-sm text-slate-500 mt-4 font-medium">Menganalisis data demografi...</p>
-        </div>
+      {loading || isVisualizing ? (
+        <AnalyticLoader message="Menganalisis data demografi & memvisualisasikan data..." />
       ) : error ? (
         <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-center space-x-3">
           <X className="h-5 w-5 text-rose-600 flex-shrink-0" />

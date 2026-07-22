@@ -14,10 +14,12 @@ import {
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { AbcItem, AbcResult } from '../../types.js';
+import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 export default function AbcAnalysis() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
+  const [isVisualizing, setIsVisualizing] = useState(true);
   const [abcData, setAbcData] = useState<AbcItem[]>([]);
   const [totalInvestasi, setTotalInvestasi] = useState(0);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -69,6 +71,14 @@ export default function AbcAnalysis() {
   useEffect(() => {
     loadAbcAnalysis();
   }, [selectedMonth, selectedYear]);
+
+  useEffect(() => {
+    setIsVisualizing(true);
+    const timer = setTimeout(() => {
+      setIsVisualizing(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [selectedMonth, selectedYear, selectedKelompok]);
 
   // Counting classes
   const classA = abcData.filter(item => item.klasifikasi === 'A');
@@ -163,13 +173,8 @@ export default function AbcAnalysis() {
         </div>
       </div>
 
-      {loading ? (
-        <div 
-          className="bg-white rounded-2xl border border-slate-250 p-24 text-center anim-fade-up"
-        >
-          <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
-          <span>Meganalisis pengeluaran obat pasca Pareto...</span>
-        </div>
+      {loading || isVisualizing ? (
+        <AnalyticLoader message="Menganalisis pengeluaran obat pasca Pareto & memvisualisasikan data..." />
       ) : abcData.length === 0 ? (
         <div 
           className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150 anim-fade-up"

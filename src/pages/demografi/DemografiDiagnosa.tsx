@@ -17,6 +17,7 @@ import {
   Info
 } from 'lucide-react';
 import api from '../../services/api.js';
+import AnalyticLoader from '../../components/AnalyticLoader.js';
 import { 
   ResponsiveContainer, 
   AreaChart, 
@@ -63,6 +64,7 @@ interface TimelineItem {
 
 export default function DemografiDiagnosa() {
   const [loading, setLoading] = useState(true);
+  const [isVisualizing, setIsVisualizing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // API Data States
@@ -115,6 +117,14 @@ export default function DemografiDiagnosa() {
 
   useEffect(() => {
     fetchData();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    setIsVisualizing(true);
+    const timer = setTimeout(() => {
+      setIsVisualizing(false);
+    }, 500);
+    return () => clearTimeout(timer);
   }, [startDate, endDate]);
 
   const filteredDiagnoses = topDiagnosa.filter(item => 
@@ -208,14 +218,8 @@ export default function DemografiDiagnosa() {
         </div>
       </div>
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xs">
-          <div className="relative flex items-center justify-center">
-            <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600"></div>
-            <Activity className="absolute h-4 w-4 text-teal-600 animate-pulse" />
-          </div>
-          <p className="text-sm text-slate-500 mt-4 font-medium">Menganalisis statistik diagnosa...</p>
-        </div>
+      {loading || isVisualizing ? (
+        <AnalyticLoader message="Menganalisis statistik diagnosa & memvisualisasikan data..." />
       ) : error ? (
         <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-center space-x-3">
           <X className="h-5 w-5 text-rose-600 flex-shrink-0" />

@@ -38,6 +38,7 @@ import {
 } from 'recharts';
 import api from '../../services/api.js';
 import { LabData } from '../../types.js';
+import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 // Framer Motion animation sets identical to Dashboard
 const containerVariants = {
@@ -65,6 +66,7 @@ const itemVariants = {
 export default function DashboardLab() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
+  const [isVisualizing, setIsVisualizing] = useState(true);
   const [labData, setLabData] = useState<LabData[]>([]);
   const [trendData, setTrendData] = useState<any[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -140,6 +142,14 @@ export default function DashboardLab() {
 
     fetchLabAnalytics();
   }, [startMonth, startYear, endMonth, endYear]);
+
+  useEffect(() => {
+    setIsVisualizing(true);
+    const timer = setTimeout(() => {
+      setIsVisualizing(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [subTab, activeCategory, startMonth, startYear, endMonth, endYear, selectedProgressParam]);
 
   // Handle setting default selected category once labData is loaded
   useEffect(() => {
@@ -454,7 +464,11 @@ export default function DashboardLab() {
       </motion.div>
 
       {/* ===================== VIEW 1: GENERAL KLINIK OVERVIEW COMPARISONS ===================== */}
-      {subTab === 'overview' && (
+      {loading || isVisualizing ? (
+        <AnalyticLoader message="Menganalisis data laboratorium & visualisasi..." />
+      ) : (
+        <>
+          {subTab === 'overview' && (
         <div className="space-y-6">
           
           {/* Lab Overall KPIs Row */}
@@ -1299,6 +1313,8 @@ export default function DashboardLab() {
 
           </div>
         </div>
+      )}
+        </>
       )}
 
     </div>
