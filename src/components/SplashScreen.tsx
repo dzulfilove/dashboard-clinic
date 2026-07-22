@@ -166,11 +166,9 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
 
         {/* Title & Description with Immediate Paint for Optimal LCP */}
         {mode === 'initial' ? (
-          <motion.div
-            initial={{ opacity: 1, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="space-y-1.5 mb-8"
+          <div
+            className="space-y-1.5 mb-8 anim-fade-up"
+            style={{ animationDelay: '0.1s' }}
           >
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center justify-center gap-1 drop-shadow-md font-display">
               Klinik Puri Medika<span className="text-teal-300">.</span>
@@ -178,7 +176,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
             <p className="text-xs font-bold uppercase tracking-widest text-teal-200/80">
               Sistem Informasi Klinik & Pelayanan
             </p>
-          </motion.div>
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 1, y: 10 }}
