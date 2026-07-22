@@ -7,6 +7,7 @@ interface LogoProps {
   showText?: boolean;
   textClassName?: string;
   variant?: 'image' | 'svg';
+  orientation?: 'row' | 'col';
 }
 
 export default function Logo({ 
@@ -14,12 +15,14 @@ export default function Logo({
   size = 64, 
   showText = false, 
   textClassName = '',
-  variant = 'image'
+  variant = 'image',
+  orientation = 'row'
 }: LogoProps) {
   const pixelSize = typeof size === 'number' ? `${size}px` : size;
+  const isCol = orientation === 'col';
 
   return (
-    <div className={`inline-flex items-center gap-3 ${className}`}>
+    <div className={`inline-flex items-center justify-center ${isCol ? 'flex-col text-center gap-2' : 'flex-row gap-2.5'} ${className}`}>
       {variant === 'image' ? (
         <img
           src={logoImg}
@@ -71,11 +74,11 @@ export default function Logo({
       )}
 
       {showText && (
-        <div className={`flex flex-col ${textClassName}`}>
-          <span className="font-black tracking-tight text-slate-800 leading-none text-xl">
+        <div className={`flex flex-col justify-center ${isCol ? 'items-center text-center' : 'items-start text-left'} ${textClassName}`}>
+          <span className="font-black tracking-tight text-slate-800 leading-none text-xl font-display">
             Klinik Puri Medika<span className="text-teal-600">.</span>
           </span>
-          <span className="text-xs uppercase font-bold tracking-wider text-slate-500 mt-0.5">
+          <span className="text-xs uppercase font-bold tracking-wider text-slate-500 mt-0.5 font-sans">
             Sistem Informasi Klinik
           </span>
         </div>

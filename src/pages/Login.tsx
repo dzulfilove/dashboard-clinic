@@ -144,30 +144,19 @@ export default function Login() {
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '12s' }} />
       <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-sky-400/15 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="relative z-10 w-full max-w-md mx-auto flex flex-col items-center justify-center text-center">
         {/* Animated Brand Header */}
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex justify-center mb-2"
+          className="flex items-center justify-center w-full mb-3"
         >
-          <div className="p-3 bg-white/80 rounded-2xl shadow-xl border border-slate-100 backdrop-blur-md">
-            <Logo size={72} showText={true} />
-          </div>
+          <Logo size={68} showText={true} />
         </motion.div>
-        
-        <motion.p 
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.22, duration: 0.4 }}
-          className="mt-2 text-center text-xs text-slate-500 font-medium"
-        >
-          Otentikasi Aman OTP Baserow (Kolom OTP)
-        </motion.p>
       </div>
 
-      <div className="relative z-10 mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="relative z-10 mt-2 w-full max-w-md mx-auto">
         {/* Glassmorphic Card Container */}
         <motion.div 
           variants={containerVariants}

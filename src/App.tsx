@@ -60,10 +60,18 @@ export default function App() {
 function AppContent() {
   const location = useLocation();
   const [showInitialSplash, setShowInitialSplash] = useState(() => {
-    // Show initial splash on page load or refresh ONLY if on Dashboard Terpadu ('/')
+    // Show initial splash on page load or refresh ONLY if on Dashboard Terpadu ('/') and NOT on '/login'
     const path = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
+    const isLogin = path === '/login' || window.location.pathname === '/login';
+    if (isLogin) return false;
     return path === '' || path === '/';
   });
+
+  useEffect(() => {
+    if (location.pathname === '/login') {
+      setShowInitialSplash(false);
+    }
+  }, [location.pathname]);
 
   const handleInitialSplashComplete = () => {
     setShowInitialSplash(false);
