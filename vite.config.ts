@@ -23,31 +23,7 @@ export default defineConfig(() => {
     },
     
     build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            // React core — selalu dibutuhkan
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            
-            // Chart library — hanya dimuat di halaman yang ada grafik
-            'charts': ['recharts'],
-            
-            // Animation — dimuat terpisah
-            'motion': ['motion'],
-            
-            // Farmasi tools — hanya halaman farmasi
-            'farmasi-tools': ['exceljs', 'papaparse'],
-            
-            // UI utilities
-            'ui-utils': ['sweetalert2', 'lucide-react'],
-            
-            // HTTP + state
-            'data-layer': ['axios', 'zustand'],
-          }
-        }
-      },
-      // Chunk maksimal 500KB sebelum warning
-      chunkSizeWarningLimit: 500,
+      chunkSizeWarningLimit: 1000,
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
