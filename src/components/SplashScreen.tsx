@@ -144,7 +144,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
               width={128}
               height={128}
               // @ts-ignore
-              fetchpriority="high"
+              fetchPriority="high"
               className="w-full h-full object-contain drop-shadow-md"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/logo.png';
