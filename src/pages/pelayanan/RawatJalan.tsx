@@ -1026,118 +1026,112 @@ export default function RawatJalan() {
       <AnimatePresence>
         {feedback && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className={`p-4 rounded-2xl flex items-center space-x-3 shadow-lg border ${
+            exit={{ opacity: 0, scale: 0.95 }}
+            className={`fixed bottom-6 right-6 px-4 py-3 rounded-2xl shadow-lg border flex items-center gap-3 z-50 ${
               feedback.type === 'success' 
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
-                : 'bg-rose-50 text-rose-800 border-rose-200'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                : 'bg-rose-50 border-rose-200 text-rose-800'
             }`}
           >
             {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
-            <span className="text-xs font-semibold leading-relaxed">{feedback.message}</span>
+            <span className="text-sm font-medium">{feedback.message}</span>
+            <button onClick={() => setFeedback(null)} className="ml-2 hover:bg-black/5 p-1 rounded-lg transition-colors">
+              <X className="h-4 w-4" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="min-h-[400px]">
-        {loading ? (
-          <AnimatePresence mode="wait">
-            <motion.div 
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20"
-            >
-              <div className="animate-spin rounded-full h-11 w-11 border-b-2 border-teal-600" />
-              <p className="text-slate-400 font-mono text-xs mt-4">Mengakses data server rawat jalan...</p>
-            </motion.div>
-          </AnimatePresence>
-        ) : (
-          <div className="space-y-6">
-            {/* TAB CONTENT SWITCHER */}
-            <AnimatePresence mode="wait">
-              {activeTab === 'statistik' && (
-                <div className="space-y-6">
-                  {/* Core metrics bento boxes */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    
-                    {/* 1. Kunjungan Pasien */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.08 }}
-                      className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                          <Users className="h-6 w-6" />
-                        </div>
-                        <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-                          Kunjungan
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                          {totalVisits} <span className="text-xs font-normal text-white/50">Kasus</span>
-                        </h3>
-                        <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
-                      </div>
-                      <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                    </motion.div>
+      {/* TAB CONTENT WITH ANIMATION */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'statistik' && (
+          <motion.div
+            key="statistik"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* 1. Total Kunjungan */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ duration: 0.3, delay: 0.08 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    Kunjungan
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                    {totalVisits} <span className="text-xs font-normal text-white/50">Kasus</span>
+                  </h3>
+                  <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
+                </div>
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
+              </motion.div>
 
-                    {/* 2. Tindakan Medis */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.16 }}
-                      className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                          <ClipboardList className="h-6 w-6" />
-                        </div>
-                        <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-                          Tindakan
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                          {totalProcedures} <span className="text-xs font-normal text-white/50">Tindakan</span>
-                        </h3>
-                        <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
-                      </div>
-                      <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                    </motion.div>
+              {/* 2. Tindakan Medis */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ duration: 0.3, delay: 0.16 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                    <ClipboardList className="h-6 w-6" />
+                  </div>
+                  <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    Tindakan
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-xl font-semibold text-white tracking-tight font-display">
+                    {totalProcedures} <span className="text-xs font-normal text-white/50">Tindakan</span>
+                  </h3>
+                  <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
+                </div>
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
+              </motion.div>
 
-                    {/* 4. DPJP Teraktif */}
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.24 }}
-                      className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                          <TrendingUp className="h-6 w-6" />
-                        </div>
-                        <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-                          DPJP
-                        </span>
-                      </div>
-                      <div className="mt-4">
-                        <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase">
-                          {topDPJP}
-                        </h3>
-                        <p className="text-xs font-mono text-amber-200 font-bold mt-1">
-                          {topDPJPCount} Kunjungan
-                        </p>
-                      </div>
-                      <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                    </motion.div>
+              {/* 4. DPJP Teraktif */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ duration: 0.3, delay: 0.24 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                  <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    DPJP
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase">
+                    {topDPJP}
+                  </h3>
+                  <p className="text-xs font-mono text-amber-200 font-bold mt-1">
+                    {topDPJPCount} Kunjungan
+                  </p>
+                </div>
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
+              </motion.div>
                     
                   </div>
 
@@ -1354,7 +1348,7 @@ export default function RawatJalan() {
                       </button>
                     </div>
                   </motion.div>
-                </div>
+                </motion.div>
               )}
 
               {/* TAB 2: DETAILED RECORDS GRID */}
@@ -2023,9 +2017,6 @@ export default function RawatJalan() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-    )}
-  </div>
 
       {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
       {createPortal(

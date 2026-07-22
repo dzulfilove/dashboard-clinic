@@ -1024,10 +1024,11 @@ export default function DemografiKunjungan() {
               {/* Regional Cards Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4"
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  transition={{ duration: 0.3, delay: 0.08 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
                 >
                   <div className="p-3 rounded-xl bg-white/20 text-white">
                     <MapPin className="h-5 w-5" />
@@ -1040,10 +1041,11 @@ export default function DemografiKunjungan() {
                   </div>
                 </motion.div>
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.16 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4"
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  transition={{ duration: 0.3, delay: 0.16 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
                 >
                   <div className="p-3 rounded-xl bg-white/20 text-white">
                     <MapPin className="h-5 w-5" />
@@ -1056,10 +1058,11 @@ export default function DemografiKunjungan() {
                   </div>
                 </motion.div>
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4"
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  transition={{ duration: 0.3, delay: 0.24 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
                 >
                   <div className="p-3 rounded-xl bg-white/20 text-white">
                     <MapPin className="h-5 w-5" />

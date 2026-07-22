@@ -1014,11 +1014,11 @@ export default function RawatInap() {
                 
                 {/* 1. Kunjungan Pasien */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                  transition={{ duration: 0.3, delay: 0.08 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1039,11 +1039,11 @@ export default function RawatInap() {
 
                 {/* 2. Tindakan Medis */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.16 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                  transition={{ duration: 0.3, delay: 0.16 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1066,11 +1066,11 @@ export default function RawatInap() {
 
                 {/* 4. Kamar Teraktif */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                  transition={{ duration: 0.3, delay: 0.24 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">

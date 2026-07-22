@@ -934,7 +934,6 @@ export default function FollowUpVaksinPage() {
             Manajemen penjadwalan, pemantauan berkala, dan sistem pengingat otomatis untuk pasien penerima vaksinasi.
           </p>
         </div>
-        
         <div className="flex items-center gap-2">
           {stats.pendingCount > 0 && (
             <motion.button
@@ -983,7 +982,12 @@ export default function FollowUpVaksinPage() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.08 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group">
           <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <ClipboardList className="h-6 w-6" />
           </div>
@@ -991,9 +995,14 @@ export default function FollowUpVaksinPage() {
             <span className="text-xs text-white/80 font-medium">Total Rencana</span>
             <h3 className="text-2xl font-bold text-white mt-0.5">{stats.total}</h3>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.16 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group">
           <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <Clock className="h-6 w-6" />
           </div>
@@ -1001,9 +1010,14 @@ export default function FollowUpVaksinPage() {
             <span className="text-xs text-white/80 font-medium">Terjadwal (Scheduled)</span>
             <h3 className="text-2xl font-bold text-white mt-0.5">{stats.scheduled}</h3>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.24 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group">
           <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <Send className="h-6 w-6" />
           </div>
@@ -1011,9 +1025,14 @@ export default function FollowUpVaksinPage() {
             <span className="text-xs text-white/80 font-medium">Notifikasi Terkirim</span>
             <h3 className="text-2xl font-bold text-white mt-0.5">{stats.notified}</h3>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group transition-all hover:-translate-y-1 hover:scale-[1.01]">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.32 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center gap-4 relative overflow-hidden group">
           <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
             <CheckCircle className="h-6 w-6" />
           </div>
@@ -1021,7 +1040,7 @@ export default function FollowUpVaksinPage() {
             <span className="text-xs text-white/80 font-medium">Selesai (Completed)</span>
             <h3 className="text-2xl font-bold text-white mt-0.5">{stats.completed}</h3>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Tabs Navigation */}

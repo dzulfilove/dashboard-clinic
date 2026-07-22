@@ -462,11 +462,11 @@ export default function DashboardLab() {
             
             {/* KPI: Total examinations */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.16 }}
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+              transition={{ duration: 0.3, delay: 0.16 }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
             >
               <div className="flex items-center justify-between">
                 <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -487,11 +487,11 @@ export default function DashboardLab() {
 
             {/* KPI: Highest category or parameter */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.24 }}
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+              transition={{ duration: 0.3, delay: 0.24 }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
             >
               <div className="flex items-center justify-between">
                 <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -522,11 +522,11 @@ export default function DashboardLab() {
 
             {/* KPI: Lowest Parameter count */}
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.32 }}
               whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+              transition={{ duration: 0.3, delay: 0.32 }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
             >
               <div className="flex items-center justify-between">
                 <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -750,11 +750,11 @@ export default function DashboardLab() {
                 
                 {/* Metric 1 */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.16 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                  transition={{ duration: 0.3, delay: 0.16 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -775,11 +775,11 @@ export default function DashboardLab() {
 
                 {/* Metric 2 */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                  transition={{ duration: 0.3, delay: 0.24 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -800,11 +800,11 @@ export default function DashboardLab() {
 
                 {/* Metric 3 */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.32 }}
                   whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all sm:col-span-2"
+                  transition={{ duration: 0.3, delay: 0.32 }}
+                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group sm:col-span-2"
                 >
                   <div className="flex items-center justify-between">
                     <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1087,9 +1087,11 @@ export default function DashboardLab() {
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
                         {/* Metric 1: Kuantitas Uji */}
                         <motion.div 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
                           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.2 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                          transition={{ duration: 0.3, delay: 0.08 }}
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                         >
                           <div className="flex items-center justify-between">
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1110,9 +1112,11 @@ export default function DashboardLab() {
 
                         {/* Metric 2: Rata-rata/Hari */}
                         <motion.div 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
                           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.2 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                          transition={{ duration: 0.3, delay: 0.16 }}
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                         >
                           <div className="flex items-center justify-between">
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1133,9 +1137,11 @@ export default function DashboardLab() {
 
                         {/* Metric 3: Puncak Tertinggi */}
                         <motion.div 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
                           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.2 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                          transition={{ duration: 0.3, delay: 0.24 }}
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                         >
                           <div className="flex items-center justify-between">
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1156,9 +1162,11 @@ export default function DashboardLab() {
 
                         {/* Metric 4: Konsistensi Data */}
                         <motion.div 
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
                           whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.2 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-sm relative overflow-hidden group transition-all"
+                          transition={{ duration: 0.3, delay: 0.32 }}
+                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                         >
                           <div className="flex items-center justify-between">
                             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">

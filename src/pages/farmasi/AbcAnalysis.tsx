@@ -201,8 +201,12 @@ export default function AbcAnalysis() {
             </div>
 
             {/* Class A summary */}
-            <div 
-               className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-3xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all anim-fade-up anim-delay-2 transition-transform duration-200 ease-out hover:-translate-y-1"
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.3, delay: 0.08 }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden"
             >
               <span className="text-[14px] font-bold text-emerald-200 uppercase tracking-wider block">Kelompok A (80%)</span>
               <h3 className="text-2xl font-extrabold text-white font-mono mt-2">
@@ -211,11 +215,15 @@ export default function AbcAnalysis() {
               <p className="text-[14px] font-bold text-white/90 mt-2">
                 Anggaran: Rp {classASpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classASpend/totalInvestasi)*100) : 0}%)
               </p>
-            </div>
+            </motion.div>
 
             {/* Class B summary */}
-            <div 
-               className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-3xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all anim-fade-up anim-delay-3 transition-transform duration-200 ease-out hover:-translate-y-1"
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.3, delay: 0.16 }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden"
             >
               <span className="text-[14px] font-bold text-amber-200 uppercase tracking-wider block">Kelompok B (15%)</span>
               <h3 className="text-2xl font-extrabold text-amber-300 font-mono mt-2">
@@ -224,11 +232,15 @@ export default function AbcAnalysis() {
               <p className="text-[14px] font-bold text-white/90 mt-2">
                 Anggaran: Rp {classBSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classBSpend/totalInvestasi)*100) : 0}%)
               </p>
-            </div>
+            </motion.div>
 
             {/* Class C summary */}
-            <div 
-               className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-3xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden transition-all anim-fade-up anim-delay-4 transition-transform duration-200 ease-out hover:-translate-y-1"
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.3, delay: 0.24 }}
+              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden"
             >
               <span className="text-[14px] font-bold text-white/60 uppercase tracking-wider block">Kelompok C (5%)</span>
               <h3 className="text-2xl font-extrabold text-white font-mono mt-2">
@@ -237,7 +249,7 @@ export default function AbcAnalysis() {
               <p className="text-[14px] font-bold text-white/90 mt-2">
                 Anggaran: Rp {classCSpend.toLocaleString('id-ID', { maximumFractionDigits: 0 })} ({totalInvestasi > 0 ? Math.round((classCSpend/totalInvestasi)*100) : 0}%)
               </p>
-            </div>
+            </motion.div>
           </div>
 
           {/* Pareto Ranked Items List */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { createPortal } from 'react-dom';
 import { 
   Stethoscope, 
@@ -185,8 +186,13 @@ export default function DashboardDokter() {
       </div>
 
       {/* SECTION 3 — KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 anim-fade-up anim-delay-1">
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.08 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <Users className="h-5 w-5" />
@@ -197,9 +203,14 @@ export default function DashboardDokter() {
             <p className="text-xl font-semibold text-white mt-1">{data?.total_dokter_aktif || 0}</p>
           </div>
           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-        </div>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.16 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <Activity className="h-5 w-5" />
@@ -210,9 +221,14 @@ export default function DashboardDokter() {
             <p className="text-xl font-semibold text-white mt-1">{data?.total_kunjungan || 0}</p>
           </div>
           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-        </div>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.24 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <TrendingUp className="h-5 w-5" />
@@ -224,9 +240,14 @@ export default function DashboardDokter() {
             <p className="text-xs text-amber-200 font-medium mt-1">{tersibuk.jumlah} kunjungan</p>
           </div>
           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-        </div>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group hover:-translate-y-1 hover:scale-[1.01] transition-all">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4, scale: 1.01 }}
+          transition={{ duration: 0.3, delay: 0.32 }}
+          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
           <div className="flex items-center justify-between">
             <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
               <BarChart2 className="h-5 w-5" />
@@ -238,7 +259,7 @@ export default function DashboardDokter() {
             <p className="text-xs text-rose-200 font-medium mt-1">kunjungan / dokter</p>
           </div>
           <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-        </div>
+        </motion.div>
       </div>
 
       {/* SECTION 4 & 5 — Tabel & Detail */}
