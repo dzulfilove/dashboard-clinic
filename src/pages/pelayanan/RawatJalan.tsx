@@ -571,7 +571,8 @@ export default function RawatJalan() {
 
       // Common Indonesian aliases mapping
       if (cleaned.includes('POLI UMUM') || cleaned === 'UMUM') return 'PL003 (POLI UMUM)';
-      if (cleaned.includes('POLI KIA') || cleaned.includes('POLI ANAK') || cleaned === 'KIA' || cleaned === 'ANAK') return 'PL001 (POLI KIA)';
+      if (cleaned.includes('POLI KIA') || cleaned === 'KIA') return 'PL001 (POLI KIA)';
+      if (cleaned.includes('POLI ANAK') || cleaned === 'ANAK') return 'PL005 (POLI ANAK)';
       if (cleaned.includes('POLI THT') || cleaned === 'THT') return 'PL002 (POLI THT)';
       if (cleaned.includes('POLI OBGYN') || cleaned.includes('KANDUNGAN') || cleaned === 'OBGYN') return 'PL006 (POLI OBGYN)';
       if (cleaned.includes('POLI MATA') || cleaned === 'MATA') return 'MT (POLI MATA)';
