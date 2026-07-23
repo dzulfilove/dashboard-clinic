@@ -84,7 +84,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={{ opacity: mode === 'initial' ? 1 : 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
