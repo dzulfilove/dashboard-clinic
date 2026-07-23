@@ -164,7 +164,7 @@ export default function Sidebar() {
           </div>
           <div className="flex flex-col justify-center">
             <span className="font-extrabold text-sm text-white font-display leading-tight">Klinik Puri Medika</span>
-            // <span className="font-semibold text-xs text-teal-400 tracking-wider uppercase font-display leading-none"></span>
+      
           </div>
         </div>
         <button 
