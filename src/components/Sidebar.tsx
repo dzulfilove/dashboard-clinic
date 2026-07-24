@@ -245,16 +245,22 @@ export default function Sidebar() {
                     to={item.path || '/'}
                     onClick={() => setMobileOpen(false)}
                     className={`
-                      relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 mt-1
+                      relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 mt-1 border overflow-hidden
                       ${isActive 
-                        ? 'bg-teal-700/85 text-white shadow-md shadow-teal-950/20' 
-                        : 'text-slate-300 hover:bg-white/5 hover:text-slate-100'}
+                        ? 'bg-teal-500/20 border-teal-400/45 text-teal-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),_0_4px_12px_rgba(20,184,166,0.2)] backdrop-blur-md font-bold' 
+                        : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-slate-100'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
                     style={{ minHeight: '44px' }}
                   >
-                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-white scale-105' : 'text-slate-400'}`} />
-                    {!collapsed && <span className="truncate">{item.title}</span>}
+                    {isActive && (
+                      <>
+                        {/* Elegant Subtle Specular Reflection strictly at the top-left */}
+                        <div className="absolute -top-4 -left-4 w-10 h-10 bg-white/15 rounded-full blur-sm pointer-events-none" />
+                      </>
+                    )}
+                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-teal-200 scale-105 relative z-10' : 'text-slate-400'}`} />
+                    {!collapsed && <span className="truncate relative z-10">{item.title}</span>}
                   </NavLink>
                 );
               }
@@ -313,15 +319,21 @@ export default function Sidebar() {
                               to={subItem.path}
                               onClick={() => setMobileOpen(false)}
                               className={`
-                                relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 mt-1
+                                relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 mt-1 border overflow-hidden
                                 ${isSubActive 
-                                  ? 'bg-teal-700/85 text-white shadow-md shadow-teal-950/20' 
-                                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}
+                                  ? 'bg-teal-500/20 border-teal-400/45 text-teal-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),_0_2px_8px_rgba(20,184,166,0.15)] backdrop-blur-md font-semibold' 
+                                  : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'}
                               `}
                               style={{ minHeight: '38px' }}
                             >
-                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-white' : 'text-slate-500'}`} />
-                              <span className="truncate">{subItem.name}</span>
+                              {isSubActive && (
+                                <>
+                                  {/* Elegant Subtle Specular Reflection strictly at the top-left */}
+                                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/12 rounded-full blur-sm pointer-events-none" />
+                                </>
+                              )}
+                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-teal-200 relative z-10' : 'text-slate-500'}`} />
+                              <span className="truncate relative z-10">{subItem.name}</span>
                             </NavLink>
                           );
                         })}

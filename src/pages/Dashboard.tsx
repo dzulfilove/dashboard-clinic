@@ -155,15 +155,18 @@ export default function Dashboard() {
           {/* Main KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* KPI 1 - Lab Volume */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
-              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(20,184,166,0.22)' }}
               style={{ willChange: 'transform, opacity' }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
+              className="bg-gradient-to-br from-emerald-900/85 to-teal-800/85 backdrop-blur-xl rounded-2xl p-5 border border-white/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),_0_8px_30px_rgba(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
             >
-              <div>
+              {/* Elegant Subtle Specular Reflection strictly at the top-left */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-white/15 rounded-full blur-sm pointer-events-none" />
+              
+              <div className="relative z-10">
                 <div className="flex items-center gap-3 text-white mb-5">
                   <FlaskConical className="h-5 w-5" />
                   <h3 className="font-semibold text-lg tracking-tight">Laboratorium</h3>
@@ -179,7 +182,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <button className="w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
+              <button className="relative z-10 w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
                 Lihat Rekapitulasi
               </button>
             </motion.div>
@@ -189,11 +192,13 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
-              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(20,184,166,0.22)' }}
               style={{ willChange: 'transform, opacity' }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
+              className="bg-gradient-to-br from-emerald-900/85 to-teal-800/85 backdrop-blur-xl rounded-2xl p-5 border border-white/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),_0_8px_30px_rgba(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
             >
-              <div>
+              {/* Elegant Subtle Specular Reflection strictly at the top-left */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-white/15 rounded-full blur-sm pointer-events-none" />
+              <div className="relative z-10">
                 <div className="flex items-center gap-3 text-white mb-5">
                   <Pill className="h-5 w-5" />
                   <h3 className="font-semibold text-lg tracking-tight">Katalog Obat</h3>
@@ -209,7 +214,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <button className="w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
+              <button className="relative z-10 w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
                 Kelola Obat
               </button>
             </motion.div>
@@ -219,11 +224,17 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
-              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+              whileHover={{ y: -2, boxShadow: criticalItems.length > 0 ? '0 12px 30px rgba(244,63,94,0.25)' : '0 12px 30px rgba(20,184,166,0.22)' }}
               style={{ willChange: 'transform, opacity' }}
-              className={`bg-gradient-to-br backdrop-blur-xl rounded-2xl p-5 border shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between ${criticalItems.length > 0 ? 'from-rose-800/80 to-rose-700/80 border-rose-400/40 ring-2 ring-rose-500/20' : 'from-emerald-800/80 to-teal-700/80 border-white/20'}`}
+              className={`backdrop-blur-xl rounded-2xl p-5 border relative overflow-hidden flex flex-col justify-between ${
+                criticalItems.length > 0 
+                  ? 'bg-gradient-to-br from-rose-900/85 to-rose-800/85 border-white/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),_0_8px_30px_rgba(0,0,0,0.15)] ring-2 ring-rose-500/10' 
+                  : 'bg-gradient-to-br from-emerald-900/85 to-teal-800/85 border-white/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),_0_8px_30px_rgba(0,0,0,0.12)]'
+              }`}
             >
-              <div>
+              {/* Elegant Subtle Specular Reflection strictly at the top-left */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-white/15 rounded-full blur-sm pointer-events-none" />
+              <div className="relative z-10">
                 <div className="flex items-center gap-3 text-white mb-5">
                   <AlertTriangle className={`h-5 w-5 ${criticalItems.length > 0 ? 'animate-pulse' : ''}`} />
                   <h3 className="font-semibold text-lg tracking-tight">Stok Kritis</h3>
@@ -239,7 +250,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <button className={`w-full py-2.5 px-4 rounded-full border text-xs font-medium transition-colors ${criticalItems.length > 0 ? 'border-white text-white hover:bg-white hover:text-rose-700' : 'border-white/30 text-white hover:bg-white/10'}`}>
+              <button className={`relative z-10 w-full py-2.5 px-4 rounded-full border text-xs font-medium transition-colors ${criticalItems.length > 0 ? 'border-white text-white hover:bg-white hover:text-rose-700' : 'border-white/30 text-white hover:bg-white/10'}`}>
                 {criticalItems.length > 0 ? 'Lihat Peringatan' : 'Stok Aman'}
               </button>
             </motion.div>
@@ -249,11 +260,13 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
-              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(0,0,0,0.1)' }}
+              whileHover={{ y: -2, boxShadow: '0 12px 30px rgba(20,184,166,0.22)' }}
               style={{ willChange: 'transform, opacity' }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
+              className="bg-gradient-to-br from-emerald-900/85 to-teal-800/85 backdrop-blur-xl rounded-2xl p-5 border border-white/25 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),_0_8px_30px_rgba(0,0,0,0.12)] relative overflow-hidden flex flex-col justify-between"
             >
-              <div>
+              {/* Elegant Subtle Specular Reflection strictly at the top-left */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-white/15 rounded-full blur-sm pointer-events-none" />
+              <div className="relative z-10">
                 <div className="flex items-center gap-3 text-white mb-5">
                   <User className="h-5 w-5" />
                   <h3 className="font-semibold text-lg tracking-tight">Akses Petugas</h3>
@@ -269,7 +282,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <button className="w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
+              <button className="relative z-10 w-full py-2.5 px-4 rounded-full border border-white/30 text-white hover:bg-white/10 text-xs font-medium transition-colors">
                 Kelola Akses
               </button>
             </motion.div>
