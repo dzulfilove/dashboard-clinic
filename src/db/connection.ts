@@ -369,6 +369,7 @@ async function runMigrationsIfRequired() {
               nama_dokter VARCHAR(250) NOT NULL,
               status ENUM('aktif', 'nonaktif') DEFAULT 'aktif',
               is_active TINYINT(1) NOT NULL DEFAULT 1,
+              spesialisasi_unit TEXT DEFAULT NULL,
               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
           `);
@@ -392,6 +393,17 @@ async function runMigrationsIfRequired() {
           }
         } catch (err: any) {
           console.warn('Failed to ensure is_active column on dokter:', err.message);
+        }
+
+        // Alter dokter table to ensure spesialisasi_unit column exists
+        try {
+          const [spesialisasiCol]: any = await mysqlPool.query("SHOW COLUMNS FROM dokter LIKE 'spesialisasi_unit'");
+          if (spesialisasiCol.length === 0) {
+            console.log('Adding spesialisasi_unit column to dokter table...');
+            await mysqlPool.query("ALTER TABLE dokter ADD COLUMN spesialisasi_unit TEXT DEFAULT NULL");
+          }
+        } catch (err: any) {
+          console.warn('Failed to ensure spesialisasi_unit column on dokter:', err.message);
         }
 
         // Alter master_tindakan table to modify jenis column to VARCHAR(50)
@@ -1075,6 +1087,14 @@ export function readVirtualDb(): VirtualDatabase {
   }
   if (!data.pasien_loyal_pesan) {
     data.pasien_loyal_pesan = [];
+    updated = true;
+  }
+  if (!data.dokter) {
+    data.dokter = [
+      { id: 1, nama_dokter: 'dr. Muhammad Jundi Nasrullah', status: 'aktif', is_active: 1, spesialisasi_unit: '["PL003 (POLI UMUM)", "PL005 (POLI ANAK)"]' },
+      { id: 2, nama_dokter: 'dr. Taufik Hidayat', status: 'aktif', is_active: 1, spesialisasi_unit: '["PL003 (POLI UMUM)", "PPD (POLI PENYAKIT DALAM)"]' },
+      { id: 3, nama_dokter: 'dr. Elvita Asril,Sp.OG', status: 'aktif', is_active: 1, spesialisasi_unit: '["PL006 (POLI OBGYN)"]' }
+    ];
     updated = true;
   }
   if (updated) {
@@ -2804,6 +2824,76 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
     vdb.followup_vaksin = vdb.followup_vaksin.filter(item => item.id !== id);
     writeVirtualDb(vdb);
     return { affectedRows: 1 };
+  }
+
+  // --- MASTER DOKTER SIMULATION ---
+  if (norm.startsWith('SELECT * FROM dokter')) {
+    if (!vdb.dokter) vdb.dokter = [];
+    let list = vdb.dokter;
+    
+    if (norm.includes('is_active = 1')) {
+      list = list.filter((d: any) => d.is_active === 1);
+    }
+    
+    let paramIndex = 0;
+    if (norm.includes('nama_dokter LIKE ?')) {
+      const qVal = params[paramIndex++];
+      if (qVal) {
+        const cleanQ = String(qVal).replace(/%/g, '').toLowerCase();
+        list = list.filter((d: any) => String(d.nama_dokter).toLowerCase().includes(cleanQ));
+      }
+    }
+    if (norm.includes('status = ?')) {
+      const statusVal = params[paramIndex++];
+      if (statusVal) {
+        list = list.filter((d: any) => String(d.status).toLowerCase() === String(statusVal).toLowerCase());
+      }
+    }
+    
+    list.sort((a: any, b: any) => String(a.nama_dokter).localeCompare(String(b.nama_dokter)));
+    return list;
+  }
+
+  if (norm.startsWith('INSERT INTO dokter')) {
+    const [nama_dokter, status, spesialisasi_unit] = params;
+    if (!vdb.dokter) vdb.dokter = [];
+    const maxId = vdb.dokter.length > 0 ? Math.max(...vdb.dokter.map((d: any) => d.id)) : 0;
+    const newRecord = {
+      id: maxId + 1,
+      nama_dokter,
+      status: status || 'aktif',
+      is_active: 1,
+      spesialisasi_unit: spesialisasi_unit || null,
+      created_at: new Date().toISOString()
+    };
+    vdb.dokter.push(newRecord);
+    writeVirtualDb(vdb);
+    return { insertId: newRecord.id, affectedRows: 1 };
+  }
+
+  if (norm.startsWith('UPDATE dokter SET')) {
+    if (!vdb.dokter) vdb.dokter = [];
+    if (norm.includes('is_active = 0')) {
+      const [status, id] = params;
+      const idx = vdb.dokter.findIndex((d: any) => d.id === Number(id));
+      if (idx !== -1) {
+        vdb.dokter[idx].is_active = 0;
+        vdb.dokter[idx].status = status;
+        writeVirtualDb(vdb);
+        return { affectedRows: 1 };
+      }
+    } else {
+      const [nama_dokter, status, spesialisasi_unit, id] = params;
+      const idx = vdb.dokter.findIndex((d: any) => d.id === Number(id));
+      if (idx !== -1) {
+        vdb.dokter[idx].nama_dokter = nama_dokter;
+        vdb.dokter[idx].status = status;
+        vdb.dokter[idx].spesialisasi_unit = spesialisasi_unit !== undefined ? spesialisasi_unit : vdb.dokter[idx].spesialisasi_unit;
+        writeVirtualDb(vdb);
+        return { affectedRows: 1 };
+      }
+    }
+    return { affectedRows: 0 };
   }
 
   // --- PASIEN LOYAL SIMULATION ---

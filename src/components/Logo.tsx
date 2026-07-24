@@ -1,5 +1,6 @@
 import React from 'react';
 import logoImg from '../../assets/logo.png';
+import logoSvg from '../../assets/logo.svg';
 
 interface LogoProps {
   className?: string;
@@ -25,15 +26,13 @@ export default function Logo({
     <div className={`inline-flex items-center justify-center ${isCol ? 'flex-col text-center gap-2' : 'flex-row gap-2.5'} ${className}`}>
       {variant === 'image' ? (
         <img
-          src={logoImg}
+          src={logoSvg || logoImg}
           alt="Logo Klinik Puri Medika"
           style={{ width: pixelSize, height: 'auto', maxHeight: pixelSize }}
           className="shrink-0 object-contain drop-shadow-md select-none"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            if (!target.src.endsWith('/logo.png')) {
-              target.src = '/logo.png';
-            }
+            target.src = logoImg;
           }}
         />
       ) : (

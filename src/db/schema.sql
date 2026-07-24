@@ -323,7 +323,9 @@ CREATE TABLE IF NOT EXISTS tindakan_ranap (
 CREATE TABLE IF NOT EXISTS dokter (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nama_dokter VARCHAR(250) NOT NULL,
-  status ENUM('aktif', 'non-aktif') DEFAULT 'aktif',
+  status ENUM('aktif', 'non-aktif', 'nonaktif') DEFAULT 'aktif',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  spesialisasi_unit TEXT DEFAULT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -379,6 +381,29 @@ CREATE TABLE IF NOT EXISTS pasien_loyal_pesan (
   sent_by INT DEFAULT NULL,
   sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS shift_dokter (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  nama_shift VARCHAR(100) NOT NULL,
+  jam_mulai VARCHAR(10) NOT NULL,
+  jam_selesai VARCHAR(10) NOT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS jadwal_dokter (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  tanggal DATE NOT NULL,
+  shift_id INT NOT NULL,
+  dokter_id INT NOT NULL,
+  keterangan TEXT,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (shift_id) REFERENCES shift_dokter(id) ON DELETE CASCADE,
+  FOREIGN KEY (dokter_id) REFERENCES dokter(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_tanggal_shift_dokter (tanggal, shift_id, dokter_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 

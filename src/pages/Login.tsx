@@ -140,8 +140,8 @@ export default function Login() {
       </AnimatePresence>
 
       {/* Dynamic Background Glass Blows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '12s' }} />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-none" />
       <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-sky-400/15 rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-md mx-auto flex flex-col items-center justify-center text-center">
@@ -230,8 +230,6 @@ export default function Login() {
                     id="otp-send-btn"
                     type="submit"
                     disabled={loading}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
                     className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-teal-600/30 rounded-xl shadow-lg shadow-teal-700/10 text-sm font-bold text-white bg-teal-700 hover:bg-teal-850 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:opacity-50 transition-all cursor-pointer"
                     style={{ minHeight: '44px' }}
                   >
@@ -282,8 +280,6 @@ export default function Login() {
                     id="otp-verify-btn"
                     type="submit"
                     disabled={loading}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
                     className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-teal-600/30 rounded-xl shadow-lg shadow-teal-700/10 text-sm font-bold text-white bg-teal-700 hover:bg-teal-850 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:opacity-50 transition-all cursor-pointer"
                     style={{ minHeight: '44px' }}
                   >

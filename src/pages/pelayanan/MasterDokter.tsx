@@ -19,11 +19,13 @@ import {
 import api from '../../services/api';
 import Papa from 'papaparse';
 import { motion, AnimatePresence } from 'motion/react';
+import { TIPE_UNIT_RAWAT_JALAN } from '../../types.js';
 
 interface Dokter {
   id: number;
   nama_dokter: string;
   status: 'aktif' | 'non-aktif';
+  spesialisasi_unit?: string | null;
 }
 
 export default function MasterDokter() {
@@ -37,8 +39,10 @@ export default function MasterDokter() {
   const [editingItem, setEditingItem] = useState<Dokter | null>(null);
   const [formData, setFormData] = useState({
     nama_dokter: '',
-    status: 'aktif' as 'aktif' | 'non-aktif'
+    status: 'aktif' as 'aktif' | 'non-aktif',
+    spesialisasi_unit: [] as string[]
   });
+  const [unitSearch, setUnitSearch] = useState('');
   
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -62,19 +66,61 @@ export default function MasterDokter() {
 
   const handleOpenAddModal = () => {
     setEditingItem(null);
-    setFormData({ nama_dokter: '', status: 'aktif' });
+    setFormData({ nama_dokter: '', status: 'aktif', spesialisasi_unit: [] });
+    setUnitSearch('');
     setFeedback(null);
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (item: Dokter) => {
     setEditingItem(item);
+    let parsedUnits: string[] = [];
+    if (item.spesialisasi_unit) {
+      try {
+        parsedUnits = JSON.parse(item.spesialisasi_unit);
+      } catch (e) {
+        parsedUnits = item.spesialisasi_unit.split(',').map(s => s.trim()).filter(Boolean);
+      }
+    }
     setFormData({ 
       nama_dokter: item.nama_dokter, 
-      status: item.status 
+      status: item.status,
+      spesialisasi_unit: Array.isArray(parsedUnits) ? parsedUnits : []
     });
+    setUnitSearch('');
     setFeedback(null);
     setIsModalOpen(true);
+  };
+
+  const handleToggleUnit = (unit: string) => {
+    setFormData(prev => {
+      const exists = prev.spesialisasi_unit.includes(unit);
+      if (exists) {
+        return {
+          ...prev,
+          spesialisasi_unit: prev.spesialisasi_unit.filter(u => u !== unit)
+        };
+      } else {
+        return {
+          ...prev,
+          spesialisasi_unit: [...prev.spesialisasi_unit, unit]
+        };
+      }
+    });
+  };
+
+  const handleSelectAllUnits = () => {
+    setFormData(prev => ({
+      ...prev,
+      spesialisasi_unit: [...TIPE_UNIT_RAWAT_JALAN]
+    }));
+  };
+
+  const handleClearAllUnits = () => {
+    setFormData(prev => ({
+      ...prev,
+      spesialisasi_unit: []
+    }));
   };
 
   const handleDelete = async (id: number) => {
@@ -143,10 +189,18 @@ export default function MasterDokter() {
       skipEmptyLines: true,
       complete: async (results) => {
         try {
-          const doctors = results.data.map((row: any) => ({
-            nama_dokter: row.nama_dokter || row.nama || row.Nama,
-            status: (row.status || row.Status || 'aktif').toLowerCase() === 'aktif' ? 'aktif' : 'non-aktif'
-          })).filter(d => d.nama_dokter);
+          const doctors = results.data.map((row: any) => {
+            const rawUnit = row.spesialisasi_unit || row.unit || row.poli || row.Poli || '';
+            let parsedUnits: string[] = [];
+            if (rawUnit) {
+              parsedUnits = rawUnit.split(/[;|]/).map((s: string) => s.trim()).filter(Boolean);
+            }
+            return {
+              nama_dokter: row.nama_dokter || row.nama || row.Nama,
+              status: (row.status || row.Status || 'aktif').toLowerCase() === 'aktif' ? 'aktif' : 'non-aktif',
+              spesialisasi_unit: parsedUnits
+            };
+          }).filter(d => d.nama_dokter);
 
           if (doctors.length === 0) {
             setFeedback({ type: 'error', message: 'Tidak ada data dokter valid ditemukan di CSV.' });
@@ -175,7 +229,7 @@ export default function MasterDokter() {
   };
 
   const downloadTemplate = () => {
-    const csvContent = "nama_dokter,status\ndr. Example Name,aktif\ndr. Another Name,non-aktif";
+    const csvContent = "nama_dokter,status,spesialisasi_unit\ndr. Example Name,aktif,PL003 (POLI UMUM);PL005 (POLI ANAK)\ndr. Another Name,non-aktif,PL006 (POLI OBGYN)";
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -306,6 +360,7 @@ export default function MasterDokter() {
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100/70">
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Nama Dokter</th>
+                  <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Unit / Poli Pelayanan</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider">Status</th>
                   <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 tracking-wider text-right">Aksi</th>
                 </tr>
@@ -329,6 +384,33 @@ export default function MasterDokter() {
                         </div>
                         {item.nama_dokter}
                       </div>
+                    </td>
+                    <td className="py-3 px-5 text-xs">
+                      {(() => {
+                        let unitsList: string[] = [];
+                        if (item.spesialisasi_unit) {
+                          try {
+                            unitsList = JSON.parse(item.spesialisasi_unit);
+                          } catch (e) {
+                            unitsList = item.spesialisasi_unit.split(',').map(s => s.trim()).filter(Boolean);
+                          }
+                        }
+                        if (unitsList.length === 0) {
+                          return <span className="text-slate-400 italic">Belum dikaitkan unit</span>;
+                        }
+                        return (
+                          <div className="flex flex-wrap gap-1 max-w-xs sm:max-w-md">
+                            {unitsList.map(unit => (
+                              <span 
+                                key={unit} 
+                                className="bg-teal-50 border border-teal-100/80 text-teal-700 px-2 py-0.5 rounded-md text-[10px] font-semibold"
+                              >
+                                {unit}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="py-3 px-5 text-xs">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-black uppercase ${
@@ -375,7 +457,7 @@ export default function MasterDokter() {
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             style={{ willChange: 'transform, opacity' }}
-            className="bg-white w-full max-w-md rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
+            className="bg-white w-full max-w-lg rounded-2xl border border-slate-100 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100/70 flex items-center justify-between bg-slate-50/50">
               <h3 className="font-extrabold text-slate-900 text-base">
@@ -412,6 +494,79 @@ export default function MasterDokter() {
                   <option value="aktif">AKTIF</option>
                   <option value="non-aktif">NON-AKTIF</option>
                 </SearchableSelect>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-black text-slate-500 tracking-wider uppercase">
+                    Unit / Poli Pelayanan (Dapat Pilih Lebih dari 1)
+                  </label>
+                  <span className="text-[10px] text-teal-600 font-bold bg-teal-50 px-1.5 py-0.5 rounded-md">
+                    {formData.spesialisasi_unit.length} Terpilih
+                  </span>
+                </div>
+                
+                {/* Search input to filter units */}
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari unit atau poli..."
+                    value={unitSearch}
+                    onChange={(e) => setUnitSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-1.5 text-xs border border-slate-100 focus:border-teal-300 focus:ring-4 focus:ring-teal-500/5 outline-none rounded-lg transition bg-white"
+                  />
+                </div>
+
+                {/* Helper buttons */}
+                <div className="flex gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={handleSelectAllUnits}
+                    className="text-[10px] text-slate-500 hover:text-slate-800 font-bold bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded"
+                  >
+                    Pilih Semua
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClearAllUnits}
+                    className="text-[10px] text-slate-500 hover:text-rose-600 font-bold bg-slate-50 hover:bg-rose-50 px-2 py-1 rounded"
+                  >
+                    Hapus Semua
+                  </button>
+                </div>
+
+                {/* Scrollable list of units */}
+                <div className="max-h-40 overflow-y-auto border border-slate-100 rounded-xl p-2 bg-slate-50/50 space-y-1">
+                  {TIPE_UNIT_RAWAT_JALAN.filter(unit => 
+                    unit.toLowerCase().includes(unitSearch.toLowerCase())
+                  ).map(unit => {
+                    const isChecked = formData.spesialisasi_unit.includes(unit);
+                    return (
+                      <label 
+                        key={unit} 
+                        className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition select-none ${
+                          isChecked 
+                            ? 'bg-teal-50 border border-teal-100/80 text-teal-800' 
+                            : 'hover:bg-slate-100/70 text-slate-600 border border-transparent'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleToggleUnit(unit)}
+                          className="h-3.5 w-3.5 rounded text-teal-600 focus:ring-teal-500/20 border-slate-300 transition"
+                        />
+                        <span>{unit}</span>
+                      </label>
+                    );
+                  })}
+                  {TIPE_UNIT_RAWAT_JALAN.filter(unit => 
+                    unit.toLowerCase().includes(unitSearch.toLowerCase())
+                  ).length === 0 && (
+                    <p className="text-[11px] text-slate-400 text-center py-4">Tidak ada unit pelayanan yang cocok</p>
+                  )}
+                </div>
               </div>
 
               <div className="pt-3 border-t border-slate-100/70 flex items-center justify-end gap-3">

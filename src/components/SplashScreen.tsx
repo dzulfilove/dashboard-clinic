@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import logoImg from '../../assets/logo.png';
+import logoSvg from '../../assets/logo.svg';
 import { CheckCircle2, ShieldCheck, Sparkles, Activity, Heart, Stethoscope, Plus } from 'lucide-react';
 
 interface SplashScreenProps {
@@ -86,7 +87,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
     <motion.div
       initial={{ opacity: mode === 'initial' ? 1 : 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.02, filter: 'blur(8px)' }}
+      exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#0f5144] via-[#0d3d34] to-[#07241e] text-white overflow-hidden select-none font-sans"
     >
@@ -98,8 +99,8 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
       <div className="absolute -bottom-28 -right-28 w-96 h-96 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* --- Floating Translucent Medical/Clinic Icons (Reference Style) --- */}
-      <Activity className="absolute top-[18%] left-[12%] w-7 h-7 text-teal-200/20 -rotate-12 animate-pulse pointer-events-none" />
-      <Heart className="absolute top-[28%] right-[14%] w-8 h-8 text-emerald-200/20 rotate-12 animate-bounce pointer-events-none" style={{ animationDuration: '3.5s' }} />
+      <Activity className="absolute top-[18%] left-[12%] w-7 h-7 text-teal-200/20 -rotate-12 animate-none pointer-events-none" />
+      <Heart className="absolute top-[28%] right-[14%] w-8 h-8 text-emerald-200/20 rotate-12 animate-none pointer-events-none" />
       <Plus className="absolute bottom-[28%] left-[16%] w-6 h-6 text-teal-100/20 rotate-45 pointer-events-none" />
       <Stethoscope className="absolute bottom-[18%] right-[15%] w-8 h-8 text-teal-200/20 -rotate-12 pointer-events-none" />
 
@@ -130,7 +131,6 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
             }}
             transition={{
               duration: 3,
-              repeat: Infinity,
               ease: 'easeInOut',
             }}
             className="absolute -inset-4 rounded-full bg-teal-300 blur-2xl opacity-30"
@@ -139,7 +139,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
           {/* Logo White Square Container Box */}
           <div className="relative bg-white w-28 h-28 sm:w-32 sm:h-32 p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/90 flex items-center justify-center">
             <img 
-              src={logoImg} 
+              src={logoSvg || logoImg} 
               alt="Logo Klinik Puri Medika" 
               width={128}
               height={128}
@@ -148,9 +148,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
               className="w-full h-full object-contain drop-shadow-md"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                if (!target.src.endsWith('/logo.png')) {
-                  target.src = '/logo.png';
-                }
+                target.src = logoImg;
               }}
             />
           </div>

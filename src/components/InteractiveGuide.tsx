@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -435,6 +435,8 @@ export default function InteractiveGuide() {
 
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
+  const rafId = useRef<number>(0);
+
   // Update highlight saat step berubah
   useEffect(() => {
     if (!isTourActive) {
@@ -453,12 +455,16 @@ export default function InteractiveGuide() {
     }
 
     const updateRect = () => {
-      const targetEl = document.querySelector(step.targetSelector!);
-      if (targetEl) {
-        setHighlightRect(targetEl.getBoundingClientRect());
-      } else {
-        setHighlightRect(null);
-      }
+      if (rafId.current) return;
+      rafId.current = requestAnimationFrame(() => {
+        const targetEl = document.querySelector(step.targetSelector!);
+        if (targetEl) {
+          setHighlightRect(targetEl.getBoundingClientRect());
+        } else {
+          setHighlightRect(null);
+        }
+        rafId.current = 0;
+      });
     };
 
     updateRect();
@@ -470,6 +476,7 @@ export default function InteractiveGuide() {
       clearTimeout(timeoutId);
       window.removeEventListener('resize', updateRect);
       window.removeEventListener('scroll', updateRect, { capture: true });
+      cancelAnimationFrame(rafId.current);
     };
   }, [isTourActive, tourStep]);
 
@@ -645,10 +652,9 @@ export default function InteractiveGuide() {
             initial={{ opacity: 0, scale: 0.95, y: 5 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.2 }}
-            style={{ willChange: 'transform, opacity' }}
             className="bg-teal-600 text-white text-xs font-bold px-3 py-1.5 rounded-2xl shadow-md flex items-center space-x-1 max-w-[190px] mr-1"
           >
-            <Lightbulb className="h-3.5 w-3.5 flex-shrink-0 animate-bounce" />
+            <Lightbulb className="h-3.5 w-3.5 flex-shrink-0 animate-none" />
             <span>Butuh Panduan Peran? Klik di sini!</span>
           </motion.div>
         )}
@@ -660,11 +666,10 @@ export default function InteractiveGuide() {
           title="Panduan Interaktif Peran"
           style={{ minHeight: '48px', minWidth: '48px' }}
         >
-          <HelpCircle className="h-6 w-6 animate-pulse group-hover:rotate-12 transition-transform" />
+          <HelpCircle className="h-6 w-6 animate-none group-hover:rotate-12 transition-transform" />
           {hasUnreadGuide && (
             <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-teal-500 opacity-75"></span>
             </span>
           )}
         </button>
@@ -683,7 +688,6 @@ export default function InteractiveGuide() {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              style={{ willChange: 'opacity' }}
               onClick={() => setIsOpen(false)}
               className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-[9999] pointer-events-auto"
             />
@@ -694,7 +698,6 @@ export default function InteractiveGuide() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-              style={{ willChange: 'transform' }}
               className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-[10000] border-l border-slate-100/50 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header with Role Information */}
@@ -768,7 +771,6 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
-                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-5 text-center py-4"
                     >
                       <div className="h-16 w-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto border border-teal-150">
@@ -807,7 +809,6 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
-                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">
@@ -864,7 +865,6 @@ export default function InteractiveGuide() {
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
                             transition={{ duration: 0.2 }}
-                            style={{ willChange: 'height, opacity' }}
                             className="bg-teal-50/40 border border-teal-100 rounded-2xl p-4 space-y-3 overflow-hidden mt-2"
                           >
                             <h4 className="text-xs font-bold text-teal-900 flex items-center gap-1.5">
@@ -899,7 +899,6 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
-                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">
@@ -993,7 +992,6 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
-                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">

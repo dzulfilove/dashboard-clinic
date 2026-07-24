@@ -12,7 +12,7 @@ const PageTransition = ({ children }: PageTransitionProps) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowLoader(false);
-    }, 500);
+    }, 150);
     return () => clearTimeout(timer);
   }, []);
 

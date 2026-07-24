@@ -1,6 +1,6 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, MotionConfig } from 'motion/react';
 import { useAuthStore } from './store/authStore.js';
 
 import Loader from './components/Loader.js';
@@ -52,7 +52,9 @@ export default function App() {
 
   return (
     <Router>
-      <AppContent />
+      <MotionConfig reducedMotion="user">
+        <AppContent />
+      </MotionConfig>
     </Router>
   );
 }
@@ -101,8 +103,8 @@ function AppContent() {
               <ProtectedRoute>
                 <div className="relative min-h-screen bg-slate-50/50 flex flex-col md:flex-row font-sans overflow-hidden">
                   {/* Glowing ambient background spots for glass backdrop blur effect */}
-                  <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-300/10 rounded-full blur-[130px] pointer-events-none" />
-                  <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-teal-300/10 rounded-full blur-[120px] pointer-events-none" />
+                  <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-300/10 rounded-full blur-[60px] pointer-events-none" />
+                  <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-teal-300/10 rounded-full blur-[60px] pointer-events-none" />
                   
                   {/* Sidebar Navigation */}
                   <Sidebar />

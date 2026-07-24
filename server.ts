@@ -1295,17 +1295,19 @@ function normalizeDokterStatus(status: any, fallback = 'aktif'): string {
 const VALID_DOKTER_STATUS = ['aktif', 'nonaktif'];
 
 app.post('/api/dokter', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
-  const { nama_dokter, status } = req.body;
+  const { nama_dokter, status, spesialisasi_unit } = req.body;
   const normalizedStatus = normalizeDokterStatus(status);
   
   if (!VALID_DOKTER_STATUS.includes(normalizedStatus)) {
     return res.status(400).json({ message: `Status tidak valid. Gunakan: ${VALID_DOKTER_STATUS.join(', ')}` });
   }
 
+  const serializedUnits = Array.isArray(spesialisasi_unit) ? JSON.stringify(spesialisasi_unit) : null;
+
   try {
     const result = await db.query(
-      'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
-      [nama_dokter, normalizedStatus]
+      'INSERT INTO dokter (nama_dokter, status, spesialisasi_unit) VALUES (?, ?, ?)',
+      [nama_dokter, normalizedStatus, serializedUnits]
     );
     res.json({ success: true, id: result.insertId });
   } catch (err: any) {
@@ -1315,17 +1317,19 @@ app.post('/api/dokter', authenticateToken, roleGuard(['admin', 'perawat']), asyn
 
 app.put('/api/dokter/:id', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { id } = req.params;
-  const { nama_dokter, status } = req.body;
+  const { nama_dokter, status, spesialisasi_unit } = req.body;
 
   const normalizedStatus = normalizeDokterStatus(status, undefined);
   if (normalizedStatus && !VALID_DOKTER_STATUS.includes(normalizedStatus)) {
     return res.status(400).json({ message: `Status tidak valid. Gunakan: ${VALID_DOKTER_STATUS.join(', ')}` });
   }
 
+  const serializedUnits = Array.isArray(spesialisasi_unit) ? JSON.stringify(spesialisasi_unit) : null;
+
   try {
-    const updateParams = [nama_dokter, normalizedStatus, Number(id)];
+    const updateParams = [nama_dokter, normalizedStatus, serializedUnits, Number(id)];
     await db.query(
-      'UPDATE dokter SET nama_dokter = ?, status = ? WHERE id = ?',
+      'UPDATE dokter SET nama_dokter = ?, status = ?, spesialisasi_unit = ? WHERE id = ?',
       updateParams
     );
     res.json({ success: true });
@@ -1352,9 +1356,10 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
     for (const d of doctors) {
       if (d.nama_dokter) {
         const normalizedStatus = normalizeDokterStatus(d.status);
+        const serializedUnits = Array.isArray(d.spesialisasi_unit) ? JSON.stringify(d.spesialisasi_unit) : null;
         await db.query(
-          'INSERT INTO dokter (nama_dokter, status) VALUES (?, ?)',
-          [d.nama_dokter, normalizedStatus]
+          'INSERT INTO dokter (nama_dokter, status, spesialisasi_unit) VALUES (?, ?, ?)',
+          [d.nama_dokter, normalizedStatus, serializedUnits]
         );
       }
     }
