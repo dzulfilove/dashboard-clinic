@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
-import { Activity, Mail, Lock, ArrowRight, ArrowLeft, AlertCircle, Info, Key } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ArrowLeft, AlertCircle, Info, Key, Activity, Heart, Plus, Stethoscope } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import api from '../services/api.js';
 import Logo from '../components/Logo.js';
@@ -127,7 +127,7 @@ export default function Login() {
   };
 
   return (
-    <div id="login-container" className="relative min-h-screen bg-slate-50/50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
+    <div id="login-container" className="relative min-h-screen bg-gradient-to-br from-[#0f5144] via-[#0d3d34] to-[#07241e] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       {/* Post-Login Splash Screen */}
       <AnimatePresence>
         {loginSuccessData && (
@@ -139,31 +139,45 @@ export default function Login() {
         )}
       </AnimatePresence>
 
-      {/* Dynamic Background Glass Blows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-teal-400/20 rounded-full blur-[100px] pointer-events-none animate-pulse" style={{ animationDuration: '12s' }} />
-      <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-sky-400/15 rounded-full blur-[80px] pointer-events-none" />
+      {/* --- Top-Left Organic Curved Blob (Reference Style) --- */}
+      <div className="absolute -top-24 -left-24 w-80 h-80 bg-teal-300/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-white/10 to-transparent rounded-br-[160px] pointer-events-none backdrop-blur-3xl border-b border-r border-white/10" />
 
-      <div className="relative z-10 w-full max-w-md mx-auto flex flex-col items-center justify-center text-center">
-        {/* Animated Brand Header */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex items-center justify-center w-full mb-3"
-        >
-          <Logo size={68} showText={true} />
-        </motion.div>
-      </div>
+      {/* --- Bottom-Right Ambient Blob --- */}
+      <div className="absolute -bottom-28 -right-28 w-96 h-96 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 mt-2 w-full max-w-md mx-auto">
+      {/* --- Floating Translucent Medical/Clinic Icons (Reference Style) --- */}
+      <Activity className="absolute top-[18%] left-[12%] w-7 h-7 text-teal-200/20 -rotate-12 animate-none pointer-events-none" />
+      <Heart className="absolute top-[28%] right-[14%] w-8 h-8 text-emerald-200/20 rotate-12 animate-none pointer-events-none" />
+      <Plus className="absolute bottom-[28%] left-[16%] w-6 h-6 text-teal-100/20 rotate-45 pointer-events-none" />
+      <Stethoscope className="absolute bottom-[18%] right-[15%] w-8 h-8 text-teal-200/20 -rotate-12 pointer-events-none" />
+
+      {/* --- Subtle Radial Mesh --- */}
+      <div 
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.9) 1px, transparent 0)`,
+          backgroundSize: '32px 32px'
+        }}
+      />
+
+      <div className="relative z-10 w-full max-w-md mx-auto">
         {/* Glassmorphic Card Container */}
         <motion.div 
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="bg-white/70 backdrop-blur-xl py-8 px-6 shadow-[0_20px_50px_rgba(15,23,42,0.08)] rounded-3xl sm:px-10"
+          className="bg-white/95 backdrop-blur-xl py-8 px-6 shadow-[0_20px_50px_rgba(0,0,0,0.2)] rounded-3xl sm:px-10"
         >
+          {/* Animated Brand Header */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="flex items-center justify-center w-full mb-6"
+          >
+            <Logo size={68} showText={true} />
+          </motion.div>
           {error && (
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
