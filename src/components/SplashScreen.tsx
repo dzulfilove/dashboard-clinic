@@ -124,17 +124,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
           className="relative mb-6 flex flex-col items-center"
         >
           {/* Subtle Ambient Logo Glow */}
-          <motion.div
-            animate={{
-              scale: [1, 1.12, 1],
-              opacity: [0.25, 0.5, 0.25],
-            }}
-            transition={{
-              duration: 3,
-              ease: 'easeInOut',
-            }}
-            className="absolute -inset-4 rounded-full bg-teal-300 blur-2xl opacity-30"
-          />
+          <div className="absolute -inset-4 rounded-full bg-teal-300/20 blur-2xl" />
 
           {/* Logo White Square Container Box */}
           <div className="relative bg-white w-28 h-28 sm:w-32 sm:h-32 p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/90 flex items-center justify-center">
@@ -157,7 +147,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
             <motion.div
               initial={{ scale: 0, y: 10 }}
               animate={{ scale: 1, y: 0 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 260, damping: 20 }}
+              transition={{ delay: 0.2, duration: 0.3, ease: 'easeOut' }}
               className="absolute -bottom-2 -right-2 bg-emerald-400 text-slate-900 p-2 rounded-full shadow-lg border-2 border-emerald-900"
             >
               <CheckCircle2 className="w-5 h-5 font-bold" />

@@ -698,6 +698,7 @@ export default function InteractiveGuide() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              style={{ willChange: 'transform' }}
               className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-[10000] border-l border-slate-100/50 flex flex-col pointer-events-auto"
             >
               {/* Drawer Header with Role Information */}
@@ -771,6 +772,7 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-5 text-center py-4"
                     >
                       <div className="h-16 w-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto border border-teal-150">
@@ -809,6 +811,7 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">
@@ -861,9 +864,9 @@ export default function InteractiveGuide() {
                       <AnimatePresence mode="wait">
                         {selectedNode && (
                           <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
                             transition={{ duration: 0.2 }}
                             className="bg-teal-50/40 border border-teal-100 rounded-2xl p-4 space-y-3 overflow-hidden mt-2"
                           >
@@ -899,6 +902,7 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">
@@ -992,6 +996,7 @@ export default function InteractiveGuide() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
                       transition={{ duration: 0.2 }}
+                      style={{ willChange: 'transform, opacity' }}
                       className="space-y-4"
                     >
                       <div className="space-y-1">

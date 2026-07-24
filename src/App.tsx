@@ -1,6 +1,6 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, MotionConfig } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
 import { useAuthStore } from './store/authStore.js';
 
 import Loader from './components/Loader.js';
@@ -9,38 +9,35 @@ import SplashScreen from './components/SplashScreen.js';
 // Layout & guards
 import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
-import PageTransition from './components/PageTransition.js';
 import { prefetchRoutes } from './routePrefetch.js';
-// Utility to ensure loading spinner is visible for at least 1 second
-// removed delayedLazy as we are using PageTransition to handle delays smoothly
 
-const InteractiveGuide = lazy(() => import('./components/InteractiveGuide.js'));
+import InteractiveGuide from './components/InteractiveGuide.js';
 
 // Pages
-const Login = lazy(() => import('./pages/Login.js'));
-const Dashboard = lazy(() => import('./pages/Dashboard.js'));
-const InputPemeriksaan = lazy(() => import('./pages/lab/InputPemeriksaan.js'));
-const MasterPemeriksaan = lazy(() => import('./pages/lab/MasterPemeriksaan.js'));
-const DashboardLab = lazy(() => import('./pages/lab/DashboardLab.js'));
-const MasterObat = lazy(() => import('./pages/farmasi/MasterObat.js'));
-const InputKonsumsi = lazy(() => import('./pages/farmasi/InputKonsumsi.js'));
-const Forecasting = lazy(() => import('./pages/farmasi/Forecasting.js'));
-const AbcAnalysis = lazy(() => import('./pages/farmasi/AbcAnalysis.js'));
-const UsersManagement = lazy(() => import('./pages/admin/Users.js'));
-const ActivityLogs = lazy(() => import('./pages/admin/ActivityLogs.js'));
-const DatabaseSettings = lazy(() => import('./pages/admin/DatabaseSettings.js'));
-const RawatJalan = lazy(() => import('./pages/pelayanan/RawatJalan.js'));
-const IGD = lazy(() => import('./pages/pelayanan/IGD.js'));
-const MasterTindakan = lazy(() => import('./pages/pelayanan/MasterTindakan.js'));
-const MasterPasien = lazy(() => import('./pages/pelayanan/MasterPasien.js'));
-const MasterICD10 = lazy(() => import('./pages/pelayanan/MasterICD10.js'));
-const RawatInap = lazy(() => import('./pages/pelayanan/RawatInap.js'));
-const MasterDokter = lazy(() => import('./pages/pelayanan/MasterDokter.js'));
-const MasterWilayah = lazy(() => import('./pages/pelayanan/MasterWilayah.js'));
-const DemografiKunjungan = lazy(() => import('./pages/demografi/DemografiKunjungan.js'));
-const DemografiDiagnosa = lazy(() => import('./pages/demografi/DemografiDiagnosa.js'));
-const DashboardDokter = lazy(() => import('./pages/pelayanan/DashboardDokter.js'));
-const FollowUpVaksin = lazy(() => import('./pages/pelayanan/FollowUpVaksin.js'));
+import Login from './pages/Login.js';
+import Dashboard from './pages/Dashboard.js';
+import InputPemeriksaan from './pages/lab/InputPemeriksaan.js';
+import MasterPemeriksaan from './pages/lab/MasterPemeriksaan.js';
+import DashboardLab from './pages/lab/DashboardLab.js';
+import MasterObat from './pages/farmasi/MasterObat.js';
+import InputKonsumsi from './pages/farmasi/InputKonsumsi.js';
+import Forecasting from './pages/farmasi/Forecasting.js';
+import AbcAnalysis from './pages/farmasi/AbcAnalysis.js';
+import UsersManagement from './pages/admin/Users.js';
+import ActivityLogs from './pages/admin/ActivityLogs.js';
+import DatabaseSettings from './pages/admin/DatabaseSettings.js';
+import RawatJalan from './pages/pelayanan/RawatJalan.js';
+import IGD from './pages/pelayanan/IGD.js';
+import MasterTindakan from './pages/pelayanan/MasterTindakan.js';
+import MasterPasien from './pages/pelayanan/MasterPasien.js';
+import MasterICD10 from './pages/pelayanan/MasterICD10.js';
+import RawatInap from './pages/pelayanan/RawatInap.js';
+import MasterDokter from './pages/pelayanan/MasterDokter.js';
+import MasterWilayah from './pages/pelayanan/MasterWilayah.js';
+import DemografiKunjungan from './pages/demografi/DemografiKunjungan.js';
+import DemografiDiagnosa from './pages/demografi/DemografiDiagnosa.js';
+import DashboardDokter from './pages/pelayanan/DashboardDokter.js';
+import FollowUpVaksin from './pages/pelayanan/FollowUpVaksin.js';
 
 export default function App() {
   useEffect(() => {
@@ -52,9 +49,7 @@ export default function App() {
 
   return (
     <Router>
-      <MotionConfig reducedMotion="user">
-        <AppContent />
-      </MotionConfig>
+      <AppContent />
     </Router>
   );
 }
@@ -90,230 +85,222 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence mode="wait">
-        <Suspense fallback={<Loader />}>
-          <Routes>
-          {/* Public Login Route */}
-          <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+      <Routes>
+        {/* Public Login Route */}
+        <Route path="/login" element={<Login />} />
 
-          {/* Bound Protected Core Application Layout */}
-          <Route
-            path="/*"
-            element={
-              <ProtectedRoute>
-                <div className="relative min-h-screen bg-slate-50/50 flex flex-col md:flex-row font-sans overflow-hidden">
-                  {/* Glowing ambient background spots for glass backdrop blur effect */}
-                  <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-300/10 rounded-full blur-[60px] pointer-events-none" />
-                  <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-teal-300/10 rounded-full blur-[60px] pointer-events-none" />
-                  
-                  {/* Sidebar Navigation */}
-                  <Sidebar />
+        {/* Bound Protected Core Application Layout */}
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <div className="relative min-h-screen bg-slate-50/50 flex flex-col md:flex-row font-sans overflow-hidden">
+                {/* Glowing ambient background spots for glass backdrop blur effect */}
+                <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-300/10 rounded-full blur-[60px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-teal-300/10 rounded-full blur-[60px] pointer-events-none" />
+                
+                {/* Sidebar Navigation */}
+                <Sidebar />
 
-                  {/* Interactive Guide Widget */}
-                  <Suspense fallback={null}>
-                    <InteractiveGuide />
-                  </Suspense>
+                {/* Interactive Guide Widget */}
+                <InteractiveGuide />
 
-                  {/* Core Main Viewport Stage */}
-                  <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
-                    <div className="max-w-7xl mx-auto h-full">
-                      <AnimatePresence mode="wait">
-                        <Suspense fallback={null}>
-                          <Routes location={location} key={location.pathname}>
-                            {/* Integrated Shared Dashboard (Home) */}
-                            <Route path="/" element={<PageTransition><Dashboard /></PageTransition>} />
+                {/* Core Main Viewport Stage */}
+                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
+                  <div className="max-w-7xl mx-auto h-full">
+                    <Routes location={location} key={location.pathname}>
+                      {/* Integrated Shared Dashboard (Home) */}
+                      <Route path="/" element={<Dashboard />} />
 
-                          {/* LABORATORY MODUL ROUTES */}
-                          <Route 
-                            path="/pelayanan/rawat-jalan" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><RawatJalan /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/igd" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><IGD /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/rawat-inap" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><RawatInap /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/master-tindakan" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><MasterTindakan /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/master-pasien" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><MasterPasien /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/master-icd10" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><MasterICD10 /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/master-dokter" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><MasterDokter /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/master-wilayah" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><MasterWilayah /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/dashboard-dokter" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><DashboardDokter /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/pelayanan/followup-vaksin" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat']}>
-                                <PageTransition><FollowUpVaksin /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
+                      {/* LABORATORY MODUL ROUTES */}
+                      <Route 
+                        path="/pelayanan/rawat-jalan" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <RawatJalan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/igd" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <IGD />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/rawat-inap" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <RawatInap />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-tindakan" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <MasterTindakan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-pasien" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <MasterPasien />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-icd10" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <MasterICD10 />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-dokter" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <MasterDokter />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/master-wilayah" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <MasterWilayah />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/dashboard-dokter" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <DashboardDokter />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/pelayanan/followup-vaksin" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat']}>
+                            <FollowUpVaksin />
+                          </ProtectedRoute>
+                        } 
+                      />
 
-                          {/* DEMOGRAPHIC MODULE ROUTES */}
-                          <Route 
-                            path="/demografi/pasien" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
-                                <PageTransition><DemografiKunjungan /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/demografi/diagnosa" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
-                                <PageTransition><DemografiDiagnosa /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
+                      {/* DEMOGRAPHIC MODULE ROUTES */}
+                      <Route 
+                        path="/demografi/pasien" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
+                            <DemografiKunjungan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/demografi/diagnosa" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
+                            <DemografiDiagnosa />
+                          </ProtectedRoute>
+                        } 
+                      />
 
-                          {/* LABORATORY MODUL ROUTES */}
-                          <Route 
-                            path="/lab/input" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'analis']}>
-                                <PageTransition><InputPemeriksaan /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/lab/master" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'analis']}>
-                                <PageTransition><MasterPemeriksaan /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/lab/dashboard" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'analis']}>
-                                <PageTransition><DashboardLab /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
+                      {/* LABORATORY MODUL ROUTES */}
+                      <Route 
+                        path="/lab/input" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'analis']}>
+                            <InputPemeriksaan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/lab/master" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'analis']}>
+                            <MasterPemeriksaan />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/lab/dashboard" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'analis']}>
+                            <DashboardLab />
+                          </ProtectedRoute>
+                        } 
+                      />
 
-                          {/* PHARMACY MODUL ROUTES */}
-                          <Route 
-                            path="/farmasi/master" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                                <PageTransition><MasterObat /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/farmasi/input" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                                <PageTransition><InputKonsumsi /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/farmasi/forecast" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                                <PageTransition><Forecasting /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/farmasi/abc" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
-                                <PageTransition><AbcAnalysis /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
+                      {/* PHARMACY MODUL ROUTES */}
+                      <Route 
+                        path="/farmasi/master" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
+                            <MasterObat />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/farmasi/input" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
+                            <InputKonsumsi />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/farmasi/forecast" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
+                            <Forecasting />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/farmasi/abc" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin', 'farmasi']}>
+                            <AbcAnalysis />
+                          </ProtectedRoute>
+                        } 
+                      />
 
-                          {/* SYSTEM ADMINISTRATION ROUTES */}
-                          <Route 
-                            path="/admin/users" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin']}>
-                                <PageTransition><UsersManagement /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/admin/logs" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin']}>
-                                <PageTransition><ActivityLogs /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
-                          <Route 
-                            path="/admin/db-settings" 
-                            element={
-                              <ProtectedRoute allowedRoles={['admin']}>
-                                <PageTransition><DatabaseSettings /></PageTransition>
-                              </ProtectedRoute>
-                            } 
-                          />
+                      {/* SYSTEM ADMINISTRATION ROUTES */}
+                      <Route 
+                        path="/admin/users" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <UsersManagement />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/logs" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <ActivityLogs />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/admin/db-settings" 
+                        element={
+                          <ProtectedRoute allowedRoles={['admin']}>
+                            <DatabaseSettings />
+                          </ProtectedRoute>
+                        } 
+                      />
 
-                          {/* Wildcard Fallback redirection */}
-                          <Route path="*" element={<Navigate to="/" replace />} />
-                        </Routes>
-                      </Suspense>
-                    </AnimatePresence>
+                      {/* Wildcard Fallback redirection */}
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
                   </div>
                 </main>
               </div>
@@ -321,8 +308,6 @@ function AppContent() {
           }
         />
       </Routes>
-    </Suspense>
-  </AnimatePresence>
-  </>
+    </>
   );
 }
