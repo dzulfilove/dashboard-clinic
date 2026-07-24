@@ -845,7 +845,7 @@ export default function InteractiveGuide() {
                               className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
                                 selectedNode?.id === node.id 
                                   ? 'bg-slate-50 border-slate-300 shadow-xs' 
-                                  : 'bg-white border-slate-150 hover:bg-slate-50/50'
+                                  : 'bg-white border-slate-200/80 hover:bg-slate-50/50'
                               }`}
                             >
                               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-900 flex items-center justify-between">
@@ -924,7 +924,7 @@ export default function InteractiveGuide() {
                               className={`p-3.5 rounded-2xl border transition-all flex items-start gap-3 ${
                                 isDone 
                                   ? 'bg-slate-50/60 border-slate-200 opacity-75' 
-                                  : 'bg-white border-slate-150 hover:border-slate-250 shadow-xs'
+                                  : 'bg-white border-slate-200/80 hover:border-slate-200 shadow-xs'
                               }`}
                             >
                               {/* Checkbox */}
@@ -969,7 +969,7 @@ export default function InteractiveGuide() {
 
                       {/* Completion Progress Bar */}
                       {currentMeta.tasks.length > 0 && (
-                        <div className="bg-slate-50 border border-slate-150 rounded-2xl p-4 mt-2 space-y-2">
+                        <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mt-2 space-y-2">
                           <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wide">
                             <span>Selesai Belajar</span>
                             <span className="font-mono text-slate-900">
@@ -1011,7 +1011,7 @@ export default function InteractiveGuide() {
 
                       <div className="space-y-3">
                         {currentMeta.faqs.map((faq, idx) => (
-                          <div key={idx} className="bg-slate-50 border border-slate-150 rounded-2xl p-4 space-y-2">
+                          <div key={idx} className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 space-y-2">
                             <h4 className="text-xs font-semibold text-slate-800 flex items-start gap-1.5 leading-snug">
                               <AlertCircle className="h-4 w-4 text-teal-600 flex-shrink-0 mt-0.5" />
                               {faq.q}
@@ -1030,7 +1030,7 @@ export default function InteractiveGuide() {
               </div>
 
               {/* Drawer Sticky Footer with Help Contact */}
-              <div className="p-4 border-t border-slate-150 bg-slate-50 text-center flex justify-between items-center text-xs text-slate-400">
+              <div className="p-4 border-t border-slate-200/80 bg-slate-50 text-center flex justify-between items-center text-xs text-slate-400">
                 <span className="font-mono">KPM-v2.6-Live</span>
                 <span className="flex items-center gap-1 text-slate-500">
                   <FileText className="h-3 w-3" />

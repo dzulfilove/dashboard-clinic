@@ -624,7 +624,7 @@ export default function InputKonsumsi() {
               {/* Graphical trends exactly like Rawat Jalan (ComposedChart & PieChart) */}
               {statsSummary.timelineData.length === 0 ? (
                 <div 
-                  className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-150 anim-fade-up anim-delay-5"
+                  className="bg-white p-12 text-center text-slate-400 rounded-2xl border border-slate-200/80 anim-fade-up anim-delay-5"
                 >
                   <FileSpreadsheet className="h-8 w-8 text-slate-300 mx-auto mb-2" />
                   <p className="text-xs font-semibold">Tidak ditemukan riwayat log konsumsi pada rentang tanggal ini.</p>

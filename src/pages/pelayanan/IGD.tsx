@@ -41,7 +41,7 @@ import {
   Cell 
 } from 'recharts';
 import api from '../../services/api.js';
-import { ICD10 } from '../../types.js';
+import { ICD10, Pasien } from '../../types.js';
 
 interface Tindakan {
   id?: number;
@@ -71,6 +71,59 @@ interface IgdRecord {
 }
 
 const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
+
+const formatTanggalIndo = (tanggalStr: string) => {
+  if (!tanggalStr) return '-';
+  try {
+    const rawDate = tanggalStr.includes('T') ? tanggalStr.split('T')[0] : tanggalStr;
+    const parts = rawDate.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return `${day} ${months[monthIndex]} ${year}`;
+      }
+    }
+  } catch (e) {}
+  return tanggalStr;
+};
+
+const isDoctorForUnit = (doc: any, unitName: string) => {
+  if (!unitName) return true;
+  const cleanUnit = unitName.trim().toLowerCase();
+  
+  if (!doc.spesialisasi_unit) return false;
+  
+  let units: string[] = [];
+  try {
+    const parsed = JSON.parse(doc.spesialisasi_unit);
+    if (Array.isArray(parsed)) {
+      units = parsed.map((s: any) => String(s).trim().toLowerCase());
+    }
+  } catch (e) {}
+  
+  if (units.length === 0) {
+    const clean = doc.spesialisasi_unit.replace(/;/g, ',');
+    units = clean.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+  }
+  
+  if (units.some(u => u === cleanUnit)) return true;
+  
+  if (cleanUnit.includes('inap') || cleanUnit === 'iri' || cleanUnit === 'iri (rawat inap)') {
+    return units.some(u => u.includes('inap') || u === 'iri' || u === 'iri (rawat inap)');
+  }
+  
+  if (cleanUnit === 'igd' || cleanUnit.includes('darurat')) {
+    return units.some(u => u === 'igd' || u.includes('darurat'));
+  }
+  
+  return false;
+};
 
 const getTriageStyle = (triase?: string) => {
   const normalized = String(triase || 'hijau').toLowerCase();
@@ -121,6 +174,25 @@ export default function IGD() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'statistik' | 'kunjungan' | 'input'>('statistik');
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [patientDetails, setPatientDetails] = useState<Record<string, Pasien>>({});
+  const [loadingPatient, setLoadingPatient] = useState<Record<string, boolean>>({});
+
+  const fetchPatientDetail = async (no_rm: string) => {
+    if (patientDetails[no_rm]) return;
+    setLoadingPatient(prev => ({ ...prev, [no_rm]: true }));
+    try {
+      const res = await api.get('/pasien', { params: { q: no_rm } });
+      const found = res.data?.find((p: any) => String(p.no_rm) === String(no_rm));
+      if (found) {
+        setPatientDetails(prev => ({ ...prev, [no_rm]: found }));
+      }
+    } catch (err) {
+      console.error('Error fetching patient details:', err);
+    } finally {
+      setLoadingPatient(prev => ({ ...prev, [no_rm]: false }));
+    }
+  };
+
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Edit / Input States
@@ -218,6 +290,15 @@ export default function IGD() {
     fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (dokterList.length > 0) {
+      const filtered = dokterList.filter(d => isDoctorForUnit(d, 'IGD'));
+      if (filtered.length === 1) {
+        setDpjp(filtered[0].nama_dokter);
+      }
+    }
+  }, [dokterList, dpjp]);
 
   /* useEffect for patient auto-check removed */
 
@@ -678,6 +759,13 @@ export default function IGD() {
       showFeedback('error', 'Format tidak sesuai. Cek kembali tabulasi baris teks.');
       return;
     }
+
+    output.forEach(p => {
+      const filtered = dokterList.filter(d => isDoctorForUnit(d, 'IGD'));
+      if (filtered.length === 1) {
+        p.dpjp = filtered[0].nama_dokter;
+      }
+    });
 
     setParsedData(output);
     setIsParsed(true);
@@ -1176,7 +1264,7 @@ export default function IGD() {
               </div>
 
               {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
                     <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display flex items-center gap-2">
@@ -1273,7 +1361,7 @@ export default function IGD() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.08 }}
-                className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150"
+                className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-200/80"
               >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1385,7 +1473,7 @@ export default function IGD() {
               </motion.div>
 
               {/* Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
+              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl">
                 <span className="text-slate-450 text-xs font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
@@ -1568,7 +1656,13 @@ export default function IGD() {
                                 <td className="px-6 py-4.5">
                                   <div className="flex items-center justify-center space-x-1.5">
                                     <button
-                                      onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                                      onClick={() => {
+                                        const nextState = !isExpanded;
+                                        setExpandedId(nextState ? rec.id : null);
+                                        if (nextState) {
+                                          fetchPatientDetail(rec.no_rm);
+                                        }
+                                      }}
                                       className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-100 rounded-lg transition-all cursor-pointer"
                                       title="Detail Tindakan"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
@@ -1607,31 +1701,134 @@ export default function IGD() {
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                                         <h4 className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
-                                          <span>Rincian Tindakan Pelayanan Medis IGD</span>
+                                          <span>Detail Kunjungan & Pelayanan IGD</span>
                                         </h4>
                                         <span className="text-xs text-slate-400">Kode Kunjungan Unik: ID #{rec.id}</span>
                                       </div>
 
-                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {rec.tindakan.map((t, index) => (
-                                          <div key={index} className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between space-y-4">
-                                            {/* Header */}
-                                            <div>
-                                              <div className="flex items-start justify-between">
-                                                <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
-                                                  {t.tindakan_nama}
-                                                </h5>
-                                                <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
-                                                  x{t.jumlah}
-                                                </span>
-                                              </div>
-                                              <p className="text-xs text-slate-400 font-mono mt-1 flex items-center space-x-1">
-                                                <Clock className="h-3 w-3 inline-block" />
-                                                <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
-                                              </p>
-                                            </div>
+                                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                        {/* Left Side: Patient Identity */}
+                                        <div className="lg:col-span-1 bg-white p-4.5 rounded-2xl border border-slate-100 shadow-xs space-y-3">
+                                          <div className="border-b border-slate-100 pb-2.5 flex items-center space-x-2">
+                                            <Users className="h-4 w-4 text-teal-600" />
+                                            <h5 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
+                                              Identitas Lengkap Pasien
+                                            </h5>
                                           </div>
-                                        ))}
+                                          
+                                          {loadingPatient[rec.no_rm] ? (
+                                            <div className="flex items-center space-x-2 text-xs text-slate-400 py-3">
+                                              <div className="h-3.5 w-3.5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                                              <span>Memuat data identitas pasien...</span>
+                                            </div>
+                                          ) : patientDetails[rec.no_rm] ? (
+                                            (() => {
+                                              const p = patientDetails[rec.no_rm];
+                                              let usiaStr = '-';
+                                              if (p.tanggal_lahir) {
+                                                try {
+                                                  const birthDate = new Date(p.tanggal_lahir);
+                                                  const today = new Date();
+                                                  let age = today.getFullYear() - birthDate.getFullYear();
+                                                  const m = today.getMonth() - birthDate.getMonth();
+                                                  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                                                    age--;
+                                                  }
+                                                  usiaStr = `${age} Tahun (${formatTanggalIndo(p.tanggal_lahir)})`;
+                                                } catch (e) {
+                                                  usiaStr = formatTanggalIndo(p.tanggal_lahir);
+                                                }
+                                              }
+
+                                              return (
+                                                <div className="space-y-3 text-xs">
+                                                  <div className="grid grid-cols-2 gap-3">
+                                                    <div className="flex flex-col">
+                                                      <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">No. RM</span>
+                                                      <span className="font-semibold text-slate-800 mt-0.5 font-mono">{p.no_rm}</span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                      <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Jenis Kelamin</span>
+                                                      <span className="font-semibold text-slate-800 mt-0.5">
+                                                        {p.jenis_kelamin === 'L' ? 'Laki-laki (L)' : p.jenis_kelamin === 'P' ? 'Perempuan (P)' : '-'}
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Nama Lengkap</span>
+                                                    <span className="font-bold text-slate-850 mt-0.5 uppercase tracking-wide">{p.nama}</span>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Tanggal Lahir / Usia</span>
+                                                    <span className="font-semibold text-slate-800 mt-0.5">{usiaStr}</span>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">No. Telepon</span>
+                                                    <span className="font-semibold text-slate-800 mt-0.5">{p.no_telp || '-'}</span>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Alamat Lengkap</span>
+                                                    <span className="font-semibold text-slate-800 mt-0.5 leading-relaxed">
+                                                      {[
+                                                        p.alamat,
+                                                        p.kelurahan?.nama ? `Kel. ${p.kelurahan.nama}` : null,
+                                                        p.kecamatan?.nama ? `Kec. ${p.kecamatan.nama}` : null,
+                                                        p.kota?.nama ? p.kota.nama : null,
+                                                      ].filter(Boolean).join(', ') || '-'}
+                                                    </span>
+                                                  </div>
+                                                </div>
+                                              );
+                                            })()
+                                          ) : (
+                                            <div className="text-xs text-rose-500 py-1 flex items-center space-x-1">
+                                              <AlertCircle className="h-3.5 w-3.5" />
+                                              <span>Identitas pasien tidak ditemukan</span>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Right Side: Action/Tindakan list */}
+                                        <div className="lg:col-span-2 space-y-3">
+                                          <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
+                                            <div className="flex items-center space-x-2">
+                                              <ClipboardList className="h-4 w-4 text-teal-600" />
+                                              <h5 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
+                                                Tindakan & Pelayanan Medis IGD
+                                              </h5>
+                                            </div>
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 border border-teal-150 text-teal-700">
+                                              {rec.tindakan.length} Tindakan
+                                            </span>
+                                          </div>
+
+                                          {rec.tindakan.length === 0 ? (
+                                            <div className="py-6 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-100">
+                                              Tidak ada tindakan tercatat.
+                                            </div>
+                                          ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                              {rec.tindakan.map((t, index) => (
+                                                <div key={index} className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-xs flex flex-col justify-between space-y-3">
+                                                  <div>
+                                                    <div className="flex items-start justify-between">
+                                                      <h5 className="font-extrabold text-slate-800 text-[11px] leading-snug uppercase max-w-[12rem] truncate" title={t.tindakan_nama}>
+                                                        {t.tindakan_nama}
+                                                      </h5>
+                                                      <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                                        x{t.jumlah}
+                                                      </span>
+                                                    </div>
+                                                    <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                                      <Clock className="h-3 w-3 inline-block" />
+                                                      <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                   </td>
@@ -1701,7 +1898,7 @@ export default function IGD() {
           {activeTab === 'input' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Text Area Card */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs space-y-4">
                 <div>
                   <span className="text-xs bg-slate-100 border border-slate-200 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2">Impor Data Hasil Salinan Excel (IGD)</h3>
@@ -1792,7 +1989,7 @@ export default function IGD() {
                             </div>
 
                             {/* Triage & Diagnosis Selector before saving */}
-                            <div className="bg-slate-50/75 border border-slate-150 p-3 rounded-2xl mt-3">
+                            <div className="bg-slate-50/75 border border-slate-200/80 p-3 rounded-2xl mt-3">
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 <div>
                                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Triase Kegawatan</label>
@@ -1836,7 +2033,7 @@ export default function IGD() {
                                     }}
                                   >
                                     <option value="">-- Pilih Dokter DPJP --</option>
-                                    {dokterList.map(d => (
+                                    {dokterList.filter(d => isDoctorForUnit(d, 'IGD')).map(d => (
                                       <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                                     ))}
                                   </SearchableSelect>
@@ -1895,7 +2092,7 @@ export default function IGD() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 15 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
-                className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+                className="bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
               >
                 {/* Modal Header */}
                 <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
@@ -1928,7 +2125,7 @@ export default function IGD() {
                           placeholder="Contoh: IGD16062026-00001"
                           value={noRegistrasi}
                           onChange={(e) => setNoRegistrasi(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           disabled={isEditMode}
                           required
                         />
@@ -1985,7 +2182,7 @@ export default function IGD() {
                           placeholder="Contoh: RONDIYAH"
                           value={namaPasien}
                           onChange={(e) => setNamaPasien(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white uppercase"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs placeholder-slate-400 focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white uppercase"
                           required
                         />
                       </div>
@@ -2078,7 +2275,7 @@ export default function IGD() {
                           type="date"
                           value={tanggalPelayanan}
                           onChange={(e) => setTanggalPelayanan(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           required
                         />
                       </div>
@@ -2088,7 +2285,7 @@ export default function IGD() {
                         <SearchableSelect
                           value={triase}
                           onChange={(e) => setTriase(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           required
                         >
                           <option value="hijau">Hijau - Non Darurat</option>
@@ -2103,11 +2300,11 @@ export default function IGD() {
                         <SearchableSelect
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                           required
                         >
                           <option value="">-- Pilih Dokter --</option>
-                          {dokterList.map(d => (
+                          {dokterList.filter(d => isDoctorForUnit(d, 'IGD')).map(d => (
                             <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                           ))}
                         </SearchableSelect>
@@ -2118,7 +2315,7 @@ export default function IGD() {
                         <SearchableSelect
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
-                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                          className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                         >
                           <option value="">-- Pilih Diagnosis --</option>
                           {icdList.map(icd => <option key={icd.id} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>)}
@@ -2143,7 +2340,7 @@ export default function IGD() {
 
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                       {manualTindakan.map((t, index) => (
-                        <div key={index} className="bg-slate-50 p-4 rounded-2xl border border-slate-150 flex flex-col space-y-3 relative font-sans">
+                        <div key={index} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 flex flex-col space-y-3 relative font-sans">
                           {/* Remove button */}
                           {manualTindakan.length > 1 && (
                             <button
@@ -2168,7 +2365,7 @@ export default function IGD() {
                                 placeholder="Contoh: KONSULTASI DOKTER UMUM"
                                 value={t.tindakan_nama}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_nama', e.target.value)}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 required
                               />
                             </div>
@@ -2180,7 +2377,7 @@ export default function IGD() {
                                 placeholder="Opsional"
                                 value={t.tindakan_keterangan}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_keterangan', e.target.value)}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                               />
                             </div>
 
@@ -2191,7 +2388,7 @@ export default function IGD() {
                                 step={1}
                                 value={t.tindakan_jam}
                                 onChange={(e) => updateManualTindakanField(index, 'tindakan_jam', e.target.value)}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
                                 required
                               />
                             </div>
@@ -2203,7 +2400,7 @@ export default function IGD() {
                                 min={1}
                                 value={t.jumlah}
                                 onChange={(e) => updateManualTindakanField(index, 'jumlah', e.target.value)}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-150 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white font-mono"
                                 required
                               />
                             </div>
@@ -2222,7 +2419,7 @@ export default function IGD() {
                       <button
                         type="button"
                         onClick={resetManualForm}
-                        className="px-5 py-2.5 border border-slate-250 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                        className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
                       >
                         Batal
                       </button>

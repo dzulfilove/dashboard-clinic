@@ -44,7 +44,7 @@ import {
   Cell
 } from 'recharts';
 import api from '../../services/api.js';
-import { ICD10 } from '../../types.js';
+import { ICD10, Pasien } from '../../types.js';
 
 interface Tindakan {
   id?: number;
@@ -75,6 +75,71 @@ interface InpatientRecord {
 }
 
 const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
+
+const formatTanggalIndo = (tanggalStr: string) => {
+  if (!tanggalStr) return '-';
+  try {
+    const rawDate = tanggalStr.includes('T') ? tanggalStr.split('T')[0] : tanggalStr;
+    const parts = rawDate.split('-');
+    if (parts.length === 3) {
+      const year = parts[0];
+      const monthIndex = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      if (monthIndex >= 0 && monthIndex < 12) {
+        return `${day} ${months[monthIndex]} ${year}`;
+      }
+    }
+  } catch (e) {}
+  return tanggalStr;
+};
+
+const isDoctorForUnit = (doc: any, unitName: string) => {
+  if (!unitName) return true;
+  const cleanUnit = unitName.trim().toLowerCase();
+  
+  if (!doc.spesialisasi_unit) return false;
+  
+  let units: string[] = [];
+  try {
+    const parsed = JSON.parse(doc.spesialisasi_unit);
+    if (Array.isArray(parsed)) {
+      units = parsed.map((s: any) => String(s).trim().toLowerCase());
+    }
+  } catch (e) {}
+  
+  if (units.length === 0) {
+    const clean = doc.spesialisasi_unit.replace(/;/g, ',');
+    units = clean.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+  }
+  
+  if (units.some(u => u === cleanUnit)) return true;
+  
+  if (cleanUnit.includes('inap') || cleanUnit === 'iri' || cleanUnit === 'iri (rawat inap)') {
+    return units.some(u => u.includes('inap') || u === 'iri' || u === 'iri (rawat inap)');
+  }
+  
+  if (cleanUnit === 'igd' || cleanUnit.includes('darurat')) {
+    return units.some(u => u === 'igd' || u.includes('darurat'));
+  }
+  
+  return false;
+};
+
+const getAgeInYears = (birthDate?: string) => {
+  if (!birthDate) return 0;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
 
 const getTriageStyle = (triase?: string) => {
   const normalized = String(triase || 'hijau').toLowerCase();
@@ -126,6 +191,25 @@ export default function RawatInap() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'statistik' | 'kunjungan' | 'input'>('statistik');
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [patientDetails, setPatientDetails] = useState<Record<string, Pasien>>({});
+  const [loadingPatient, setLoadingPatient] = useState<Record<string, boolean>>({});
+
+  const fetchPatientDetail = async (no_rm: string) => {
+    if (patientDetails[no_rm]) return;
+    setLoadingPatient(prev => ({ ...prev, [no_rm]: true }));
+    try {
+      const res = await api.get('/pasien', { params: { q: no_rm } });
+      const found = res.data?.find((p: any) => String(p.no_rm) === String(no_rm));
+      if (found) {
+        setPatientDetails(prev => ({ ...prev, [no_rm]: found }));
+      }
+    } catch (err) {
+      console.error('Error fetching patient details:', err);
+    } finally {
+      setLoadingPatient(prev => ({ ...prev, [no_rm]: false }));
+    }
+  };
+
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Edit / Input States
@@ -227,6 +311,16 @@ export default function RawatInap() {
     fetchIcd10();
     fetchDokter();
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (selectedPasienOption?.pasien?.tanggal_lahir) {
+      const age = getAgeInYears(selectedPasienOption.pasien.tanggal_lahir);
+      if (age >= 18 && dokterList.length > 0) {
+        const farhaDoc = dokterList.find(d => d.nama_dokter.toLowerCase().includes('farha'));
+        setDpjp(farhaDoc ? farhaDoc.nama_dokter : 'dr. Farha');
+      }
+    }
+  }, [selectedPasienOption, dokterList]);
 
   /* useEffect for patient auto-check removed */
 
@@ -628,6 +722,16 @@ export default function RawatInap() {
       return;
     }
 
+    finalGrouped.forEach(p => {
+      const age = getAgeInYears(p.tanggal_lahir);
+      if (age >= 18) {
+        const farhaDoc = dokterList.find(d => d.nama_dokter.toLowerCase().includes('farha'));
+        if (!p.dpjp || p.dpjp === 'Dokter Penanggung Jawab') {
+          p.dpjp = farhaDoc ? farhaDoc.nama_dokter : 'dr. Farha';
+        }
+      }
+    });
+
     setParsedData(finalGrouped);
     setIsParsed(true);
     setDuplicateMap({});
@@ -998,7 +1102,7 @@ export default function RawatInap() {
 
       {/* MAIN VIEWPORT STAGE ROUTEMAP */}
       {loading ? (
-        <div className="h-64 bg-white rounded-3xl border border-slate-150/60 shadow-xs flex items-center justify-center">
+        <div className="h-64 bg-white rounded-3xl border border-slate-100 shadow-xs flex items-center justify-center">
           <div className="text-center space-y-3">
             <div className="h-9 w-9 border-4 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
             <span className="text-xs text-slate-400 font-extrabold uppercase tracking-widest block">Menghubungkan Database VPS...</span>
@@ -1180,7 +1284,7 @@ export default function RawatInap() {
               {/* Infography distribution details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Triage Info Panel */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-150/60 space-y-4">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Status Triase Pasien Inap</h3>
                     <p className="text-xs text-slate-400">Pembagian kondisi kegawatan klinis pasien rawat inap pada periode ini.</p>
@@ -1207,7 +1311,7 @@ export default function RawatInap() {
                 </div>
 
                 {/* Top 5 list of Procedures */}
-                <div className="bg-white p-6 rounded-3xl border border-slate-150/60 space-y-4">
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 space-y-4">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">5 Layanan / Tindakan Terbanyak</h3>
                     <p className="text-xs text-slate-400">Aktivitas tindakan medis yang paling intens diberikan kepada pasien.</p>
@@ -1226,7 +1330,7 @@ export default function RawatInap() {
                             </span>
                             <span className="text-xs font-extrabold text-slate-700 truncate">{item.name}</span>
                           </div>
-                          <span className="font-mono text-xs font-bold text-slate-900 bg-slate-50 px-2.5 py-1 border border-slate-150 rounded-xl flex-shrink-0">
+                          <span className="font-mono text-xs font-bold text-slate-900 bg-slate-50 px-2.5 py-1 border border-slate-200/80 rounded-xl flex-shrink-0">
                             {item.count} Tindakan
                           </span>
                         </div>
@@ -1237,7 +1341,7 @@ export default function RawatInap() {
               </div>
 
               {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
-              <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div>
                     <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display flex items-center gap-2">
@@ -1308,7 +1412,7 @@ export default function RawatInap() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.08 }}
-                className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-150"
+                className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-200/80"
               >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1420,14 +1524,14 @@ export default function RawatInap() {
               </motion.div>
 
               {/* Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-150 p-2.5 rounded-2xl">
+              <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl">
                 <span className="text-slate-450 text-xs font-black uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
                     triageFilter === 'all'
                       ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
-                      : 'bg-white text-slate-600 border-slate-205 hover:bg-slate-100'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   Semua ({records.length})
@@ -1439,7 +1543,7 @@ export default function RawatInap() {
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1.5 ${
                       triageFilter === item.key
                         ? 'text-white border-transparent shadow-xs'
-                        : 'bg-white text-slate-600 border-slate-205 hover:bg-slate-100'
+                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                     }`}
                     style={{
                       backgroundColor: triageFilter === item.key ? item.color : undefined
@@ -1468,7 +1572,7 @@ export default function RawatInap() {
                     placeholder="Cari..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
                   />
                   {searchQuery && (
                     <button 
@@ -1487,7 +1591,7 @@ export default function RawatInap() {
                       setRoomFilter(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="pl-4 pr-8 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="pl-4 pr-8 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
                   >
                     <option value="all">Semua Ruang Kamar</option>
                     {allRooms.map((rm, i) => (
@@ -1501,14 +1605,14 @@ export default function RawatInap() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
                   />
                   <span className="text-slate-400">-</span>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-250 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
                   />
                 </div>
 
@@ -1522,7 +1626,7 @@ export default function RawatInap() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.24 }}
-                className="space-y-4 bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs"
+                className="space-y-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-xs"
               >
 
               {/* Patient List Content Table */}
@@ -1556,7 +1660,7 @@ export default function RawatInap() {
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 font-sans">
                           {/* Left patient identity columns */}
                           <div className="flex items-start space-x-3.5">
-                            <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-150 flex items-center justify-center text-slate-450 text-xs font-black relative flex-shrink-0">
+                            <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-450 text-xs font-black relative flex-shrink-0">
                               {idx + 1 + (currentPage - 1) * itemsPerPage}
                               <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full border border-white bg-emerald-500"></span>
                             </div>
@@ -1615,7 +1719,13 @@ export default function RawatInap() {
 
                             <div className="flex items-center space-x-1 border-l border-slate-100 pl-3">
                               <button
-                                onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                                onClick={() => {
+                                  const nextState = !isExpanded;
+                                  setExpandedId(nextState ? rec.id : null);
+                                  if (nextState) {
+                                    fetchPatientDetail(rec.no_rm);
+                                  }
+                                }}
                                 className="p-2 hover:bg-slate-50 text-slate-450 hover:text-slate-700 rounded-xl transition-all cursor-pointer"
                                 title="Lihat detail tindakan"
                               >
@@ -1652,31 +1762,127 @@ export default function RawatInap() {
                               exit={{ opacity: 0, height: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="mt-3.5 px-4 py-3 border-t border-slate-100">
-                                <h4 className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5 mb-3">
-                                  <span>Tindakan Medis Ranap ({rec.tindakan.length})</span>
-                                </h4>
+                              <div className="mt-3.5 px-4 py-3 border-t border-slate-100 space-y-4">
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                  {/* Left Side: Patient Identity */}
+                                  <div className="lg:col-span-1 bg-slate-50 p-4.5 rounded-2xl border border-slate-100 shadow-xs space-y-3">
+                                    <div className="border-b border-slate-200 pb-2.5 flex items-center space-x-2">
+                                      <Users className="h-4 w-4 text-teal-600" />
+                                      <h5 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
+                                        Identitas Lengkap Pasien
+                                      </h5>
+                                    </div>
+                                    
+                                    {loadingPatient[rec.no_rm] ? (
+                                      <div className="flex items-center space-x-2 text-xs text-slate-400 py-3">
+                                        <div className="h-3.5 w-3.5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Memuat data identitas pasien...</span>
+                                      </div>
+                                    ) : patientDetails[rec.no_rm] ? (
+                                      (() => {
+                                        const p = patientDetails[rec.no_rm];
+                                        let usiaStr = '-';
+                                        if (p.tanggal_lahir) {
+                                          try {
+                                            const birthDate = new Date(p.tanggal_lahir);
+                                            const today = new Date();
+                                            let age = today.getFullYear() - birthDate.getFullYear();
+                                            const m = today.getMonth() - birthDate.getMonth();
+                                            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                                              age--;
+                                            }
+                                            usiaStr = `${age} Tahun (${formatTanggalIndo(p.tanggal_lahir)})`;
+                                          } catch (e) {
+                                            usiaStr = formatTanggalIndo(p.tanggal_lahir);
+                                          }
+                                        }
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  {rec.tindakan.map((t, tIdx) => (
-                                    <div key={tIdx} className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between space-y-4">
-                                      {/* Header */}
-                                      <div>
-                                        <div className="flex items-start justify-between">
-                                          <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
-                                            {t.tindakan_nama}
-                                          </h5>
-                                          <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
-                                            x{t.jumlah}
-                                          </span>
-                                        </div>
-                                        <p className="text-xs text-slate-400 font-mono mt-1 flex items-center space-x-1">
-                                          <Clock className="h-3 w-3 inline-block" />
-                                          <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
-                                        </p>
+                                        return (
+                                          <div className="space-y-3 text-xs">
+                                            <div className="grid grid-cols-2 gap-3">
+                                              <div className="flex flex-col">
+                                                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">No. RM</span>
+                                                <span className="font-semibold text-slate-800 mt-0.5 font-mono">{p.no_rm}</span>
+                                              </div>
+                                              <div className="flex flex-col">
+                                                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Jenis Kelamin</span>
+                                                <span className="font-semibold text-slate-800 mt-0.5">
+                                                  {p.jenis_kelamin === 'L' ? 'Laki-laki (L)' : p.jenis_kelamin === 'P' ? 'Perempuan (P)' : '-'}
+                                                </span>
+                                              </div>
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Nama Lengkap</span>
+                                              <span className="font-bold text-slate-850 mt-0.5 uppercase tracking-wide">{p.nama}</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Tanggal Lahir / Usia</span>
+                                              <span className="font-semibold text-slate-800 mt-0.5">{usiaStr}</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">No. Telepon</span>
+                                              <span className="font-semibold text-slate-800 mt-0.5">{p.no_telp || '-'}</span>
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Alamat Lengkap</span>
+                                              <span className="font-semibold text-slate-800 mt-0.5 leading-relaxed">
+                                                {[
+                                                  p.alamat,
+                                                  p.kelurahan?.nama ? `Kel. ${p.kelurahan.nama}` : null,
+                                                  p.kecamatan?.nama ? `Kec. ${p.kecamatan.nama}` : null,
+                                                  p.kota?.nama ? p.kota.nama : null,
+                                                ].filter(Boolean).join(', ') || '-'}
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()
+                                    ) : (
+                                      <div className="text-xs text-rose-500 py-1 flex items-center space-x-1">
+                                        <AlertCircle className="h-3.5 w-3.5" />
+                                        <span>Identitas pasien tidak ditemukan</span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Right Side: Action/Tindakan list */}
+                                  <div className="lg:col-span-2 space-y-3">
+                                    <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
+                                      <div className="flex items-center space-x-2">
+                                        <ClipboardList className="h-4 w-4 text-teal-600" />
+                                        <h5 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
+                                          Tindakan Medis Ranap ({rec.tindakan.length})
+                                        </h5>
                                       </div>
                                     </div>
-                                  ))}
+
+                                    {rec.tindakan.length === 0 ? (
+                                      <div className="py-6 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-100">
+                                        Tidak ada tindakan tercatat.
+                                      </div>
+                                    ) : (
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        {rec.tindakan.map((t, tIdx) => (
+                                          <div key={tIdx} className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100/80 shadow-xs flex flex-col justify-between space-y-3">
+                                            <div>
+                                              <div className="flex items-start justify-between">
+                                                <h5 className="font-extrabold text-slate-800 text-[11px] leading-snug uppercase max-w-[12rem] truncate" title={t.tindakan_nama}>
+                                                  {t.tindakan_nama}
+                                                </h5>
+                                                <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                                  x{t.jumlah}
+                                                </span>
+                                              </div>
+                                              <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                                <Clock className="h-3 w-3 inline-block" />
+                                                <span>{new Date(t.tindakan_tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} pukul {t.tindakan_jam.substring(0, 5)}</span>
+                                              </p>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </motion.div>
@@ -1717,7 +1923,7 @@ export default function RawatInap() {
           {activeTab === 'input' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
               {/* Text Area Input Card */}
-               <div className="bg-white p-6 rounded-3xl border border-slate-150/60 shadow-xs space-y-4">
+               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs space-y-4">
                 <div>
                   <span className="text-xs bg-slate-100 border border-slate-100 text-slate-500 px-2 py-0.5 rounded font-extrabold uppercase tracking-widest leading-none">Automatic Pattern Reader</span>
                   <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display mt-2 font-black">Impor Data Hasil Salinan Excel</h3>
@@ -1938,7 +2144,7 @@ export default function RawatInap() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white rounded-3xl border border-slate-150 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
+              className="bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
             >
               <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
                 <div>
@@ -1971,7 +2177,7 @@ export default function RawatInap() {
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">Kamar Bed Inap</label>
                     <SearchableSelect
                       required
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                       value={kamar}
                       onChange={(e) => setKamar(e.target.value)}
                     >
@@ -2108,7 +2314,7 @@ export default function RawatInap() {
                     <input
                       type="date"
                       required
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                       value={tanggalPelayanan}
                       onChange={(e) => setTanggalPelayanan(e.target.value)}
                     />
@@ -2119,7 +2325,7 @@ export default function RawatInap() {
                     <SearchableSelect
                       value={triase}
                       onChange={(e) => setTriase(e.target.value)}
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                     >
                       <option value="hijau">Hijau - Non Darurat</option>
                       <option value="kuning">Kuning - Darurat</option>
@@ -2131,7 +2337,7 @@ export default function RawatInap() {
                     <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
                     <SearchableSelect
                       required
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                       value={dpjp}
                       onChange={(e) => setDpjp(e.target.value)}
                     >
@@ -2148,7 +2354,7 @@ export default function RawatInap() {
                     <SearchableSelect
                       value={icdMasuk}
                       onChange={(e) => setIcdMasuk(e.target.value)}
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                     >
                       <option value="">- Pilih Diagnosa Masuk -</option>
                       {icdList.map((icd, i) => (
@@ -2162,7 +2368,7 @@ export default function RawatInap() {
                     <SearchableSelect
                       value={icdPulang}
                       onChange={(e) => setIcdPulang(e.target.value)}
-                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-150 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                      className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                     >
                       <option value="">- Pilih Diagnosa Pulang -</option>
                       {icdList.map((icd, i) => (

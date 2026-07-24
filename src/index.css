@@ -345,3 +345,7 @@ html {
   opacity: 0.8;
  }
 }
+
+.will-change-width {
+  will-change: width;
+}

@@ -43,7 +43,7 @@ import {
   Cell
 } from 'recharts';
 import api from '../../services/api.js';
-import { ICD10, TIPE_UNIT_RAWAT_JALAN } from '../../types.js';
+import { ICD10, TIPE_UNIT_RAWAT_JALAN, Pasien } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 interface Tindakan {
@@ -114,6 +114,38 @@ const formatJamIndo = (jamStr: string) => {
   return jamStr;
 };
 
+const isDoctorForUnit = (doc: any, unitName: string) => {
+  if (!unitName) return true;
+  const cleanUnit = unitName.trim().toLowerCase();
+  
+  if (!doc.spesialisasi_unit) return false;
+  
+  let units: string[] = [];
+  try {
+    const parsed = JSON.parse(doc.spesialisasi_unit);
+    if (Array.isArray(parsed)) {
+      units = parsed.map((s: any) => String(s).trim().toLowerCase());
+    }
+  } catch (e) {}
+  
+  if (units.length === 0) {
+    const clean = doc.spesialisasi_unit.replace(/;/g, ',');
+    units = clean.split(',').map((s: string) => s.trim().toLowerCase()).filter(Boolean);
+  }
+  
+  if (units.some(u => u === cleanUnit)) return true;
+  
+  if (cleanUnit.includes('inap') || cleanUnit === 'iri' || cleanUnit === 'iri (rawat inap)') {
+    return units.some(u => u.includes('inap') || u === 'iri' || u === 'iri (rawat inap)');
+  }
+  
+  if (cleanUnit === 'igd' || cleanUnit.includes('darurat')) {
+    return units.some(u => u === 'igd' || u.includes('darurat'));
+  }
+  
+  return false;
+};
+
 const getTriageStyle = (triase?: string) => {
   const normalized = String(triase || 'hijau').toLowerCase();
   switch (normalized) {
@@ -164,6 +196,25 @@ export default function RawatJalan() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'statistik' | 'kunjungan' | 'input'>('statistik');
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [patientDetails, setPatientDetails] = useState<Record<string, Pasien>>({});
+  const [loadingPatient, setLoadingPatient] = useState<Record<string, boolean>>({});
+
+  const fetchPatientDetail = async (no_rm: string) => {
+    if (patientDetails[no_rm]) return;
+    setLoadingPatient(prev => ({ ...prev, [no_rm]: true }));
+    try {
+      const res = await api.get('/pasien', { params: { q: no_rm } });
+      const found = res.data?.find((p: any) => String(p.no_rm) === String(no_rm));
+      if (found) {
+        setPatientDetails(prev => ({ ...prev, [no_rm]: found }));
+      }
+    } catch (err) {
+      console.error('Error fetching patient details:', err);
+    } finally {
+      setLoadingPatient(prev => ({ ...prev, [no_rm]: false }));
+    }
+  };
+
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   // Edit / Input States
@@ -264,6 +315,17 @@ export default function RawatJalan() {
     fetchDokter();
     fetchRecords(startDate, endDate);
   }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (unit && dokterList.length > 0) {
+      const filtered = dokterList.filter(d => isDoctorForUnit(d, unit));
+      if (filtered.length === 1) {
+        setDpjp(filtered[0].nama_dokter);
+      } else if (filtered.length > 1 && !filtered.some(d => d.nama_dokter === dpjp)) {
+        setDpjp('');
+      }
+    }
+  }, [unit, dokterList, dpjp]);
 
   useEffect(() => {
     setIsVisualizing(true);
@@ -755,6 +817,13 @@ export default function RawatJalan() {
       return;
     }
 
+    output.forEach(p => {
+      const filtered = dokterList.filter(d => isDoctorForUnit(d, p.unit));
+      if (filtered.length === 1) {
+        p.dpjp = filtered[0].nama_dokter;
+      }
+    });
+
     setParsedData(output);
     setIsParsed(true);
     setDuplicateMap({});
@@ -1201,7 +1270,7 @@ export default function RawatJalan() {
                           {allTreatmentData.map((item, idx) => (
                              <div 
                                key={idx} 
-                               className={`p-2.5 rounded-xl cursor-pointer text-xs flex justify-between items-center transition-all border ${procedureFilter === item.name ? 'bg-teal-50 border-teal-200 text-teal-900 font-bold' : 'bg-slate-50/50 hover:bg-slate-100 border-slate-150/40 text-slate-700 hover:text-slate-900'}`}
+                               className={`p-2.5 rounded-xl cursor-pointer text-xs flex justify-between items-center transition-all border ${procedureFilter === item.name ? 'bg-teal-50 border-teal-200 text-teal-900 font-bold' : 'bg-slate-50/50 hover:bg-slate-100 border-slate-100 text-slate-700 hover:text-slate-900'}`}
                                onClick={() => setProcedureFilter(procedureFilter === item.name ? null : item.name)}
                              >
                                <span className="truncate pr-1.5">{item.name}</span>
@@ -1692,7 +1761,13 @@ export default function RawatJalan() {
                                 <td className="px-6 py-4.5">
                                   <div className="flex items-center justify-center space-x-1.5">
                                     <button
-                                      onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                                      onClick={() => {
+                                        const nextState = !isExpanded;
+                                        setExpandedId(nextState ? rec.id : null);
+                                        if (nextState) {
+                                          fetchPatientDetail(rec.no_rm);
+                                        }
+                                      }}
                                       className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-100 rounded-lg transition-all cursor-pointer"
                                       title="Detail Tindakan"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
@@ -1727,35 +1802,138 @@ export default function RawatJalan() {
                                   exit={{ opacity: 0, height: 0 }}
                                   className="bg-slate-50/70"
                                 >
-                                  <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100">
+                                  <td colSpan={8} className="px-6 py-4.5 border-t border-b border-slate-100">
                                     <div className="space-y-4">
                                       <div className="flex items-center justify-between border-b border-slate-100/70 pb-2">
                                         <h4 className="text-xs font-extrabold uppercase text-slate-500 tracking-wider flex items-center space-x-1.5">
-                                          <span>Rincian Tindakan Pelayanan Medis</span>
+                                          <span>Detail Kunjungan & Pelayanan</span>
                                         </h4>
                                         <span className="text-xs text-slate-400">Kode Kunjungan Unik: ID #{rec.id}</span>
                                       </div>
 
-                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {rec.tindakan.map((t, index) => (
-                                          <div key={index} className="bg-white p-4.5 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between space-y-4">
-                                            {/* Header */}
-                                            <div>
-                                              <div className="flex items-start justify-between">
-                                                <h5 className="font-extrabold text-slate-800 text-[12px] leading-snug uppercase max-w-[14rem] truncate" title={t.tindakan_nama}>
-                                                  {t.tindakan_nama}
-                                                </h5>
-                                                <span className="text-xs font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
-                                                  x{t.jumlah}
-                                                </span>
-                                              </div>
-                                              <p className="text-xs text-slate-400 font-mono mt-1 flex items-center space-x-1">
-                                                <Clock className="h-3 w-3 inline-block" />
-                                                <span>{formatTanggalIndo(t.tindakan_tanggal)} pukul {formatJamIndo(t.tindakan_jam)}</span>
-                                              </p>
-                                            </div>
+                                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                                        {/* Left Side: Patient Identity */}
+                                        <div className="lg:col-span-1 bg-white p-4.5 rounded-2xl border border-slate-100 shadow-xs space-y-3">
+                                          <div className="border-b border-slate-100 pb-2.5 flex items-center space-x-2">
+                                            <Users className="h-4 w-4 text-teal-600" />
+                                            <h5 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
+                                              Identitas Lengkap Pasien
+                                            </h5>
                                           </div>
-                                        ))}
+                                          
+                                          {loadingPatient[rec.no_rm] ? (
+                                            <div className="flex items-center space-x-2 text-xs text-slate-400 py-3">
+                                              <div className="h-3.5 w-3.5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                                              <span>Memuat data identitas pasien...</span>
+                                            </div>
+                                          ) : patientDetails[rec.no_rm] ? (
+                                            (() => {
+                                              const p = patientDetails[rec.no_rm];
+                                              let usiaStr = '-';
+                                              if (p.tanggal_lahir) {
+                                                try {
+                                                  const birthDate = new Date(p.tanggal_lahir);
+                                                  const today = new Date();
+                                                  let age = today.getFullYear() - birthDate.getFullYear();
+                                                  const m = today.getMonth() - birthDate.getMonth();
+                                                  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                                                    age--;
+                                                  }
+                                                  usiaStr = `${age} Tahun (${formatTanggalIndo(p.tanggal_lahir)})`;
+                                                } catch (e) {
+                                                  usiaStr = formatTanggalIndo(p.tanggal_lahir);
+                                                }
+                                              }
+
+                                              return (
+                                                <div className="space-y-3 text-xs">
+                                                  <div className="grid grid-cols-2 gap-3">
+                                                    <div className="flex flex-col">
+                                                      <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">No. RM</span>
+                                                      <span className="font-semibold text-slate-800 mt-0.5 font-mono">{p.no_rm}</span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                      <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Jenis Kelamin</span>
+                                                      <span className="font-semibold text-slate-800 mt-0.5">
+                                                        {p.jenis_kelamin === 'L' ? 'Laki-laki (L)' : p.jenis_kelamin === 'P' ? 'Perempuan (P)' : '-'}
+                                                      </span>
+                                                    </div>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Nama Lengkap</span>
+                                                    <span className="font-bold text-slate-850 mt-0.5 uppercase tracking-wide">{p.nama}</span>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Tanggal Lahir / Usia</span>
+                                                    <span className="font-semibold text-slate-800 mt-0.5">{usiaStr}</span>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">No. Telepon</span>
+                                                    <span className="font-semibold text-slate-800 mt-0.5">{p.no_telp || '-'}</span>
+                                                  </div>
+                                                  <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Alamat Lengkap</span>
+                                                    <span className="font-semibold text-slate-800 mt-0.5 leading-relaxed">
+                                                      {[
+                                                        p.alamat,
+                                                        p.kelurahan?.nama ? `Kel. ${p.kelurahan.nama}` : null,
+                                                        p.kecamatan?.nama ? `Kec. ${p.kecamatan.nama}` : null,
+                                                        p.kota?.nama ? p.kota.nama : null,
+                                                      ].filter(Boolean).join(', ') || '-'}
+                                                    </span>
+                                                  </div>
+                                                </div>
+                                              );
+                                            })()
+                                          ) : (
+                                            <div className="text-xs text-rose-500 py-1 flex items-center space-x-1">
+                                              <AlertCircle className="h-3.5 w-3.5" />
+                                              <span>Identitas pasien tidak ditemukan</span>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Right Side: Action/Tindakan list */}
+                                        <div className="lg:col-span-2 space-y-3">
+                                          <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
+                                            <div className="flex items-center space-x-2">
+                                              <ClipboardList className="h-4 w-4 text-teal-600" />
+                                              <h5 className="font-extrabold text-slate-800 text-[11px] uppercase tracking-wider">
+                                                Tindakan & Pelayanan Medis
+                                              </h5>
+                                            </div>
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 border border-teal-150 text-teal-700">
+                                              {rec.tindakan.length} Tindakan
+                                            </span>
+                                          </div>
+
+                                          {rec.tindakan.length === 0 ? (
+                                            <div className="py-6 text-center text-xs text-slate-400 bg-white rounded-2xl border border-slate-100">
+                                              Tidak ada tindakan tercatat.
+                                            </div>
+                                          ) : (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                              {rec.tindakan.map((t, index) => (
+                                                <div key={index} className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-xs flex flex-col justify-between space-y-3">
+                                                  <div>
+                                                    <div className="flex items-start justify-between">
+                                                      <h5 className="font-extrabold text-slate-800 text-[11px] leading-snug uppercase max-w-[12rem] truncate" title={t.tindakan_nama}>
+                                                        {t.tindakan_nama}
+                                                      </h5>
+                                                      <span className="text-[10px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
+                                                        x{t.jumlah}
+                                                      </span>
+                                                    </div>
+                                                    <p className="text-[10px] text-slate-400 font-mono mt-1 flex items-center space-x-1">
+                                                      <Clock className="h-3 w-3 inline-block" />
+                                                      <span>{formatTanggalIndo(t.tindakan_tanggal)} pukul {formatJamIndo(t.tindakan_jam)}</span>
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                   </td>
@@ -1964,7 +2142,7 @@ export default function RawatJalan() {
                                   }}
                                 >
                                   <option value="">-- DPJP --</option>
-                                  {dokterList.map(d => (
+                                  {dokterList.filter(d => isDoctorForUnit(d, p.unit)).map(d => (
                                     <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                                   ))}
                                 </SearchableSelect>
@@ -2270,7 +2448,7 @@ export default function RawatJalan() {
                           required
                         >
                           <option value="">-- Pilih Dokter --</option>
-                          {dokterList.map(d => (
+                          {dokterList.filter(d => isDoctorForUnit(d, unit)).map(d => (
                             <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
                           ))}
                         </SearchableSelect>
@@ -2336,7 +2514,7 @@ export default function RawatJalan() {
                                   updated[index].tindakan_nama = e.target.value;
                                   setManualTindakan(updated);
                                 }}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 required
                               />
                             </div>
@@ -2352,7 +2530,7 @@ export default function RawatJalan() {
                                   updated[index].tindakan_keterangan = e.target.value;
                                   setManualTindakan(updated);
                                 }}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-205 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                               />
                             </div>
 
@@ -2362,7 +2540,7 @@ export default function RawatJalan() {
                                 type="number"
                                 value={t.jumlah}
                                 onChange={(e) => updateTarifFields(index, 'jumlah', Number(e.target.value))}
-                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-205 rounded-xl text-xs font-mono focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
+                                className="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
                                 min={1}
                                 required
                               />
@@ -2378,7 +2556,7 @@ export default function RawatJalan() {
                     <button
                       type="button"
                       onClick={resetManualForm}
-                      className="px-5 py-2.5 border border-slate-250 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
                     >
                       Batal
                     </button>

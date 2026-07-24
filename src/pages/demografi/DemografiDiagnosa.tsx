@@ -595,7 +595,7 @@ export default function DemografiDiagnosa() {
 
                 </motion.div>
               ) : (
-                <div className="bg-white rounded-3xl border border-slate-150 p-12 text-center text-slate-400 font-medium text-xs">
+                <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-slate-400 font-medium text-xs">
                   Pilih diagnosis pada tabel untuk memuat ringkasan karakteristik demografi penderita secara mendalam.
                 </div>
               )}

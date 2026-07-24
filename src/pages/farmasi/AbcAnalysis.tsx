@@ -178,7 +178,7 @@ export default function AbcAnalysis() {
         <AnalyticLoader message="Menganalisis pengeluaran obat pasca Pareto & memvisualisasikan data..." />
       ) : abcData.length === 0 ? (
         <div 
-          className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-150 anim-fade-up"
+          className="bg-white rounded-2xl p-12 text-center text-slate-500 border border-slate-200/80 anim-fade-up"
         >
           <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto mb-2" />
           <p className="font-bold">Tidak ada jurnal log konsumsi.</p>

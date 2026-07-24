@@ -1596,7 +1596,7 @@ export default function DemografiKunjungan() {
                   value={waMessage}
                   onChange={(e) => setWaMessage(e.target.value)}
                   rows={6}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-250 focus:ring-1 focus:ring-emerald-550 focus:border-emerald-550 outline-none bg-slate-50 text-slate-800 font-medium font-sans"
+                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:ring-1 focus:ring-emerald-550 focus:border-emerald-550 outline-none bg-slate-50 text-slate-800 font-medium font-sans"
                   placeholder="Tulis pesan Anda di sini..."
                 />
                 {showWaModal.isBroadcast && (

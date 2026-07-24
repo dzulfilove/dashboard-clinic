@@ -509,7 +509,7 @@ export default function MasterPasien() {
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             style={{ willChange: 'transform, opacity' }}
-            className="bg-white w-full max-w-xl rounded-2xl border border-slate-150 shadow-xl overflow-hidden"
+            className="bg-white w-full max-w-xl rounded-2xl border border-slate-200/80 shadow-xl overflow-hidden"
           >
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <h3 className="font-semibold text-slate-900 text-base">

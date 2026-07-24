@@ -195,10 +195,11 @@ export default function Sidebar() {
       {/* Sidebar Container */}
       <aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between z-45 transition-all duration-300 border-r border-slate-100/50
+        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between z-45 transition-[width] duration-200 ease-out border-r border-slate-100/50 will-change-width
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         `}
+        style={{ willChange: 'width' }}
       >
         {/* Upper Brand Section */}
         <div>
@@ -245,7 +246,7 @@ export default function Sidebar() {
                     to={item.path || '/'}
                     onClick={() => setMobileOpen(false)}
                     className={`
-                      relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 mt-1 border overflow-hidden
+                      relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
                       ${isActive 
                         ? 'bg-teal-500/20 border-teal-400/45 text-teal-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),_0_4px_12px_rgba(20,184,166,0.2)] backdrop-blur-md font-bold' 
                         : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-slate-100'}
@@ -260,7 +261,9 @@ export default function Sidebar() {
                       </>
                     )}
                     <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-teal-200 scale-105 relative z-10' : 'text-slate-400'}`} />
-                    {!collapsed && <span className="truncate relative z-10">{item.title}</span>}
+                    <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
+                      {item.title}
+                    </span>
                   </NavLink>
                 );
               }
@@ -275,7 +278,7 @@ export default function Sidebar() {
                   {/* Parent Section Menu Button */}
                   <button
                     onClick={() => toggleSection(item.title)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer group
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors] duration-150 cursor-pointer group
                       ${isChildActive 
                         ? 'bg-white/5 text-teal-400' 
                         : 'text-slate-300 hover:bg-white/5 hover:text-slate-100'}
@@ -285,11 +288,11 @@ export default function Sidebar() {
                   >
                     <div className="flex items-center space-x-3 overflow-hidden">
                       <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-teal-300'}`} />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
+                        {item.title}
+                      </span>
                     </div>
-                    {!collapsed && (
-                      <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-all duration-200 ${isOpen ? 'rotate-180 text-teal-400' : 'group-hover:text-slate-300'}`} />
-                    )}
+                    <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-colors duration-200 ${isOpen ? 'rotate-180 text-teal-400' : 'group-hover:text-slate-300'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
                   </button>
 
                   <div className="overflow-hidden">
@@ -301,14 +304,16 @@ export default function Sidebar() {
                             return (
                               <div
                                 key={subIdx}
-                                className="relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-500/80 cursor-not-allowed mt-1 bg-slate-900/10 hover:bg-slate-900/20 transition-all font-display"
+                                className="relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-500/80 cursor-not-allowed mt-1 bg-slate-900/10 hover:bg-slate-900/20 font-display"
                                 style={{ minHeight: '38px' }}
                               >
                                 <div className="flex items-center space-x-3">
                                   <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-650" />
-                                  <span className="truncate">{subItem.name}</span>
+                                  <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
+                                    {subItem.name}
+                                  </span>
                                 </div>
-                                <span className="text-xs leading-none bg-slate-900 text-teal-400/80 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">Segera</span>
+                                <span className={`text-xs leading-none bg-slate-900 text-teal-400/80 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>Segera</span>
                               </div>
                             );
                           }
@@ -319,7 +324,7 @@ export default function Sidebar() {
                               to={subItem.path}
                               onClick={() => setMobileOpen(false)}
                               className={`
-                                relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 mt-1 border overflow-hidden
+                                relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
                                 ${isSubActive 
                                   ? 'bg-teal-500/20 border-teal-400/45 text-teal-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),_0_2px_8px_rgba(20,184,166,0.15)] backdrop-blur-md font-semibold' 
                                   : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'}
@@ -333,7 +338,9 @@ export default function Sidebar() {
                                 </>
                               )}
                               <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-teal-200 relative z-10' : 'text-slate-500'}`} />
-                              <span className="truncate relative z-10">{subItem.name}</span>
+                              <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
+                                {subItem.name}
+                              </span>
                             </NavLink>
                           );
                         })}
@@ -349,12 +356,12 @@ export default function Sidebar() {
         {/* Lower User/Logout Section */}
         <div className="p-4 bg-slate-950/40 backdrop-blur-md">
           <div className="flex items-center justify-between gap-2">
-            {!collapsed && user && (
+            {user && (
               <div className="flex items-center space-x-3 overflow-hidden">
                 <div className="h-9 w-9 rounded-full bg-slate-900 flex items-center justify-center font-semibold text-teal-400 uppercase flex-shrink-0 text-xs">
                   {user.nama.substring(0, 2)}
                 </div>
-                <div className="flex flex-col truncate">
+                <div className={`flex flex-col truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                   <span className="text-xs font-semibold text-slate-200 truncate">{user.nama}</span>
                   <span className="text-xs font-mono uppercase bg-teal-950/60 text-teal-350 px-2 py-0.5 rounded self-start mt-0.5 tracking-wider font-medium">
                     {user.role}
@@ -366,7 +373,7 @@ export default function Sidebar() {
             <button
               id="sidebar-logout-btn"
               onClick={handleLogout}
-              className={`p-2 rounded-xl bg-slate-900/60 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 transition-all flex items-center justify-center cursor-pointer
+              className={`p-2 rounded-xl bg-slate-900/60 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 transition-[colors] duration-150 flex items-center justify-center cursor-pointer
                 ${collapsed ? 'w-full' : ''}
               `}
               title="Keluar dari Sistem"

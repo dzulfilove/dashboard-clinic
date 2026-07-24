@@ -358,7 +358,7 @@ export default function Forecasting() {
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
                                 : f.kelas_abc === 'B' 
                                   ? 'bg-amber-50 text-amber-700 border border-amber-150' 
-                                  : 'bg-slate-50 text-slate-500 border border-slate-150'
+                                  : 'bg-slate-50 text-slate-500 border border-slate-200/80'
                             }`}>
                               Kelas {f.kelas_abc}
                             </span>
