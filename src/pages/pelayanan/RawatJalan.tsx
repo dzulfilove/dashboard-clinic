@@ -708,7 +708,10 @@ export default function RawatJalan() {
         return Number(stripped) || 0;
       };
 
-      if (cols.length >= 15) {
+      const isJenisKelamin = cols[6] && /^(l|p|laki-laki|perempuan|wanita|pria)$/i.test(cols[6].trim());
+      const isNewRowFormat = cols.length >= 15 || (cols.length >= 12 && isJenisKelamin);
+
+      if (isNewRowFormat) {
         // New standard 16-columns format
         noReg = cols[1];
         noRmCode = cols[2];

@@ -549,7 +549,10 @@ export default function RawatInap() {
         return Number(stripped) || 0;
       };
 
-      if (isNewFormat) {
+      const isJenisKelamin = cols[6] && /^(l|p|laki-laki|perempuan|wanita|pria)$/i.test(cols[6].trim());
+      const isNewRowFormat = isNewFormat || cols.length >= 15 || (cols.length >= 12 && isJenisKelamin);
+
+      if (isNewRowFormat) {
         // Handle custom format columns:
         // No. | No. Pendaftaran | No. RM | Nama Pasien | Tanggal Lahir | Umur | Jenis Kelamin | Alamat | Kelurahan | Kecamatan | Kota | Nama Tindakan | Tanggal MRS | Tanggal KRS | Unit | Jumlah
         if (cols.length < 12) {
