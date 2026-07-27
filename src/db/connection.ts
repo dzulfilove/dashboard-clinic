@@ -2483,7 +2483,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   // --- RANAP SIMULATION (VIRTUAL DB) ---
-  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
+  if (norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm') ||
+      norm.startsWith('SELECT r.id, r.no_registrasi, r.pasien_no_rm as no_rm, p.nama as nama_pasien, r.tanggal_pelayanan, r.triase, r.icd_masuk, r.icd_pulang, r.kamar, r.dpjp FROM registrasi_ranap r JOIN pasien p ON r.pasien_no_rm = p.no_rm')) {
     if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
     if (!vdb.pasien) vdb.pasien = [];
     return vdb.registrasi_ranap.map((r: any) => {
@@ -2497,7 +2498,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
         triase: r.triase || 'hijau',
         icd_masuk: r.icd_masuk || '',
         icd_pulang: r.icd_pulang || '',
-        kamar: r.kamar || ''
+        kamar: r.kamar || '',
+        dpjp: r.dpjp || null
       };
     }).sort((a, b) => {
       const dateA = new Date(a.tanggal_pelayanan).getTime();
@@ -2530,8 +2532,13 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   }
 
   if (norm.startsWith('INSERT INTO registrasi_ranap')) {
-    // INSERT INTO registrasi_ranap (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar) VALUES (?, ?, ?, ?, ?, ?, ?)
-    const [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar] = params;
+    // INSERT INTO registrasi_ranap (no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    let no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp = null;
+    if (params.length === 8) {
+      [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar, dpjp] = params;
+    } else {
+      [no_registrasi, pasien_no_rm, tanggal_pelayanan, triase, icd_masuk, icd_pulang, kamar] = params;
+    }
     if (!vdb.registrasi_ranap) vdb.registrasi_ranap = [];
     
     // Check duplication
@@ -2551,7 +2558,8 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
       triase: triase || 'hijau',
       icd_masuk: icd_masuk || '',
       icd_pulang: icd_pulang || '',
-      kamar: kamar || ''
+      kamar: kamar || '',
+      dpjp: dpjp || null
     };
     vdb.registrasi_ranap.push(record);
     writeVirtualDb(vdb);

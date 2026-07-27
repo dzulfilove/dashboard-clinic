@@ -3446,6 +3446,7 @@ app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
       icd_masuk: r.icd_masuk || '',
       icd_pulang: r.icd_pulang || '',
       kamar: r.kamar || '',
+      dpjp: r.dpjp || null,
       tindakan: actionsGrouped[r.id] || []
     }));
 
