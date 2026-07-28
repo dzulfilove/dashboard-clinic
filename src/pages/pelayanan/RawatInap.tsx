@@ -329,6 +329,19 @@ export default function RawatInap() {
     setTimeout(() => {
       setFeedback(null);
     }, 5000);
+
+    Swal.fire({
+      icon: type,
+      title: type === 'success' ? 'Berhasil' : 'Perhatian',
+      text: message,
+      confirmButtonColor: '#0d9488',
+      didOpen: () => {
+        const container = Swal.getContainer();
+        if (container) {
+          container.style.zIndex = '99999';
+        }
+      }
+    });
   };
 
   // Initialize registration code automatically
@@ -762,6 +775,13 @@ export default function RawatInap() {
   };
 
   const handleBulkInsert = async () => {
+    if (parsedData.length === 0) return;
+    const missingDpjp = parsedData.some(p => !p.dpjp);
+    if (missingDpjp) {
+      showFeedback('error', 'Setiap pasien dalam daftar impor wajib memiliki Dokter DPJP terpilih.');
+      return;
+    }
+
     setSubmitting(true);
     let successCount = 0;
     try {
@@ -975,6 +995,10 @@ export default function RawatInap() {
     e.preventDefault();
     if (!noRegistrasi || !noRm || !namaPasien || !tanggalPelayanan) {
       showFeedback('error', 'Semua data penanda kunjungan wajib diisi.');
+      return;
+    }
+    if (!dpjp) {
+      showFeedback('error', 'DPJP (Dokter Penanggung Jawab Pasien) wajib dipilih.');
       return;
     }
 
@@ -2337,7 +2361,7 @@ export default function RawatInap() {
                     </SearchableSelect>
                   </div>
                   <div>
-                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                    <label className="block text-xs font-extrabold text-slate-500 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien) <span className="text-red-500">*</span></label>
                     <SearchableSelect
                       required
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"

@@ -333,6 +333,19 @@ export default function IGD() {
     setTimeout(() => {
       setFeedback(null);
     }, 5000);
+
+    Swal.fire({
+      icon: type,
+      title: type === 'success' ? 'Berhasil' : 'Perhatian',
+      text: message,
+      confirmButtonColor: '#0d9488',
+      didOpen: () => {
+        const container = Swal.getContainer();
+        if (container) {
+          container.style.zIndex = '99999';
+        }
+      }
+    });
   };
 
   // Safe decimal string parser
@@ -397,6 +410,10 @@ export default function IGD() {
     e.preventDefault();
     if (!noRegistrasi || !noRm || !namaPasien || !tanggalPelayanan) {
       showFeedback('error', 'Mohon isi semua data demografi pasien.');
+      return;
+    }
+    if (!dpjp) {
+      showFeedback('error', 'DPJP (Dokter Penanggung Jawab Pasien) wajib dipilih.');
       return;
     }
 
@@ -813,6 +830,11 @@ export default function IGD() {
 
   const handleBulkInsert = async () => {
     if (parsedData.length === 0) return;
+    const missingDpjp = parsedData.some(p => !p.dpjp);
+    if (missingDpjp) {
+      showFeedback('error', 'Setiap pasien dalam daftar impor wajib memiliki Dokter DPJP terpilih.');
+      return;
+    }
     setSubmitting(true);
     let successCount = 0;
 
@@ -825,6 +847,7 @@ export default function IGD() {
           tanggal_pelayanan: p.tanggal_pelayanan,
           triase: p.triase || 'hijau',
           icd_kode: p.icd_kode || null,
+          dpjp: p.dpjp || null,
           tindakan: p.tindakan,
           tanggal_lahir: p.tanggal_lahir,
           jenis_kelamin: p.jenis_kelamin,
@@ -2296,7 +2319,7 @@ export default function IGD() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien) <span className="text-red-500">*</span></label>
                         <SearchableSelect
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}

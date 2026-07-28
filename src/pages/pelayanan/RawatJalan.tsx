@@ -366,6 +366,19 @@ export default function RawatJalan() {
   const showFeedback = (type: 'success' | 'error', message: string) => {
     setFeedback({ type, message });
     setTimeout(() => setFeedback(null), 5000);
+
+    Swal.fire({
+      icon: type,
+      title: type === 'success' ? 'Berhasil' : 'Perhatian',
+      text: message,
+      confirmButtonColor: '#0d9488',
+      didOpen: () => {
+        const container = Swal.getContainer();
+        if (container) {
+          container.style.zIndex = '99999';
+        }
+      }
+    });
   };
 
   // Helper calculation for manual tindakan subtotal
@@ -411,6 +424,10 @@ export default function RawatJalan() {
     e.preventDefault();
     if (!noRegistrasi || !noRm || !namaPasien || !tanggalPelayanan || !unit) {
       showFeedback('error', 'Mohon isi semua data demografi pasien, termasuk unit pelayanan.');
+      return;
+    }
+    if (!dpjp) {
+      showFeedback('error', 'DPJP (Dokter Penanggung Jawab Pasien) wajib dipilih.');
       return;
     }
 
@@ -858,6 +875,11 @@ export default function RawatJalan() {
     const allHaveUnit = parsedData.every(p => p.unit);
     if (!bulkUnit && !allHaveUnit) {
       showFeedback('error', 'Silakan pilih unit pelayanan terlebih dahulu sebelum menyimpan.');
+      return;
+    }
+    const missingDpjp = parsedData.some(p => !p.dpjp);
+    if (missingDpjp) {
+      showFeedback('error', 'Setiap pasien dalam daftar impor wajib memiliki Dokter DPJP terpilih.');
       return;
     }
     setSubmitting(true);
@@ -2443,7 +2465,7 @@ export default function RawatJalan() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien)</label>
+                        <label className="block text-xs font-medium text-slate-600 uppercase tracking-wider">DPJP (Dokter Penanggung Jawab Pasien) <span className="text-red-500">*</span></label>
                         <SearchableSelect
                           value={dpjp}
                           onChange={(e) => setDpjp(e.target.value)}
