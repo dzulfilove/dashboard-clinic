@@ -4,8 +4,9 @@ import Select from 'react-select';
 interface SearchableSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
-export const SearchableSelect: React.FC<SearchableSelectProps> = ({ children, onChange, value, className, disabled, placeholder, required, name, ...props }) => {
+export const SearchableSelect: React.FC<SearchableSelectProps> = ({ children, onChange, value, className, disabled, placeholder, required, name, optionsList, ...props }) => {
   const options = useMemo(() => {
+    if (optionsList) return optionsList;
     const opts: { value: string, label: string }[] = [];
     React.Children.forEach(children, child => {
       if (React.isValidElement(child) && child.type === 'option') {
@@ -16,7 +17,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({ children, on
       }
     });
     return opts;
-  }, [children]);
+  }, [children, optionsList]);
 
   const selectedOption = options.find(opt => String(opt.value) === String(value)) || null;
 

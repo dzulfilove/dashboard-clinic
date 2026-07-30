@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
@@ -172,6 +172,117 @@ const getTriageStyle = (triase?: string) => {
   }
 };
 
+const ParsedRowPreview = React.memo(({ 
+  p, 
+  idx, 
+  duplicateMap, 
+  icdOptions, 
+  dokterList, 
+  updateParsedTriage, 
+  updateParsedDpjp,
+  updateParsedKamar,
+  updateParsedIcdMasuk,
+  updateParsedIcdKeluar
+}: any) => {
+  return (
+    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100/60 font-sans space-y-2">
+      <div className="flex justify-between items-start">
+        <div>
+          <span className="font-extrabold tracking-wide text-slate-800 text-xs block uppercase">{p.nama_pasien}</span>
+          <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM Code: #{p.no_rm}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-xs text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
+          <select 
+            className="text-xs font-bold border rounded-lg p-2 bg-white focus:ring-1 focus:ring-teal-500 outline-none cursor-pointer"
+            value={p.triase || 'hijau'}
+            onChange={(e) => updateParsedTriage(idx, e.target.value)}
+          >
+            <option value="hijau">Hijau</option>
+            <option value="kuning">Kuning</option>
+            <option value="hitam">Hitam</option>
+            <option value="merah">Merah</option>
+          </select>
+        </div>
+      </div>
+
+      {duplicateMap[p.no_registrasi] ? (
+        <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
+          <span className="text-xs mt-0.5">⚠️</span>
+          <span>
+            <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
+          </span>
+        </div>
+      ) : (
+        <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+          <span className="text-xs mt-0.5">🆕</span>
+          <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
+        </div>
+      )}
+
+      {/* Extra Inputs: Room/Kamar Bed Code, ICD-10 admission/discharge */}
+      <div className="grid grid-cols-4 gap-2 border-t border-slate-100/40 pt-2 text-xs">
+        <div>
+          <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
+          <select
+            className="mt-1 w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
+            value={p.dpjp || ''}
+            onChange={(e) => updateParsedDpjp(idx, e.target.value)}
+          >
+            <option value="">-- DPJP --</option>
+            {dokterList.map((d: any) => (
+              <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
+          <select
+            className="mt-1 w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
+            value={p.kamar || 'Kamar Sinta'}
+            onChange={(e) => updateParsedKamar(idx, e.target.value)}
+          >
+            <option value="Kamar Sinta">Kamar Sinta</option>
+            <option value="Kamar Rama">Kamar Rama</option>
+            <option value="Kamar Yudistira">Kamar Yudistira</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">ICD Masuk</label>
+          <select 
+            className="mt-1 w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
+            value={p.icd_masuk || ''}
+            onChange={(e) => updateParsedIcdMasuk(idx, e.target.value)}
+          >
+            <option value="">-- Diagnosa Masuk --</option>
+            {icdOptions}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">ICD Keluar</label>
+          <select 
+            className="mt-1 w-full p-2 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
+            value={p.icd_pulang || ''}
+            onChange={(e) => updateParsedIcdKeluar(idx, e.target.value)}
+          >
+            <option value="">-- Diagnosa Keluar --</option>
+            {icdOptions}
+          </select>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100/50">
+        <span className="text-xs font-bold text-slate-500 uppercase">Tindakan:</span>
+        {p.tindakan.map((t: any, sIdx: number) => (
+          <span key={sIdx} className="bg-white border border-slate-200 px-2 rounded-md text-xs text-slate-600 font-medium shadow-xs">
+            {t.tindakan_nama} (x{t.jumlah})
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+});
+
 export default function RawatInap() {
   const [records, setRecords] = useState<InpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -244,6 +355,35 @@ export default function RawatInap() {
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
   const [icdList, setIcdList] = useState<ICD10[]>([]);
+  
+  
+  const icdOptionsListMasuk = useMemo(() => {
+    return [
+      { value: '', label: '- Pilih Diagnosa Masuk -' },
+      ...icdList.map((icd: any) => ({
+        value: icd.kode_icd,
+        label: icd.kode_icd + ' - ' + icd.deskripsi
+      }))
+    ];
+  }, [icdList]);
+
+  const icdOptionsListPulang = useMemo(() => {
+    return [
+      { value: '', label: '- Pilih Diagnosa Pulang -' },
+      ...icdList.map((icd: any) => ({
+        value: icd.kode_icd,
+        label: icd.kode_icd + ' - ' + icd.deskripsi
+      }))
+    ];
+  }, [icdList]);
+
+  const icdOptions = useMemo(() => {
+    return icdList.map((icd: any) => (
+      <option key={icd.id} value={icd.kode_icd}>
+        {icd.kode_icd} - {icd.deskripsi}
+      </option>
+    ));
+  }, [icdList]);
   const [dokterList, setDokterList] = useState<any[]>([]);
   const [manualTindakan, setManualTindakan] = useState<any[]>([
     {
@@ -264,6 +404,10 @@ export default function RawatInap() {
   const [rawText, setRawText] = useState('');
   const [isParsed, setIsParsed] = useState(false);
   const [parsedData, setParsedData] = useState<any[]>([]);
+  const [parsedPage, setParsedPage] = useState(1);
+  const parsedPageSize = 5;
+  const currentParsedData = parsedData.slice((parsedPage - 1) * parsedPageSize, parsedPage * parsedPageSize);
+  const totalParsedPages = Math.ceil(parsedData.length / parsedPageSize);
   const [duplicateMap, setDuplicateMap] = useState<{[key: string]: any}>({});
   const [checkingBulkDuplicate, setCheckingBulkDuplicate] = useState(false);
 
@@ -750,6 +894,7 @@ export default function RawatInap() {
 
     setParsedData(finalGrouped);
     setIsParsed(true);
+    setParsedPage(1);
     setDuplicateMap({});
 
     // Dynamic Bulk Duplicate Checker
@@ -773,6 +918,46 @@ export default function RawatInap() {
 
     showFeedback('success', `Berhasil memilah ${finalGrouped.length} baris master kunjungan rawat inap.`);
   };
+
+  const updateParsedTriage = useCallback((idx: number, newTriage: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], triase: newTriage };
+      return updated;
+    });
+  }, []);
+
+  const updateParsedDpjp = useCallback((idx: number, newDpjp: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], dpjp: newDpjp };
+      return updated;
+    });
+  }, []);
+
+  const updateParsedKamar = useCallback((idx: number, newKamar: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], kamar: newKamar };
+      return updated;
+    });
+  }, []);
+
+  const updateParsedIcdMasuk = useCallback((idx: number, newIcd: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], icd_masuk: newIcd };
+      return updated;
+    });
+  }, []);
+
+  const updateParsedIcdKeluar = useCallback((idx: number, newIcd: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = { ...updated[idx], icd_pulang: newIcd };
+      return updated;
+    });
+  }, []);
 
   const handleBulkInsert = async () => {
     if (parsedData.length === 0) return;
@@ -1105,12 +1290,9 @@ export default function RawatInap() {
       </div>
 
       {/* Interactive Floating Feedback Screen */}
-      <AnimatePresence>
+      
         {feedback && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+          <div
             className={`fixed top-6 right-6 z-50 flex items-center space-x-3 p-4 rounded-xl shadow-lg border text-xs font-bold leading-none ${
               feedback.type === 'success' 
                 ? 'bg-emerald-50 border-emerald-250 text-emerald-800' 
@@ -1123,9 +1305,9 @@ export default function RawatInap() {
               <AlertCircle className="h-4 w-4 text-rose-600" />
             )}
             <span>{feedback.message}</span>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
 
       {/* MAIN VIEWPORT STAGE ROUTEMAP */}
       {loading ? (
@@ -1139,16 +1321,12 @@ export default function RawatInap() {
         <div>
           {/* TAB 1: STATISTICS DASHBOARD ANALYTICS */}
           {activeTab === 'statistik' && (
-            <div className="space-y-6">
+            <div className="space-y-6 anim-fade-up">
               {/* Infographics Cards Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 {/* 1. Kunjungan Pasien */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.08 }}
+                <div
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
@@ -1166,14 +1344,10 @@ export default function RawatInap() {
                     <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Inap</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                </div>
 
                 {/* 2. Tindakan Medis */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.16 }}
+                <div
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
@@ -1191,16 +1365,12 @@ export default function RawatInap() {
                     <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                </div>
 
 
 
                 {/* 4. Kamar Teraktif */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.24 }}
+                <div
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
@@ -1220,16 +1390,13 @@ export default function RawatInap() {
                     </p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                </div>
               </div>
 
               {/* Graphical Charts Section */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* 1. REGISTRATION & EARNINGS TREND OVER TIME */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.32 }}
+                <div
                   className="bg-white p-6 rounded-3xl lg:col-span-8 flex flex-col space-y-4"
                 >
                   <div>
@@ -1256,13 +1423,10 @@ export default function RawatInap() {
                       </ResponsiveContainer>
                     )}
                   </div>
-                </motion.div>
+                </div>
 
                 {/* 2. AREA DISTRIBUTION: CHAMBER SELECTION */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 }}
+                <div
                   className="bg-white p-6 rounded-3xl lg:col-span-4 flex flex-col space-y-4"
                 >
                   <div>
@@ -1305,7 +1469,7 @@ export default function RawatInap() {
                       </div>
                     ))}
                   </div>
-                </motion.div>
+                </div>
               </div>
 
               {/* Infography distribution details */}
@@ -1435,10 +1599,7 @@ export default function RawatInap() {
           {activeTab === 'kunjungan' && (
             <div className="space-y-6">
               {/* Infografis Kunjungan Per Triase */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.08 }}
+              <div
                 className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-200/80"
               >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
@@ -1548,7 +1709,7 @@ export default function RawatInap() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl">
@@ -1586,10 +1747,7 @@ export default function RawatInap() {
               </div>
 
               {/* Search utility and count banner */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.16 }}
+              <div
                 className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
               >
                 <div className="relative flex-1 max-w-sm">
@@ -1646,13 +1804,10 @@ export default function RawatInap() {
                 <div className="text-slate-500 text-xs font-semibold">
                   Menampilkan <span className="text-teal-700 font-bold">{filteredRecords.length}</span> dari {records.length} registrasi pelayanan
                 </div>
-              </motion.div>
+              </div>
 
               {/* Main Content Card Container */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.24 }}
+              <div
                 className="space-y-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-xs"
               >
 
@@ -1667,22 +1822,14 @@ export default function RawatInap() {
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto pr-1">
-                  <AnimatePresence>
+                  
                   {paginatedRecords.map((rec, idx) => {
                     const isExpanded = expandedId === rec.id;
                     const triageStyle = getTriageStyle(rec.triase);
                     const costTotal = rec.tindakan.reduce((sum, act) => sum + act.subtotal, 0);
 
                     return (
-                      <motion.div 
-                        key={rec.id} 
-                        variants={itemVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                        custom={idx}
-                        className="py-4"
-                      >
+                      <div key={rec.id} className="py-4 anim-fade-up" style={{ animationDelay: `${idx * 0.05}s` }}>
                         {/* Summary Header of element */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 font-sans">
                           {/* Left patient identity columns */}
@@ -1781,12 +1928,9 @@ export default function RawatInap() {
                         </div>
 
                         {/* Expandable Child list of actions */}
-                        <AnimatePresence>
+                        
                           {isExpanded && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
+                            <div
                               className="overflow-hidden"
                             >
                               <div className="mt-3.5 px-4 py-3 border-t border-slate-100 space-y-4">
@@ -1912,13 +2056,13 @@ export default function RawatInap() {
                                   </div>
                                 </div>
                               </div>
-                            </motion.div>
+                            </div>
                           )}
-                        </AnimatePresence>
-                      </motion.div>
+                        
+                      </div>
                     );
                   })}
-                </AnimatePresence>
+                
               </div>
             )}
 
@@ -1942,13 +2086,13 @@ export default function RawatInap() {
                   </button>
                 </div>
               )}
-              </motion.div>
+              </div>
             </div>
           )}
 
           {/* TAB 3: EXCEL PASTE IMPORT PANEL */}
           {activeTab === 'input' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start anim-fade-up">
               {/* Text Area Input Card */}
                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs space-y-4">
                 <div>
@@ -1979,7 +2123,7 @@ export default function RawatInap() {
                     </button>
                     {isParsed && (
                       <button
-                        onClick={() => { setRawText(''); setParsedData([]); setIsParsed(false); }}
+                        onClick={() => { setRawText(''); setParsedData([]); setIsParsed(false); setParsedPage(1); }}
                         className="text-slate-400 hover:text-slate-650 text-xs font-bold transition-all"
                       >
                         Batal
@@ -2003,130 +2147,48 @@ export default function RawatInap() {
                       </span>
                     </div>
 
-                    <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
-                      {parsedData.map((p, idx) => (
-                        <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100/60 font-sans space-y-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <span className="font-extrabold tracking-wide text-slate-800 text-xs block uppercase">{p.nama_pasien}</span>
-                              <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM Code: #{p.no_rm}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-xs text-slate-400 font-medium">{p.tanggal_pelayanan}</span>
-                              <SearchableSelect 
-                                className="text-xs font-bold border rounded-lg p-1 bg-white focus:ring-1 focus:ring-teal-500 outline-none"
-                                value={p.triase || 'hijau'}
-                                onChange={(e) => {
-                                  const newData = [...parsedData];
-                                  newData[idx].triase = e.target.value;
-                                  setParsedData(newData);
-                                }}
-                              >
-                                <option value="hijau">Hijau</option>
-                                <option value="kuning">Kuning</option>
-                                <option value="hitam">Hitam</option>
-                                <option value="merah">Merah</option>
-                              </SearchableSelect>
-                            </div>
-                          </div>
-
-                          {duplicateMap[p.no_registrasi] ? (
-                            <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-100 flex items-start space-x-2 font-sans mt-1">
-                              <span className="text-xs mt-0.5">⚠️</span>
-                              <span>
-                                <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
-                              <span className="text-xs mt-0.5">🆕</span>
-                              <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
-                            </div>
-                          )}
-
-                          {/* Extra Inputs: Room/Kamar Bed Code, ICD-10 admission/discharge */}
-                          <div className="grid grid-cols-4 gap-2 border-t border-slate-100/40 pt-2 text-xs">
-                            <div>
-                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">DPJP</label>
-                              <SearchableSelect
-                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none cursor-pointer"
-                                value={p.dpjp || ''}
-                                onChange={(e) => {
-                                  const newData = [...parsedData];
-                                  newData[idx].dpjp = e.target.value;
-                                  setParsedData(newData);
-                                }}
-                              >
-                                <option value="">-- DPJP --</option>
-                                {dokterList.map(d => (
-                                  <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
-                                ))}
-                              </SearchableSelect>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Kamar Bed</label>
-                              <SearchableSelect
-                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium outline-none"
-                                value={p.kamar || 'Kamar Sinta'}
-                                onChange={(e) => {
-                                  const newData = [...parsedData];
-                                  newData[idx].kamar = e.target.value;
-                                  setParsedData(newData);
-                                }}
-                              >
-                                <option value="Kamar Sinta">Kamar Sinta</option>
-                                <option value="Kamar Rama">Kamar Rama</option>
-                                <option value="Kamar Yudistira">Kamar Yudistira</option>
-                              </SearchableSelect>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Masuk (ICD)</label>
-                              <SearchableSelect
-                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none"
-                                value={p.icd_masuk || ''}
-                                onChange={(e) => {
-                                  const newData = [...parsedData];
-                                  newData[idx].icd_masuk = e.target.value;
-                                  setParsedData(newData);
-                                }}
-                              >
-                                <option value="">- Pilih ICD -</option>
-                                {icdList.map((icd, i) => (
-                                  <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
-                                ))}
-                              </SearchableSelect>
-                            </div>
-                            <div>
-                              <label className="block text-xs font-extrabold text-slate-400 uppercase tracking-wider">Diagnosa Pulang (ICD)</label>
-                              <SearchableSelect
-                                className="mt-1 w-full p-1 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none"
-                                value={p.icd_pulang || ''}
-                                onChange={(e) => {
-                                  const newData = [...parsedData];
-                                  newData[idx].icd_pulang = e.target.value;
-                                  setParsedData(newData);
-                                }}
-                              >
-                                <option value="">- Pilih ICD -</option>
-                                {icdList.map((icd, i) => (
-                                  <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
-                                ))}
-                              </SearchableSelect>
-                            </div>
-                          </div>
-
-                          {/* Action list summary summary */}
-                          <div className="border-t border-slate-200/50 pt-2 space-y-1 text-xs font-semibold text-slate-655">
-                            {p.tindakan.map((t: any, tIdx: number) => (
-                              <div key={tIdx} className="flex justify-between">
-                                <span className="truncate max-w-[15rem]">• {t.tindakan_nama}</span>
-                                <span className="font-mono text-slate-400">x{t.jumlah || 1}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                    <div className="space-y-3.5 pr-1">
+                      {currentParsedData.map((p, idx) => {
+                        const globalIdx = (parsedPage - 1) * parsedPageSize + idx;
+                        return (
+                          <ParsedRowPreview
+                            key={globalIdx}
+                            p={p}
+                            idx={globalIdx}
+                            duplicateMap={duplicateMap}
+                            icdOptions={icdOptions}
+                            dokterList={dokterList}
+                            updateParsedTriage={updateParsedTriage}
+                            updateParsedDpjp={updateParsedDpjp}
+                            updateParsedKamar={updateParsedKamar}
+                            updateParsedIcdMasuk={updateParsedIcdMasuk}
+                            updateParsedIcdKeluar={updateParsedIcdKeluar}
+                          />
+                        );
+                      })}
                     </div>
+                    
+                    {totalParsedPages > 1 && (
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-100/70">
+                        <span className="text-xs text-slate-500 font-medium">Halaman {parsedPage} dari {totalParsedPages}</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setParsedPage(prev => Math.max(1, prev - 1))}
+                            disabled={parsedPage === 1}
+                            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Sebelumnnya
+                          </button>
+                          <button
+                            onClick={() => setParsedPage(prev => Math.min(totalParsedPages, prev + 1))}
+                            disabled={parsedPage === totalParsedPages}
+                            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Selanjutnya
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     <div className="pt-2 border-t border-slate-100">
                       <button
@@ -2163,14 +2225,10 @@ export default function RawatInap() {
 
       {/* MODAL: MANUAL INSCRIPTION / EDIT SHEET FORM */}
       {createPortal(
-        <AnimatePresence>
+        <>
           {isManualModalOpen && (
             <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-10 pb-10 px-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+            <div
               className="bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
             >
               <div className="bg-slate-900 text-white px-6 py-5 flex items-center justify-between">
@@ -2382,12 +2440,8 @@ export default function RawatInap() {
                       value={icdMasuk}
                       onChange={(e) => setIcdMasuk(e.target.value)}
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                    >
-                      <option value="">- Pilih Diagnosa Masuk -</option>
-                      {icdList.map((icd, i) => (
-                        <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
-                      ))}
-                    </SearchableSelect>
+                      optionsList={icdOptionsListMasuk}
+                    />
                   </div>
 
                   <div>
@@ -2396,12 +2450,8 @@ export default function RawatInap() {
                       value={icdPulang}
                       onChange={(e) => setIcdPulang(e.target.value)}
                       className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                    >
-                      <option value="">- Pilih Diagnosa Pulang -</option>
-                      {icdList.map((icd, i) => (
-                        <option key={i} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>
-                      ))}
-                    </SearchableSelect>
+                      optionsList={icdOptionsListPulang}
+                    />
                   </div>
                 </div>
 
@@ -2483,11 +2533,11 @@ export default function RawatInap() {
                   </button>
                 </div>
               </form>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>,
-      document.body
+        </>,
+        document.body
     )}
     </div>
   );

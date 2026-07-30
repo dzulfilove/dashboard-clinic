@@ -34,6 +34,7 @@
     "react-dom": "^19.0.1",
     "react-router-dom": "^7.17.0",
     "react-select": "^5.10.2",
+    "react-windowed-select": "^5.2.0",
     "recharts": "^3.9.2",
     "sweetalert2": "^11.26.25",
     "vite": "^6.2.3",

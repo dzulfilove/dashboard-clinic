@@ -126,7 +126,7 @@ export default function MasterWilayah() {
     visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { delay: Math.min(i * 0.02, 0.15), duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }
+      transition: { delay: Math.min(i * 0.02, 0.15), duration: 0.2, ease: "easeOut" }
     })
   };
 
@@ -158,7 +158,7 @@ export default function MasterWilayah() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
             style={{ willChange: 'height, opacity' }}
             className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-center justify-between gap-2 text-sm text-rose-700"
           >
@@ -182,7 +182,7 @@ export default function MasterWilayah() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
+            transition={{ duration: 0.25, ease: "easeOut", delay: 0.05 }}
             style={{ willChange: 'transform, opacity' }}
             className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
           >
@@ -275,7 +275,7 @@ export default function MasterWilayah() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
+            transition={{ duration: 0.25, ease: "easeOut", delay: 0.10 }}
             style={{ willChange: 'transform, opacity' }}
             className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
           >
@@ -382,7 +382,7 @@ export default function MasterWilayah() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
+            transition={{ duration: 0.25, ease: "easeOut", delay: 0.15 }}
             style={{ willChange: 'transform, opacity' }}
             className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
           >

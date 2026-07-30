@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
@@ -156,6 +156,112 @@ const getTriageStyle = (triase?: string) => {
   }
 };
 
+const ParsedRowPreview = React.memo(({ 
+  p, 
+  idx, 
+  duplicateMap, 
+  icdOptions,
+  dokterOptions,
+  updateParsedTriage, 
+  updateParsedIcd, 
+  updateParsedDpjp,
+  getTriageStyle
+}: any) => {
+  return (
+    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-2">
+      <div className="flex justify-between items-start">
+        <div>
+          <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
+          <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-slate-400 text-xs font-mono">{p.tanggal_pelayanan}</span>
+        </div>
+      </div>
+
+      {duplicateMap[p.no_registrasi] ? (
+        <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
+          <span className="text-xs mt-0.5">⚠️</span>
+          <span>
+            <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
+          </span>
+        </div>
+      ) : (
+        <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
+          <span className="text-xs mt-0.5">🆕</span>
+          <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
+        </div>
+      )}
+      
+      <div className="flex flex-wrap gap-1.5 pt-1.5">
+        {p.tindakan.map((t: any, sIdx: number) => (
+          <span key={sIdx} className="bg-white border border-slate-200 px-2 py-0.5 rounded text-xs text-slate-600 font-medium">
+            {t.tindakan_nama} x{t.jumlah}
+          </span>
+        ))}
+      </div>
+
+      {/* Triage & Diagnosis Selector before saving */}
+      <div className="bg-slate-50/75 border border-slate-200/80 p-3 rounded-2xl mt-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Triase Kegawatan</label>
+            <select
+              value={p.triase || 'hijau'}
+              onChange={(e) => updateParsedTriage(idx, e.target.value)}
+              className="w-full px-2 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
+            >
+              <option value="hijau">Hijau (Non-Darurat)</option>
+              <option value="kuning">Kuning (Darurat)</option>
+              <option value="merah">Merah (Gawat Darurat)</option>
+              <option value="hitam">Hitam (Meninggal)</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Diagnosa Masuk (ICD-10)</label>
+            <select
+              value={p.icd_kode || ''}
+              onChange={(e) => updateParsedIcd(idx, e.target.value)}
+              className="w-full px-2 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
+            >
+              <option value="">-- Pilih Diagnosis --</option>
+              {icdOptions}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DPJP</label>
+            <select
+              className="w-full px-2 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
+              value={p.dpjp || ''}
+              onChange={(e) => updateParsedDpjp(idx, e.target.value)}
+            >
+              <option value="">-- Pilih Dokter DPJP --</option>
+              {dokterOptions}
+            </select>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100">
+          <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Status Terpilih</span>
+          <div className="flex items-center gap-2">
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border ${getTriageStyle(p.triase).bg}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${getTriageStyle(p.triase).dotBg}`} />
+              <span>{getTriageStyle(p.triase).text}</span>
+            </span>
+            {p.icd_kode && (
+              <span className="text-xs font-mono font-bold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-150 uppercase tracking-wider">
+                {p.icd_kode}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function IGD() {
   const [records, setRecords] = useState<IgdRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -221,6 +327,31 @@ export default function IGD() {
   const [procedureFilter, setProcedureFilter] = useState<string | null>(null);
   const [icdList, setIcdList] = useState<ICD10[]>([]);
   const [dokterList, setDokterList] = useState<any[]>([]);
+
+  
+  const icdOptionsList = useMemo(() => {
+    return [
+      { value: '', label: '-- Pilih Diagnosis --' },
+      ...icdList.map((icd: any) => ({
+        value: icd.kode_icd,
+        label: icd.kode_icd + ' - ' + icd.deskripsi
+      }))
+    ];
+  }, [icdList]);
+
+  const icdOptions = useMemo(() => {
+    return icdList.map((icd: any) => (
+      <option key={icd.id} value={icd.kode_icd}>
+        {icd.kode_icd} - {icd.deskripsi}
+      </option>
+    ));
+  }, [icdList]);
+
+  const dokterOptions = useMemo(() => {
+    return dokterList.filter(d => isDoctorForUnit(d, 'IGD')).map(d => (
+      <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
+    ));
+  }, [dokterList]);
   const [icdKode, setIcdKode] = useState('');
   const [manualTindakan, setManualTindakan] = useState<Tindakan[]>([
     {
@@ -240,6 +371,10 @@ export default function IGD() {
   // Bulk importer states
   const [rawText, setRawText] = useState('');
   const [parsedData, setParsedData] = useState<any[]>([]);
+  const [parsedPage, setParsedPage] = useState(1);
+  const parsedPageSize = 5;
+  const currentParsedData = parsedData.slice((parsedPage - 1) * parsedPageSize, parsedPage * parsedPageSize);
+  const totalParsedPages = Math.ceil(parsedData.length / parsedPageSize);
   const [isParsed, setIsParsed] = useState(false);
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
@@ -786,6 +921,7 @@ export default function IGD() {
 
     setParsedData(output);
     setIsParsed(true);
+    setParsedPage(1);
     setDuplicateMap({});
 
     // Dynamic Bulk Duplicate Checker
@@ -810,23 +946,38 @@ export default function IGD() {
     showFeedback('success', `Berhasil mengurai ${output.length} registrasi kunjungan unik.`);
   };
 
-  const updateParsedTriage = (idx: number, newTriage: string) => {
-    const updated = [...parsedData];
-    updated[idx] = {
-      ...updated[idx],
-      triase: newTriage
-    };
-    setParsedData(updated);
-  };
+  const updateParsedTriage = useCallback((idx: number, newTriage: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = {
+        ...updated[idx],
+        triase: newTriage
+      };
+      return updated;
+    });
+  }, []);
 
-  const updateParsedIcd = (idx: number, newIcd: string) => {
-    const updated = [...parsedData];
-    updated[idx] = {
-      ...updated[idx],
-      icd_kode: newIcd
-    };
-    setParsedData(updated);
-  };
+  const updateParsedIcd = useCallback((idx: number, newIcd: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = {
+        ...updated[idx],
+        icd_kode: newIcd
+      };
+      return updated;
+    });
+  }, []);
+
+  const updateParsedDpjp = useCallback((idx: number, newDpjp: string) => {
+    setParsedData(prev => {
+      const updated = [...prev];
+      updated[idx] = {
+        ...updated[idx],
+        dpjp: newDpjp
+      };
+      return updated;
+    });
+  }, []);
 
   const handleBulkInsert = async () => {
     if (parsedData.length === 0) return;
@@ -1064,12 +1215,9 @@ export default function IGD() {
       </div>
 
       {/* Floating feedback portal */}
-      <AnimatePresence>
+      
         {feedback && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+          <div
             className={`p-4 rounded-2xl flex items-center space-x-3 shadow-lg border ${
               feedback.type === 'success' 
                 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
@@ -1078,9 +1226,9 @@ export default function IGD() {
           >
             {feedback.type === 'success' ? <CheckCircle className="h-5 w-5 text-emerald-600" /> : <AlertCircle className="h-5 w-5 text-rose-600" />}
             <span className="text-xs font-semibold leading-relaxed">{feedback.message}</span>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      
 
       {/* LOADING SPINNERS */}
       {loading ? (
@@ -1092,16 +1240,12 @@ export default function IGD() {
         <>
           {/* TAB 1: DASHBOARD & STATS */}
           {activeTab === 'statistik' && (
-            <div className="space-y-6">
+            <div className="space-y-6 anim-fade-up">
               {/* Core metrics bento boxes */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
                 {/* 1. Kunjungan Pasien */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.08 }}
+                <div
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
@@ -1119,14 +1263,10 @@ export default function IGD() {
                     <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien IGD</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                </div>
 
                 {/* 2. Tindakan Medis */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.16 }}
+                <div
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
@@ -1144,16 +1284,12 @@ export default function IGD() {
                     <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis IGD Dilakukan</p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                </div>
 
 
 
                 {/* 4. DPJP Teraktif */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.24 }}
+                <div
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
                 >
                   <div className="flex items-center justify-between">
@@ -1173,17 +1309,14 @@ export default function IGD() {
                     </p>
                   </div>
                   <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                </div>
                 
               </div>
 
               {/* Graphical trends */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Chart 1: Kunjungan & Pendapatan Harian */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.32 }}
+                <div
                   className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm lg:col-span-2 space-y-4"
                 >
                   <div>
@@ -1211,13 +1344,10 @@ export default function IGD() {
                       </ResponsiveContainer>
                     )}
                   </div>
-                </motion.div>
+                </div>
 
                 {/* Chart 2: Top 5 Procedures */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 }}
+                <div
                   className="bg-white p-5 rounded-2xl border border-slate-100/70 shadow-sm space-y-4"
                 >
                   <div>
@@ -1283,7 +1413,7 @@ export default function IGD() {
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </div>
               </div>
 
               {/* TOP 10 DIAGNOSA ICD-10 TERBANYAK */}
@@ -1349,10 +1479,7 @@ export default function IGD() {
               </div>
 
               {/* Sample Pasted Output references */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.48 }}
+              <div
                 className="bg-slate-900 text-slate-200 p-6 rounded-3xl space-y-3.5 relative overflow-hidden shadow-md"
               >
                 <div className="absolute top-[-20%] right-[-10%] w-[20rem] h-[20rem] bg-teal-500/10 rounded-full blur-[80px]" />
@@ -1372,18 +1499,15 @@ export default function IGD() {
                     <ArrowRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
-              </motion.div>
+              </div>
             </div>
           )}
 
           {/* TAB 2: DETAILED RECORDS GRID */}
           {activeTab === 'kunjungan' && (
-            <div className="space-y-4">
+                <div className="space-y-4 anim-fade-up">
               {/* Infografis Kunjungan Per Triase */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.08 }}
+              <div
                 className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-3xl border border-slate-200/80"
               >
                 {/* Left side: Grid of Clickable Triage widgets (Col-span 3) */}
@@ -1493,7 +1617,7 @@ export default function IGD() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {/* Filter Pills */}
               <div className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-200/80 p-2.5 rounded-2xl">
@@ -1531,10 +1655,7 @@ export default function IGD() {
               </div>
 
               {/* Search utility and date selection */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.16 }}
+              <div
                 className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
               >
                 <div className="relative flex-1 max-w-sm">
@@ -1575,25 +1696,19 @@ export default function IGD() {
                 <div className="text-slate-500 text-xs font-semibold">
                   Menampilkan <span className="text-teal-700 font-bold">{filteredRecords.length}</span> dari {records.length} registrasi pelayanan IGD
                 </div>
-              </motion.div>
+              </div>
 
               {/* Main Table Accordion */}
               {filteredRecords.length === 0 ? (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
+                <div
                   className="bg-white rounded-2xl border border-slate-100/80 shadow-sm p-12 text-center"
                 >
                   <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-2" />
                   <h4 className="text-sm font-bold text-slate-700">Daftar Kunjungan IGD Kosong</h4>
                   <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Gunakan filter pencarian lain atau tambahkan pendaftaran pasien IGD baru.</p>
-                </motion.div>
+                </div>
               ) : (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
+                <div
                   className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden"
                 >
                   <div className="overflow-x-auto">
@@ -1610,20 +1725,14 @@ export default function IGD() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
-                        <AnimatePresence>
+                        
                           {paginatedRecords.map((rec, i) => {
                             const isExpanded = expandedId === rec.id;
                             const totalCost = rec.tindakan.reduce((sum, t) => sum + t.subtotal, 0);
 
                             return (
                               <React.Fragment key={rec.id}>
-                                <motion.tr 
-                                  variants={itemVariants}
-                                  initial="hidden"
-                                  animate="visible"
-                                  exit="hidden"
-                                  custom={i}
-                                  className="hover:bg-slate-50/30 transition-all"
+                                <tr className="hover:bg-slate-50/30 transition-all anim-fade-up" style={{ animationDelay: `${i * 0.05}s` }}
                                 >
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
@@ -1710,14 +1819,11 @@ export default function IGD() {
                                     </button>
                                   </div>
                                 </td>
-                                </motion.tr>
+                                </tr>
 
                               {/* Accordion inner tindakan rows */}
                               {isExpanded && (
-                                <motion.tr 
-                                  initial={{ opacity: 0, height: 0 }}
-                                  animate={{ opacity: 1, height: 'auto' }}
-                                  exit={{ opacity: 0, height: 0 }}
+                                <tr
                                   className="bg-slate-50/50"
                                 >
                                   <td colSpan={7} className="px-6 py-4.5 border-t border-b border-slate-100/80">
@@ -1855,12 +1961,12 @@ export default function IGD() {
                                       </div>
                                     </div>
                                   </td>
-                                </motion.tr>
+                                </tr>
                               )}
                             </React.Fragment>
                           );
                         })}
-                        </AnimatePresence>
+                        
                       </tbody>
                     </table>
                   </div>
@@ -1912,14 +2018,14 @@ export default function IGD() {
                       </div>
                     </div>
                   )}
-                </motion.div>
+                </div>
               )}
             </div>
           )}
 
           {/* TAB 3: PASTE TEXT BULK IMPORTER */}
           {activeTab === 'input' && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start anim-fade-up">
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xs space-y-4">
                 <div>
@@ -1950,7 +2056,7 @@ export default function IGD() {
                     </button>
                     {isParsed && (
                       <button
-                        onClick={() => { setRawText(''); setParsedData([]); setIsParsed(false); }}
+                        onClick={() => { setRawText(''); setParsedData([]); setIsParsed(false); setParsedPage(1); }}
                         className="text-slate-400 hover:text-slate-600 text-xs font-bold transition-all cursor-pointer"
                       >
                         Batal
@@ -1975,113 +2081,47 @@ export default function IGD() {
                     </div>
 
                     {/* Preview patient block loop */}
-                    <div className="space-y-3.5 max-h-[350px] overflow-y-auto pr-1">
-                      {parsedData.map((p, idx) => {
+                    <div className="space-y-3.5 pr-1">
+                      {currentParsedData.map((p, idx) => {
+                        const globalIdx = (parsedPage - 1) * parsedPageSize + idx;
                         return (
-                          <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 font-sans space-y-2">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <span className="font-extrabold tracking-wide text-slate-800 text-xs uppercase block">{p.nama_pasien}</span>
-                                <span className="text-xs text-slate-500 font-mono">Reg: {p.no_registrasi} • RM: #{p.no_rm}</span>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-slate-400 text-xs font-mono">{p.tanggal_pelayanan}</span>
-                              </div>
-                            </div>
-
-                            {duplicateMap[p.no_registrasi] ? (
-                              <div className="bg-amber-50 text-amber-800 text-xs sm:text-xs p-2.5 rounded-xl border border-amber-200/80 flex items-start space-x-2 font-sans mt-1">
-                                <span className="text-xs mt-0.5">⚠️</span>
-                                <span>
-                                  <strong>Kunjungan Duplikat ({duplicateMap[p.no_registrasi].modul})</strong>: Terdaftar atas nama <strong>{duplicateMap[p.no_registrasi].nama_pasien}</strong> ({duplicateMap[p.no_registrasi].tanggal_pelayanan}). Menyimpan akan <strong>memperbarui (update)</strong> tindakan.
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="bg-emerald-50 text-emerald-800 text-xs sm:text-xs p-2.5 rounded-xl border border-emerald-150 flex items-start space-x-2 font-sans mt-1">
-                                <span className="text-xs mt-0.5">🆕</span>
-                                <span>Registrasi Baru: Data belum terdaftar di sistem. Akan disimpan sebagai rekam kunjungan baru.</span>
-                              </div>
-                            )}
-                            
-                            <div className="flex flex-wrap gap-1.5 pt-1.5">
-                              {p.tindakan.map((t: any, sIdx: number) => (
-                                <span key={sIdx} className="bg-white border border-slate-200 px-2 py-0.5 rounded text-xs text-slate-600 font-medium">
-                                  {t.tindakan_nama} x{t.jumlah}
-                                </span>
-                              ))}
-                            </div>
-
-                            {/* Triage & Diagnosis Selector before saving */}
-                            <div className="bg-slate-50/75 border border-slate-200/80 p-3 rounded-2xl mt-3">
-                              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Triase Kegawatan</label>
-                                  <SearchableSelect
-                                    value={p.triase || 'hijau'}
-                                    onChange={(e) => updateParsedTriage(idx, e.target.value)}
-                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
-                                  >
-                                    <option value="hijau">Hijau (Non-Darurat)</option>
-                                    <option value="kuning">Kuning (Darurat)</option>
-                                    <option value="merah">Merah (Gawat Darurat)</option>
-                                    <option value="hitam">Hitam (Meninggal)</option>
-                                  </SearchableSelect>
-                                </div>
-
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Diagnosa Masuk (ICD-10)</label>
-                                  <SearchableSelect
-                                    value={p.icd_kode || ''}
-                                    onChange={(e) => updateParsedIcd(idx, e.target.value)}
-                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
-                                  >
-                                    <option value="">-- Pilih Diagnosis --</option>
-                                    {icdList.map(icd => (
-                                      <option key={icd.id} value={icd.kode_icd}>
-                                        {icd.kode_icd} - {icd.deskripsi}
-                                      </option>
-                                    ))}
-                                  </SearchableSelect>
-                                </div>
-                                
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DPJP</label>
-                                  <SearchableSelect
-                                    className="w-full px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer"
-                                    value={p.dpjp || ''}
-                                    onChange={(e) => {
-                                      const newData = [...parsedData];
-                                      newData[idx].dpjp = e.target.value;
-                                      setParsedData(newData);
-                                    }}
-                                  >
-                                    <option value="">-- Pilih Dokter DPJP --</option>
-                                    {dokterList.filter(d => isDoctorForUnit(d, 'IGD')).map(d => (
-                                      <option key={d.id} value={d.nama_dokter}>{d.nama_dokter}</option>
-                                    ))}
-                                  </SearchableSelect>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center justify-between mt-2.5 pt-2 border-t border-slate-100">
-                                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Status Terpilih</span>
-                                <div className="flex items-center gap-2">
-                                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border ${getTriageStyle(p.triase).bg}`}>
-                                    <span className={`h-1.5 w-1.5 rounded-full ${getTriageStyle(p.triase).dotBg}`} />
-                                    <span>{getTriageStyle(p.triase).text}</span>
-                                  </span>
-                                  {p.icd_kode && (
-                                    <span className="text-xs font-mono font-bold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-150 uppercase tracking-wider">
-                                      {p.icd_kode}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <ParsedRowPreview
+                            key={globalIdx}
+                            p={p}
+                            idx={globalIdx}
+                            duplicateMap={duplicateMap}
+                            icdOptions={icdOptions}
+                            dokterOptions={dokterOptions}
+                            updateParsedTriage={updateParsedTriage}
+                            updateParsedIcd={updateParsedIcd}
+                            updateParsedDpjp={updateParsedDpjp}
+                            getTriageStyle={getTriageStyle}
+                          />
                         );
                       })}
                     </div>
+                    
+                    {totalParsedPages > 1 && (
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <span className="text-xs text-slate-500 font-medium">Halaman {parsedPage} dari {totalParsedPages}</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setParsedPage(prev => Math.max(1, prev - 1))}
+                            disabled={parsedPage === 1}
+                            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Sebelumnnya
+                          </button>
+                          <button
+                            onClick={() => setParsedPage(prev => Math.min(totalParsedPages, prev + 1))}
+                            disabled={parsedPage === totalParsedPages}
+                            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Selanjutnya
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Confirm and post */}
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
@@ -2107,14 +2147,10 @@ export default function IGD() {
 
           {/* MANUAL CRUD REGISTRATION & CORRECTION MODAL */}
           {createPortal(
-            <AnimatePresence>
-              {isManualModalOpen && (
+        <>
+          {isManualModalOpen && (
                 <div className="fixed inset-0 z-[9999] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-start justify-center pt-10 pb-10 px-4">
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+              <div
                 className="bg-white rounded-3xl border border-slate-200/80 shadow-2xl max-w-3xl w-full overflow-hidden flex flex-col max-h-[90vh]"
               >
                 {/* Modal Header */}
@@ -2339,10 +2375,8 @@ export default function IGD() {
                           value={icdKode}
                           onChange={(e) => setIcdKode(e.target.value)}
                           className="mt-1.5 block w-full px-3 py-2 bg-slate-50 border border-slate-200/80 rounded-xl text-xs focus:ring-2 focus:ring-teal-500/20 focus:outline-none focus:bg-white"
-                        >
-                          <option value="">-- Pilih Diagnosis --</option>
-                          {icdList.map(icd => <option key={icd.id} value={icd.kode_icd}>{icd.kode_icd} - {icd.deskripsi}</option>)}
-                        </SearchableSelect>
+                          optionsList={icdOptionsList}
+                        />
                       </div>
                     </div>
                   </div>
@@ -2466,11 +2500,11 @@ export default function IGD() {
                     </div>
                   </div>
                 </form>
-              </motion.div>
+              </div>
             </div>
               )}
-            </AnimatePresence>,
-            document.body
+        </>,
+        document.body
           )}
         </>
       )}
