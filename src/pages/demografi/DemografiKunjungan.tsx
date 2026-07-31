@@ -495,6 +495,19 @@ export default function DemografiKunjungan() {
 
   const totalPatients = byGender.reduce((acc, curr) => acc + curr.jumlah, 0);
 
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut", delay: i * 0.15 } }),
+    hover: { y: -4, scale: 1.02, transition: { duration: 0.2 } },
+  };
+
+  const chartCardVariants = {
+    hidden: { opacity: 0 },
+    visible: (i: number) => ({ opacity: 1, transition: { duration: 0.5, ease: "easeOut", delay: i * 0.15 } }),
+    hover: { y: -2, transition: { duration: 0.2 } },
+  };
+
   return (
     <div className="space-y-6">
       {/* Upper Module Heading */}
@@ -551,17 +564,12 @@ export default function DemografiKunjungan() {
           {activeTab === 'loyal' && (
             <motion.div
               key="loyal-view"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="space-y-6"
             >
               {/* Filter & Period Controls */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 }}
+                <motion.div variants={chartCardVariants} custom={0} initial="hidden" animate="visible" whileHover="hover"
                   className="lg:col-span-2 bg-white p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="flex items-center space-x-3 text-slate-850">
@@ -588,10 +596,7 @@ export default function DemografiKunjungan() {
                   </div>
                 </motion.div>
 
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.16 }}
+                <motion.div variants={chartCardVariants} custom={1} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white p-5 rounded-2xl shadow-xs flex items-center space-x-4"
                 >
                   <div className="p-3 rounded-xl bg-amber-50 text-amber-500">
@@ -608,10 +613,7 @@ export default function DemografiKunjungan() {
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* 1. All-Time Top 20 */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
+                <motion.div variants={chartCardVariants} custom={2} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white rounded-2xl shadow-xs p-6 space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
@@ -746,10 +748,7 @@ export default function DemografiKunjungan() {
                 </motion.div>
 
                 {/* 2. Selected Period Top 20 */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.32 }}
+                <motion.div variants={chartCardVariants} custom={3} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white rounded-2xl shadow-xs p-6 space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
@@ -873,10 +872,7 @@ export default function DemografiKunjungan() {
               </div>
 
               {/* 3. Registered Loyal Patients Panel */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
+              <motion.div variants={chartCardVariants} custom={4} initial="hidden" animate="visible" whileHover="hover"
                 className="bg-white rounded-2xl shadow-xs p-6 space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100/70 pb-4 gap-4">
@@ -1020,18 +1016,12 @@ export default function DemografiKunjungan() {
           {activeTab === 'wilayah' && (
             <motion.div
               key="wilayah-view"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="space-y-6"
             >
               {/* Regional Cards Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  transition={{ duration: 0.3, delay: 0.08 }}
+                <motion.div variants={cardVariants} custom={0} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
                 >
                   <div className="p-3 rounded-xl bg-white/20 text-white">
@@ -1044,11 +1034,7 @@ export default function DemografiKunjungan() {
                     </span>
                   </div>
                 </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  transition={{ duration: 0.3, delay: 0.16 }}
+                <motion.div variants={cardVariants} custom={1} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
                 >
                   <div className="p-3 rounded-xl bg-white/20 text-white">
@@ -1061,11 +1047,7 @@ export default function DemografiKunjungan() {
                     </span>
                   </div>
                 </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
-                  transition={{ duration: 0.3, delay: 0.24 }}
+                <motion.div variants={cardVariants} custom={2} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
                 >
                   <div className="p-3 rounded-xl bg-white/20 text-white">
@@ -1082,10 +1064,7 @@ export default function DemografiKunjungan() {
 
               {/* Chart Persebaran Pasien */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.32 }}
+                <motion.div variants={chartCardVariants} custom={3} initial="hidden" animate="visible" whileHover="hover"
                   className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
@@ -1114,10 +1093,7 @@ export default function DemografiKunjungan() {
                 </motion.div>
 
                 {/* Table Data list */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 }}
+                <motion.div variants={chartCardVariants} custom={4} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3">
@@ -1149,10 +1125,7 @@ export default function DemografiKunjungan() {
 
               {/* Sub-Region Analysis by Kecamatan and Kelurahan */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.48 }}
+                <motion.div variants={chartCardVariants} custom={5} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
@@ -1178,10 +1151,7 @@ export default function DemografiKunjungan() {
                   </div>
                 </motion.div>
 
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.56 }}
+                <motion.div variants={chartCardVariants} custom={6} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
@@ -1214,17 +1184,12 @@ export default function DemografiKunjungan() {
           {activeTab === 'pasien' && (
             <motion.div
               key="pasien-view"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
               className="space-y-6"
             >
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Gender Distribution Pie Chart */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 }}
+                <motion.div variants={chartCardVariants} custom={0} initial="hidden" animate="visible" whileHover="hover"
                   className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4 flex flex-col justify-between"
                 >
                   <div className="border-b border-slate-100 pb-3">
@@ -1271,10 +1236,7 @@ export default function DemografiKunjungan() {
                 </motion.div>
 
                 {/* Age Group Distribution */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.16 }}
+                <motion.div variants={chartCardVariants} custom={1} initial="hidden" animate="visible" whileHover="hover"
                   className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3">
@@ -1304,10 +1266,7 @@ export default function DemografiKunjungan() {
               </div>
 
               {/* Patient Insight Summary Banner */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.24 }}
+              <motion.div variants={chartCardVariants} custom={2} initial="hidden" animate="visible" whileHover="hover"
                 className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
               >
                 <div className="space-y-1 relative z-10">

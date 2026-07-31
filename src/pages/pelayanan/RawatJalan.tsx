@@ -1219,7 +1219,7 @@ export default function RawatJalan() {
     <div className="space-y-6">
       {/* Upper Module Heading */}
       <div 
-        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4"
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4 anim-fade-up anim-delay-1"
       >
         <div>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
@@ -1232,23 +1232,23 @@ export default function RawatJalan() {
         </div>
 
         {/* Custom Tab selectors & Manual Input trigger */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 anim-fade-up anim-delay-2">
           <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl self-start">
             <button
               onClick={() => setActiveTab('statistik')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'statistik' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${activeTab === 'statistik' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
             >
               Statistik
             </button>
             <button
               onClick={() => setActiveTab('kunjungan')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'kunjungan' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${activeTab === 'kunjungan' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
             >
               Daftar Kunjungan
             </button>
             <button
               onClick={() => setActiveTab('input')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'input' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${activeTab === 'input' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
             >
               Input Data
             </button>
@@ -1292,12 +1292,12 @@ export default function RawatJalan() {
         <AnalyticLoader message="Menganalisis data pelayanan & visualisasi..." />
       ) : (<>
         {activeTab === 'statistik' && (
-          <div key="statistik" className="space-y-6 anim-fade-up"
+          <div key="statistik" className="space-y-6 anim-fade-up anim-delay-4"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* 1. Total Kunjungan */}
-              <div
-                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
+              <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-4"
               >
                 <div className="flex items-center justify-between">
                   <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1314,11 +1314,11 @@ export default function RawatJalan() {
                   <p className="text-xs font-normal text-white/80 mt-1">Total Kunjungan Pasien Rawat Jalan</p>
                 </div>
                 <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-              </div>
+              </motion.div>
 
               {/* 2. Tindakan Medis */}
-              <div
-                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
+              <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-5"
               >
                 <div className="flex items-center justify-between">
                   <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1335,11 +1335,11 @@ export default function RawatJalan() {
                   <p className="text-xs font-normal text-white/80 mt-1">Total Tindakan Medis Dilakukan</p>
                 </div>
                 <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-              </div>
+              </motion.div>
 
               {/* 4. DPJP Teraktif */}
-              <div
-                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
+              <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-6"
               >
                 <div className="flex items-center justify-between">
                   <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
@@ -1358,7 +1358,7 @@ export default function RawatJalan() {
                   </p>
                 </div>
                 <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-              </div>
+              </motion.div>
                     
                   </div>
 
@@ -1556,7 +1556,7 @@ export default function RawatJalan() {
                     <div className="pt-1.5 z-10 relative">
                       <button 
                         onClick={() => setActiveTab('input')} 
-                        className="inline-flex items-center space-x-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-4 py-2 rounded-xl transition-all cursor-pointer"
+                        className="inline-flex items-center space-x-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 px-4 py-2 rounded-xl transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                       >
                         <span>Coba Impor Massal Sekarang</span>
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -1568,7 +1568,7 @@ export default function RawatJalan() {
 
               {/* TAB 2: DETAILED RECORDS GRID */}
               {activeTab === 'kunjungan' && (
-                <div className="space-y-4 anim-fade-up">
+                <div className="space-y-4 anim-fade-up anim-delay-3">
                   {/* Infografis Kunjungan Per Triase */}
                   <div
                     className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-slate-50/40 p-4 rounded-2xl border border-slate-100/80"
@@ -1586,7 +1586,7 @@ export default function RawatJalan() {
                           setTriageFilter(isActive ? 'all' : item.key);
                           setCurrentPage(1);
                         }}
-                        className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
+                        className={`p-4 rounded-2xl border text-left transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer relative overflow-hidden group ${
                           isActive 
                             ? 'bg-white border-teal-500 shadow-sm ring-2 ring-teal-500/10' 
                             : 'bg-white border-slate-100 hover:border-slate-200 hover:shadow-xs'
@@ -1689,7 +1689,7 @@ export default function RawatJalan() {
                 <span className="text-slate-450 text-xs font-medium uppercase tracking-wider pl-1.5">Filter Triase:</span>
                 <button
                   onClick={() => { setTriageFilter('all'); setCurrentPage(1); }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${
                     triageFilter === 'all'
                       ? 'bg-teal-600 text-white border-teal-600 shadow-xs'
                       : 'bg-white text-slate-600 border-slate-100 hover:bg-slate-100'
@@ -1701,7 +1701,7 @@ export default function RawatJalan() {
                   <button
                     key={item.key}
                     onClick={() => { setTriageFilter(item.key); setCurrentPage(1); }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all cursor-pointer flex items-center space-x-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wider border transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer flex items-center space-x-1.5 ${
                       triageFilter === item.key
                         ? 'text-white border-transparent shadow-xs'
                         : 'bg-white text-slate-655 border-slate-100 hover:bg-slate-100'
@@ -1811,13 +1811,7 @@ export default function RawatJalan() {
 
                             return (
                               <React.Fragment key={rec.id}>
-                                <tr
-                                  initial={{ opacity: 0, y: 10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.2, delay: i * 0.05 }}
-                                  className="hover:bg-slate-50/30 transition-all"
-                                >
+                                <tr className="hover:bg-slate-50/30 transition-colors anim-fade-up" style={{ animationDelay: `${i * 0.05}s` }}>
                                 <td className="px-6 py-4.5">
                                   <div className="flex flex-col">
                                     <span className="font-medium text-slate-900 font-mono text-xs">{rec.no_registrasi}</span>
@@ -1884,7 +1878,7 @@ export default function RawatJalan() {
                                           fetchPatientDetail(rec.no_rm);
                                         }
                                       }}
-                                      className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-100 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-slate-400 hover:text-slate-800 bg-slate-50/50 hover:bg-slate-100/80 border border-slate-100 rounded-lg transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                                       title="Detail Tindakan"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1892,7 +1886,7 @@ export default function RawatJalan() {
                                     </button>
                                     <button
                                       onClick={() => handleEditClick(rec)}
-                                      className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 bg-amber-50/50 hover:shadow-xs border border-amber-100 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-amber-600 hover:text-white hover:bg-amber-600 bg-amber-50/50 hover:shadow-xs border border-amber-100 rounded-lg transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                                       title="Koreksi Data"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -1900,7 +1894,7 @@ export default function RawatJalan() {
                                     </button>
                                     <button
                                       onClick={() => handleDeleteRecord(rec.id)}
-                                      className="p-1.5 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50/50 border border-rose-100 rounded-lg transition-all cursor-pointer"
+                                      className="p-1.5 text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50/50 border border-rose-100 rounded-lg transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                                       title="Hapus / Void"
                                       style={{ minHeight: '32px', minWidth: '32px' }}
                                     >
@@ -2070,7 +2064,7 @@ export default function RawatJalan() {
                         <button
                           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                           disabled={currentPage === 1}
-                          className="px-3 py-1.5 rounded-xl border border-slate-100 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-slate-100 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                         >
                           Sebelumnya
                         </button>
@@ -2086,7 +2080,7 @@ export default function RawatJalan() {
                             <button
                               key={page}
                               onClick={() => setCurrentPage(page)}
-                              className={`h-8 w-8 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                              className={`h-8 w-8 rounded-xl text-xs font-black transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${
                                 currentPage === page
                                   ? 'bg-teal-600 text-white shadow-xs'
                                   : 'border border-slate-100 bg-white text-slate-650 hover:bg-slate-50'
@@ -2100,7 +2094,7 @@ export default function RawatJalan() {
                         <button
                           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                           disabled={currentPage === totalPages}
-                          className="px-3 py-1.5 rounded-xl border border-slate-100 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl border border-slate-100 text-xs font-bold bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                         >
                           Selanjutnya
                         </button>
@@ -2115,7 +2109,7 @@ export default function RawatJalan() {
 
               {/* TAB 3: PASTE TEXT BULK IMPORTER */}
               {activeTab === 'input' && (
-                <div key="input" className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start anim-fade-up"
+                <div key="input" className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start anim-fade-up anim-delay-3"
                 >
               {/* Text Area Card */}
               <div className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4">
@@ -2139,7 +2133,7 @@ export default function RawatJalan() {
                   <div className="flex items-center space-x-2.5">
                     <button
                       onClick={triggerParser}
-                      className="inline-flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 border-l-2 border-teal-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl transition-all cursor-pointer shadow-sm"
+                      className="inline-flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 border-l-2 border-teal-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer shadow-sm"
                       disabled={submitting || !rawText.trim()}
                     >
                       <Upload className="h-4 w-4 text-teal-400" />
@@ -2601,7 +2595,7 @@ export default function RawatJalan() {
                     <button
                       type="button"
                       onClick={resetManualForm}
-                      className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                      className="px-5 py-2.5 border border-slate-200 text-slate-500 hover:bg-slate-50 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer"
                     >
                       Batal
                     </button>
