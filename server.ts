@@ -660,6 +660,138 @@ app.post('/api/lab/data', authenticateToken, roleGuard(['admin', 'lab', 'perawat
   }
 });
 
+// Cek duplikat no_registrasi untuk preview (pola /pelayanan/check-duplicates-bulk)
+app.post('/api/lab/pemeriksaan/check-duplicates', authenticateToken, roleGuard(['admin','lab','perawat','analis']), async (req: any, res) => {
+  const { parameter_id, no_registrasi_list } = req.body;
+  if (!Array.isArray(no_registrasi_list) || no_registrasi_list.length === 0)
+    return res.json({ duplicates: {} });
+  
+  const status = db.getDiagnosticStatus();
+  const duplicates: Record<string, boolean> = {};
+  
+  if (status.isVirtual) {
+    // virtual db handling
+    const vdb = readVirtualDb();
+    const records = vdb.lab_pemeriksaan_pasien || [];
+    for (const r of records) {
+      if (r.parameter_id === Number(parameter_id) && no_registrasi_list.includes(r.no_registrasi)) {
+        duplicates[r.no_registrasi] = true;
+      }
+    }
+    return res.json({ duplicates });
+  }
+
+  try {
+    const placeholders = no_registrasi_list.map(() => '?').join(',');
+    const rows: any = await db.query(
+      `SELECT no_registrasi, parameter_id FROM lab_pemeriksaan_pasien
+       WHERE no_registrasi IN (${placeholders})`, no_registrasi_list);
+    
+    for (const r of rows) {
+      if (r.parameter_id === Number(parameter_id)) duplicates[r.no_registrasi] = true;
+    }
+    res.json({ duplicates });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Import massal pemeriksaan lab per pasien
+app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','lab','perawat','analis']), async (req: any, res) => {
+  const { parameter_id, items } = req.body; // items: [{no_registrasi,no_rm,nik,nama_pasien,dpjp,tanggal_pemeriksaan}]
+  if (!parameter_id || !Array.isArray(items) || items.length === 0)
+    return res.status(400).json({ message: 'Parameter pemeriksaan dan daftar pasien tidak lengkap.' });
+
+  try {
+    const status = db.getDiagnosticStatus();
+    
+    // In Virtual DB Mode, we just fake the insertion logic for now since this is an example
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.lab_pemeriksaan_pasien) vdb.lab_pemeriksaan_pasien = [];
+      let inserted = 0, skipped = 0, createdPasien = 0;
+      const skippedItems: any[] = [];
+      
+      for (const item of items) {
+        const noReg = (item.no_registrasi || '').trim();
+        const noRm  = (item.no_rm || '').trim();
+        const nama  = (item.nama_pasien || '').trim();
+        if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
+
+        const dup = vdb.lab_pemeriksaan_pasien.find((x: any) => x.no_registrasi === noReg && x.parameter_id === Number(parameter_id));
+        if (dup) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
+        
+        let existing = vdb.pasien?.find((x: any) => x.no_rm === noRm);
+        if (!existing) {
+          createdPasien++;
+          if (!vdb.pasien) vdb.pasien = [];
+          vdb.pasien.push({ no_rm: noRm, nik: item.nik || null, nama, jenis_kelamin: 'L' });
+        }
+        
+        vdb.lab_pemeriksaan_pasien.push({
+          id: Date.now() + inserted,
+          no_registrasi: noReg,
+          parameter_id: Number(parameter_id),
+          pasien_no_rm: noRm,
+          pasien_nik: item.nik || null,
+          pasien_nama: nama,
+          dpjp: item.dpjp || null,
+          tanggal_pemeriksaan: item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0],
+          input_by: req.user.id
+        });
+        inserted++;
+      }
+      writeVirtualDb(vdb);
+      return res.json({ success: true, total: items.length, inserted, skipped, created_pasien: createdPasien, skipped_items: skippedItems });
+    }
+
+    const params: any = await db.query('SELECT id, nama_parameter FROM lab_parameter WHERE id = ? AND is_active = 1', [Number(parameter_id)]);
+    if (!params || params.length === 0)
+      return res.status(400).json({ message: 'Pemeriksaan tidak ditemukan / tidak aktif.' });
+
+    let inserted = 0, skipped = 0, createdPasien = 0;
+    const skippedItems = [];
+
+    for (const item of items) {
+      const noReg = (item.no_registrasi || '').trim();
+      const noRm  = (item.no_rm || '').trim();
+      const nama  = (item.nama_pasien || '').trim();
+      if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
+
+      const nik = item.nik && item.nik !== '0' && item.nik !== '0000000000000000' && String(item.nik).trim()
+                  ? String(item.nik).trim() : null;
+      const dpjp = item.dpjp && item.dpjp !== 'N/A' && String(item.dpjp).trim() ? String(item.dpjp).trim() : null;
+      const tanggal = item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0];
+
+      const dup: any = await db.query('SELECT id FROM lab_pemeriksaan_pasien WHERE no_registrasi = ? AND parameter_id = ?', [noReg, Number(parameter_id)]);
+      if (dup && dup.length > 0) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
+
+      const existing: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [noRm]);
+      if (!existing || existing.length === 0) {
+        await db.query(
+          'INSERT INTO pasien (no_rm, nik, nama, jenis_kelamin) VALUES (?, ?, ?, ?)',
+          [noRm, nik, nama, 'L']);
+        createdPasien++;
+        await logActivity(req.user?.email, 'CREATE', 'Master Pasien',
+          `Pasien baru otomatis terdaftar: ${nama} (RM: ${noRm}) via Import Pemeriksaan Lab`);
+      } else if (nik && !existing[0].nik) {
+        await db.query('UPDATE pasien SET nik = ? WHERE no_rm = ?', [nik, noRm]);
+      }
+
+      await db.query(
+        `INSERT INTO lab_pemeriksaan_pasien
+           (no_registrasi, parameter_id, pasien_no_rm, pasien_nik, pasien_nama, dpjp, tanggal_pemeriksaan, input_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [noReg, Number(parameter_id), noRm, nik, nama, dpjp, String(tanggal), req.user.id]);
+      inserted++;
+    }
+
+    res.json({ success: true, total: items.length, inserted, skipped, created_pasien: createdPasien, skipped_items: skippedItems });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Edit single daily lab record
 app.put('/api/lab/data/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
@@ -1062,7 +1194,7 @@ async function resolveWilayahIds(kotaNama?: string, kecamatanNama?: string, kelu
 app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   try {
     const { 
-      no_registrasi, pasien_no_rm, no_rm, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
+      no_registrasi, pasien_no_rm, no_rm, nik, nama_pasien, tanggal_pelayanan, triase, unit, icd_kode, dpjp, tindakan,
     tanggal_lahir, jenis_kelamin, alamat, kelurahan, kecamatan, kota 
   } = req.body;
 
@@ -1101,10 +1233,11 @@ app.post('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'p
 
     await db.query(
       `INSERT INTO pasien 
-        (no_rm, nama, tanggal_lahir, jenis_kelamin, alamat, kota_id, kecamatan_id, kelurahan_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (no_rm, nik, nama, tanggal_lahir, jenis_kelamin, alamat, kota_id, kecamatan_id, kelurahan_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         final_no_rm,
+        nik || null,
         nama_pasien,
         tanggal_lahir || null,
         jenis_kelamin || 'L',
@@ -1430,6 +1563,7 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
       const rows = await db.query(sql, params);
       const formatted = rows.map((r: any) => ({
           no_rm: r.no_rm,
+          nik: r.nik,
           nama: r.nama,
           tanggal_lahir: r.tanggal_lahir,
           alamat: r.alamat,
@@ -1460,6 +1594,7 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
 
     const formatted = rows.map((r: any) => ({
         no_rm: r.no_rm,
+        nik: r.nik,
         nama: r.nama,
         tanggal_lahir: r.tanggal_lahir,
         alamat: r.alamat,
@@ -1485,10 +1620,10 @@ app.get('/api/pasien', authenticateToken, async (req: any, res) => {
 });
 
 app.post('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
-  const { no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp } = req.body;
+  const { no_rm, nik, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp } = req.body;
   try {
-    await db.query('INSERT INTO pasien (no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-        [no_rm, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp]);
+    await db.query('INSERT INTO pasien (no_rm, nik, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+        [no_rm, nik, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp]);
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
@@ -1497,10 +1632,10 @@ app.post('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat']), asyn
 
 app.put('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { no_rm } = req.params;
-  const { nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp } = req.body;
+  const { nik, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp } = req.body;
   try {
-    await db.query('UPDATE pasien SET nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ?, no_telp = ? WHERE no_rm = ?', 
-        [nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp, no_rm]);
+    await db.query('UPDATE pasien SET nik = ?, nama = ?, tanggal_lahir = ?, alamat = ?, jenis_kelamin = ?, kota_id = ?, kecamatan_id = ?, kelurahan_id = ?, no_telp = ? WHERE no_rm = ?', 
+        [nik, nama, tanggal_lahir, alamat, jenis_kelamin, kota_id, kecamatan_id, kelurahan_id, no_telp, no_rm]);
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ message: err.message });

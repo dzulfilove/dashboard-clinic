@@ -204,3 +204,12 @@ export interface FollowUpVaksin {
   created_at?: string;
 }
 
+
+export interface ParsedLabItem {
+  no_registrasi: string;
+  no_rm: string;
+  nik: string | null;
+  nama_pasien: string;
+  dpjp: string;
+  tanggal_pemeriksaan: string;
+}

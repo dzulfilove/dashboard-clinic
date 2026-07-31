@@ -205,6 +205,7 @@ CREATE TABLE IF NOT EXISTS kelurahan (
 
 CREATE TABLE IF NOT EXISTS pasien (
   no_rm VARCHAR(20) NOT NULL PRIMARY KEY,
+  nik VARCHAR(20) DEFAULT NULL,
   nama VARCHAR(150) NOT NULL,
   tanggal_lahir DATE,
   alamat VARCHAR(255),
@@ -403,6 +404,24 @@ CREATE TABLE IF NOT EXISTS jadwal_dokter (
   FOREIGN KEY (dokter_id) REFERENCES dokter(id) ON DELETE CASCADE,
   UNIQUE KEY unique_tanggal_shift_dokter (tanggal, shift_id, dokter_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS lab_pemeriksaan_pasien (
+  id INT NOT NULL AUTO_INCREMENT,
+  no_registrasi VARCHAR(50) NOT NULL,
+  parameter_id INT NOT NULL,
+  pasien_no_rm VARCHAR(20) NOT NULL,
+  pasien_nik VARCHAR(20) DEFAULT NULL,
+  pasien_nama VARCHAR(150) NOT NULL,
+  dpjp VARCHAR(250) DEFAULT NULL,
+  tanggal_pemeriksaan DATE NOT NULL,
+  input_by INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY unique_reg_param (no_registrasi, parameter_id),
+  FOREIGN KEY (parameter_id) REFERENCES lab_parameter(id) ON DELETE CASCADE,
+  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 
 

@@ -204,7 +204,8 @@ async function runMigrationsIfRequired() {
 
     if (
       !tableList.includes('user_logs') ||
-      !tableList.includes('lab_parameter') || 
+      !tableList.includes('lab_parameter') ||
+      !tableList.includes('lab_pemeriksaan_pasien') ||
       !tableList.includes('obat_master') || 
       !tableList.includes('lab_data_harian') || 
       !tableList.includes('obat_konsumsi_harian') ||
@@ -228,9 +229,10 @@ async function runMigrationsIfRequired() {
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
-    } else {
-      // Tables exist, check if columns need to be added
-      try {
+    }
+
+    // Check if columns need to be added
+    try {
         const [cols]: any = await mysqlPool.query("SHOW COLUMNS FROM obat_master LIKE 'safety_stock'");
         if (cols.length === 0) {
           console.log('Adding columns safety_stock, stok_minimum, reorder_point to existing obat_master MySQL table...');
@@ -323,6 +325,11 @@ async function runMigrationsIfRequired() {
         }
 
         // Migrating pasien table new columns if they do not exist
+        const [pasienNikCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'nik'");
+        if (pasienNikCol.length === 0) {
+          console.log('Adding nik to pasien table...');
+          await mysqlPool.query("ALTER TABLE pasien ADD COLUMN nik VARCHAR(20) DEFAULT NULL AFTER no_rm");
+        }
         const [pasienTanggalLahirCol]: any = await mysqlPool.query("SHOW COLUMNS FROM pasien LIKE 'tanggal_lahir'");
         if (pasienTanggalLahirCol.length === 0) {
           console.log('Adding tanggal_lahir to pasien table...');
@@ -495,7 +502,6 @@ async function runMigrationsIfRequired() {
       } catch (colErr: any) {
         console.error('Failed checking columns on existing tables in Connection:', colErr.message);
       }
-    }
 
     // Seed master_icd10 if it has 0 rows on VPS MySQL
     try {
