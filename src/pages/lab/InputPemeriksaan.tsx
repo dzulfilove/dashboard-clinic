@@ -167,10 +167,19 @@ export default function InputPemeriksaan() {
 
   const matchDoctor = (doctorStr: string) => {
     if (!doctorStr || doctorStr.trim() === 'N/A' || doctorStr.trim() === '') return '';
-    const cleanSearch = doctorStr.trim().toLowerCase();
-    const match = dokterList.find(d => d.nama_dokter.toLowerCase().includes(cleanSearch) || cleanSearch.includes(d.nama_dokter.toLowerCase()));
-    if (match) return match.nama_dokter;
-    return doctorStr.trim();
+    const clean = doctorStr.trim();
+    const cleanSearch = clean.replace(/^(dr\.?|drg\.?|drg\.)\s*/i, '').toLowerCase().trim();
+    const exact = dokterList.find(d => d.nama_dokter.toLowerCase() === cleanSearch);
+    if (exact) return exact.nama_dokter;
+    // Longgar hanya jika nama cukup panjang (hindari "dr" match ke "dr X")
+    if (cleanSearch.length >= 5) {
+      const partial = dokterList.find(d =>
+        d.nama_dokter.toLowerCase().includes(cleanSearch) ||
+        cleanSearch.includes(d.nama_dokter.toLowerCase())
+      );
+      if (partial) return partial.nama_dokter;
+    }
+    return '';  // ← KUNCI: kembalikan '' agar dropdown tetap muncul
   };
 
   const normalizeNik = (val: string) => {
@@ -193,8 +202,8 @@ export default function InputPemeriksaan() {
 
     lines.forEach((line) => {
       let cols = line.split('\t').map(c => c.trim());
-      if (cols.length < 6) cols = line.split(/\s{2,}/).map(c => c.trim());
-      if (cols.length < 6) return; // skip invalid line
+      if (cols.length < 7) cols = line.split(/\s{2,}/).map(c => c.trim());
+      if (cols.length < 7) return; // skip invalid line
 
       // skip header
       if (cols[0].toLowerCase().includes('no') && cols[1].toLowerCase().includes('pendaftaran')) return;

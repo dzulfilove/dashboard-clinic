@@ -713,33 +713,56 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
       const skippedItems: any[] = [];
       
       for (const item of items) {
-        const noReg = (item.no_registrasi || '').trim();
-        const noRm  = (item.no_rm || '').trim();
-        const nama  = (item.nama_pasien || '').trim();
-        if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
+        try {
+          const noReg = (item.no_registrasi || '').trim();
+          const noRm  = (item.no_rm || '').trim();
+          const nama  = (item.nama_pasien || '').trim();
+          if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
 
-        const dup = vdb.lab_pemeriksaan_pasien.find((x: any) => x.no_registrasi === noReg && x.parameter_id === Number(parameter_id));
-        if (dup) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
-        
-        let existing = vdb.pasien?.find((x: any) => x.no_rm === noRm);
-        if (!existing) {
-          createdPasien++;
-          if (!vdb.pasien) vdb.pasien = [];
-          vdb.pasien.push({ no_rm: noRm, nik: item.nik || null, nama, jenis_kelamin: 'L' });
+          const dup = vdb.lab_pemeriksaan_pasien.find((x: any) => x.no_registrasi === noReg && x.parameter_id === Number(parameter_id));
+          if (dup) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
+          
+          let existing = vdb.pasien?.find((x: any) => x.no_rm === noRm);
+          if (!existing) {
+            createdPasien++;
+            if (!vdb.pasien) vdb.pasien = [];
+            vdb.pasien.push({ no_rm: noRm, nik: item.nik || null, nama, jenis_kelamin: 'L' });
+          }
+          
+          vdb.lab_pemeriksaan_pasien.push({
+            id: Date.now() + inserted,
+            no_registrasi: noReg,
+            parameter_id: Number(parameter_id),
+            pasien_no_rm: noRm,
+            pasien_nik: item.nik || null,
+            pasien_nama: nama,
+            dpjp: item.dpjp || null,
+            tanggal_pemeriksaan: item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0],
+            input_by: req.user.id
+          });
+
+          // Upsert lab_data_harian untuk analitik
+          if (!vdb.lab_data_harian) vdb.lab_data_harian = [];
+          const tgl = item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0];
+          const exIdx = vdb.lab_data_harian.findIndex(
+            (x:any) => x.parameter_id === Number(parameter_id) && x.tanggal === String(tgl));
+          if (exIdx !== -1) {
+            vdb.lab_data_harian[exIdx].jumlah += 1;
+          } else {
+            vdb.lab_data_harian.push({
+              id: Date.now() + inserted + 1000,
+              parameter_id: Number(parameter_id),
+              tanggal: String(tgl),
+              jumlah: 1,
+              input_by: req.user.id
+            });
+          }
+
+          inserted++;
+        } catch (itemErr: any) {
+          skipped++;
+          skippedItems.push({ no_registrasi: (item.no_registrasi||'-').trim(), reason: itemErr.message });
         }
-        
-        vdb.lab_pemeriksaan_pasien.push({
-          id: Date.now() + inserted,
-          no_registrasi: noReg,
-          parameter_id: Number(parameter_id),
-          pasien_no_rm: noRm,
-          pasien_nik: item.nik || null,
-          pasien_nama: nama,
-          dpjp: item.dpjp || null,
-          tanggal_pemeriksaan: item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0],
-          input_by: req.user.id
-        });
-        inserted++;
       }
       writeVirtualDb(vdb);
       return res.json({ success: true, total: items.length, inserted, skipped, created_pasien: createdPasien, skipped_items: skippedItems });
@@ -753,37 +776,50 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
     const skippedItems = [];
 
     for (const item of items) {
-      const noReg = (item.no_registrasi || '').trim();
-      const noRm  = (item.no_rm || '').trim();
-      const nama  = (item.nama_pasien || '').trim();
-      if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
+      try {
+        const noReg = (item.no_registrasi || '').trim();
+        const noRm  = (item.no_rm || '').trim();
+        const nama  = (item.nama_pasien || '').trim();
+        if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
 
-      const nik = item.nik && item.nik !== '0' && item.nik !== '0000000000000000' && String(item.nik).trim()
-                  ? String(item.nik).trim() : null;
-      const dpjp = item.dpjp && item.dpjp !== 'N/A' && String(item.dpjp).trim() ? String(item.dpjp).trim() : null;
-      const tanggal = item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0];
+        const nik = item.nik && item.nik !== '0' && item.nik !== '0000000000000000' && String(item.nik).trim()
+                    ? String(item.nik).trim() : null;
+        const dpjp = item.dpjp && item.dpjp !== 'N/A' && String(item.dpjp).trim() ? String(item.dpjp).trim() : null;
+        const tanggal = item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0];
 
-      const dup: any = await db.query('SELECT id FROM lab_pemeriksaan_pasien WHERE no_registrasi = ? AND parameter_id = ?', [noReg, Number(parameter_id)]);
-      if (dup && dup.length > 0) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
+        const dup: any = await db.query('SELECT id FROM lab_pemeriksaan_pasien WHERE no_registrasi = ? AND parameter_id = ?', [noReg, Number(parameter_id)]);
+        if (dup && dup.length > 0) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
 
-      const existing: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [noRm]);
-      if (!existing || existing.length === 0) {
+        const existing: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [noRm]);
+        if (!existing || existing.length === 0) {
+          await db.query(
+            'INSERT INTO pasien (no_rm, nik, nama, jenis_kelamin) VALUES (?, ?, ?, ?)',
+            [noRm, nik, nama, 'L']);
+          createdPasien++;
+          await logActivity(req.user?.email, 'CREATE', 'Master Pasien',
+            `Pasien baru otomatis terdaftar: ${nama} (RM: ${noRm}) via Import Pemeriksaan Lab`);
+        } else if (nik && !existing[0].nik) {
+          await db.query('UPDATE pasien SET nik = ? WHERE no_rm = ?', [nik, noRm]);
+        }
+
         await db.query(
-          'INSERT INTO pasien (no_rm, nik, nama, jenis_kelamin) VALUES (?, ?, ?, ?)',
-          [noRm, nik, nama, 'L']);
-        createdPasien++;
-        await logActivity(req.user?.email, 'CREATE', 'Master Pasien',
-          `Pasien baru otomatis terdaftar: ${nama} (RM: ${noRm}) via Import Pemeriksaan Lab`);
-      } else if (nik && !existing[0].nik) {
-        await db.query('UPDATE pasien SET nik = ? WHERE no_rm = ?', [nik, noRm]);
-      }
+          `INSERT INTO lab_pemeriksaan_pasien
+             (no_registrasi, parameter_id, pasien_no_rm, pasien_nik, pasien_nama, dpjp, tanggal_pemeriksaan, input_by)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [noReg, Number(parameter_id), noRm, nik, nama, dpjp, String(tanggal), req.user.id]);
 
-      await db.query(
-        `INSERT INTO lab_pemeriksaan_pasien
-           (no_registrasi, parameter_id, pasien_no_rm, pasien_nik, pasien_nama, dpjp, tanggal_pemeriksaan, input_by)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [noReg, Number(parameter_id), noRm, nik, nama, dpjp, String(tanggal), req.user.id]);
-      inserted++;
+        // Upsert ke lab_data_harian agar analitik terupdate
+        await db.query(
+          `INSERT INTO lab_data_harian (parameter_id, tanggal, jumlah, input_by)
+           VALUES (?, ?, 1, ?)
+           ON DUPLICATE KEY UPDATE jumlah = jumlah + 1, input_by = VALUES(input_by)`,
+          [Number(parameter_id), String(tanggal), req.user.id]);
+
+        inserted++;
+      } catch (itemErr: any) {
+        skipped++;
+        skippedItems.push({ no_registrasi: (item.no_registrasi||'-').trim(), reason: itemErr.message });
+      }
     }
 
     res.json({ success: true, total: items.length, inserted, skipped, created_pasien: createdPasien, skipped_items: skippedItems });
