@@ -119,7 +119,7 @@ export default function InputPemeriksaan() {
   const { user } = useAuthStore();
   
   // Tab State
-  const [activeTab, setActiveTab] = useState<'harian'|'import'>('harian');
+  const [activeTab, setActiveTab] = useState<'harian'|'import'>('import');
 
   // Parameters & loading states
   const [parameters, setParameters] = useState<LabParameter[]>([]);
@@ -369,9 +369,6 @@ export default function InputPemeriksaan() {
       setParsedData([]);
       setIsParsed(false);
       
-      setActiveTab('harian');
-      fetchDailyData(); // Refresh daily input form
-      
       setFeedback({
         type: 'success',
         msg: `Import Selesai: ${res.data.inserted} berhasil disalin. ${res.data.skipped} dilewati (duplikat/error). ${res.data.created_pasien} Pasien Baru.`
@@ -411,27 +408,9 @@ export default function InputPemeriksaan() {
             <span>Entri Rekapitulasi Uji Laboratorium</span>
           </h1>
           <p className="text-slate-500 text-xs mt-1">
-            Halaman pencatatan kuantitas harian & import pemeriksaan sampel klinik Puri Medika per tanggal pelayanan.
+            Halaman import pemeriksaan sampel klinik Puri Medika per tanggal pelayanan.
           </p>
         </div>
-      </div>
-      
-      {/* Tab Switcher */}
-      <div className="flex p-1 bg-slate-100/80 backdrop-blur-sm rounded-2xl w-max shadow-sm border border-slate-200/50">
-        <button
-          onClick={() => { setActiveTab('harian'); setFeedback(null); }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer flex items-center space-x-2 ${activeTab === 'harian' ? 'bg-white text-teal-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-900 border border-transparent'}`}
-        >
-          <Calendar className="h-3.5 w-3.5" />
-          <span>Input Harian</span>
-        </button>
-        <button
-          onClick={() => { setActiveTab('import'); setFeedback(null); }}
-          className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer flex items-center space-x-2 ${activeTab === 'import' ? 'bg-white text-teal-700 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-900 border border-transparent'}`}
-        >
-          <Database className="h-3.5 w-3.5" />
-          <span>Import Pemeriksaan</span>
-        </button>
       </div>
 
       {feedback && (
@@ -453,165 +432,11 @@ export default function InputPemeriksaan() {
         </motion.div>
       )}
 
-      {activeTab === 'harian' && (
-        <div className="space-y-4">
-          {/* Daily Date Selector with Today Quick Option */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.08 }}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 border border-slate-100/80 rounded-2xl shadow-sm"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-teal-50 text-teal-700 rounded-xl">
-                <Calendar className="h-4 w-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Pilih Hari Pengujian</span>
-                <input
-                  id="daily-date-picker"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className="text-xs font-bold text-slate-900 border-none bg-transparent focus:outline-none focus:ring-0 outline-none cursor-pointer mt-0.5"
-                  style={{ minHeight: '32px' }}
-                />
-              </div>
-            </div>
-
-            {/* Date Quick Controls */}
-            <div className="flex items-center space-x-1">
-              <button
-                type="button"
-                onClick={() => setSelectedDate(getTodayDateString())}
-                className="text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg border border-teal-100/50 transition-colors cursor-pointer"
-                style={{ minHeight: '32px' }}
-              >
-                Hari Ini
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const prev = new Date(selectedDate);
-                  prev.setDate(prev.getDate() - 1);
-                  setSelectedDate(prev.toISOString().slice(0, 10));
-                }}
-                className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 font-medium text-slate-600 border border-slate-200 rounded-lg text-xs transition-colors cursor-pointer"
-                style={{ minHeight: '32px' }}
-              >
-                ◀ Kemarin
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = new Date(selectedDate);
-                  next.setDate(next.getDate() + 1);
-                  setSelectedDate(next.toISOString().slice(0, 10));
-                }}
-                className="px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 font-medium text-slate-600 border border-slate-200 rounded-lg text-xs transition-colors cursor-pointer"
-                style={{ minHeight: '32px' }}
-              >
-                Besok ▶
-              </button>
-            </div>
-          </motion.div>
-
-          {/* LOADING PROGRESS AND PARAMETERS DRAW */}
-          {loadingParams || loadingData ? (
-            <div className="bg-white border border-slate-100/80 rounded-2xl p-16 text-center text-slate-400 font-medium font-sans shadow-sm">
-              <RefreshCw className="h-6 w-6 text-teal-650 animate-spin mx-auto mb-2" />
-              <span>Sinkronisasi antarmuka dan data lab harian...</span>
-            </div>
-          ) : (
-            <form onSubmit={handleSaveDaily} className="space-y-4">
-              
-              {/* Grid of clinical categories */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Object.keys(categoriesMap).length > 0 ? (
-                  Object.entries(categoriesMap).map(([category, params], i) => (
-                    <motion.div 
-                      key={category} 
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.16 + (i * 0.05) }}
-                      className="bg-white border border-slate-100/80 rounded-2xl p-4 shadow-sm space-y-3"
-                    >
-                      <span className="inline-block px-2 py-0.5 bg-teal-50 text-teal-700 rounded-lg font-semibold uppercase tracking-wider font-mono text-xs border border-teal-100">
-                        {category}
-                      </span>
-                      
-                      <div className="divide-y divide-slate-100">
-                        {params.map(p => (
-                          <div key={p.id} className="flex items-center justify-between py-1.5 first:pt-0 last:pb-0 gap-3">
-                            <label htmlFor={`qty-${p.id}`} className="text-slate-700 font-medium hover:text-slate-900 cursor-pointer text-xs flex-1 truncate">
-                              {p.nama_parameter}
-                            </label>
-                            <input
-                              id={`qty-${p.id}`}
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]*"
-                              placeholder="0"
-                              value={quantities[p.id] || ''}
-                              onChange={(e) => handleInputChange(p.id, e.target.value)}
-                              className="bg-slate-50 border border-slate-200/70 rounded-xl text-center w-16 font-mono text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-teal-500 focus:bg-white focus:border-teal-300"
-                              style={{ height: '28px' }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full bg-slate-50 border border-slate-200 rounded-2xl p-12 text-center text-slate-400">
-                    Belum ada parameter pemeriksaan aktif. Silakan masuk ke submenu Master Pemeriksaan untuk mendaftarkan kategori uji klinis.
-                  </div>
-                )}
-              </div>
-
-              {/* Total bottom accumulation bar */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-                className="bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2.5 bg-teal-600 rounded-xl text-white flex-shrink-0">
-                    <Calculator className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <span className="text-xs uppercase font-medium tracking-wider text-slate-400 block">Total Akumulasi Harian ({selectedDate})</span>
-                    <h3 className="text-sm font-semibold text-teal-300 font-mono mt-0.5">
-                      {grandTotal} <span className="text-xs text-slate-400 font-sans font-normal">Pemeriksaan Laboratorium</span>
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <button
-                    id="save-daily-btn"
-                    type="submit"
-                    disabled={saving}
-                    className="w-full sm:w-auto flex items-center justify-center space-x-1.5 bg-teal-600 hover:bg-teal-550 text-white font-medium py-2 px-5 rounded-xl shadow-xs transition-colors cursor-pointer text-xs"
-                    style={{ minHeight: '36px' }}
-                  >
-                    <Save className="h-3.5 w-3.5" />
-                    <span>{saving ? 'Menyimpan...' : 'Simpan Transaksi Harian'}</span>
-                  </button>
-                </div>
-              </motion.div>
-            </form>
-          )}
-        </div>
-      )}
-      
-      {activeTab === 'import' && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={isParsed ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" : "space-y-4"}
-        >
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={isParsed ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" : "space-y-4"}
+      >
           {/* Card Textarea Input */}
           <div className={`${isParsed ? "lg:col-span-4 lg:sticky lg:top-4" : ""} bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm space-y-3`}>
             <h3 className="font-semibold text-slate-800 flex items-center gap-2">
@@ -759,7 +584,6 @@ export default function InputPemeriksaan() {
             </div>
           )}
         </motion.div>
-      )}
 
     </div>
   );
