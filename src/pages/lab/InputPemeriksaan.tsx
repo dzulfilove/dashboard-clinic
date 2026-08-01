@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   FlaskConical, 
@@ -11,11 +11,109 @@ import {
   ListPlus,
   ArrowRight,
   Database,
-  Upload
+  Upload,
+  ChevronDown,
+  Search
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import api from '../../services/api.js';
 import { LabParameter, ParsedLabItem } from '../../types.js';
+
+interface SelectOption {
+  value: string | number;
+  label: string;
+}
+
+interface SearchableSelectProps {
+  options: SelectOption[];
+  value: string | number | null;
+  onChange: (val: any) => void;
+  placeholder: string;
+  buttonClass: string;
+  disabled?: boolean;
+}
+
+function SearchableSelect({ options, value, onChange, placeholder, buttonClass, disabled = false }: SearchableSelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const selectedOption = options.find(o => o.value === value);
+  const displayLabel = selectedOption ? selectedOption.label : '';
+
+  const filtered = options.filter(o => 
+    o.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div ref={dropdownRef} className="relative w-full">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) {
+            setIsOpen(!isOpen);
+            setSearchTerm('');
+          }
+        }}
+        className={buttonClass}
+      >
+        <span className="truncate pr-2 flex-1 text-left">
+          {displayLabel || placeholder}
+        </span>
+        <ChevronDown className="h-3.5 w-3.5 flex-shrink-0 opacity-60" />
+      </button>
+
+      {isOpen && !disabled && (
+        <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg z-50 max-h-64 overflow-hidden flex flex-col">
+          <div className="p-2 border-b border-slate-100 flex items-center gap-2 bg-slate-50">
+            <Search className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+            <input
+              type="text"
+              autoFocus
+              className="w-full bg-transparent border-0 p-0 text-xs focus:outline-none focus:ring-0 text-slate-800 placeholder-slate-400"
+              placeholder="Cari..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="overflow-y-auto flex-1 max-h-48 py-1">
+            {filtered.length === 0 ? (
+              <div className="p-3 text-xs text-slate-400 text-center">Tidak ada hasil</div>
+            ) : (
+              filtered.map(o => (
+                <button
+                  key={o.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(o.value);
+                    setIsOpen(false);
+                    setSearchTerm('');
+                  }}
+                  className={`w-full text-left px-3 py-2 text-xs hover:bg-slate-50 transition-colors ${o.value === value ? 'bg-teal-50 font-semibold text-teal-700' : 'text-slate-700'}`}
+                >
+                  {o.label}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function InputPemeriksaan() {
   const { user } = useAuthStore();
@@ -512,10 +610,10 @@ export default function InputPemeriksaan() {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
+          className={isParsed ? "grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" : "space-y-4"}
         >
           {/* Card Textarea Input */}
-          <div className="bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm space-y-3">
+          <div className={`${isParsed ? "lg:col-span-4 lg:sticky lg:top-4" : ""} bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm space-y-3`}>
             <h3 className="font-semibold text-slate-800 flex items-center gap-2">
               <ListPlus className="h-4 w-4 text-teal-600" />
               <span>Import Tabel Pemeriksaan (Copy-Paste)</span>
@@ -547,28 +645,25 @@ export default function InputPemeriksaan() {
           
           {/* Preview & Configure */}
           {isParsed && (
-            <div className="space-y-4">
+            <div className="lg:col-span-8 space-y-4">
               <div className="bg-white border border-slate-100/80 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
                 <div className="flex-1">
                   <h3 className="font-semibold text-slate-800">Pemetaan Parameter Pemeriksaan</h3>
                   <p className="text-slate-500 text-xs mt-1">Pilih jenis pemeriksaan lab untuk diterapkan ke semua baris di bawah ini.</p>
                 </div>
                 <div className="sm:w-1/3">
-                  <select
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-teal-500"
-                    value={selectedParameter || ''}
-                    onChange={(e) => setSelectedParameter(e.target.value ? Number(e.target.value) : null)}
-                  >
-                    <option value="">-- Pilih Pemeriksaan (Wajib) --</option>
-                    {parameters.map(p => (
-                      <option key={p.id} value={p.id}>{p.kategori} - {p.nama_parameter}</option>
-                    ))}
-                  </select>
+                  <SearchableSelect
+                    options={parameters.map(param => ({ value: param.id, label: `${param.kategori} - ${param.nama_parameter}` }))}
+                    value={selectedParameter}
+                    onChange={(val) => setSelectedParameter(val ? Number(val) : null)}
+                    placeholder="-- Pilih Pemeriksaan (Wajib) --"
+                    buttonClass="w-full flex items-center justify-between bg-slate-50 border border-slate-200 disabled:opacity-50 text-slate-800 rounded-xl px-3 py-2.5 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer"
+                  />
                 </div>
               </div>
               
               {/* Render Preview Rows */}
-              <div className="space-y-2">
+              <div className="space-y-2 pb-24">
                 {parsedData.map((p, idx) => {
                   const isSelected = selectedRows[p.no_registrasi];
                   const hasDpjp = p.dpjp !== '';
@@ -606,17 +701,14 @@ export default function InputPemeriksaan() {
                         ) : (
                           <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-bold text-rose-500 uppercase tracking-wide">DPJP Kosong (Wajib)</span>
-                            <select
-                              className="w-full bg-rose-50 border border-rose-200 text-rose-900 rounded-xl p-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-rose-500"
+                            <SearchableSelect
+                              options={dokterList.map(d => ({ value: d.nama_dokter, label: d.nama_dokter }))}
                               value={p.dpjp}
-                              onChange={(e) => updateParsedDpjp(idx, e.target.value)}
+                              onChange={(val) => updateParsedDpjp(idx, val || '')}
+                              placeholder="-- Pilih Dokter DPJP --"
                               disabled={!isSelected}
-                            >
-                              <option value="">-- Pilih Dokter DPJP --</option>
-                              {dokterList.map(d => (
-                                <option key={d.id} value={d.nama_dokter}>{d.nama_dokter} ({d.spesialisasi_unit || 'Umum'})</option>
-                              ))}
-                            </select>
+                              buttonClass="w-full flex items-center justify-between bg-rose-50 border border-rose-200 disabled:opacity-50 text-rose-900 rounded-xl px-3 py-2 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-rose-500 cursor-pointer"
+                            />
                           </div>
                         )}
                       </div>

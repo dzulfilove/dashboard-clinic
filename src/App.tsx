@@ -57,11 +57,11 @@ export default function App() {
 function AppContent() {
   const location = useLocation();
   const [showInitialSplash, setShowInitialSplash] = useState(() => {
-    // Show initial splash on page load or refresh ONLY if on Dashboard Terpadu ('/') and NOT on '/login'
+    // Show initial splash on page load or refresh on all pages except login
     const path = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
-    const isLogin = path === '/login' || window.location.pathname === '/login';
+    const isLogin = path === '/login' || window.location.pathname === '/login' || window.location.hash.includes('/login');
     if (isLogin) return false;
-    return path === '' || path === '/';
+    return true;
   });
 
   useEffect(() => {

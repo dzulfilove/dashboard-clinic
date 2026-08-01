@@ -1136,6 +1136,8 @@ export default function RawatJalan() {
   const dpjpMap: { [key: string]: number } = {};
   const dateMap: { [key: string]: { kunjungan: number; pendapatan: number } } = {};
 
+  const unitMap: { [key: string]: number } = {};
+
   safeRecords.forEach(r => {
     const dStr = r.tanggal_pelayanan;
     if (!dateMap[dStr]) dateMap[dStr] = { kunjungan: 0, pendapatan: 0 };
@@ -1144,6 +1146,9 @@ export default function RawatJalan() {
     if (r.dpjp) {
       dpjpMap[r.dpjp] = (dpjpMap[r.dpjp] || 0) + 1;
     }
+
+    const uStr = r.unit || 'Poli Umum';
+    unitMap[uStr] = (unitMap[uStr] || 0) + 1;
 
     r.tindakan.forEach(t => {
       procedureMap[t.tindakan_nama] = (procedureMap[t.tindakan_nama] || 0) + 1;
@@ -1158,6 +1163,16 @@ export default function RawatJalan() {
     if (count > topDPJPCount) {
       topDPJP = name;
       topDPJPCount = count;
+    }
+  });
+
+  // Unit dengan jumlah kunjungan terbanyak
+  let topUnit = '-';
+  let topUnitCount = 0;
+  Object.entries(unitMap).forEach(([name, count]) => {
+    if (count > topUnitCount) {
+      topUnit = name;
+      topUnitCount = count;
     }
   });
 
@@ -1337,9 +1352,32 @@ export default function RawatJalan() {
                 <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
               </motion.div>
 
-              {/* 4. DPJP Teraktif */}
+              {/* 3. Unit Teraktif */}
               <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}
                 className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-6"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
+                    <Layers className="h-6 w-6" />
+                  </div>
+                  <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
+                    Unit Teraktif
+                  </span>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-white tracking-tight font-display truncate leading-tight uppercase">
+                    {topUnit}
+                  </h3>
+                  <p className="text-xs font-mono text-amber-200 font-bold mt-1">
+                    {topUnitCount} Kunjungan
+                  </p>
+                </div>
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
+              </motion.div>
+
+              {/* 4. DPJP Teraktif */}
+              <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}
+                className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group transition-all anim-fade-up anim-delay-7"
               >
                 <div className="flex items-center justify-between">
                   <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
