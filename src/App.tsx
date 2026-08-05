@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'motion/react';
 import { useAuthStore } from './store/authStore.js';
 
 import Loader from './components/Loader.js';
-import SplashScreen from './components/SplashScreen.js';
 
 // Layout & guards
 import Sidebar from './components/Sidebar.js';
@@ -56,35 +54,9 @@ export default function App() {
 
 function AppContent() {
   const location = useLocation();
-  const [showInitialSplash, setShowInitialSplash] = useState(() => {
-    // Show initial splash on page load or refresh on all pages except login
-    const path = (window.location.hash.replace(/^#/, '') || '/').split('?')[0];
-    const isLogin = path === '/login' || window.location.pathname === '/login' || window.location.hash.includes('/login');
-    if (isLogin) return false;
-    return true;
-  });
-
-  useEffect(() => {
-    if (location.pathname === '/login') {
-      setShowInitialSplash(false);
-    }
-  }, [location.pathname]);
-
-  const handleInitialSplashComplete = () => {
-    setShowInitialSplash(false);
-  };
   
   return (
     <>
-      <AnimatePresence mode="wait">
-        {showInitialSplash && (
-          <SplashScreen
-            mode="initial"
-            onComplete={handleInitialSplashComplete}
-          />
-        )}
-      </AnimatePresence>
-
       <Routes>
         {/* Public Login Route */}
         <Route path="/login" element={<Login />} />
