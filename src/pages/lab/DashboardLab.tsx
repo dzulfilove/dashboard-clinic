@@ -307,6 +307,9 @@ export default function DashboardLab() {
   const categoryTotal = categorySpecificParams.reduce((sum, d) => sum + d.jumlah, 0);
   const categoryPeakParam = [...categorySpecificParams].sort((a, b) => b.jumlah - a.jumlah)[0];
   const categoryContributionPercent = totalExams > 0 ? Math.round((categoryTotal / totalExams) * 100) : 0;
+  const topTenCategoryParams = [...categorySpecificParams]
+    .sort((a, b) => b.jumlah - a.jumlah)
+    .slice(0, 10);
 
   // Render comparative category bar chart data
   const comparisonChartData = categoryChartData.map((cat, idx) => ({
@@ -860,33 +863,34 @@ export default function DashboardLab() {
                 >
                   <div className="border-b border-slate-100 pb-2 mb-3 flex items-center justify-between">
                     <span className="font-semibold text-slate-800 text-xs uppercase tracking-wider">
-                      Distribusi Volume Antar Jenis Pemeriksaan ({activeCategory})
+                      10 Besar Volume Pemeriksaan ({activeCategory})
                     </span>
-                    <span className="text-xs bg-slate-100 text-slate-500 font-medium px-1.5 py-0.5 rounded">
-                      {categorySpecificParams.length} Parameter
+                    <span className="text-xs bg-teal-50 text-teal-700 font-semibold px-2 py-0.5 rounded-full">
+                      Top 10 dari {categorySpecificParams.length} Parameter
                     </span>
                   </div>
 
-                  <div className="h-60 w-full">
-                    {categorySpecificParams.length > 0 && categoryTotal > 0 ? (
+                  <div className="h-[340px] w-full">
+                    {topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
-                           data={categorySpecificParams}
+                           data={topTenCategoryParams}
                            layout="vertical"
                            margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
                         >
                           <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#F1F5F9" />
-                          <XAxis type="number" fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
+                          <XAxis type="number" fontSize={11} tickLine={false} axisLine={false} stroke="#64748B" />
                           <YAxis 
                             type="category" 
                             dataKey="nama_parameter" 
-                            fontSize={12} 
+                            fontSize={11} 
                             tickLine={false} 
                             axisLine={false} 
                             stroke="#1E293B" 
-                            width={110}
+                            width={160}
+                            interval={0}
                           />
-                          <Tooltip contentStyle={{ fontSize: "12px" }} />
+                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: "8px" }} />
                           <Bar dataKey="jumlah" fill="#14B8A6" radius={[0, 4, 4, 0]} name="Hasil Rentang Terpilih" />
                         </BarChart>
                       </ResponsiveContainer>

@@ -828,6 +828,179 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
   }
 });
 
+// Get all saved patient examination records
+app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
+  try {
+    const status = db.getDiagnosticStatus();
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      const records = vdb.lab_pemeriksaan_pasien || [];
+      const parameters = vdb.lab_parameter || [];
+      const joined = records.map((r: any) => {
+        const param = parameters.find((p: any) => p.id === Number(r.parameter_id));
+        return {
+          ...r,
+          nama_parameter: param ? param.nama_parameter : 'Unknown',
+          kategori: param ? param.kategori : 'Unknown'
+        };
+      });
+      // Sort desc by id
+      joined.sort((a: any, b: any) => b.id - a.id);
+      return res.json(joined);
+    } else {
+      const rows = await db.query(`
+        SELECT r.*, p.nama_parameter, p.kategori
+        FROM lab_pemeriksaan_pasien r
+        LEFT JOIN lab_parameter p ON r.parameter_id = p.id
+        ORDER BY r.id DESC
+      `);
+      return res.json(rows);
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Delete single patient examination record
+app.delete('/api/lab/pemeriksaan/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
+  const { id } = req.params;
+  try {
+    const status = db.getDiagnosticStatus();
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.lab_pemeriksaan_pasien) vdb.lab_pemeriksaan_pasien = [];
+      const idx = vdb.lab_pemeriksaan_pasien.findIndex((x: any) => x.id === Number(id));
+      if (idx !== -1) {
+        const item = vdb.lab_pemeriksaan_pasien[idx];
+        vdb.lab_pemeriksaan_pasien.splice(idx, 1);
+        
+        // Decrement daily aggregated count if possible
+        if (vdb.lab_data_harian) {
+          const harianIdx = vdb.lab_data_harian.findIndex((x: any) => x.parameter_id === Number(item.parameter_id) && x.tanggal === item.tanggal_pemeriksaan);
+          if (harianIdx !== -1) {
+            vdb.lab_data_harian[harianIdx].jumlah = Math.max(0, vdb.lab_data_harian[harianIdx].jumlah - 1);
+          }
+        }
+        writeVirtualDb(vdb);
+      }
+      return res.json({ success: true, message: 'Data pemeriksaan berhasil dihapus.' });
+    } else {
+      const rows: any = await db.query('SELECT * FROM lab_pemeriksaan_pasien WHERE id = ?', [Number(id)]);
+      if (rows && rows.length > 0) {
+        const item = rows[0];
+        await db.query('DELETE FROM lab_pemeriksaan_pasien WHERE id = ?', [Number(id)]);
+        await db.query(
+          'UPDATE lab_data_harian SET jumlah = GREATEST(0, jumlah - 1) WHERE parameter_id = ? AND tanggal = ?',
+          [item.parameter_id, item.tanggal_pemeriksaan]
+        );
+      }
+      return res.json({ success: true, message: 'Data pemeriksaan berhasil dihapus.' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Edit single patient examination record
+app.put('/api/lab/pemeriksaan/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
+  const { id } = req.params;
+  const { no_registrasi, parameter_id, pasien_no_rm, pasien_nik, pasien_nama, dpjp, tanggal_pemeriksaan } = req.body;
+  if (!no_registrasi || !parameter_id || !pasien_no_rm || !pasien_nama || !tanggal_pemeriksaan) {
+    return res.status(400).json({ message: 'Semua kolom wajib diisi kecuali NIK dan DPJP.' });
+  }
+  try {
+    const status = db.getDiagnosticStatus();
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.lab_pemeriksaan_pasien) vdb.lab_pemeriksaan_pasien = [];
+      const idx = vdb.lab_pemeriksaan_pasien.findIndex((x: any) => x.id === Number(id));
+      if (idx === -1) {
+        return res.status(404).json({ message: 'Data tidak ditemukan.' });
+      }
+      const oldItem = { ...vdb.lab_pemeriksaan_pasien[idx] };
+      
+      // Update item
+      vdb.lab_pemeriksaan_pasien[idx] = {
+        ...vdb.lab_pemeriksaan_pasien[idx],
+        no_registrasi,
+        parameter_id: Number(parameter_id),
+        pasien_no_rm,
+        pasien_nik: pasien_nik || null,
+        pasien_nama,
+        dpjp: dpjp || null,
+        tanggal_pemeriksaan
+      };
+
+      // Handle daily data adjustment if key fields changed
+      const keyFieldsChanged = oldItem.parameter_id !== Number(parameter_id) || oldItem.tanggal_pemeriksaan !== tanggal_pemeriksaan;
+      if (keyFieldsChanged && vdb.lab_data_harian) {
+        // Decrement old
+        const oldHarianIdx = vdb.lab_data_harian.findIndex((x: any) => x.parameter_id === Number(oldItem.parameter_id) && x.tanggal === oldItem.tanggal_pemeriksaan);
+        if (oldHarianIdx !== -1) {
+          vdb.lab_data_harian[oldHarianIdx].jumlah = Math.max(0, vdb.lab_data_harian[oldHarianIdx].jumlah - 1);
+        }
+        
+        // Increment new
+        const newHarianIdx = vdb.lab_data_harian.findIndex((x: any) => x.parameter_id === Number(parameter_id) && x.tanggal === tanggal_pemeriksaan);
+        if (newHarianIdx !== -1) {
+          vdb.lab_data_harian[newHarianIdx].jumlah = (vdb.lab_data_harian[newHarianIdx].jumlah || 0) + 1;
+        } else {
+          vdb.lab_data_harian.push({
+            id: Date.now() + 5000,
+            parameter_id: Number(parameter_id),
+            tanggal: tanggal_pemeriksaan,
+            jumlah: 1,
+            input_by: req.user.id
+          });
+        }
+      }
+
+      writeVirtualDb(vdb);
+      return res.json({ success: true, message: 'Data pemeriksaan berhasil diubah.' });
+    } else {
+      const oldRows: any = await db.query('SELECT * FROM lab_pemeriksaan_pasien WHERE id = ?', [Number(id)]);
+      if (!oldRows || oldRows.length === 0) {
+        return res.status(404).json({ message: 'Data tidak ditemukan.' });
+      }
+      const oldItem = oldRows[0];
+
+      // Update record
+      await db.query(`
+        UPDATE lab_pemeriksaan_pasien 
+        SET no_registrasi = ?, parameter_id = ?, pasien_no_rm = ?, pasien_nik = ?, pasien_nama = ?, dpjp = ?, tanggal_pemeriksaan = ?
+        WHERE id = ?
+      `, [
+        no_registrasi,
+        Number(parameter_id),
+        pasien_no_rm,
+        pasien_nik || null,
+        pasien_nama,
+        dpjp || null,
+        tanggal_pemeriksaan,
+        Number(id)
+      ]);
+
+      const keyFieldsChanged = oldItem.parameter_id !== Number(parameter_id) || oldItem.tanggal_pemeriksaan !== tanggal_pemeriksaan;
+      if (keyFieldsChanged) {
+        // Decrement old
+        await db.query(
+          'UPDATE lab_data_harian SET jumlah = GREATEST(0, jumlah - 1) WHERE parameter_id = ? AND tanggal = ?',
+          [oldItem.parameter_id, oldItem.tanggal_pemeriksaan]
+        );
+        // Increment new (using insert on duplicate key update)
+        await db.query(`
+          INSERT INTO lab_data_harian (parameter_id, tanggal, jumlah, input_by)
+          VALUES (?, ?, 1, ?)
+          ON DUPLICATE KEY UPDATE jumlah = jumlah + 1
+        `, [Number(parameter_id), tanggal_pemeriksaan, req.user.id]);
+      }
+      return res.json({ success: true, message: 'Data pemeriksaan berhasil diubah.' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Edit single daily lab record
 app.put('/api/lab/data/:id', authenticateToken, roleGuard(['admin', 'lab', 'perawat', 'analis']), async (req: any, res) => {
   const { id } = req.params;
