@@ -34,19 +34,7 @@ import {
 } from 'lucide-react';
 import Swal from '../../utils/swal.js';
 import api from '../../services/api.js';
-import { 
-  ResponsiveContainer, 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  CartesianGrid, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  Legend 
-} from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 interface DemografiProps {
@@ -94,6 +82,18 @@ interface VisitHistory {
 }
 
 export default React.memo(function DemografiKunjungan() {
+  const recharts = useRecharts();
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const BarChart = recharts?.BarChart;
+  const Bar = recharts?.Bar;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const Tooltip = recharts?.Tooltip;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
+  const Legend = recharts?.Legend;
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'loyal' | 'wilayah' | 'pasien'>('pasien');
   const [loading, setLoading] = useState(true);

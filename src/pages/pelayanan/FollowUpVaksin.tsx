@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, Plus, Trash2, Edit3, ClipboardList, TrendingUp, FileText, Clock, CheckCircle, AlertCircle, Search, X, Syringe, Send, MessageSquare, Bell, BellRing, Check, UserPlus, Loader2, Filter, CalendarDays, CalendarPlus, Stethoscope, Settings, BarChart2 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
 import { Pasien, FollowUpVaksin as FollowUpType } from '../../types.js';
 
@@ -96,6 +96,20 @@ const UNIT_KUNJUNGAN_LIST = [
 ];
 
 export default React.memo(function FollowUpVaksinPage() {
+  const recharts = useRecharts();
+  const BarChart = recharts?.BarChart;
+  const Bar = recharts?.Bar;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const Tooltip = recharts?.Tooltip;
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
+  const LineChart = recharts?.LineChart;
+  const Line = recharts?.Line;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const Legend = recharts?.Legend;
   const [data, setData] = useState<FollowUpType[]>([]);
   const [pasienList, setPasienList] = useState<Pasien[]>([]);
   const [loading, setLoading] = useState(true);

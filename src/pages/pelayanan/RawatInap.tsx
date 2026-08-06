@@ -27,22 +27,7 @@ import {
   Bed,
   Heart
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  ComposedChart, 
-  Bar, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  AreaChart, 
-  Area,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
 import { ICD10, Pasien } from '../../types.js';
 
@@ -266,6 +251,21 @@ const ParsedRowPreview = React.memo(({
 });
 
 export default React.memo(function RawatInap() {
+  const recharts = useRecharts();
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const ComposedChart = recharts?.ComposedChart;
+  const Bar = recharts?.Bar;
+  const Line = recharts?.Line;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const Tooltip = recharts?.Tooltip;
+  const Legend = recharts?.Legend;
+  const AreaChart = recharts?.AreaChart;
+  const Area = recharts?.Area;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
   const [records, setRecords] = useState<InpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);

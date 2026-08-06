@@ -23,6 +23,7 @@ import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
 import { LabData } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
+import { MONTHS_ID } from '../../utils/dateFormat.js';
 
 // Framer Motion animation sets identical to Dashboard
 const containerVariants = {
@@ -46,21 +47,6 @@ const itemVariants = {
     transition: { duration: 0.45, ease: 'easeOut' }
   }
 };
-
-const MONTHS = [
-  { value: 1, name: 'Januari' },
-  { value: 2, name: 'Februari' },
-  { value: 3, name: 'Maret' },
-  { value: 4, name: 'April' },
-  { value: 5, name: 'Mei' },
-  { value: 6, name: 'Juni' },
-  { value: 7, name: 'Juli' },
-  { value: 8, name: 'Agustus' },
-  { value: 9, name: 'September' },
-  { value: 10, name: 'Oktober' },
-  { value: 11, name: 'November' },
-  { value: 12, name: 'Desember' }
-];
 
 const YEARS = [2024, 2025, 2026, 2027];
 
@@ -105,7 +91,7 @@ export default React.memo(function DashboardLab() {
   const [endMonth, setEndMonth] = useState(d.getMonth() + 1); // Default to current month
   const [endYear, setEndYear] = useState(2026); // Default seed year
 
-  const months = MONTHS;
+  const months = MONTHS_ID.map((name, idx) => ({ value: idx + 1, name }));
   const years = YEARS;
 
   // Formats raw database flat records to recharts multi-series timeline data and filters by current range
@@ -113,7 +99,7 @@ export default React.memo(function DashboardLab() {
     const timelineMap: { [key: string]: any } = {};
     
     rawTrends.forEach((row: any) => {
-      const monthObj = MONTHS.find(m => m.value === row.bulan);
+      const monthObj = months.find(m => m.value === row.bulan);
       const label = `${monthObj ? monthObj.name.substring(0, 3) : row.bulan} ${row.tahun}`;
       const periodKey = `${row.tahun}-${String(row.bulan).padStart(2, '0')}`;
       

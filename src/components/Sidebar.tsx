@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { motion, AnimatePresence } from 'motion/react';
@@ -95,7 +95,7 @@ const menuItems = [
   }
 ];
 
-export default function Sidebar() {
+export default React.memo(function Sidebar() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -388,4 +388,4 @@ export default function Sidebar() {
       </aside>
     </>
   );
-}
+});
