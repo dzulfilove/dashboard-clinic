@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { Plus, Trash2, Check, X, Map } from 'lucide-react';
 import api from '../../services/api';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function MasterWilayah() {
+export default React.memo(function MasterWilayah() {
   const [kota, setKota] = useState<any[]>([]);
   const [kecamatan, setKecamatan] = useState<any[]>([]);
   const [kelurahan, setKelurahan] = useState<any[]>([]);
@@ -489,4 +489,4 @@ export default function MasterWilayah() {
       )}
     </div>
   );
-}
+});

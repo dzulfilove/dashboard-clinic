@@ -7,7 +7,7 @@ import api from '../services/api.js';
 import Logo from '../components/Logo.js';
 import SplashScreen from '../components/SplashScreen.js';
 
-export default function Login() {
+export default React.memo(function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setAuth, isAuthenticated } = useAuthStore();
@@ -308,4 +308,4 @@ export default function Login() {
       </div>
     </div>
   );
-}
+});

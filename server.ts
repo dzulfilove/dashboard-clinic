@@ -831,12 +831,17 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
 // Get all saved patient examination records
 app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
   try {
+    const page = req.query.page ? parseInt(req.query.page, 10) : null;
+    const limit = req.query.limit ? parseInt(req.query.limit, 10) : 25;
+    const search = req.query.search ? String(req.query.search).trim() : '';
+    const category = req.query.category ? String(req.query.category).trim() : '';
+
     const status = db.getDiagnosticStatus();
     if (status.isVirtual) {
       const vdb = readVirtualDb();
       const records = vdb.lab_pemeriksaan_pasien || [];
       const parameters = vdb.lab_parameter || [];
-      const joined = records.map((r: any) => {
+      let joined = records.map((r: any) => {
         const param = parameters.find((p: any) => p.id === Number(r.parameter_id));
         return {
           ...r,
@@ -844,17 +849,81 @@ app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
           kategori: param ? param.kategori : 'Unknown'
         };
       });
+
+      if (search) {
+        const s = search.toLowerCase();
+        joined = joined.filter((r: any) =>
+          (r.pasien_nama && r.pasien_nama.toLowerCase().includes(s)) ||
+          (r.pasien_no_rm && r.pasien_no_rm.toLowerCase().includes(s)) ||
+          (r.no_registrasi && r.no_registrasi.toLowerCase().includes(s)) ||
+          (r.nama_parameter && r.nama_parameter.toLowerCase().includes(s)) ||
+          (r.dpjp && r.dpjp.toLowerCase().includes(s))
+        );
+      }
+      if (category) {
+        joined = joined.filter((r: any) => r.kategori === category);
+      }
+
       // Sort desc by id
       joined.sort((a: any, b: any) => b.id - a.id);
+
+      if (page) {
+        const total = joined.length;
+        const totalPages = Math.ceil(total / limit) || 1;
+        const offset = (page - 1) * limit;
+        const pagedData = joined.slice(offset, offset + limit);
+        return res.json({
+          data: pagedData,
+          total,
+          page,
+          limit,
+          totalPages
+        });
+      }
       return res.json(joined);
     } else {
-      const rows = await db.query(`
-        SELECT r.*, p.nama_parameter, p.kategori
+      let baseSql = `
         FROM lab_pemeriksaan_pasien r
         LEFT JOIN lab_parameter p ON r.parameter_id = p.id
-        ORDER BY r.id DESC
-      `);
-      return res.json(rows);
+      `;
+      const whereClauses: string[] = [];
+      const params: any[] = [];
+
+      if (search) {
+        whereClauses.push(`(r.pasien_nama LIKE ? OR r.pasien_no_rm LIKE ? OR r.no_registrasi LIKE ? OR p.nama_parameter LIKE ? OR r.dpjp LIKE ?)`);
+        const searchPattern = `%${search}%`;
+        params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+      }
+      if (category) {
+        whereClauses.push(`p.kategori = ?`);
+        params.push(category);
+      }
+
+      const whereSql = whereClauses.length > 0 ? ` WHERE ${whereClauses.join(' AND ')}` : '';
+
+      if (page) {
+        const countSql = `SELECT COUNT(*) as total ${baseSql}${whereSql}`;
+        const countRes = await db.query(countSql, params);
+        const total = parseInt(countRes[0]?.total || '0', 10);
+        const totalPages = Math.ceil(total / limit) || 1;
+        const offset = (page - 1) * limit;
+
+        const dataSql = `SELECT r.*, p.nama_parameter, p.kategori ${baseSql}${whereSql} ORDER BY r.id DESC LIMIT ? OFFSET ?`;
+        const pagedParams = [...params, limit, offset];
+        const rows = await db.query(dataSql, pagedParams);
+
+        return res.json({
+          data: rows,
+          total,
+          page,
+          limit,
+          totalPages
+        });
+      } else {
+        const dataSql = `SELECT r.*, p.nama_parameter, p.kategori ${baseSql}${whereSql} ORDER BY r.id DESC`;
+        const rows = await db.query(dataSql, params);
+        return res.json(rows);
+      }
     }
   } catch (err: any) {
     res.status(500).json({ message: err.message });

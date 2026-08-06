@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
@@ -18,7 +18,7 @@ import api from '../../services/api.js';
 import { ForecastResult } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
 
-export default function Forecasting() {
+export default React.memo(function Forecasting() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [isVisualizing, setIsVisualizing] = useState(true);
@@ -428,4 +428,4 @@ export default function Forecasting() {
       )}
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
 import { motion, AnimatePresence } from 'motion/react';
@@ -28,6 +28,73 @@ import {
 import api from '../services/api.js';
 import { DbStatus } from '../types.js';
 
+const menuItems = [
+  {
+    title: 'Dashboard Terpadu',
+    path: '/',
+    icon: Home,
+    roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
+  },
+  {
+    isGroup: true,
+    title: 'Laboratorium',
+    icon: FlaskConical,
+    items: [
+      { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'analis'] },
+      { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'analis'] },
+      { name: 'Master Pemeriksaan', path: '/lab/master', icon: Layers, roles: ['admin', 'analis'] }
+    ]
+  },
+  {
+    isGroup: true,
+    title: 'Pelayanan Klinik',
+    icon: Activity,
+    items: [
+      { name: 'Dashboard Dokter', path: '/pelayanan/dashboard-dokter', icon: Stethoscope, roles: ['admin', 'perawat'] },
+      { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat'] },
+      { name: 'IGD', path: '/pelayanan/igd', icon: Activity, roles: ['admin', 'perawat'] },
+      { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat'] },
+      { name: 'Follow Up Vaksin', path: '/pelayanan/followup-vaksin', icon: Syringe, roles: ['admin', 'perawat'] },
+      { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin', 'perawat'] },
+      { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin', 'perawat'] },
+      { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin', 'perawat'] },
+      { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin', 'perawat'] },
+      { name: 'Master Wilayah', path: '/pelayanan/master-wilayah', icon: Layers, roles: ['admin', 'perawat'] }
+    ]
+  },
+  {
+    isGroup: true,
+    title: 'Demografi Kunjungan',
+    icon: PieChart,
+    items: [
+      { name: 'Demografi Pasien', path: '/demografi/pasien', icon: Users, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] },
+      { name: 'Demografi Diagnosa', path: '/demografi/diagnosa', icon: Activity, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] }
+    ]
+  },
+  {
+    isGroup: true,
+    title: 'Farmasi & Apotek',
+    icon: Pill,
+    items: [
+      { name: 'Konsumsi Harian', path: '/farmasi/input', icon: Pill, roles: ['admin', 'farmasi'] },
+      { name: 'Peramalan (Forecast)', path: '/farmasi/forecast', icon: TrendingUp, roles: ['admin', 'farmasi'] },
+      { name: 'Analisis ABC Spend', path: '/farmasi/abc', icon: Layers, roles: ['admin', 'farmasi'] },
+      { name: 'Master Data Obat', path: '/farmasi/master', icon: Package, roles: ['admin', 'farmasi'] },
+
+    ]
+  },
+  {
+    isGroup: true,
+    title: 'Sistem',
+    icon: Database,
+    items: [
+      { name: 'Kelola Pengguna', path: '/admin/users', icon: Users, roles: ['admin'] },
+      { name: 'Log Aktivitas', path: '/admin/logs', icon: Activity, roles: ['admin'] },
+      { name: 'Pengaturan Database', path: '/admin/db-settings', icon: Database, roles: ['admin'] }
+    ]
+  }
+];
+
 export default function Sidebar() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -37,85 +104,20 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
 
-  const menuItems = [
-    {
-      title: 'Dashboard Terpadu',
-      path: '/',
-      icon: Home,
-      roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
-    },
-    {
-      isGroup: true,
-      title: 'Laboratorium',
-      icon: FlaskConical,
-      items: [
-        { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'analis'] },
-        { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'analis'] },
-        { name: 'Master Pemeriksaan', path: '/lab/master', icon: Layers, roles: ['admin', 'analis'] }
-      ]
-    },
-    {
-      isGroup: true,
-      title: 'Pelayanan Klinik',
-      icon: Activity,
-      items: [
-        { name: 'Dashboard Dokter', path: '/pelayanan/dashboard-dokter', icon: Stethoscope, roles: ['admin', 'perawat'] },
-        { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat'] },
-        { name: 'IGD', path: '/pelayanan/igd', icon: Activity, roles: ['admin', 'perawat'] },
-        { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat'] },
-        { name: 'Follow Up Vaksin', path: '/pelayanan/followup-vaksin', icon: Syringe, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin', 'perawat'] },
-        { name: 'Master Wilayah', path: '/pelayanan/master-wilayah', icon: Layers, roles: ['admin', 'perawat'] }
-      ]
-    },
-    {
-      isGroup: true,
-      title: 'Demografi Kunjungan',
-      icon: PieChart,
-      items: [
-        { name: 'Demografi Pasien', path: '/demografi/pasien', icon: Users, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] },
-        { name: 'Demografi Diagnosa', path: '/demografi/diagnosa', icon: Activity, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] }
-      ]
-    },
-    {
-      isGroup: true,
-      title: 'Farmasi & Apotek',
-      icon: Pill,
-      items: [
-        { name: 'Konsumsi Harian', path: '/farmasi/input', icon: Pill, roles: ['admin', 'farmasi'] },
-        { name: 'Peramalan (Forecast)', path: '/farmasi/forecast', icon: TrendingUp, roles: ['admin', 'farmasi'] },
-        { name: 'Analisis ABC Spend', path: '/farmasi/abc', icon: Layers, roles: ['admin', 'farmasi'] },
-        { name: 'Master Data Obat', path: '/farmasi/master', icon: Package, roles: ['admin', 'farmasi'] },
-
-      ]
-    },
-    {
-      isGroup: true,
-      title: 'Sistem',
-      icon: Database,
-      items: [
-        { name: 'Kelola Pengguna', path: '/admin/users', icon: Users, roles: ['admin'] },
-        { name: 'Log Aktivitas', path: '/admin/logs', icon: Activity, roles: ['admin'] },
-        { name: 'Pengaturan Database', path: '/admin/db-settings', icon: Database, roles: ['admin'] }
-      ]
-    }
-  ];
-
-  const filteredMenu = menuItems.map(item => {
-    if (item.isGroup && item.items) {
-      const items = item.items.filter(child => user && child.roles.includes(user.role));
-      return { ...item, items };
-    }
-    return item;
-  }).filter(item => {
-    if (item.isGroup && item.items) {
-      return item.items.length > 0;
-    }
-    return user && item.roles && item.roles.includes(user.role);
-  });
+  const filteredMenu = useMemo(() => {
+    return menuItems.map(item => {
+      if (item.isGroup && item.items) {
+        const items = item.items.filter(child => user && child.roles.includes(user.role));
+        return { ...item, items };
+      }
+      return item;
+    }).filter(item => {
+      if (item.isGroup && item.items) {
+        return item.items.length > 0;
+      }
+      return user && item.roles && item.roles.includes(user.role);
+    });
+  }, [user]);
 
   useEffect(() => {
     async function fetchDbStatus() {

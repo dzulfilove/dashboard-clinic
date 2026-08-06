@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   FlaskConical, 
@@ -21,9 +21,10 @@ import {
   X
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import api from '../../services/api.js';
 import { LabParameter, ParsedLabItem } from '../../types.js';
+import { formatTanggalIndo, parseIndoDate } from '../../utils/dateFormat.js';
 
 interface SelectOption {
   value: string | number;
@@ -121,39 +122,9 @@ function SearchableSelect({ options, value, onChange, placeholder, buttonClass, 
   );
 }
 
-const formatTanggalIndo = (dateStr: string) => {
-  if (!dateStr) return '-';
-  try {
-    const parts = dateStr.split('-');
-    if (parts.length === 3) {
-      const year = parseInt(parts[0], 10);
-      const monthIdx = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-      if (monthIdx >= 0 && monthIdx < 12 && !isNaN(day) && !isNaN(year)) {
-        return `${day} ${months[monthIdx]} ${year}`;
-      }
-    }
-    
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-    const day = d.getDate();
-    const month = months[d.getMonth()];
-    const year = d.getFullYear();
-    return `${day} ${month} ${year}`;
-  } catch (e) {
-    return dateStr;
-  }
-};
 
-export default function InputPemeriksaan() {
+
+export default React.memo(function InputPemeriksaan() {
   const { user } = useAuthStore();
   
   // Tab State
@@ -183,6 +154,8 @@ export default function InputPemeriksaan() {
   const [searchSaved, setSearchSaved] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalServerRecords, setTotalServerRecords] = useState(0);
+  const [serverTotalPages, setServerTotalPages] = useState(1);
   const recordsPerPage = 10;
 
   // Edit States
@@ -197,7 +170,36 @@ export default function InputPemeriksaan() {
   const [editParameterId, setEditParameterId] = useState<number | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  const handleOpenEditModal = (rec: any) => {
+  // Fetch saved records from server with server-side pagination & filter
+  const fetchSavedRecords = useCallback(async (page = currentPage, search = searchSaved, cat = filterCategory) => {
+    setLoadingSaved(true);
+    try {
+      const res = await api.get('/lab/pemeriksaan', {
+        params: {
+          page,
+          limit: recordsPerPage,
+          search,
+          category: cat
+        }
+      });
+      if (res.data && Array.isArray(res.data.data)) {
+        setSavedRecords(res.data.data);
+        setTotalServerRecords(res.data.total);
+        setServerTotalPages(res.data.totalPages);
+      } else {
+        const dataArr = Array.isArray(res.data) ? res.data : [];
+        setSavedRecords(dataArr);
+        setTotalServerRecords(dataArr.length);
+        setServerTotalPages(Math.ceil(dataArr.length / recordsPerPage) || 1);
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch saved lab records', err);
+    } finally {
+      setLoadingSaved(false);
+    }
+  }, [currentPage, searchSaved, filterCategory, recordsPerPage]);
+
+  const handleOpenEditModal = useCallback((rec: any) => {
     setEditId(rec.id);
     setEditNoRegistrasi(rec.no_registrasi || '');
     setEditPasienNoRm(rec.pasien_no_rm || '');
@@ -208,9 +210,9 @@ export default function InputPemeriksaan() {
     setEditTanggalPemeriksaan(formattedDate);
     setEditParameterId(rec.parameter_id || null);
     setIsEditing(true);
-  };
+  }, []);
 
-  const handleSaveEdit = async (e: React.FormEvent) => {
+  const handleSaveEdit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editId) return;
 
@@ -256,23 +258,10 @@ export default function InputPemeriksaan() {
     } finally {
       setUpdating(false);
     }
-  };
-
-  // Fetch saved records from new endpoint
-  const fetchSavedRecords = async () => {
-    setLoadingSaved(true);
-    try {
-      const res = await api.get('/lab/pemeriksaan');
-      setSavedRecords(res.data);
-    } catch (err: any) {
-      console.error('Failed to fetch saved lab records', err);
-    } finally {
-      setLoadingSaved(false);
-    }
-  };
+  }, [editId, editNoRegistrasi, editPasienNoRm, editPasienNama, editTanggalPemeriksaan, editParameterId, editPasienNik, editDpjp, fetchSavedRecords]);
 
   // Delete saved record handler
-  const handleDeleteRecord = async (id: number, patientName: string) => {
+  const handleDeleteRecord = useCallback(async (id: number, patientName: string) => {
     const result = await Swal.fire({
       title: 'Hapus Data?',
       text: `Apakah Anda yakin ingin menghapus data pemeriksaan untuk ${patientName}?`,
@@ -304,7 +293,7 @@ export default function InputPemeriksaan() {
         });
       }
     }
-  };
+  }, [fetchSavedRecords]);
 
   // Date state: default to local Jakarta timezone formatted as YYYY-MM-DD
   const getTodayDateString = () => {
@@ -318,7 +307,7 @@ export default function InputPemeriksaan() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   // Fetch active parameters for record inputs
-  const fetchActiveParameters = async () => {
+  const fetchActiveParameters = useCallback(async () => {
     setLoadingParams(true);
     try {
       const res = await api.get('/lab/parameter');
@@ -328,10 +317,10 @@ export default function InputPemeriksaan() {
     } finally {
       setLoadingParams(false);
     }
-  };
+  }, []);
   
   // Fetch Dokter List
-  const fetchDokterList = async () => {
+  const fetchDokterList = useCallback(async () => {
     try {
       const res = await api.get('/dokter', { params: { all: 'true' } });
       if (Array.isArray(res.data)) {
@@ -340,10 +329,10 @@ export default function InputPemeriksaan() {
     } catch (err) {
       console.error('Failed to fetch dokter list', err);
     }
-  };
+  }, []);
 
   // Fetch pre-existing daily lab counts for selected tanggal
-  const fetchDailyData = async () => {
+  const fetchDailyData = useCallback(async () => {
     if (parameters.length === 0) return;
     setLoadingData(true);
     setFeedback(null);
@@ -365,33 +354,33 @@ export default function InputPemeriksaan() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [parameters, selectedDate]);
 
   // Load initially
   useEffect(() => {
     fetchActiveParameters();
     fetchDokterList();
-  }, []);
+  }, [fetchActiveParameters, fetchDokterList]);
 
   useEffect(() => {
     fetchDailyData();
-  }, [selectedDate, parameters]);
+  }, [selectedDate, parameters, fetchDailyData]);
 
   useEffect(() => {
     if (activeTab === 'tersimpan') {
-      fetchSavedRecords();
+      fetchSavedRecords(currentPage, searchSaved, filterCategory);
     }
-  }, [activeTab]);
+  }, [activeTab, currentPage, searchSaved, filterCategory, fetchSavedRecords]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchSaved, filterCategory]);
 
   // Handle number strokes
-  const handleInputChange = (paramId: number, val: string) => {
+  const handleInputChange = useCallback((paramId: number, val: string) => {
     if (val !== '' && !/^\d+$/.test(val)) return;
     setQuantities(prev => ({ ...prev, [paramId]: val }));
-  };
+  }, []);
 
   // Save Daily input
   const handleSaveDaily = async (e: React.FormEvent) => {
@@ -430,15 +419,6 @@ export default function InputPemeriksaan() {
   };
   
   // PARSER LOGIC
-  const parseIndoDate = (str: string) => {
-    if (!str) return getTodayDateString();
-    const cleanStr = str.split(' ')[0];
-    const parts = cleanStr.split('-');
-    if (parts.length === 3) {
-      return `${parts[2]}-${parts[1]}-${parts[0]}`;
-    }
-    return getTodayDateString();
-  };
 
   const matchDoctor = (doctorStr: string) => {
     if (!doctorStr || doctorStr.trim() === 'N/A' || doctorStr.trim() === '') return '';
@@ -560,30 +540,14 @@ export default function InputPemeriksaan() {
   };
 
   // Saved records derivations
-  const filteredSaved = savedRecords.filter(rec => {
-    const matchesSearch = 
-      (rec.pasien_nama || '').toLowerCase().includes(searchSaved.toLowerCase()) ||
-      (rec.no_registrasi || '').toLowerCase().includes(searchSaved.toLowerCase()) ||
-      (rec.pasien_no_rm || '').toLowerCase().includes(searchSaved.toLowerCase()) ||
-      (rec.pasien_nik || '').toLowerCase().includes(searchSaved.toLowerCase()) ||
-      (rec.nama_parameter || '').toLowerCase().includes(searchSaved.toLowerCase());
-    
-    const matchesCategory = filterCategory === '' || rec.kategori === filterCategory;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const uniqueCategories = useMemo(() => Array.from(new Set(parameters.map(p => p.kategori).filter(Boolean))) as string[], [parameters]);
+  const currentSavedRecords = savedRecords;
 
-  const uniqueCategories = Array.from(new Set(savedRecords.map(r => r.kategori).filter(Boolean))) as string[];
-  const totalPages = Math.ceil(filteredSaved.length / recordsPerPage);
-  const indexOfLastRecord = currentPage * recordsPerPage;
-  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-  const currentSavedRecords = filteredSaved.slice(indexOfFirstRecord, indexOfLastRecord);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
+  const handlePageChange = useCallback((page: number) => {
+    if (page >= 1 && page <= serverTotalPages) {
       setCurrentPage(page);
     }
-  };
+  }, [serverTotalPages]);
 
   // Group active parameters by clinical category
   const categoriesMap: { [cat: string]: LabParameter[] } = {};
@@ -859,7 +823,7 @@ export default function InputPemeriksaan() {
 
             {/* Quick Stats or Total Count */}
             <div className="text-right flex-shrink-0 text-slate-500 text-xs font-medium">
-              Menampilkan <span className="text-slate-800 font-bold font-mono">{filteredSaved.length}</span> dari <span className="text-slate-800 font-bold font-mono">{savedRecords.length}</span> rekam pemeriksaan
+              Menampilkan <span className="text-slate-800 font-bold font-mono">{savedRecords.length}</span> dari <span className="text-slate-800 font-bold font-mono">{totalServerRecords}</span> rekam pemeriksaan
             </div>
           </div>
 
@@ -869,7 +833,7 @@ export default function InputPemeriksaan() {
               <RefreshCw className="h-8 w-8 text-teal-600 animate-spin mx-auto mb-3" />
               <p className="text-xs font-medium text-slate-500">Memuat data pemeriksaan...</p>
             </div>
-          ) : filteredSaved.length === 0 ? (
+          ) : savedRecords.length === 0 ? (
             <div className="bg-white border border-slate-100/80 rounded-2xl p-12 text-center shadow-sm">
               <ClipboardList className="h-10 w-10 text-slate-300 mx-auto mb-2" />
               <h4 className="text-sm font-bold text-slate-700 font-sans">Data Pemeriksaan Kosong</h4>
@@ -964,10 +928,10 @@ export default function InputPemeriksaan() {
               </div>
 
               {/* Pagination Controls */}
-              {totalPages > 1 && (
+              {serverTotalPages > 1 && (
                 <div className="bg-slate-50/50 px-6 py-4 border-t border-slate-100 flex items-center justify-between">
                   <span className="text-xs text-slate-500">
-                    Halaman <span className="font-semibold text-slate-800">{currentPage}</span> dari <span className="font-semibold text-slate-800">{totalPages}</span>
+                    Halaman <span className="font-semibold text-slate-800">{currentPage}</span> dari <span className="font-semibold text-slate-800">{serverTotalPages}</span>
                   </span>
                   <div className="flex items-center gap-1">
                     <button
@@ -978,9 +942,9 @@ export default function InputPemeriksaan() {
                     >
                       Sebelumnya
                     </button>
-                    {Array.from({ length: totalPages }).map((_, idx) => {
+                    {Array.from({ length: serverTotalPages }).map((_, idx) => {
                       const pageNum = idx + 1;
-                      if (pageNum === 1 || pageNum === totalPages || Math.abs(pageNum - currentPage) <= 1) {
+                      if (pageNum === 1 || pageNum === serverTotalPages || Math.abs(pageNum - currentPage) <= 1) {
                         return (
                           <button
                             key={pageNum}
@@ -995,14 +959,14 @@ export default function InputPemeriksaan() {
                             {pageNum}
                           </button>
                         );
-                      } else if (pageNum === 2 || pageNum === totalPages - 1) {
+                      } else if (pageNum === 2 || pageNum === serverTotalPages - 1) {
                         return <span key={pageNum} className="px-1 text-slate-400">...</span>;
                       }
                       return null;
                     })}
                     <button
                       type="button"
-                      disabled={currentPage === totalPages}
+                      disabled={currentPage === serverTotalPages}
                       onClick={() => handlePageChange(currentPage + 1)}
                       className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:hover:bg-white transition-all cursor-pointer"
                     >
@@ -1187,4 +1151,4 @@ export default function InputPemeriksaan() {
 
     </div>
   );
-}
+});

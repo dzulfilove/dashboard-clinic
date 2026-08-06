@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
@@ -17,7 +17,7 @@ import api from '../../services/api.js';
 import { AbcItem, AbcResult } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
 
-export default function AbcAnalysis() {
+export default React.memo(function AbcAnalysis() {
   const { user } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [isVisualizing, setIsVisualizing] = useState(true);
@@ -358,4 +358,4 @@ export default function AbcAnalysis() {
       )}
     </div>
   );
-}
+});

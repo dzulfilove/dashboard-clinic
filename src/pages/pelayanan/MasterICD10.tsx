@@ -10,7 +10,7 @@ interface ICD10 {
   deskripsi: string;
 }
 
-export default function MasterICD10() {
+export default React.memo(function MasterICD10() {
   const [data, setData] = useState<ICD10[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -260,5 +260,5 @@ export default function MasterICD10() {
       )}
     </div>
   );
-}
+});
 

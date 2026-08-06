@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -26,22 +26,7 @@ import {
   Layers,
   Heart
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  ComposedChart, 
-  Bar, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  AreaChart, 
-  Area,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
 import { ICD10, TIPE_UNIT_RAWAT_JALAN, Pasien } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
@@ -72,47 +57,10 @@ interface OutpatientRecord {
   dpjp: string;
 }
 
+import { formatTanggalIndo, formatJamIndo, parseIndoDate } from '../../utils/dateFormat.js';
+import { matchUnit, parseJenisKelamin } from '../../utils/bulkParser.js';
+
 const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
-
-const formatTanggalIndo = (tanggalStr: string) => {
-  if (!tanggalStr) return '-';
-  try {
-    const rawDate = tanggalStr.includes('T') ? tanggalStr.split('T')[0] : tanggalStr;
-    const parts = rawDate.split('-');
-    if (parts.length === 3) {
-      const year = parts[0];
-      const monthIndex = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-      if (monthIndex >= 0 && monthIndex < 12) {
-        return `${day} ${months[monthIndex]} ${year}`;
-      }
-    }
-    const d = new Date(tanggalStr);
-    if (!isNaN(d.getTime())) {
-      const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-    }
-  } catch (e) {
-    console.warn('Gagal memformat tanggal:', e);
-  }
-  return tanggalStr;
-};
-
-const formatJamIndo = (jamStr: string) => {
-  if (!jamStr) return '-';
-  const parts = jamStr.split(':');
-  if (parts.length >= 2) {
-    return `${parts[0]}:${parts[1]}`;
-  }
-  return jamStr;
-};
 
 const isDoctorForUnit = (doc: any, unitName: string) => {
   if (!unitName) return true;
@@ -270,7 +218,23 @@ const ParsedRowPreview = React.memo(({
   );
 });
 
-export default function RawatJalan() {
+export default React.memo(function RawatJalan() {
+  const recharts = useRecharts();
+  const ComposedChart = recharts?.ComposedChart;
+  const Bar = recharts?.Bar;
+  const Line = recharts?.Line;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const Tooltip = recharts?.Tooltip;
+  const Legend = recharts?.Legend;
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
+  const AreaChart = recharts?.AreaChart;
+  const Area = recharts?.Area;
+
   const [records, setRecords] = useState<OutpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [isVisualizing, setIsVisualizing] = useState(true);
@@ -292,7 +256,7 @@ export default function RawatJalan() {
   const [patientDetails, setPatientDetails] = useState<Record<string, Pasien>>({});
   const [loadingPatient, setLoadingPatient] = useState<Record<string, boolean>>({});
 
-  const fetchPatientDetail = async (no_rm: string) => {
+  const fetchPatientDetail = useCallback(async (no_rm: string) => {
     if (patientDetails[no_rm]) return;
     setLoadingPatient(prev => ({ ...prev, [no_rm]: true }));
     try {
@@ -306,7 +270,7 @@ export default function RawatJalan() {
     } finally {
       setLoadingPatient(prev => ({ ...prev, [no_rm]: false }));
     }
-  };
+  }, [patientDetails]);
 
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -391,7 +355,7 @@ export default function RawatJalan() {
   const [checkingManualDuplicate, setCheckingManualDuplicate] = useState(false);
 
   // Load records
-  const fetchRecords = async (start = startDate, end = endDate) => {
+  const fetchRecords = useCallback(async (start = startDate, end = endDate) => {
     setLoading(true);
     try {
       const res = await api.get('/pelayanan/rawat-jalan', { params: { startDate: start, endDate: end } });
@@ -408,7 +372,7 @@ export default function RawatJalan() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate]);
 
   useEffect(() => {
     const fetchIcd = async () => {
@@ -430,7 +394,7 @@ export default function RawatJalan() {
     fetchIcd();
     fetchDokter();
     fetchRecords(startDate, endDate);
-  }, [startDate, endDate]);
+  }, [startDate, endDate, fetchRecords]);
 
   useEffect(() => {
     if (unit && dokterList.length > 0) {
@@ -498,7 +462,7 @@ export default function RawatJalan() {
   };
 
   // Helper calculation for manual tindakan subtotal
-  const updateTarifFields = (index: number, field: string, val: number) => {
+  const updateTarifFields = useCallback((index: number, field: string, val: number) => {
     const updated = [...manualTindakan];
     const t = updated[index];
     if (field === 'tarif_tindakan') t.tarif_tindakan = val;
@@ -510,11 +474,11 @@ export default function RawatJalan() {
     // Standard business logic subtotal addition
     t.subtotal = (t.tarif_tindakan + t.tarif_sarana + t.tarif_pelayanan + t.tarif_medis) * t.jumlah;
     setManualTindakan(updated);
-  };
+  }, [manualTindakan]);
 
-  const addManualTindakanRow = () => {
-    setManualTindakan([
-      ...manualTindakan,
+  const addManualTindakanRow = useCallback(() => {
+    setManualTindakan(prev => [
+      ...prev,
       {
         tindakan_nama: '',
         tindakan_keterangan: '',
@@ -528,15 +492,53 @@ export default function RawatJalan() {
         subtotal: 0
       }
     ]);
-  };
+  }, [tanggalPelayanan]);
 
-  const removeManualTindakanRow = (index: number) => {
-    if (manualTindakan.length <= 1) return;
-    setManualTindakan(manualTindakan.filter((_, idx) => idx !== index));
-  };
+  const removeManualTindakanRow = useCallback((index: number) => {
+    setManualTindakan(prev => {
+      if (prev.length <= 1) return prev;
+      return prev.filter((_, idx) => idx !== index);
+    });
+  }, []);
+
+  const resetManualForm = useCallback(() => {
+    setNoRegistrasi('');
+    setNoRm('');
+    setSelectedPasienOption(null);
+    setNamaPasien('');
+    setTanggalPelayanan(new Date().toISOString().split('T')[0]);
+    setTriase('hijau');
+    setUnit('Poli Umum');
+    setIcdKode('');
+    setDpjp('');
+    setIsNewPatient(false);
+    setTanggalLahir('');
+    setJenisKelamin('L');
+    setAlamat('');
+    setKelurahan('');
+    setKecamatan('');
+    setKota('');
+    setManualTindakan([
+      {
+        tindakan_nama: '',
+        tindakan_keterangan: '',
+        tindakan_tanggal: new Date().toISOString().split('T')[0],
+        tindakan_jam: new Date().toTimeString().split(' ')[0],
+        tarif_tindakan: 0,
+        tarif_sarana: 0,
+        tarif_pelayanan: 0,
+        tarif_medis: 0,
+        jumlah: 1,
+        subtotal: 0
+      }
+    ]);
+    setIsEditMode(false);
+    setEditTargetId(null);
+    setIsManualModalOpen(false);
+  }, []);
 
   // Manual CRUD Save
-  const handleManualSubmit = async (e: React.FormEvent) => {
+  const handleManualSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!noRegistrasi || !noRm || !namaPasien || !tanggalPelayanan || !unit) {
       showFeedback('error', 'Mohon isi semua data demografi pasien, termasuk unit pelayanan.');
@@ -591,45 +593,9 @@ export default function RawatJalan() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [noRegistrasi, noRm, namaPasien, tanggalPelayanan, unit, dpjp, isEditMode, editTargetId, triase, icdKode, manualTindakan, isNewPatient, tanggalLahir, jenisKelamin, alamat, kelurahan, kecamatan, kota, resetManualForm, fetchRecords]);
 
-  const resetManualForm = () => {
-    setNoRegistrasi('');
-    setNoRm('');
-    setSelectedPasienOption(null);
-    setNamaPasien('');
-    setTanggalPelayanan(new Date().toISOString().split('T')[0]);
-    setTriase('hijau');
-    setUnit('Poli Umum');
-    setIcdKode('');
-    setDpjp('');
-    setIsNewPatient(false);
-    setTanggalLahir('');
-    setJenisKelamin('L');
-    setAlamat('');
-    setKelurahan('');
-    setKecamatan('');
-    setKota('');
-    setManualTindakan([
-      {
-        tindakan_nama: '',
-        tindakan_keterangan: '',
-        tindakan_tanggal: new Date().toISOString().split('T')[0],
-        tindakan_jam: new Date().toTimeString().split(' ')[0],
-        tarif_tindakan: 0,
-        tarif_sarana: 0,
-        tarif_pelayanan: 0,
-        tarif_medis: 0,
-        jumlah: 1,
-        subtotal: 0
-      }
-    ]);
-    setIsEditMode(false);
-    setEditTargetId(null);
-    setIsManualModalOpen(false);
-  };
-
-  const handleEditClick = (rec: any) => {
+  const handleEditClick = useCallback((rec: any) => {
     setNoRegistrasi(rec.no_registrasi);
     setNoRm(rec.no_rm);
     setNamaPasien(rec.nama_pasien);
@@ -662,9 +628,9 @@ export default function RawatJalan() {
     setIsEditMode(true);
     setEditTargetId(rec.id);
     setIsManualModalOpen(true);
-  };
+  }, []);
 
-  const handleDeleteRecord = async (id: number) => {
+  const handleDeleteRecord = useCallback(async (id: number) => {
     Swal.fire({
       title: 'Hapus Kunjungan Ralan?',
       text: 'Apakah Anda yakin ingin menghapus kunjungan pasien rawat jalan ini secara permanen?',
@@ -685,7 +651,7 @@ export default function RawatJalan() {
         }
       }
     });
-  };
+  }, [fetchRecords]);
 
   // Paste Text Parser Suite
   const triggerParser = () => {
@@ -698,95 +664,6 @@ export default function RawatJalan() {
     const tempActions: any[] = [];
     
     let headerSkipped = false;
-
-    // Indonesian month helper
-    const parseIndoDate = (dateStr: string) => {
-      if (!dateStr) return new Date().toISOString().split('T')[0];
-      const cleaned = dateStr.trim().toLowerCase();
-      
-      // Try simple DD-MM-YYYY or YYYY-MM-DD
-      if (cleaned.includes('-') || cleaned.includes('/')) {
-        const parts = cleaned.split(/[-/]/);
-        if (parts.length === 3) {
-          if (parts[2].length === 4) {
-            // DD-MM-YYYY
-            const d = parts[0].padStart(2, '0');
-            const m = parts[1].padStart(2, '0');
-            const y = parts[2];
-            return `${y}-${m}-${d}`;
-          } else if (parts[0].length === 4) {
-            // YYYY-MM-DD
-            return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
-          }
-        }
-      }
-
-      const months: { [key: string]: string } = {
-        januari: '01', pebruari: '02', febuari: '02', februari: '02', maret: '03',
-        april: '04', mei: '05', juni: '06', juli: '07', agustus: '08',
-        september: '09', oktober: '10', nopember: '11', november: '11', desember: '12',
-        jan: '01', feb: '02', mar: '03', apr: '04', mei_short: '05', jun: '06',
-        jul: '07', agu: '08', ags: '08', sep: '09', okt: '10', nov: '11', des: '12'
-      };
-
-      const parts = cleaned.split(/\s+/);
-      if (parts.length === 3) {
-        const day = parts[0].padStart(2, '0');
-        const monthWord = parts[1];
-        const year = parts[2];
-        const monthNum = months[monthWord] || '01';
-        return `${year}-${monthNum}-${day}`;
-      }
-
-      return dateStr.trim() || new Date().toISOString().split('T')[0];
-    };
-
-    const parseJenisKelamin = (jkStr: string): string => {
-      if (!jkStr) return '';
-      const j = jkStr.toLowerCase().trim();
-      if (j.startsWith('l') || j === 'pria') return 'L';
-      if (j.startsWith('p') || j === 'wanita') return 'P';
-      return jkStr;
-    };
-
-    const matchUnit = (unitStr: string): string | null => {
-      if (!unitStr) return null;
-      const cleaned = unitStr.toUpperCase().trim();
-      
-      // Direct substring or match lookup in TIPE_UNIT_RAWAT_JALAN
-      const found = TIPE_UNIT_RAWAT_JALAN.find(u => 
-        u.toUpperCase() === cleaned ||
-        u.toUpperCase().includes(cleaned) || 
-        cleaned.includes(u.toUpperCase()) ||
-        u.toUpperCase().replace(/[^A-Z0-9]/g, '').includes(cleaned.replace(/[^A-Z0-9]/g, '')) ||
-        cleaned.replace(/[^A-Z0-9]/g, '').includes(u.toUpperCase().replace(/[^A-Z0-9]/g, ''))
-      );
-
-      if (found) return found;
-
-      // Common Indonesian aliases mapping
-      if (cleaned.includes('POLI UMUM') || cleaned === 'UMUM') return 'PL003 (POLI UMUM)';
-      if (cleaned.includes('POLI KIA') || cleaned === 'KIA') return 'PL001 (POLI KIA)';
-      if (cleaned.includes('POLI ANAK') || cleaned === 'ANAK') return 'PL005 (POLI ANAK)';
-      if (cleaned.includes('POLI THT') || cleaned === 'THT') return 'PL002 (POLI THT)';
-      if (cleaned.includes('POLI OBGYN') || cleaned.includes('KANDUNGAN') || cleaned === 'OBGYN') return 'PL006 (POLI OBGYN)';
-      if (cleaned.includes('POLI MATA') || cleaned === 'MATA') return 'MT (POLI MATA)';
-      if (cleaned.includes('POLI PENYAKIT DALAM') || cleaned === 'DALAM' || cleaned.includes('INTERNA')) return 'PPD (POLI PENYAKIT DALAM)';
-      if (cleaned.includes('POLI PARU') || cleaned === 'PARU') return 'PR (POLI PARU)';
-      if (cleaned.includes('POLI GIGI') || cleaned.includes('GIGI DAN MULUT')) return 'GGM (POLI GIGI DAN MULUT)';
-      if (cleaned.includes('FISIOTERAPI') || cleaned.includes('REHABILITASI')) return 'PL004 (POLI FISIOTERAPI)';
-      if (cleaned.includes('SARAF') || cleaned.includes('NEUROLOGI')) return 'SARAF (POLI SARAF)';
-      if (cleaned.includes('JANTUNG') || cleaned.includes('KARDIO')) return 'JPD (POLI JANTUNG DAN PEMBULUH DARAH)';
-      if (cleaned.includes('UROLOGI')) return 'URO (POLI UROLOGI)';
-      if (cleaned.includes('BEDAH UMUM')) return 'BU (POLI BEDAH UMUM)';
-      if (cleaned.includes('ORTOPEDI')) return 'ORT (POLI ORTOPEDI)';
-      if (cleaned.includes('HOMECARE') || cleaned.includes('HC')) return 'HC (HOMECARE)';
-      if (cleaned.includes('IGD')) return 'IGD';
-      if (cleaned.includes('RAWAT INAP') || cleaned.includes('RANAP') || cleaned.includes('IRI')) return 'IRI (RAWAT INAP)';
-      if (cleaned.includes('LABORATORIUM') || cleaned.includes('LAB')) return 'LABORATORIUM';
-      
-      return null;
-    };
 
     for (let line of lines) {
       line = line.trim();
@@ -1416,7 +1293,7 @@ export default function RawatJalan() {
                           <div className="flex items-center justify-center h-full text-slate-350 text-xs font-mono">
                             Tidak ada data statistik tersedia
                           </div>
-                        ) : (
+                        ) : recharts ? (
                           <ResponsiveContainer width="100%" height="100%">
                             <ComposedChart data={chartTrendData}>
                               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -1429,6 +1306,8 @@ export default function RawatJalan() {
                               <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Tarif Pendapatan" stroke="#0f766e" strokeWidth={2.5} dot={{ r: 4 }} />
                             </ComposedChart>
                           </ResponsiveContainer>
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
                         )}
                       </div>
 
@@ -1474,7 +1353,7 @@ export default function RawatJalan() {
                       <div className="h-[250px] flex items-center justify-center">
                         {chartTreatmentData.length === 0 ? (
                           <div className="text-slate-350 text-xs font-mono">Belum ada tindakan medis tercatat</div>
-                        ) : (
+                        ) : recharts ? (
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                               <Pie
@@ -1493,6 +1372,8 @@ export default function RawatJalan() {
                               <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
                             </PieChart>
                           </ResponsiveContainer>
+                        ) : (
+                          <div className="text-slate-400 text-xs">Memuat grafik...</div>
                         )}
                       </div>
 
@@ -1674,7 +1555,7 @@ export default function RawatJalan() {
                     <div className="text-center py-6 text-slate-400 text-xs font-medium">
                       Belum ada data kunjungan
                     </div>
-                  ) : (
+                  ) : recharts ? (
                     <div className="flex items-center justify-center h-24 relative my-1">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -1703,6 +1584,10 @@ export default function RawatJalan() {
                           Total
                         </span>
                       </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-slate-400 text-xs font-medium">
+                      Memuat grafik...
                     </div>
                   )}
 
@@ -2664,4 +2549,4 @@ export default function RawatJalan() {
     )}
     </div>
   );
-}
+});

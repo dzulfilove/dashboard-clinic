@@ -26,7 +26,7 @@ interface ActivityLog {
   created_at: string;
 }
 
-export default function ActivityLogs() {
+export default React.memo(function ActivityLogs() {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [allFilteredLogs, setAllFilteredLogs] = useState<ActivityLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -496,4 +496,4 @@ export default function ActivityLogs() {
       </div>
     </div>
   );
-}
+});

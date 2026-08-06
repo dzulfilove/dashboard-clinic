@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore.js';
@@ -19,23 +19,7 @@ import {
   ArrowUpRight,
   Filter
 } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-  AreaChart,
-  Area
-} from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
 import { LabData } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
@@ -63,8 +47,40 @@ const itemVariants = {
   }
 };
 
-export default function DashboardLab() {
+const MONTHS = [
+  { value: 1, name: 'Januari' },
+  { value: 2, name: 'Februari' },
+  { value: 3, name: 'Maret' },
+  { value: 4, name: 'April' },
+  { value: 5, name: 'Mei' },
+  { value: 6, name: 'Juni' },
+  { value: 7, name: 'Juli' },
+  { value: 8, name: 'Agustus' },
+  { value: 9, name: 'September' },
+  { value: 10, name: 'Oktober' },
+  { value: 11, name: 'November' },
+  { value: 12, name: 'Desember' }
+];
+
+const YEARS = [2024, 2025, 2026, 2027];
+
+export default React.memo(function DashboardLab() {
   const { user } = useAuthStore();
+  const recharts = useRecharts();
+  const BarChart = recharts?.BarChart;
+  const Bar = recharts?.Bar;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const Tooltip = recharts?.Tooltip;
+  const Legend = recharts?.Legend;
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
+  const AreaChart = recharts?.AreaChart;
+  const Area = recharts?.Area;
+
   const [loading, setLoading] = useState(true);
   const [isVisualizing, setIsVisualizing] = useState(true);
   const [labData, setLabData] = useState<LabData[]>([]);
@@ -89,22 +105,44 @@ export default function DashboardLab() {
   const [endMonth, setEndMonth] = useState(d.getMonth() + 1); // Default to current month
   const [endYear, setEndYear] = useState(2026); // Default seed year
 
-  const months = [
-    { value: 1, name: 'Januari' },
-    { value: 2, name: 'Februari' },
-    { value: 3, name: 'Maret' },
-    { value: 4, name: 'April' },
-    { value: 5, name: 'Mei' },
-    { value: 6, name: 'Juni' },
-    { value: 7, name: 'Juli' },
-    { value: 8, name: 'Agustus' },
-    { value: 9, name: 'September' },
-    { value: 10, name: 'Oktober' },
-    { value: 11, name: 'November' },
-    { value: 12, name: 'Desember' }
-  ];
+  const months = MONTHS;
+  const years = YEARS;
 
-  const years = [2024, 2025, 2026, 2027];
+  // Formats raw database flat records to recharts multi-series timeline data and filters by current range
+  const processTrendData = useCallback((rawTrends: any[], sM = 1, sY = 2026, eM = 12, eY = 2026) => {
+    const timelineMap: { [key: string]: any } = {};
+    
+    rawTrends.forEach((row: any) => {
+      const monthObj = MONTHS.find(m => m.value === row.bulan);
+      const label = `${monthObj ? monthObj.name.substring(0, 3) : row.bulan} ${row.tahun}`;
+      const periodKey = `${row.tahun}-${String(row.bulan).padStart(2, '0')}`;
+      
+      if (!timelineMap[periodKey]) {
+        timelineMap[periodKey] = {
+          name: label,
+          sortKey: periodKey,
+          HEMATOLOGI: 0,
+          'KIMIA DARAH': 0,
+          IMUNOSEROLOGI: 0,
+          URINALISIS: 0,
+          Total: 0
+        };
+      }
+      
+      const categoryName = row.kategori.toUpperCase();
+      timelineMap[periodKey][categoryName] = (timelineMap[periodKey][categoryName] || 0) + Number(row.total);
+      timelineMap[periodKey].Total += Number(row.total);
+    });
+
+    const startKey = `${sY}-${String(sM).padStart(2, '0')}`;
+    const endKey = `${eY}-${String(eM).padStart(2, '0')}`;
+
+    const sortedList = Object.values(timelineMap)
+      .sort((a: any, b: any) => a.sortKey.localeCompare(b.sortKey))
+      .filter((item: any) => item.sortKey >= startKey && item.sortKey <= endKey);
+
+    setTrendData(sortedList);
+  }, []);
 
   // Fetch Laboratory volumes and history trend curves
   useEffect(() => {
@@ -141,7 +179,7 @@ export default function DashboardLab() {
     }
 
     fetchLabAnalytics();
-  }, [startMonth, startYear, endMonth, endYear]);
+  }, [startMonth, startYear, endMonth, endYear, processTrendData]);
 
   useEffect(() => {
     setIsVisualizing(true);
@@ -161,16 +199,16 @@ export default function DashboardLab() {
     }
   }, [labData, activeCategory]);
 
-  const getDaysInRangeCount = () => {
+  const getDaysInRangeCount = useCallback(() => {
     const sD = new Date(startYear, startMonth - 1, 1);
     const eD = new Date(endYear, endMonth, 0); // Last day of endMonth
     const diffTime = Math.abs(eD.getTime() - sD.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays || 30;
-  };
+  }, [startYear, startMonth, endYear, endMonth]);
 
   // Process daily progression for each lab parameter
-  const getProgressList = () => {
+  const getProgressList = useCallback(() => {
     // Group dailyProgressData by parameterId
     const grouped: { [id: number]: {
       id: number;
@@ -241,63 +279,31 @@ export default function DashboardLab() {
     });
 
     return Object.values(grouped).sort((a, b) => b.total - a.total);
-  };
-
-  // Formats raw database flat records to recharts multi-series timeline data and filters by current range
-  const processTrendData = (rawTrends: any[], sM = 1, sY = 2026, eM = 12, eY = 2026) => {
-    const timelineMap: { [key: string]: any } = {};
-    
-    rawTrends.forEach((row: any) => {
-      const label = `${months.find(m => m.value === row.bulan)?.name.substring(0, 3)} ${row.tahun}`;
-      const periodKey = `${row.tahun}-${String(row.bulan).padStart(2, '0')}`;
-      
-      if (!timelineMap[periodKey]) {
-        timelineMap[periodKey] = {
-          name: label,
-          sortKey: periodKey,
-          HEMATOLOGI: 0,
-          'KIMIA DARAH': 0,
-          IMUNOSEROLOGI: 0,
-          URINALISIS: 0,
-          Total: 0
-        };
-      }
-      
-      const categoryName = row.kategori.toUpperCase();
-      timelineMap[periodKey][categoryName] = (timelineMap[periodKey][categoryName] || 0) + Number(row.total);
-      timelineMap[periodKey].Total += Number(row.total);
-    });
-
-    const startKey = `${sY}-${String(sM).padStart(2, '0')}`;
-    const endKey = `${eY}-${String(eM).padStart(2, '0')}`;
-
-    const sortedList = Object.values(timelineMap)
-      .sort((a: any, b: any) => a.sortKey.localeCompare(b.sortKey))
-      .filter((item: any) => item.sortKey >= startKey && item.sortKey <= endKey);
-
-    setTrendData(sortedList);
-  };
+  }, [labData, dailyProgressData]);
 
   // Overall KPIs
-  const totalExams = labData.reduce((sum, d) => sum + d.jumlah, 0);
+  const totalExams = useMemo(() => labData.reduce((sum, d) => sum + d.jumlah, 0), [labData]);
 
   // Sorting descending to identify peak parameters
-  const sortedParams = [...labData].sort((a, b) => b.jumlah - a.jumlah);
+  const sortedParams = useMemo(() => [...labData].sort((a, b) => b.jumlah - a.jumlah), [labData]);
   const peakParameter = sortedParams[0];
   const lowParameter = sortedParams.filter(d => d.jumlah > 0).pop();
 
   // Group current month data by category for category comparison list & charts
-  const categoryShareDataMap: { [cat: string]: number } = {};
-  labData.forEach(d => {
-    const key = d.kategori || 'LAIN-LAIN';
-    categoryShareDataMap[key] = (categoryShareDataMap[key] || 0) + d.jumlah;
-  });
+  const categoryShareDataMap: { [cat: string]: number } = useMemo(() => {
+    const map: { [cat: string]: number } = {};
+    labData.forEach(d => {
+      const key = d.kategori || 'LAIN-LAIN';
+      map[key] = (map[key] || 0) + d.jumlah;
+    });
+    return map;
+  }, [labData]);
 
   const COLORS = ['#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444'];
-  const categoryChartData = Object.entries(categoryShareDataMap).map(([name, value]) => ({
+  const categoryChartData = useMemo(() => Object.entries(categoryShareDataMap).map(([name, value]) => ({
     name,
     value
-  }));
+  })), [categoryShareDataMap]);
 
   // Unique categories helper
   const uniqueCategories = Array.from(new Set(labData.map(d => d.kategori).filter(Boolean)));
@@ -601,7 +607,7 @@ export default function DashboardLab() {
                 </div>
 
                 <div className="h-64 w-full">
-                  {comparisonChartData.length > 0 ? (
+                  {recharts && comparisonChartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={comparisonChartData} margin={{ top: 10, right: 10, left: -25, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
@@ -615,6 +621,8 @@ export default function DashboardLab() {
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
+                  ) : comparisonChartData.length > 0 ? (
+                    <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
                   ) : (
                     <div className="h-full flex items-center justify-center text-slate-400">Belum ada pengujian lab terdata.</div>
                   )}
@@ -635,8 +643,8 @@ export default function DashboardLab() {
                     </h3>
                   </div>
 
-                  <div className="h-40 w-full flex items-center justify-center">
-                    {categoryChartData.length > 0 && totalExams > 0 ? (
+                   <div className="h-40 w-full flex items-center justify-center">
+                    {recharts && categoryChartData.length > 0 && totalExams > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -655,6 +663,8 @@ export default function DashboardLab() {
                           <Tooltip contentStyle={{ borderRadius: '8px', fontSize: "12px" }} />
                         </PieChart>
                       </ResponsiveContainer>
+                    ) : categoryChartData.length > 0 && totalExams > 0 ? (
+                      <div className="text-slate-400 text-center py-6">Memuat grafik...</div>
                     ) : (
                       <div className="text-slate-400 text-center py-6">Kosong</div>
                     )}
@@ -692,7 +702,7 @@ export default function DashboardLab() {
             </h3>
             
             <div className="h-60 w-full">
-              {trendData.length > 0 ? (
+              {recharts && trendData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                     <defs>
@@ -715,6 +725,8 @@ export default function DashboardLab() {
                     <Area type="monotone" dataKey="Total" name="Total Pengujian" stroke="#64748B" strokeWidth={2} fill="transparent" strokeDasharray="4 4" />
                   </AreaChart>
                 </ResponsiveContainer>
+              ) : trendData.length > 0 ? (
+                <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
               ) : (
                 <div className="h-full flex items-center justify-center text-slate-400">Tidak ada visualisasi historis.</div>
               )}
@@ -871,7 +883,7 @@ export default function DashboardLab() {
                   </div>
 
                   <div className="h-[340px] w-full">
-                    {topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
+                    {recharts && topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                            data={topTenCategoryParams}
@@ -894,6 +906,8 @@ export default function DashboardLab() {
                           <Bar dataKey="jumlah" fill="#14B8A6" radius={[0, 4, 4, 0]} name="Hasil Rentang Terpilih" />
                         </BarChart>
                       </ResponsiveContainer>
+                    ) : topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
+                      <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
                     ) : (
                       <div className="h-full flex items-center justify-center text-slate-400">
                         Belum ada parameter berangka diinput pada kategori ini.
@@ -1212,7 +1226,7 @@ export default function DashboardLab() {
                       </div>
 
                       <div className="h-64 mt-2">
-                        {activeParam.dailySeries.length > 0 ? (
+                        {recharts && activeParam.dailySeries.length > 0 ? (
                           <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={activeParam.dailySeries.map(day => {
                               let label = day.tanggal;
@@ -1258,6 +1272,8 @@ export default function DashboardLab() {
                               />
                             </AreaChart>
                           </ResponsiveContainer>
+                        ) : activeParam.dailySeries.length > 0 ? (
+                          <div className="h-full flex items-center justify-center text-slate-400 text-xs">Memuat grafik...</div>
                         ) : (
                           <div className="h-full flex items-center justify-center text-slate-400 text-xs">
                             Belum ada rekam transaksi harian pada rentang bulan terpilih.
@@ -1323,4 +1339,4 @@ export default function DashboardLab() {
 
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -25,7 +25,7 @@ import api from '../../services/api.js';
 import { ObatMaster } from '../../types.js';
 import { motion, AnimatePresence } from 'motion/react';
 
-export default function MasterObat() {
+export default React.memo(function MasterObat() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
 
@@ -979,4 +979,4 @@ export default function MasterObat() {
       </motion.div>
     </motion.div>
   );
-}
+});

@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { 
   Search, 
   Plus, 
@@ -20,7 +20,7 @@ import api from '../../services/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { Pasien } from '../../types';
 
-export default function MasterPasien() {
+export default React.memo(function MasterPasien() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
@@ -734,4 +734,4 @@ export default function MasterPasien() {
       )}
     </div>
   );
-}
+});

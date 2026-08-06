@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore.js';
 
@@ -11,31 +11,31 @@ import { prefetchRoutes } from './routePrefetch.js';
 
 import InteractiveGuide from './components/InteractiveGuide.js';
 
-// Pages
-import Login from './pages/Login.js';
-import Dashboard from './pages/Dashboard.js';
-import InputPemeriksaan from './pages/lab/InputPemeriksaan.js';
-import MasterPemeriksaan from './pages/lab/MasterPemeriksaan.js';
-import DashboardLab from './pages/lab/DashboardLab.js';
-import MasterObat from './pages/farmasi/MasterObat.js';
-import InputKonsumsi from './pages/farmasi/InputKonsumsi.js';
-import Forecasting from './pages/farmasi/Forecasting.js';
-import AbcAnalysis from './pages/farmasi/AbcAnalysis.js';
-import UsersManagement from './pages/admin/Users.js';
-import ActivityLogs from './pages/admin/ActivityLogs.js';
-import DatabaseSettings from './pages/admin/DatabaseSettings.js';
-import RawatJalan from './pages/pelayanan/RawatJalan.js';
-import IGD from './pages/pelayanan/IGD.js';
-import MasterTindakan from './pages/pelayanan/MasterTindakan.js';
-import MasterPasien from './pages/pelayanan/MasterPasien.js';
-import MasterICD10 from './pages/pelayanan/MasterICD10.js';
-import RawatInap from './pages/pelayanan/RawatInap.js';
-import MasterDokter from './pages/pelayanan/MasterDokter.js';
-import MasterWilayah from './pages/pelayanan/MasterWilayah.js';
-import DemografiKunjungan from './pages/demografi/DemografiKunjungan.js';
-import DemografiDiagnosa from './pages/demografi/DemografiDiagnosa.js';
-import DashboardDokter from './pages/pelayanan/DashboardDokter.js';
-import FollowUpVaksin from './pages/pelayanan/FollowUpVaksin.js';
+// Pages (Lazy Loaded)
+const Login = lazy(() => import('./pages/Login.js'));
+const Dashboard = lazy(() => import('./pages/Dashboard.js'));
+const InputPemeriksaan = lazy(() => import('./pages/lab/InputPemeriksaan.js'));
+const MasterPemeriksaan = lazy(() => import('./pages/lab/MasterPemeriksaan.js'));
+const DashboardLab = lazy(() => import('./pages/lab/DashboardLab.js'));
+const MasterObat = lazy(() => import('./pages/farmasi/MasterObat.js'));
+const InputKonsumsi = lazy(() => import('./pages/farmasi/InputKonsumsi.js'));
+const Forecasting = lazy(() => import('./pages/farmasi/Forecasting.js'));
+const AbcAnalysis = lazy(() => import('./pages/farmasi/AbcAnalysis.js'));
+const UsersManagement = lazy(() => import('./pages/admin/Users.js'));
+const ActivityLogs = lazy(() => import('./pages/admin/ActivityLogs.js'));
+const DatabaseSettings = lazy(() => import('./pages/admin/DatabaseSettings.js'));
+const RawatJalan = lazy(() => import('./pages/pelayanan/RawatJalan.js'));
+const IGD = lazy(() => import('./pages/pelayanan/IGD.js'));
+const MasterTindakan = lazy(() => import('./pages/pelayanan/MasterTindakan.js'));
+const MasterPasien = lazy(() => import('./pages/pelayanan/MasterPasien.js'));
+const MasterICD10 = lazy(() => import('./pages/pelayanan/MasterICD10.js'));
+const RawatInap = lazy(() => import('./pages/pelayanan/RawatInap.js'));
+const MasterDokter = lazy(() => import('./pages/pelayanan/MasterDokter.js'));
+const MasterWilayah = lazy(() => import('./pages/pelayanan/MasterWilayah.js'));
+const DemografiKunjungan = lazy(() => import('./pages/demografi/DemografiKunjungan.js'));
+const DemografiDiagnosa = lazy(() => import('./pages/demografi/DemografiDiagnosa.js'));
+const DashboardDokter = lazy(() => import('./pages/pelayanan/DashboardDokter.js'));
+const FollowUpVaksin = lazy(() => import('./pages/pelayanan/FollowUpVaksin.js'));
 
 export default function App() {
   useEffect(() => {
@@ -59,7 +59,11 @@ function AppContent() {
     <>
       <Routes>
         {/* Public Login Route */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={
+          <Suspense fallback={<Loader />}>
+            <Login />
+          </Suspense>
+        } />
 
         {/* Bound Protected Core Application Layout */}
         <Route
@@ -80,9 +84,10 @@ function AppContent() {
                 {/* Core Main Viewport Stage */}
                 <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
                   <div className="max-w-7xl mx-auto h-full">
-                    <Routes location={location} key={location.pathname}>
-                      {/* Integrated Shared Dashboard (Home) */}
-                      <Route path="/" element={<Dashboard />} />
+                    <Suspense fallback={<Loader />}>
+                      <Routes location={location} key={location.pathname}>
+                        {/* Integrated Shared Dashboard (Home) */}
+                        <Route path="/" element={<Dashboard />} />
 
                       {/* LABORATORY MODUL ROUTES */}
                       <Route 
@@ -273,7 +278,8 @@ function AppContent() {
                       {/* Wildcard Fallback redirection */}
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
-                  </div>
+                  </Suspense>
+                </div>
                 </main>
               </div>
             </ProtectedRoute>

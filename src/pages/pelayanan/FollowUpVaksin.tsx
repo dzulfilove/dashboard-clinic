@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, Plus, Trash2, Edit3, ClipboardList, TrendingUp, FileText, Clock, CheckCircle, AlertCircle, Search, X, Syringe, Send, MessageSquare, Bell, BellRing, Check, UserPlus, Loader2, Filter, CalendarDays, CalendarPlus, Stethoscope, Settings, BarChart2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from 'recharts';
@@ -95,7 +95,7 @@ const UNIT_KUNJUNGAN_LIST = [
   'Unit MCU & Vaksinasi Mandiri'
 ];
 
-export default function FollowUpVaksinPage() {
+export default React.memo(function FollowUpVaksinPage() {
   const [data, setData] = useState<FollowUpType[]>([]);
   const [pasienList, setPasienList] = useState<Pasien[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1533,4 +1533,4 @@ export default function FollowUpVaksinPage() {
       )}
     </div>
   );
-}
+});

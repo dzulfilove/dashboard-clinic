@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   HeartPulse, 
@@ -62,7 +62,7 @@ interface TimelineItem {
   [key: string]: any;
 }
 
-export default function DemografiDiagnosa() {
+export default React.memo(function DemografiDiagnosa() {
   const [loading, setLoading] = useState(true);
   const [isVisualizing, setIsVisualizing] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -607,4 +607,4 @@ export default function DemografiDiagnosa() {
 
     </div>
   );
-}
+});

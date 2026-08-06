@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -74,28 +74,10 @@ interface InpatientRecord {
   tindakan: Tindakan[];
 }
 
-const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
+import { formatTanggalIndo, parseIndoDate } from '../../utils/dateFormat.js';
+import { parseJenisKelamin } from '../../utils/bulkParser.js';
 
-const formatTanggalIndo = (tanggalStr: string) => {
-  if (!tanggalStr) return '-';
-  try {
-    const rawDate = tanggalStr.includes('T') ? tanggalStr.split('T')[0] : tanggalStr;
-    const parts = rawDate.split('-');
-    if (parts.length === 3) {
-      const year = parts[0];
-      const monthIndex = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-      if (monthIndex >= 0 && monthIndex < 12) {
-        return `${day} ${months[monthIndex]} ${year}`;
-      }
-    }
-  } catch (e) {}
-  return tanggalStr;
-};
+const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
 
 const isDoctorForUnit = (doc: any, unitName: string) => {
   if (!unitName) return true;
@@ -283,7 +265,7 @@ const ParsedRowPreview = React.memo(({
   );
 });
 
-export default function RawatInap() {
+export default React.memo(function RawatInap() {
   const [records, setRecords] = useState<InpatientRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -595,72 +577,6 @@ export default function RawatInap() {
         }
       }
     });
-  };
-
-  // Helper function to parse Indonesian date strings (e.g., "13 April 2001" or "19 Juni 2026") into YYYY-MM-DD
-  const parseIndoDate = (dateStr: string): string => {
-    if (!dateStr) return new Date().toISOString().split('T')[0];
-    const str = dateStr.trim().toLowerCase();
-    
-    // Check if it's already YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
-      return str;
-    }
-    
-    // Check if it's DD-MM-YYYY or DD/MM/YYYY
-    const delimiterMatch = str.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
-    if (delimiterMatch) {
-      const d = delimiterMatch[1].padStart(2, '0');
-      const m = delimiterMatch[2].padStart(2, '0');
-      const y = delimiterMatch[3];
-      return `${y}-${m}-${d}`;
-    }
-
-    const monthMap: { [key: string]: string } = {
-      januari: '01', jan: '01',
-      februari: '02', feb: '02',
-      maret: '03', mar: '03',
-      april: '04', apr: '04',
-      mei: '05',
-      juni: '06', jun: '06',
-      juli: '07', jul: '07',
-      agustus: '08', agu: '08', agst: '08',
-      september: '09', sep: '09',
-      oktober: '10', okt: '10',
-      november: '11', nopember: '11', nov: '11',
-      desember: '12', des: '12',
-    };
-
-    const parts = str.split(/\s+/);
-    if (parts.length === 3) {
-      const d = parts[0].padStart(2, '0');
-      const mStr = parts[1];
-      const y = parts[2];
-      const m = monthMap[mStr] || '01';
-      if (/^\d{1,2}$/.test(d) && /^\d{4}$/.test(y)) {
-        return `${y}-${m}-${d}`;
-      }
-    }
-
-    // Fallback parser for standard Date
-    try {
-      const parsed = new Date(dateStr);
-      if (!isNaN(parsed.getTime())) {
-        return parsed.toISOString().split('T')[0];
-      }
-    } catch (e) {
-      // ignore
-    }
-
-    return new Date().toISOString().split('T')[0];
-  };
-
-  const parseJenisKelamin = (jkStr: string): string => {
-    if (!jkStr) return '';
-    const j = jkStr.toLowerCase().trim();
-    if (j.startsWith('l') || j === 'pria') return 'L';
-    if (j.startsWith('p') || j === 'wanita') return 'P';
-    return jkStr;
   };
 
   // Paste Text Parser Suite
@@ -2541,4 +2457,4 @@ export default function RawatInap() {
     )}
     </div>
   );
-}
+});

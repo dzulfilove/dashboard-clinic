@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   Database,
@@ -17,7 +17,7 @@ import {
 import api from '../../services/api.js';
 import { DbStatus } from '../../types.js';
 
-export default function DatabaseSettings() {
+export default React.memo(function DatabaseSettings() {
   const { user } = useAuthStore();
   const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -337,4 +337,4 @@ export default function DatabaseSettings() {
       </div>
     </div>
   );
-}
+});

@@ -18,24 +18,7 @@ import {
   FileSpreadsheet,
   Edit2
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  ComposedChart,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import { motion } from 'motion/react';
 import SaldoAwal from '../../components/SaldoAwal.js';
 
@@ -44,8 +27,22 @@ const COLORS = ['#0d9488', '#4f46e5', '#f59e0b', '#ef4444', '#1e293b', '#ec4899'
 import api from '../../services/api.js';
 import { ObatMaster, ObatKonsumsi } from '../../types.js';
 
-export default function InputKonsumsi() {
+export default React.memo(function InputKonsumsi() {
   const { user } = useAuthStore();
+  const recharts = useRecharts();
+  const ComposedChart = recharts?.ComposedChart;
+  const Bar = recharts?.Bar;
+  const Line = recharts?.Line;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const Tooltip = recharts?.Tooltip;
+  const Legend = recharts?.Legend;
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
+
   const [medicines, setMedicines] = useState<ObatMaster[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingRows, setSavingRows] = useState<{ [id: number]: boolean }>({});
@@ -642,18 +639,22 @@ export default function InputKonsumsi() {
                     </div>
 
                     <div className="h-[280px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={statsSummary.timelineData}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                          <XAxis dataKey="tanggal_label" fontSize={12} tickLine={false} stroke="#94a3b8" />
-                          <YAxis yAxisId="left" fontSize={12} tickLine={false} stroke="#0d9488" label={{ value: 'Pemakaian (unit)', angle: -90, position: 'insideLeft', style: {fontSize: 12, fill: '#0d9488'} }} />
-                          <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} stroke="#4f46e5" label={{ value: 'Penerimaan (unit)', angle: 90, position: 'insideRight', style: {fontSize: 12, fill: '#4f46e5'} }} />
-                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px', border: 'none', backgroundColor: '#0f172a', color: '#fff' }} />
-                          <Legend wrapperStyle={{ fontSize: "12px" }} />
-                          <Bar yAxisId="left" dataKey="pemakaian" name="Pemakaian" fill="#0d9488" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                          <Line yAxisId="right" type="monotone" dataKey="penerimaan" name="Penerimaan" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 4 }} />
-                        </ComposedChart>
-                      </ResponsiveContainer>
+                      {recharts ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <ComposedChart data={statsSummary.timelineData}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                            <XAxis dataKey="tanggal_label" fontSize={12} tickLine={false} stroke="#94a3b8" />
+                            <YAxis yAxisId="left" fontSize={12} tickLine={false} stroke="#0d9488" label={{ value: 'Pemakaian (unit)', angle: -90, position: 'insideLeft', style: {fontSize: 12, fill: '#0d9488'} }} />
+                            <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} stroke="#4f46e5" label={{ value: 'Penerimaan (unit)', angle: 90, position: 'insideRight', style: {fontSize: 12, fill: '#4f46e5'} }} />
+                            <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px', border: 'none', backgroundColor: '#0f172a', color: '#fff' }} />
+                            <Legend wrapperStyle={{ fontSize: "12px" }} />
+                            <Bar yAxisId="left" dataKey="pemakaian" name="Pemakaian" fill="#0d9488" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                            <Line yAxisId="right" type="monotone" dataKey="penerimaan" name="Penerimaan" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 4 }} />
+                          </ComposedChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
+                      )}
                     </div>
                   </div>
 
@@ -667,7 +668,7 @@ export default function InputKonsumsi() {
                     <div className="h-[250px] flex items-center justify-center">
                       {statsSummary.topMedicines.length === 0 ? (
                         <div className="text-slate-350 text-xs font-mono">Belum ada pemakaian obat tercatat</div>
-                      ) : (
+                      ) : recharts ? (
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
                             <Pie
@@ -686,6 +687,8 @@ export default function InputKonsumsi() {
                             <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
                           </PieChart>
                         </ResponsiveContainer>
+                      ) : (
+                        <div className="text-slate-400 text-xs">Memuat grafik...</div>
                       )}
                     </div>
 
@@ -1052,4 +1055,4 @@ export default function InputKonsumsi() {
       )}
     </div>
   );
-}
+});

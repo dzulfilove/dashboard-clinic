@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { 
   Search, 
   Plus, 
@@ -28,7 +28,7 @@ interface Dokter {
   spesialisasi_unit?: string | null;
 }
 
-export default function MasterDokter() {
+export default React.memo(function MasterDokter() {
   const [data, setData] = useState<Dokter[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -595,4 +595,4 @@ export default function MasterDokter() {
       )}
     </div>
   );
-}
+});

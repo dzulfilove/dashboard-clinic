@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { 
   Search, 
   Plus, 
@@ -22,7 +22,7 @@ interface Tindakan {
   jenis: 'RALAN' | 'RANAP';
 }
 
-export default function MasterTindakan() {
+export default React.memo(function MasterTindakan() {
   const [data, setData] = useState<Tindakan[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -355,4 +355,4 @@ export default function MasterTindakan() {
       )}
     </div>
   );
-}
+});

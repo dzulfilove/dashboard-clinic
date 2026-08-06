@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore.js';
 import { 
   TrendingUp, 
@@ -18,7 +18,7 @@ import api from '../services/api.js';
 import { DbStatus, ForecastResult, LabData, ObatMaster, User as UserType } from '../types.js';
 import AnalyticLoader from '../components/AnalyticLoader.js';
 
-export default function Dashboard() {
+export default React.memo(function Dashboard() {
   const { user } = useAuthStore();
   const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
   const [medForecast, setMedForecast] = useState<ForecastResult[]>([]);
@@ -442,4 +442,4 @@ export default function Dashboard() {
       )}
     </div>
   );
-}
+});

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Users, 
@@ -26,20 +26,7 @@ import {
   Layers,
   Heart
 } from 'lucide-react';
-import { 
-  ResponsiveContainer, 
-  ComposedChart, 
-  Bar, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  PieChart, 
-  Pie, 
-  Cell 
-} from 'recharts';
+import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
 import { ICD10, Pasien } from '../../types.js';
 
@@ -70,28 +57,10 @@ interface IgdRecord {
   dpjp: string;
 }
 
-const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
+import { formatTanggalIndo, parseIndoDate } from '../../utils/dateFormat.js';
+import { parseJenisKelamin } from '../../utils/bulkParser.js';
 
-const formatTanggalIndo = (tanggalStr: string) => {
-  if (!tanggalStr) return '-';
-  try {
-    const rawDate = tanggalStr.includes('T') ? tanggalStr.split('T')[0] : tanggalStr;
-    const parts = rawDate.split('-');
-    if (parts.length === 3) {
-      const year = parts[0];
-      const monthIndex = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-      if (monthIndex >= 0 && monthIndex < 12) {
-        return `${day} ${months[monthIndex]} ${year}`;
-      }
-    }
-  } catch (e) {}
-  return tanggalStr;
-};
+const COLORS = ['#0d9488', '#2563eb', '#8b5cf6', '#ec4899', '#f59e0b', '#ef4444', '#10b981'];
 
 const isDoctorForUnit = (doc: any, unitName: string) => {
   if (!unitName) return true;
@@ -262,7 +231,21 @@ const ParsedRowPreview = React.memo(({
   );
 });
 
-export default function IGD() {
+export default React.memo(function IGD() {
+  const recharts = useRecharts();
+  const ComposedChart = recharts?.ComposedChart;
+  const Bar = recharts?.Bar;
+  const Line = recharts?.Line;
+  const XAxis = recharts?.XAxis;
+  const YAxis = recharts?.YAxis;
+  const CartesianGrid = recharts?.CartesianGrid;
+  const Tooltip = recharts?.Tooltip;
+  const Legend = recharts?.Legend;
+  const ResponsiveContainer = recharts?.ResponsiveContainer;
+  const PieChart = recharts?.PieChart;
+  const Pie = recharts?.Pie;
+  const Cell = recharts?.Cell;
+
   const [records, setRecords] = useState<IgdRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -737,56 +720,6 @@ export default function IGD() {
     const lines = rawText.split('\n');
     const tempActions: any[] = [];
     let headerSkipped = false;
-
-    // Indonesian month helper
-    const parseIndoDate = (dateStr: string) => {
-      if (!dateStr) return new Date().toISOString().split('T')[0];
-      const cleaned = dateStr.trim().toLowerCase();
-      
-      // Try simple DD-MM-YYYY or YYYY-MM-DD
-      if (cleaned.includes('-') || cleaned.includes('/')) {
-        const parts = cleaned.split(/[-/]/);
-        if (parts.length === 3) {
-          if (parts[2].length === 4) {
-            // DD-MM-YYYY
-            const d = parts[0].padStart(2, '0');
-            const m = parts[1].padStart(2, '0');
-            const y = parts[2];
-            return `${y}-${m}-${d}`;
-          } else if (parts[0].length === 4) {
-            // YYYY-MM-DD
-            return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
-          }
-        }
-      }
-
-      const months: { [key: string]: string } = {
-        januari: '01', pebruari: '02', febuari: '02', februari: '02', maret: '03',
-        april: '04', mei: '05', juni: '06', juli: '07', agustus: '08',
-        september: '09', oktober: '10', nopember: '11', november: '11', desember: '12',
-        jan: '01', feb: '02', mar: '03', apr: '04', mei_short: '05', jun: '06',
-        jul: '07', agu: '08', ags: '08', sep: '09', okt: '10', nov: '11', des: '12'
-      };
-
-      const parts = cleaned.split(/\s+/);
-      if (parts.length === 3) {
-        const day = parts[0].padStart(2, '0');
-        const monthWord = parts[1];
-        const year = parts[2];
-        const monthNum = months[monthWord] || '01';
-        return `${year}-${monthNum}-${day}`;
-      }
-
-      return dateStr.trim() || new Date().toISOString().split('T')[0];
-    };
-
-    const parseJenisKelamin = (jkStr: string): string => {
-      if (!jkStr) return '';
-      const j = jkStr.toLowerCase().trim();
-      if (j.startsWith('l') || j === 'pria') return 'L';
-      if (j.startsWith('p') || j === 'wanita') return 'P';
-      return jkStr;
-    };
 
     for (let line of lines) {
       line = line.trim();
@@ -1329,7 +1262,7 @@ export default function IGD() {
                       <div className="flex items-center justify-center h-full text-slate-350 text-xs font-mono">
                         Tidak ada data statistik tersedia
                       </div>
-                    ) : (
+                    ) : recharts ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={chartTrendData}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -1342,6 +1275,8 @@ export default function IGD() {
                           <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Tarif Pendapatan" stroke="#0f766e" strokeWidth={2.5} dot={{ r: 4 }} />
                         </ComposedChart>
                       </ResponsiveContainer>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
                     )}
                   </div>
                 </div>
@@ -1358,7 +1293,7 @@ export default function IGD() {
                   <div className="h-[250px] flex items-center justify-center">
                     {chartTreatmentData.length === 0 ? (
                       <div className="text-slate-350 text-xs font-mono">Belum ada tindakan medis tercatat</div>
-                    ) : (
+                    ) : recharts ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -1377,6 +1312,8 @@ export default function IGD() {
                           <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '12px' }} />
                         </PieChart>
                       </ResponsiveContainer>
+                    ) : (
+                      <div className="text-slate-400 text-xs">Memuat grafik...</div>
                     )}
                   </div>
 
@@ -1573,7 +1510,7 @@ export default function IGD() {
                     <div className="text-center py-6 text-slate-400 text-xs font-medium">
                       Belum ada data kunjungan
                     </div>
-                  ) : (
+                  ) : recharts ? (
                     <div className="flex items-center justify-center h-24 relative my-1">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -1602,6 +1539,10 @@ export default function IGD() {
                           Total
                         </span>
                       </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-slate-400 text-xs font-medium">
+                      Memuat grafik...
                     </div>
                   )}
 
@@ -2510,4 +2451,4 @@ export default function IGD() {
       )}
     </div>
   );
-}
+});

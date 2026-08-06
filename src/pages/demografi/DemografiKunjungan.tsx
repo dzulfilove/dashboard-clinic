@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -32,7 +32,7 @@ import {
   CheckSquare,
   Square
 } from 'lucide-react';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import api from '../../services/api.js';
 import { 
   ResponsiveContainer, 
@@ -93,7 +93,7 @@ interface VisitHistory {
   icd: string;
 }
 
-export default function DemografiKunjungan() {
+export default React.memo(function DemografiKunjungan() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'loyal' | 'wilayah' | 'pasien'>('pasien');
   const [loading, setLoading] = useState(true);
@@ -1734,4 +1734,4 @@ export default function DemografiKunjungan() {
       )}
     </div>
   );
-}
+});

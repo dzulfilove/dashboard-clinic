@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   Users, 
@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import api from '../../services/api.js';
 import { User } from '../../types.js';
 
-export default function UsersManagement() {
+export default React.memo(function UsersManagement() {
   const { user: currentUser } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -474,4 +474,4 @@ export default function UsersManagement() {
       </div>
     </div>
   );
-}
+});

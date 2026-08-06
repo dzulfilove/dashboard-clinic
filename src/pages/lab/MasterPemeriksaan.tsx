@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
-import Swal from 'sweetalert2';
+import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { 
   FlaskConical, 
@@ -24,7 +24,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import api from '../../services/api.js';
 import { LabParameter } from '../../types.js';
 
-export default function MasterPemeriksaan() {
+export default React.memo(function MasterPemeriksaan() {
   const { user } = useAuthStore();
 
   // Filter state for category in management
@@ -915,4 +915,4 @@ export default function MasterPemeriksaan() {
       )}
     </div>
   );
-}
+});
