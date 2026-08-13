@@ -58,23 +58,40 @@ export default React.memo(function Dashboard() {
 
       try {
         setLoading(true);
+
+        const fetchSafely = async (endpoint: string) => {
+          try {
+            const res = await api.get(endpoint);
+            return res.data;
+          } catch (e: any) {
+            if (e?.message !== 'Network Error') {
+              console.warn(`Failed to fetch ${endpoint} silently:`, e?.message || e);
+            }
+            return null;
+          }
+        };
+
         // Fire parallel calls
-        const [dbRes, forecastRes, labRes, medRes] = await Promise.all([
-          api.get('/db/status'),
-          api.get(`/obat/forecast?bulan=${currentMonth}&tahun=${currentYear}`),
-          api.get(`/lab/data?bulan=${currentMonth}&tahun=${currentYear}`),
-          api.get('/obat/master')
+        const [dbData, forecastData, labData, medData] = await Promise.all([
+          fetchSafely('/db/status'),
+          fetchSafely(`/obat/forecast?bulan=${currentMonth}&tahun=${currentYear}`),
+          fetchSafely(`/lab/data?bulan=${currentMonth}&tahun=${currentYear}`),
+          fetchSafely('/obat/master')
         ]);
 
-        setDbStatus(dbRes.data);
-        setMedForecast(Array.isArray(forecastRes.data) ? forecastRes.data : []);
-        setLabEntries(Array.isArray(labRes.data) ? labRes.data : []);
-        setMedicines(Array.isArray(medRes.data) ? medRes.data : []);
+        if (dbData) setDbStatus(dbData);
+        setMedForecast(Array.isArray(forecastData) ? forecastData : []);
+        setLabEntries(Array.isArray(labData) ? labData : []);
+        setMedicines(Array.isArray(medData) ? medData : []);
 
         // Fetch users if admin
         if (user && user.role === 'admin') {
-          const uRes = await api.get('/admin/users');
-          setUserAccounts(uRes.data);
+          try {
+            const uRes = await api.get('/admin/users');
+            setUserAccounts(uRes.data);
+          } catch (uErr) {
+            console.warn('Failed to load admin user list silently:', uErr);
+          }
         }
       } catch (err: any) {
         if (err?.response?.status === 401) {

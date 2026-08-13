@@ -124,8 +124,11 @@ export default React.memo(function Sidebar() {
       try {
         const res = await api.get('/db/status');
         setDbStatus(res.data);
-      } catch (err) {
-        console.error('Failed to load DB status', err);
+      } catch (err: any) {
+        // Silently capture transient network drops or server restarts
+        if (err?.message !== 'Network Error') {
+          console.warn('Failed to load DB status silently:', err?.message || err);
+        }
       }
     }
     fetchDbStatus();
