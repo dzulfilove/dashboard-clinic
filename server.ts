@@ -533,8 +533,15 @@ app.get('/api/lab/parameter', authenticateToken, async (req, res) => {
   const all = req.query.all === 'true';
   try {
     const sql = all 
-      ? 'SELECT * FROM lab_parameter'
-      : 'SELECT * FROM lab_parameter WHERE is_active = 1';
+      ? `SELECT p.id, p.kategori_id, IFNULL(p.kategori, IFNULL(k.nama_kategori, 'UMUM')) as kategori, p.nama_parameter, p.is_active 
+         FROM lab_parameter p 
+         LEFT JOIN lab_kategori k ON p.kategori_id = k.id 
+         ORDER BY kategori ASC, p.nama_parameter ASC`
+      : `SELECT p.id, p.kategori_id, IFNULL(p.kategori, IFNULL(k.nama_kategori, 'UMUM')) as kategori, p.nama_parameter, p.is_active 
+         FROM lab_parameter p 
+         LEFT JOIN lab_kategori k ON p.kategori_id = k.id 
+         WHERE p.is_active = 1 OR p.is_active IS NULL 
+         ORDER BY kategori ASC, p.nama_parameter ASC`;
     const params = await db.query(sql);
     res.json(params);
   } catch (err: any) {
@@ -696,16 +703,173 @@ app.post('/api/lab/pemeriksaan/check-duplicates', authenticateToken, roleGuard([
   }
 });
 
+// Helper to sanitize dates to YYYY-MM-DD
+function sanitizeLabDate(dateInput: any): string {
+  const today = new Date().toISOString().split('T')[0];
+  if (!dateInput) return today;
+  let str = String(dateInput).trim();
+  if (str.includes('T')) str = str.split('T')[0].trim();
+  if (str.includes(' ')) str = str.split(' ')[0].trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  if (/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.test(str)) {
+    const m = str.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+    if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  }
+  return today;
+}
+
+// Single patient examination entry
+app.post('/api/lab/pemeriksaan', authenticateToken, roleGuard(['admin','lab','perawat','analis']), async (req: any, res) => {
+  const { parameter_id, pasien_no_rm, pasien_nama, pasien_nik, dpjp, tanggal_pemeriksaan } = req.body;
+  let { no_registrasi } = req.body;
+
+  if (!parameter_id || !pasien_no_rm || !pasien_nama) {
+    return res.status(400).json({ message: 'Parameter pemeriksaan, No. RM, dan Nama Pasien wajib diisi.' });
+  }
+
+  const noRm = String(pasien_no_rm).trim();
+  const nama = String(pasien_nama).trim();
+  const nik = pasien_nik && String(pasien_nik).trim() !== '' && String(pasien_nik).trim() !== '0' ? String(pasien_nik).trim() : null;
+  const dokter = dpjp && String(dpjp).trim() !== '' && String(dpjp).trim() !== 'N/A' && String(dpjp).trim() !== '-' ? String(dpjp).trim() : null;
+  const tanggal = sanitizeLabDate(tanggal_pemeriksaan);
+
+  if (!no_registrasi || String(no_registrasi).trim() === '') {
+    const randSuffix = Math.floor(1000 + Math.random() * 9000);
+    const dateFormatted = tanggal.replace(/-/g, '');
+    no_registrasi = `REG-LAB-${dateFormatted}-${randSuffix}`;
+  } else {
+    no_registrasi = String(no_registrasi).trim();
+  }
+
+  const userId = Number(req.user?.id) || 1;
+
+  try {
+    const status = db.getDiagnosticStatus();
+    if (status.isVirtual) {
+      const vdb = readVirtualDb();
+      if (!vdb.lab_pemeriksaan_pasien) vdb.lab_pemeriksaan_pasien = [];
+
+      // Check duplicate
+      const dup = vdb.lab_pemeriksaan_pasien.find((x: any) => x.no_registrasi === no_registrasi && x.parameter_id === Number(parameter_id));
+      if (dup) {
+        return res.status(400).json({ message: `No. Registrasi ${no_registrasi} dengan parameter ini sudah tersimpan.` });
+      }
+
+      // Check or create patient
+      if (!vdb.pasien) vdb.pasien = [];
+      let existingPasien = vdb.pasien.find((x: any) => x.no_rm === noRm);
+      if (!existingPasien) {
+        vdb.pasien.push({ no_rm: noRm, nik: nik, nama: nama, jenis_kelamin: 'L' });
+      }
+
+      const newRecord = {
+        id: Date.now(),
+        no_registrasi,
+        parameter_id: Number(parameter_id),
+        pasien_no_rm: noRm,
+        pasien_nik: nik,
+        pasien_nama: nama,
+        dpjp: dokter,
+        tanggal_pemeriksaan: tanggal,
+        input_by: userId,
+        created_at: new Date().toISOString()
+      };
+      vdb.lab_pemeriksaan_pasien.unshift(newRecord);
+
+      // Upsert lab_data_harian
+      if (!vdb.lab_data_harian) vdb.lab_data_harian = [];
+      const exIdx = vdb.lab_data_harian.findIndex((x: any) => x.parameter_id === Number(parameter_id) && x.tanggal === String(tanggal));
+      if (exIdx !== -1) {
+        vdb.lab_data_harian[exIdx].jumlah += 1;
+      } else {
+        vdb.lab_data_harian.push({
+          id: Date.now() + 100,
+          parameter_id: Number(parameter_id),
+          tanggal: String(tanggal),
+          jumlah: 1,
+          input_by: userId
+        });
+      }
+
+      writeVirtualDb(vdb);
+      return res.json({ success: true, message: 'Data pemeriksaan laboratorium berhasil disimpan.', data: newRecord });
+    }
+
+    // MySQL VPS mode
+    const params: any = await db.query('SELECT id, nama_parameter FROM lab_parameter WHERE id = ? AND (is_active = 1 OR is_active IS NULL)', [Number(parameter_id)]);
+    if (!params || params.length === 0) {
+      return res.status(400).json({ message: 'Parameter pemeriksaan tidak ditemukan atau tidak aktif.' });
+    }
+
+    const dup: any = await db.query('SELECT id FROM lab_pemeriksaan_pasien WHERE no_registrasi = ? AND parameter_id = ?', [no_registrasi, Number(parameter_id)]);
+    if (dup && dup.length > 0) {
+      return res.status(400).json({ message: `No. Registrasi ${no_registrasi} untuk pemeriksaan ini sudah pernah tersimpan.` });
+    }
+
+    // Ensure patient exists in pasien table
+    await db.query(
+      `INSERT INTO pasien (no_rm, nik, nama, jenis_kelamin)
+       VALUES (?, ?, ?, 'L')
+       ON DUPLICATE KEY UPDATE 
+         nama = IF(VALUES(nama) != '', VALUES(nama), nama),
+         nik = IF(VALUES(nik) IS NOT NULL AND VALUES(nik) != '', VALUES(nik), nik)`,
+      [noRm, nik, nama]
+    );
+
+    const insertResult: any = await db.query(
+      `INSERT INTO lab_pemeriksaan_pasien
+         (no_registrasi, parameter_id, pasien_no_rm, pasien_nik, pasien_nama, dpjp, tanggal_pemeriksaan, input_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [no_registrasi, Number(parameter_id), noRm, nik, nama, dokter, String(tanggal), userId]
+    );
+
+    // Upsert lab_data_harian
+    await db.query(
+      `INSERT INTO lab_data_harian (parameter_id, tanggal, jumlah, input_by)
+       VALUES (?, ?, 1, ?)
+       ON DUPLICATE KEY UPDATE jumlah = jumlah + 1, input_by = VALUES(input_by)`,
+      [Number(parameter_id), String(tanggal), userId]
+    );
+
+    try {
+      await logActivity(req.user?.email, 'CREATE', 'Pemeriksaan Lab',
+        `Input pemeriksaan lab: ${params[0]?.nama_parameter} untuk ${nama} (RM: ${noRm}, Reg: ${no_registrasi})`);
+    } catch (logErr) {
+      console.warn('Logging activity failed:', logErr);
+    }
+
+    return res.json({
+      success: true,
+      message: 'Data pemeriksaan laboratorium berhasil disimpan.',
+      data: {
+        id: insertResult?.insertId || Date.now(),
+        no_registrasi,
+        parameter_id: Number(parameter_id),
+        pasien_no_rm: noRm,
+        pasien_nik: nik,
+        pasien_nama: nama,
+        dpjp: dokter,
+        tanggal_pemeriksaan: tanggal
+      }
+    });
+  } catch (err: any) {
+    console.error('Error saving lab pemeriksaan:', err);
+    res.status(500).json({ message: err.message || 'Gagal menyimpan data pemeriksaan.' });
+  }
+});
+
 // Import massal pemeriksaan lab per pasien
 app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','lab','perawat','analis']), async (req: any, res) => {
-  const { parameter_id, items } = req.body; // items: [{no_registrasi,no_rm,nik,nama_pasien,dpjp,tanggal_pemeriksaan}]
+  const { parameter_id, items } = req.body;
   if (!parameter_id || !Array.isArray(items) || items.length === 0)
     return res.status(400).json({ message: 'Parameter pemeriksaan dan daftar pasien tidak lengkap.' });
+
+  const userId = Number(req.user?.id) || 1;
 
   try {
     const status = db.getDiagnosticStatus();
     
-    // In Virtual DB Mode, we just fake the insertion logic for now since this is an example
+    // In Virtual DB Mode
     if (status.isVirtual) {
       const vdb = readVirtualDb();
       if (!vdb.lab_pemeriksaan_pasien) vdb.lab_pemeriksaan_pasien = [];
@@ -714,19 +878,33 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
       
       for (const item of items) {
         try {
-          const noReg = (item.no_registrasi || '').trim();
-          const noRm  = (item.no_rm || '').trim();
-          const nama  = (item.nama_pasien || '').trim();
-          if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
+          let noReg = (item.no_registrasi || '').trim();
+          const noRm  = (item.no_rm || item.pasien_no_rm || '').trim();
+          const nama  = (item.nama_pasien || item.pasien_nama || '').trim();
+          const tgl = sanitizeLabDate(item.tanggal_pemeriksaan);
+
+          if (!noRm || !nama) { 
+            skipped++; 
+            skippedItems.push({ no_registrasi: noReg || '-', reason: 'No. RM atau Nama Pasien kosong' }); 
+            continue; 
+          }
+
+          if (!noReg) {
+            noReg = `REG-LAB-${tgl.replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+          }
 
           const dup = vdb.lab_pemeriksaan_pasien.find((x: any) => x.no_registrasi === noReg && x.parameter_id === Number(parameter_id));
-          if (dup) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
+          if (dup) { 
+            skipped++; 
+            skippedItems.push({ no_registrasi: noReg, reason: `No. Registrasi ${noReg} sudah terdaftar pada pemeriksaan ini` }); 
+            continue; 
+          }
           
           let existing = vdb.pasien?.find((x: any) => x.no_rm === noRm);
           if (!existing) {
             createdPasien++;
             if (!vdb.pasien) vdb.pasien = [];
-            vdb.pasien.push({ no_rm: noRm, nik: item.nik || null, nama, jenis_kelamin: 'L' });
+            vdb.pasien.push({ no_rm: noRm, nik: item.nik || item.pasien_nik || null, nama, jenis_kelamin: 'L' });
           }
           
           vdb.lab_pemeriksaan_pasien.push({
@@ -734,16 +912,14 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
             no_registrasi: noReg,
             parameter_id: Number(parameter_id),
             pasien_no_rm: noRm,
-            pasien_nik: item.nik || null,
+            pasien_nik: item.nik || item.pasien_nik || null,
             pasien_nama: nama,
             dpjp: item.dpjp || null,
-            tanggal_pemeriksaan: item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0],
-            input_by: req.user.id
+            tanggal_pemeriksaan: tgl,
+            input_by: userId
           });
 
-          // Upsert lab_data_harian untuk analitik
           if (!vdb.lab_data_harian) vdb.lab_data_harian = [];
-          const tgl = item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0];
           const exIdx = vdb.lab_data_harian.findIndex(
             (x:any) => x.parameter_id === Number(parameter_id) && x.tanggal === String(tgl));
           if (exIdx !== -1) {
@@ -754,7 +930,7 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
               parameter_id: Number(parameter_id),
               tanggal: String(tgl),
               jumlah: 1,
-              input_by: req.user.id
+              input_by: userId
             });
           }
 
@@ -768,58 +944,82 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
       return res.json({ success: true, total: items.length, inserted, skipped, created_pasien: createdPasien, skipped_items: skippedItems });
     }
 
-    const params: any = await db.query('SELECT id, nama_parameter FROM lab_parameter WHERE id = ? AND is_active = 1', [Number(parameter_id)]);
+    const params: any = await db.query('SELECT id, nama_parameter FROM lab_parameter WHERE id = ? AND (is_active = 1 OR is_active IS NULL)', [Number(parameter_id)]);
     if (!params || params.length === 0)
-      return res.status(400).json({ message: 'Pemeriksaan tidak ditemukan / tidak aktif.' });
+      return res.status(400).json({ message: 'Pemeriksaan laboratorium tidak ditemukan atau status tidak aktif.' });
 
     let inserted = 0, skipped = 0, createdPasien = 0;
-    const skippedItems = [];
+    const skippedItems: any[] = [];
 
     for (const item of items) {
       try {
-        const noReg = (item.no_registrasi || '').trim();
-        const noRm  = (item.no_rm || '').trim();
-        const nama  = (item.nama_pasien || '').trim();
-        if (!noReg || !noRm || !nama) { skipped++; skippedItems.push({ no_registrasi: noReg || '-', reason: 'no_registrasi/no_rm/nama tidak lengkap' }); continue; }
+        let noReg = (item.no_registrasi || '').trim();
+        const noRm  = (item.no_rm || item.pasien_no_rm || '').trim();
+        const nama  = (item.nama_pasien || item.pasien_nama || '').trim();
+        const tanggal = sanitizeLabDate(item.tanggal_pemeriksaan);
 
-        const nik = item.nik && item.nik !== '0' && item.nik !== '0000000000000000' && String(item.nik).trim()
-                    ? String(item.nik).trim() : null;
-        const dpjp = item.dpjp && item.dpjp !== 'N/A' && String(item.dpjp).trim() ? String(item.dpjp).trim() : null;
-        const tanggal = item.tanggal_pemeriksaan || new Date().toISOString().split('T')[0];
+        if (!noRm || !nama) { 
+          skipped++; 
+          skippedItems.push({ no_registrasi: noReg || '-', reason: 'No. RM atau Nama Pasien tidak lengkap' }); 
+          continue; 
+        }
+
+        if (!noReg) {
+          noReg = `REG-LAB-${tanggal.replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
+        }
+
+        const rawNik = item.nik || item.pasien_nik;
+        const nik = rawNik && rawNik !== '0' && rawNik !== '0000000000000000' && String(rawNik).trim()
+                    ? String(rawNik).trim() : null;
+        const dpjp = item.dpjp && item.dpjp !== 'N/A' && item.dpjp !== '-' && String(item.dpjp).trim() ? String(item.dpjp).trim() : null;
 
         const dup: any = await db.query('SELECT id FROM lab_pemeriksaan_pasien WHERE no_registrasi = ? AND parameter_id = ?', [noReg, Number(parameter_id)]);
-        if (dup && dup.length > 0) { skipped++; skippedItems.push({ no_registrasi: noReg, reason: 'duplikat' }); continue; }
-
-        const existing: any = await db.query('SELECT * FROM pasien WHERE no_rm = ?', [noRm]);
-        if (!existing || existing.length === 0) {
-          await db.query(
-            'INSERT INTO pasien (no_rm, nik, nama, jenis_kelamin) VALUES (?, ?, ?, ?)',
-            [noRm, nik, nama, 'L']);
-          createdPasien++;
-          await logActivity(req.user?.email, 'CREATE', 'Master Pasien',
-            `Pasien baru otomatis terdaftar: ${nama} (RM: ${noRm}) via Import Pemeriksaan Lab`);
-        } else if (nik && !existing[0].nik) {
-          await db.query('UPDATE pasien SET nik = ? WHERE no_rm = ?', [nik, noRm]);
+        if (dup && dup.length > 0) { 
+          skipped++; 
+          skippedItems.push({ no_registrasi: noReg, reason: `No. Registrasi ${noReg} sudah terdaftar pada tes ini (duplikat)` }); 
+          continue; 
         }
+
+        // Auto-register or update patient
+        await db.query(
+          `INSERT INTO pasien (no_rm, nik, nama, jenis_kelamin) 
+           VALUES (?, ?, ?, 'L')
+           ON DUPLICATE KEY UPDATE 
+             nama = IF(VALUES(nama) != '', VALUES(nama), nama),
+             nik = IF(VALUES(nik) IS NOT NULL AND VALUES(nik) != '', VALUES(nik), nik)`,
+          [noRm, nik, nama]
+        );
 
         await db.query(
           `INSERT INTO lab_pemeriksaan_pasien
              (no_registrasi, parameter_id, pasien_no_rm, pasien_nik, pasien_nama, dpjp, tanggal_pemeriksaan, input_by)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [noReg, Number(parameter_id), noRm, nik, nama, dpjp, String(tanggal), req.user.id]);
+          [noReg, Number(parameter_id), noRm, nik, nama, dpjp, String(tanggal), userId]
+        );
 
         // Upsert ke lab_data_harian agar analitik terupdate
         await db.query(
           `INSERT INTO lab_data_harian (parameter_id, tanggal, jumlah, input_by)
            VALUES (?, ?, 1, ?)
            ON DUPLICATE KEY UPDATE jumlah = jumlah + 1, input_by = VALUES(input_by)`,
-          [Number(parameter_id), String(tanggal), req.user.id]);
+          [Number(parameter_id), String(tanggal), userId]
+        );
 
         inserted++;
       } catch (itemErr: any) {
+        console.error('Error importing item:', itemErr);
         skipped++;
-        skippedItems.push({ no_registrasi: (item.no_registrasi||'-').trim(), reason: itemErr.message });
+        skippedItems.push({ no_registrasi: (item.no_registrasi||'-').trim(), reason: itemErr.message || 'Database error' });
       }
+    }
+
+    try {
+      if (inserted > 0) {
+        await logActivity(req.user?.email, 'CREATE', 'Pemeriksaan Lab',
+          `Import ${inserted} data pemeriksaan lab: ${params[0]?.nama_parameter}`);
+      }
+    } catch (logErr) {
+      console.warn('Logging activity failed:', logErr);
     }
 
     res.json({ success: true, total: items.length, inserted, skipped, created_pasien: createdPasien, skipped_items: skippedItems });
@@ -885,6 +1085,7 @@ app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
       let baseSql = `
         FROM lab_pemeriksaan_pasien r
         LEFT JOIN lab_parameter p ON r.parameter_id = p.id
+        LEFT JOIN lab_kategori k ON p.kategori_id = k.id
       `;
       const whereClauses: string[] = [];
       const params: any[] = [];
@@ -895,8 +1096,8 @@ app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
         params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
       }
       if (category) {
-        whereClauses.push(`p.kategori = ?`);
-        params.push(category);
+        whereClauses.push(`(p.kategori = ? OR k.nama_kategori = ?)`);
+        params.push(category, category);
       }
 
       const whereSql = whereClauses.length > 0 ? ` WHERE ${whereClauses.join(' AND ')}` : '';
@@ -908,7 +1109,7 @@ app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
         const totalPages = Math.ceil(total / limit) || 1;
         const offset = (page - 1) * limit;
 
-        const dataSql = `SELECT r.*, p.nama_parameter, p.kategori ${baseSql}${whereSql} ORDER BY r.id DESC LIMIT ? OFFSET ?`;
+        const dataSql = `SELECT r.*, p.nama_parameter, IFNULL(p.kategori, k.nama_kategori) as kategori ${baseSql}${whereSql} ORDER BY r.id DESC LIMIT ? OFFSET ?`;
         const pagedParams = [...params, limit, offset];
         const rows = await db.query(dataSql, pagedParams);
 
@@ -920,7 +1121,7 @@ app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
           totalPages
         });
       } else {
-        const dataSql = `SELECT r.*, p.nama_parameter, p.kategori ${baseSql}${whereSql} ORDER BY r.id DESC`;
+        const dataSql = `SELECT r.*, p.nama_parameter, IFNULL(p.kategori, k.nama_kategori) as kategori ${baseSql}${whereSql} ORDER BY r.id DESC`;
         const rows = await db.query(dataSql, params);
         return res.json(rows);
       }
