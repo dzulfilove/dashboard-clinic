@@ -5147,6 +5147,8 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
   if (!masterRows || masterRows.length === 0) return { warnings };
   const m = masterRows[0];
   const saldo_awal_nilai = Number(m.saldo_awal_nilai) || 0;
+  const saldo_awal_tahun = m.saldo_awal_tahun ? Number(m.saldo_awal_tahun) : null;
+  const saldo_awal_bulan = m.saldo_awal_bulan ? Number(m.saldo_awal_bulan) : null;
   const nama_obat = m.nama_obat || 'Unknown';
 
   // 2. Fetch all daily records ordered by tanggal ASC
@@ -5158,11 +5160,25 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
     return { warnings };
   }
 
+  const startingDateStr = (saldo_awal_tahun && saldo_awal_bulan)
+    ? `${saldo_awal_tahun}-${String(saldo_awal_bulan).padStart(2, '0')}-01`
+    : null;
+
   // 3. Iterate and recalculate
   let runningSisa = saldo_awal_nilai;
+  let hasSetInitialBalance = false;
   const monthYears = new Set<string>();
 
   for (const row of harianRows) {
+    const d = new Date(row.tanggal);
+    const rowDateStr = d.toISOString().split('T')[0];
+
+    // If startingDateStr is defined and row is on or after starting date, anchor running balance once
+    if (startingDateStr && rowDateStr >= startingDateStr && !hasSetInitialBalance) {
+      runningSisa = saldo_awal_nilai;
+      hasSetInitialBalance = true;
+    }
+
     const penerimaan = Number(row.penerimaan) || 0;
     const pemakaian = Number(row.pemakaian) || 0;
     const retur_hilang = Number(row.retur_hilang) || 0;
@@ -5171,7 +5187,7 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
     const sisa_stok = stok_awal + penerimaan - pemakaian - retur_hilang;
     
     if (sisa_stok < 0) {
-      warnings.push(`Stok ${nama_obat} menjadi negatif (${sisa_stok}) pada ${new Date(row.tanggal).toISOString().split('T')[0]}`);
+      warnings.push(`Stok ${nama_obat} menjadi negatif (${sisa_stok}) pada ${rowDateStr}`);
     }
 
     if (Number(row.stok_awal) !== stok_awal || Number(row.sisa_stok) !== sisa_stok) {
@@ -5184,7 +5200,6 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
     runningSisa = sisa_stok;
     
     // track unique month-year
-    const d = new Date(row.tanggal);
     const mStr = (d.getMonth() + 1).toString() + '-' + d.getFullYear().toString();
     monthYears.add(mStr);
   }
@@ -5208,8 +5223,6 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
   // Clear months that are no longer valid for this drug
   const validMy = Array.from(monthYears);
   if (validMy.length > 0) {
-    // A bit manual because of month-year mapping
-    // We can just fetch current monthly and delete those not in validMy
     const [currentBulanan] = await conn.query('SELECT bulan, tahun FROM obat_konsumsi_bulanan WHERE obat_id = ?', [obat_id]);
     for (const b of currentBulanan) {
       const myStr = b.bulan + '-' + b.tahun;
@@ -5231,7 +5244,6 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
     );
 
     if (harianBulan.length > 0) {
-      // The row's stok_awal is the updated one from the iteration above
       const monthly_stok_awal = harianBulan[0].stok_awal;
       let sumPenerimaan = 0;
       let sumPemakaian = 0;
@@ -5243,7 +5255,6 @@ async function recalcObatChain(conn: any, obat_id: number): Promise<{ warnings: 
       }
       const monthly_sisa_stok = monthly_stok_awal + sumPenerimaan - sumPemakaian - sumRetur;
       
-      // we don't have input_by from recalc strictly for monthly, but we can reuse the last row's
       const lastRow = harianBulan[harianBulan.length - 1];
       const input_by = lastRow.input_by;
 

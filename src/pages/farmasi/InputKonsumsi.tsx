@@ -927,18 +927,19 @@ export default React.memo(function InputKonsumsi() {
                                 </div>
                               </td>
 
-                              {/* Stok Awal Input Cell */}
+                              {/* Stok Awal Calculated Cell */}
                               <td className="px-5 py-3 text-center whitespace-nowrap">
-                                <input
+                                <div
                                   id={`sawal-${m.id}`}
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={inputs.stok_awal}
-                                  onChange={(e) => handleCellChange(m.id, 'stok_awal', e.target.value)}
-                                  disabled={isDisabled}
-                                  className={`w-20 text-center py-1 rounded-lg font-mono text-xs font-normal focus:outline-none focus:ring-2 focus:ring-teal-500/30 ${isDisabled ? 'bg-slate-200/50 border border-slate-200 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border border-slate-200 text-slate-900'}`}
-                                  placeholder={hasNoSaldoAwal ? "N/A" : "0"}
-                                />
+                                  className={`w-20 mx-auto py-1.5 px-2 rounded-lg font-mono text-xs font-semibold ${
+                                    hasNoSaldoAwal 
+                                      ? 'bg-slate-100/70 border border-slate-200/60 text-slate-400' 
+                                      : 'bg-slate-100/90 border border-slate-200/80 text-slate-700'
+                                  }`}
+                                  title={hasNoSaldoAwal ? `Saldo awal tahun ${inputYear} belum diinput` : "Stok awal hari ini dihitung otomatis dari saldo logistik sebelumnya"}
+                                >
+                                  {hasNoSaldoAwal ? 'N/A' : (inputs.stok_awal || '0')}
+                                </div>
                               </td>
 
                               {/* Penerimaan Input Cell */}
