@@ -37,43 +37,76 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     control: (base: any, state: any) => ({
       ...base,
       minHeight: '38px',
+      height: '38px',
       borderRadius: '0.75rem', // rounded-xl
       borderColor: state.isFocused ? '#0d9488' : isDarkMode ? '#334155' : '#e2e8f0', // teal-600 / slate-700 / slate-200
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(13, 148, 136, 0.2)' : 'none',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(13, 148, 136, 0.15)' : 'none',
       backgroundColor: state.isDisabled 
-        ? (isDarkMode ? '#0f172a' : '#f8fafc') 
-        : (isDarkMode ? 'rgba(15, 23, 42, 0.6)' : '#ffffff'),
-      fontSize: '0.8125rem', // text-xs / text-sm
-      color: isDarkMode ? '#f8fafc' : '#0f172a',
+        ? (isDarkMode ? '#0f172a' : '#f1f5f9') 
+        : (isDarkMode ? 'rgba(15, 23, 42, 0.6)' : '#f8fafc'),
+      fontSize: '0.75rem', // 12px / text-xs
+      color: isDarkMode ? '#f8fafc' : '#1e293b',
+      transition: 'all 0.15s ease',
+      cursor: 'pointer',
       '&:hover': {
         borderColor: state.isFocused ? '#0d9488' : isDarkMode ? '#475569' : '#cbd5e1',
       }
     }),
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: '0 10px',
+      height: '36px',
+      display: 'flex',
+      alignItems: 'center',
+    }),
     singleValue: (base: any) => ({
       ...base,
-      color: isDarkMode ? '#f8fafc' : '#0f172a',
-      fontSize: '0.8125rem',
+      color: isDarkMode ? '#f8fafc' : '#1e293b',
+      fontSize: '0.75rem',
       fontWeight: '500',
+      margin: 0,
     }),
     input: (base: any) => ({
       ...base,
-      color: isDarkMode ? '#f8fafc' : '#0f172a',
-      fontSize: '0.8125rem',
+      color: isDarkMode ? '#f8fafc' : '#1e293b',
+      fontSize: '0.75rem',
+      margin: 0,
+      padding: 0,
     }),
     placeholder: (base: any) => ({
       ...base,
       color: isDarkMode ? '#94a3b8' : '#94a3b8',
-      fontSize: '0.8125rem',
+      fontSize: '0.75rem',
+      margin: 0,
+    }),
+    indicatorSeparator: () => ({
+      display: 'none',
+    }),
+    dropdownIndicator: (base: any, state: any) => ({
+      ...base,
+      padding: '4px 8px',
+      color: state.isFocused ? '#0d9488' : '#94a3b8',
+      '&:hover': {
+        color: '#0d9488',
+      }
+    }),
+    clearIndicator: (base: any) => ({
+      ...base,
+      padding: '4px 6px',
+      color: '#94a3b8',
+      '&:hover': {
+        color: '#ef4444',
+      }
     }),
     menu: (base: any) => ({
       ...base,
       zIndex: 99999, // Ensure dropdown is always on top
-      fontSize: '0.8125rem',
+      fontSize: '0.75rem',
       backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
       border: isDarkMode ? '1px solid #334155' : '1px solid #e2e8f0',
       borderRadius: '0.75rem',
       overflow: 'hidden',
-      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.2)',
+      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
     }),
     menuList: (base: any) => ({
       ...base,
@@ -82,10 +115,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     }),
     option: (base: any, state: any) => ({
       ...base,
-      fontSize: '0.8125rem',
+      fontSize: '0.75rem',
       borderRadius: '0.5rem',
       margin: '2px 0',
-      padding: '8px 12px',
+      padding: '7px 10px',
       backgroundColor: state.isSelected 
         ? '#0d9488' 
         : state.isFocused 

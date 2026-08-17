@@ -912,33 +912,73 @@ export default React.memo(function RawatInap() {
     setCurrentPage(1);
   }, [searchQuery, triageFilter, roomFilter, procedureFilter, startDate, endDate]);
 
-  // Filtered lists
-  const filteredRecords = useMemo(() => {
+  // Base filtered list for calculating available procedures and rooms
+  const baseFilteredRecords = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return (Array.isArray(records) ? records : []).filter(rec => {
-      const q = searchQuery.toLowerCase();
       const matchesTriage = triageFilter === 'all' || String(rec.triase || 'hijau').toLowerCase() === triageFilter;
       const matchesRoom = roomFilter === 'all' || (rec.kamar || 'Flamboyan 1') === roomFilter;
-      const matchesProcedure = !procedureFilter || rec.tindakan.some(t => t.tindakan_nama === procedureFilter);
-      const matchesSearch = (
+      const matchesSearch = !q || (
         (rec.nama_pasien || '').toLowerCase().includes(q) ||
         (rec.no_registrasi || '').toLowerCase().includes(q) ||
         (rec.no_rm || '').toLowerCase().includes(q) ||
-        rec.tindakan.some((t: any) => (t.tindakan_nama || '').toLowerCase().includes(q)) ||
+        (rec.dpjp || '').toLowerCase().includes(q) ||
+        (rec.kamar || '').toLowerCase().includes(q) ||
         (rec.icd_masuk && rec.icd_masuk.toLowerCase().includes(q)) ||
-        (rec.icd_pulang && rec.icd_pulang.toLowerCase().includes(q))
+        (rec.icd_pulang && rec.icd_pulang.toLowerCase().includes(q)) ||
+        rec.tindakan.some((t: any) => (t.tindakan_nama || '').toLowerCase().includes(q))
       );
-      return matchesTriage && matchesRoom && matchesProcedure && matchesSearch;
+      return matchesTriage && matchesRoom && matchesSearch;
     });
-  }, [records, searchQuery, triageFilter, roomFilter, procedureFilter]);
+  }, [records, searchQuery, triageFilter, roomFilter]);
 
-  // Statistics for infographics
+  // Final filtered list including procedure filter
+  const filteredRecords = useMemo(() => {
+    if (!procedureFilter) return baseFilteredRecords;
+    return baseFilteredRecords.filter(rec =>
+      rec.tindakan.some(t => t.tindakan_nama === procedureFilter)
+    );
+  }, [baseFilteredRecords, procedureFilter]);
+
+  const allTreatmentData = useMemo(() => {
+    const map: { [key: string]: number } = {};
+    baseFilteredRecords.forEach(r => {
+      r.tindakan.forEach((t: any) => {
+        if (t.tindakan_nama) {
+          map[t.tindakan_nama] = (map[t.tindakan_nama] || 0) + (Number(t.jumlah) || 1);
+        }
+      });
+    });
+    return Object.entries(map)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [baseFilteredRecords]);
+
+  // Triage stats based on search, room, and procedure matching
   const triageStats = useMemo(() => {
     let hijau = 0;
     let kuning = 0;
     let merah = 0;
     let hitam = 0;
     
-    (Array.isArray(records) ? records : []).forEach(r => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchingNonTriage = (Array.isArray(records) ? records : []).filter(rec => {
+      const matchesRoom = roomFilter === 'all' || (rec.kamar || 'Flamboyan 1') === roomFilter;
+      const matchesProcedure = !procedureFilter || rec.tindakan.some(t => t.tindakan_nama === procedureFilter);
+      const matchesSearch = !q || (
+        (rec.nama_pasien || '').toLowerCase().includes(q) ||
+        (rec.no_registrasi || '').toLowerCase().includes(q) ||
+        (rec.no_rm || '').toLowerCase().includes(q) ||
+        (rec.dpjp || '').toLowerCase().includes(q) ||
+        (rec.kamar || '').toLowerCase().includes(q) ||
+        (rec.icd_masuk && rec.icd_masuk.toLowerCase().includes(q)) ||
+        (rec.icd_pulang && rec.icd_pulang.toLowerCase().includes(q)) ||
+        rec.tindakan.some((t: any) => (t.tindakan_nama || '').toLowerCase().includes(q))
+      );
+      return matchesRoom && matchesProcedure && matchesSearch;
+    });
+
+    matchingNonTriage.forEach(r => {
       const t = String(r.triase || 'hijau').toLowerCase();
       if (t === 'hijau') hijau++;
       else if (t === 'kuning') kuning++;
@@ -952,7 +992,26 @@ export default React.memo(function RawatInap() {
       { name: 'Merah', count: merah, key: 'merah', color: '#ef4444', hoverColor: '#dc2626', desc: 'Gawat Darurat' },
       { name: 'Hitam', count: hitam, key: 'hitam', color: '#1e293b', hoverColor: '#0f172a', desc: 'Meninggal' }
     ];
-  }, [records]);
+  }, [records, searchQuery, roomFilter, procedureFilter]);
+
+  const totalTriageMatching = useMemo(() => {
+    return triageStats.reduce((sum, item) => sum + item.count, 0);
+  }, [triageStats]);
+
+  const hasActiveFilters = Boolean(
+    searchQuery.trim() !== '' ||
+    triageFilter !== 'all' ||
+    roomFilter !== 'all' ||
+    procedureFilter !== null
+  );
+
+  const resetFilters = useCallback(() => {
+    setSearchQuery('');
+    setTriageFilter('all');
+    setRoomFilter('all');
+    setProcedureFilter(null);
+    setCurrentPage(1);
+  }, []);
 
   // Pagination bounds
   const itemsPerPage = 50;
@@ -979,11 +1038,11 @@ export default React.memo(function RawatInap() {
   // Group distributions
   const procedureMap: { [key: string]: number } = {};
   const roomMap: { [key: string]: number } = {};
-  const dateMap: { [key: string]: { kunjungan: number; pendapatan: number } } = {};
+  const dateMap: { [key: string]: { kunjungan: number; pendapatan: number; tindakan: number } } = {};
 
   filteredRecords.forEach(r => {
     const dStr = r.tanggal_pelayanan;
-    if (!dateMap[dStr]) dateMap[dStr] = { kunjungan: 0, pendapatan: 0 };
+    if (!dateMap[dStr]) dateMap[dStr] = { kunjungan: 0, pendapatan: 0, tindakan: 0 };
     dateMap[dStr].kunjungan += 1;
 
     // Room count
@@ -991,8 +1050,10 @@ export default React.memo(function RawatInap() {
     roomMap[rm] = (roomMap[rm] || 0) + 1;
 
     r.tindakan.forEach(t => {
-      procedureMap[t.tindakan_nama] = (procedureMap[t.tindakan_nama] || 0) + 1;
-      dateMap[dStr].pendapatan += t.subtotal;
+      const qty = Number(t.jumlah) || 1;
+      procedureMap[t.tindakan_nama] = (procedureMap[t.tindakan_nama] || 0) + qty;
+      dateMap[dStr].pendapatan += (Number(t.subtotal) || 0);
+      dateMap[dStr].tindakan += qty;
     });
   });
 
@@ -1020,11 +1081,13 @@ export default React.memo(function RawatInap() {
 
   const chartTrendData = Object.entries(dateMap)
     .map(([tanggal, val]) => ({
+      rawDate: tanggal,
       tanggal: new Date(tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }),
       kunjungan: val.kunjungan,
+      tindakan: val.tindakan,
       pendapatan: Math.round(val.pendapatan / 1000) // in thousand Rp
     }))
-    .sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
+    .sort((a, b) => new Date(a.rawDate).getTime() - new Date(b.rawDate).getTime());
 
   // 10 Diagnosa Terbanyak (ICD-10) using combined icd_masuk and icd_pulang
   const icdCountMap: { [key: string]: number } = {};
@@ -1238,6 +1301,120 @@ export default React.memo(function RawatInap() {
           {/* TAB 1: STATISTICS DASHBOARD ANALYTICS */}
           {activeTab === 'statistik' && (
             <div className="space-y-6 anim-fade-up anim-delay-4">
+              {/* Filter Bar for Statistics: Rentang Tanggal, Kamar, dan Filter Kunjungan Per Tindakan */}
+              <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {/* 1. Rentang Tanggal */}
+                  <div>
+                    <label className="block text-[12px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                      Rentang Tanggal
+                    </label>
+                    <div className="flex items-center space-x-1.5">
+                      <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className="w-full px-2.5 h-[38px] bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer"
+                        title="Tanggal Mulai"
+                      />
+                      <span className="text-slate-400 font-mono text-xs">-</span>
+                      <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="w-full px-2.5 h-[38px] bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer"
+                        title="Tanggal Selesai"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 2. Kamar / Ruang Rawat Inap */}
+                  <div>
+                    <label className="block text-[12px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                      Kamar / Ruang Perawatan
+                    </label>
+                    <SearchableSelect
+                      value={roomFilter}
+                      onChange={(e) => {
+                        setRoomFilter(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="w-full text-xs"
+                      placeholder="Pilih Ruang Kamar..."
+                    >
+                      <option value="all">Semua Ruang Kamar ({allRooms.length} Kamar)</option>
+                      {allRooms.map((rm, i) => (
+                        <option key={i} value={rm}>{rm}</option>
+                      ))}
+                    </SearchableSelect>
+                  </div>
+
+                  {/* 3. Kunjungan Per Tindakan */}
+                  <div>
+                    <label className="block text-[12px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                      Kunjungan Per Tindakan
+                    </label>
+                    <SearchableSelect
+                      value={procedureFilter || ''}
+                      onChange={(e) => setProcedureFilter(e.target.value ? e.target.value : null)}
+                      className="w-full text-xs"
+                      placeholder="Pilih Tindakan..."
+                    >
+                      <option value="">Semua Jenis Tindakan Ranap ({allTreatmentData.length} Jenis)</option>
+                      {allTreatmentData.map(item => (
+                        <option key={item.name} value={item.name}>
+                          {item.name} ({item.count} tindakan)
+                        </option>
+                      ))}
+                    </SearchableSelect>
+                  </div>
+                </div>
+
+                {/* Active Filter Chips & Summary */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-slate-400 font-medium uppercase tracking-wider text-xs">
+                      Filter Aktif:
+                    </span>
+                    {roomFilter !== 'all' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 border border-teal-200 text-teal-700 rounded-md text-xs font-medium">
+                        Kamar: {roomFilter}
+                        <button onClick={() => setRoomFilter('all')} className="hover:text-teal-900 cursor-pointer">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    )}
+                    {procedureFilter && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-md text-xs font-medium">
+                        Tindakan: {procedureFilter}
+                        <button onClick={() => setProcedureFilter(null)} className="hover:text-purple-900 cursor-pointer">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    )}
+                    {roomFilter === 'all' && !procedureFilter && (
+                      <span className="text-slate-400 italic text-xs">Semua Data (Tanpa Filter Tambahan)</span>
+                    )}
+                    {(roomFilter !== 'all' || procedureFilter) && (
+                      <button
+                        onClick={() => {
+                          setRoomFilter('all');
+                          setProcedureFilter(null);
+                          setCurrentPage(1);
+                        }}
+                        className="text-xs font-semibold text-rose-600 hover:text-rose-700 underline ml-1 cursor-pointer"
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="text-slate-500 font-medium text-xs">
+                    Menampilkan statistik dari <strong className="text-teal-700 font-bold">{filteredRecords.length}</strong> dari <strong>{records.length}</strong> kunjungan
+                  </div>
+                </div>
+              </div>
+
               {/* Infographics Cards Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 
@@ -1316,8 +1493,8 @@ export default React.memo(function RawatInap() {
                   className="bg-white p-6 rounded-3xl lg:col-span-8 flex flex-col space-y-4"
                 >
                   <div>
-                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Tren Volume Kunjungan & Pendapatan Rawat Inap</h3>
-                    <p className="text-xs text-slate-400">Statistik harian untuk pendaftaran pasien ranap beserta perolehan nominal subtotal tindakan.</p>
+                    <h3 className="text-sm font-extrabold text-slate-800 tracking-wide font-display">Tren Volume Kunjungan, Tindakan & Pendapatan Rawat Inap</h3>
+                    <p className="text-xs text-slate-400">Statistik harian untuk pendaftaran pasien ranap, total tindakan medis, beserta perolehan nominal tindakan.</p>
                   </div>
                   <div className="h-72 w-full">
                     {chartTrendData.length === 0 ? (
@@ -1329,11 +1506,20 @@ export default React.memo(function RawatInap() {
                         <ComposedChart data={chartTrendData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                           <XAxis dataKey="tanggal" fontSize={12} tickLine={false} stroke="#94a3b8" />
-                          <YAxis yAxisId="left" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Kunjungan (org)', angle: -90, position: 'insideLeft', style: { fontSize: 12, fill: '#64748b' } }} />
-                          <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Pendapatan (Ribu Rp)', angle: 90, position: 'insideRight', style: { fontSize: 12, fill: '#64748b' } }} />
-                          <Tooltip contentStyle={{ background: '#0f172a', border: 'none', borderRadius: '12px', fontSize: "12px", color: '#fff' }} />
-                          <Legend wrapperStyle={{ fontSize: "12px" }} />
-                          <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#0d9488" radius={[4, 4, 0, 0]} />
+                          <YAxis yAxisId="left" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Jumlah', angle: -90, position: 'insideLeft', style: { fontSize: 11, fill: '#64748b' } }} />
+                          <YAxis yAxisId="right" orientation="right" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Pendapatan (Ribu Rp)', angle: 90, position: 'insideRight', style: { fontSize: 11, fill: '#64748b' } }} />
+                          <Tooltip 
+                            contentStyle={{ fontSize: "12px", borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} 
+                            formatter={(value: any, name: string) => {
+                              if (name === 'Pendapatan (kRp)') return [`Rp ${(Number(value) * 1000).toLocaleString('id-ID')}`, name];
+                              if (name === 'Kunjungan') return [`${value} Pasien`, name];
+                              if (name === 'Jumlah Tindakan') return [`${value} Tindakan`, name];
+                              return [value, name];
+                            }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: "12px", paddingTop: '8px' }} />
+                          <Bar yAxisId="left" dataKey="kunjungan" name="Kunjungan" fill="#0d9488" radius={[4, 4, 0, 0]} maxBarSize={22} />
+                          <Bar yAxisId="left" dataKey="tindakan" name="Jumlah Tindakan" fill="#8b5cf6" radius={[4, 4, 0, 0]} maxBarSize={22} />
                           <Line yAxisId="right" type="monotone" dataKey="pendapatan" name="Pendapatan (kRp)" stroke="#4f46e5" strokeWidth={2.5} dot={{ r: 3 }} />
                         </ComposedChart>
                       </ResponsiveContainer>
@@ -1522,7 +1708,7 @@ export default React.memo(function RawatInap() {
                 <div className="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {triageStats.map((item) => {
                     const isActive = triageFilter === item.key;
-                    const percent = records.length > 0 ? Math.round((item.count / records.length) * 100) : 0;
+                    const percent = totalTriageMatching > 0 ? Math.round((item.count / totalTriageMatching) * 100) : 0;
                     
                     return (
                       <button
@@ -1577,7 +1763,7 @@ export default React.memo(function RawatInap() {
                     <span className="text-xs font-bold text-slate-700 block mt-0.5">Proporsi Kasus Triase</span>
                   </div>
                   
-                  {records.length === 0 ? (
+                  {totalTriageMatching === 0 ? (
                     <div className="text-center py-6 text-slate-400 text-xs font-medium">
                       Belum ada data kunjungan
                     </div>
@@ -1604,7 +1790,7 @@ export default React.memo(function RawatInap() {
                       {/* Inner counter */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <span className="text-base font-black text-slate-800 font-mono tracking-tight leading-none">
-                          {records.length}
+                          {totalTriageMatching}
                         </span>
                         <span className="text-xs text-slate-400 font-extrabold uppercase tracking-wider mt-0.5">
                           Total
@@ -1638,7 +1824,7 @@ export default React.memo(function RawatInap() {
                       : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
-                  Semua ({records.length})
+                  Semua ({totalTriageMatching})
                 </button>
                 {triageStats.map(item => (
                   <button
@@ -1685,14 +1871,15 @@ export default React.memo(function RawatInap() {
                   )}
                 </div>
 
-                <div className="relative">
+                <div className="relative min-w-[200px]">
                   <SearchableSelect
                     value={roomFilter}
                     onChange={(e) => {
                       setRoomFilter(e.target.value);
                       setCurrentPage(1);
                     }}
-                    className="pl-4 pr-8 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="w-full text-xs"
+                    placeholder="Pilih Ruang Kamar..."
                   >
                     <option value="all">Semua Ruang Kamar</option>
                     {allRooms.map((rm, i) => (
@@ -1706,14 +1893,14 @@ export default React.memo(function RawatInap() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all font-mono"
                   />
-                  <span className="text-slate-400">-</span>
+                  <span className="text-slate-400 font-mono text-xs">-</span>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all"
+                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/25 transition-all font-mono"
                   />
                 </div>
 
@@ -1721,6 +1908,51 @@ export default React.memo(function RawatInap() {
                   Menampilkan <span className="text-teal-700 font-bold">{filteredRecords.length}</span> dari {records.length} registrasi pelayanan
                 </div>
               </div>
+
+              {/* Active filters indicators on Kunjungan tab */}
+              {hasActiveFilters && (
+                <div className="flex flex-wrap items-center gap-1.5 px-3 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs">
+                  <span className="text-slate-400 font-medium text-xs">Filter Aktif:</span>
+                  {triageFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-md text-xs font-medium capitalize">
+                      Triase: {triageFilter}
+                      <button onClick={() => setTriageFilter('all')} className="hover:text-amber-900 cursor-pointer">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  )}
+                  {roomFilter !== 'all' && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 border border-teal-200 text-teal-700 rounded-md text-xs font-medium">
+                      Kamar: {roomFilter}
+                      <button onClick={() => setRoomFilter('all')} className="hover:text-teal-900 cursor-pointer">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  )}
+                  {searchQuery && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-md text-xs font-medium">
+                      Cari: "{searchQuery}"
+                      <button onClick={() => setSearchQuery('')} className="hover:text-blue-900 cursor-pointer">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  )}
+                  {procedureFilter && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-md text-xs font-medium">
+                      Tindakan: {procedureFilter}
+                      <button onClick={() => setProcedureFilter(null)} className="hover:text-purple-900 cursor-pointer">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  )}
+                  <button
+                    onClick={resetFilters}
+                    className="text-xs font-semibold text-rose-600 hover:text-rose-700 underline ml-1 cursor-pointer"
+                  >
+                    Reset Filter
+                  </button>
+                </div>
+              )}
 
               {/* Main Content Card Container */}
               <div
