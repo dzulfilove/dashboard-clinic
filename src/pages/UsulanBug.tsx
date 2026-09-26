@@ -216,42 +216,30 @@ export default function UsulanBug() {
     });
   };
 
-  // Glassmorphic inline styles
-  const glassPanelStyle = {
-    background: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(32px) saturate(180%)',
-    WebkitBackdropFilter: 'blur(32px) saturate(180%)',
-    border: '1px solid rgba(255, 255, 255, 0.25)',
-    boxShadow: '0 24px 48px -12px rgba(0,0,0,0.25)'
-  };
-
   return (
-    <div className="space-y-6 font-sans pb-12">
-      {/* 
-        NO LIGHTBULB, SPARKLES, BADGES OR TEXT ABOVE HEADER to strictly satisfy 
-        the "buang yang saya kotakin merah diatas header" and "buang yang saya kotakin merah" guidelines.
-      */}
-      <div className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4" style={glassPanelStyle} id="usulan-bug-header-container">
+    <div className="space-y-6 font-sans pb-12 text-slate-700">
+      {/* Welcome banner style header matching Dashboard exactly */}
+      <div 
+        id="welcome-banner" 
+        className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-800"
+      >
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Usulan & Bug</h1>
-          <p className="text-xs text-white/85 font-medium mt-1">
-            Ceritakan usulan fitur atau bug lewat chat, AI akan membantu merangkumnya.
-          </p>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Usulan & Bug</h1>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LEFT PANEL: Chat Window (7/12 cols) */}
-        <div className="lg:col-span-7 flex flex-col h-[580px] rounded-3xl overflow-hidden" style={glassPanelStyle}>
+        <div className="lg:col-span-7 flex flex-col h-[580px] rounded-3xl overflow-hidden glass-card p-0">
           {/* Chat Header */}
-          <div className="px-5 py-4 border-b border-white/20 bg-white/5 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
             <div className="flex items-center space-x-2.5">
-              <div className="h-2.5 w-2.5 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-xs font-bold text-white uppercase tracking-wider">AI Asisten Rangkuman</span>
+              <div className="h-2.5 w-2.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">AI Asisten Rangkuman</span>
             </div>
             <button 
               onClick={handleClearChat}
-              className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
               title="Bersihkan Percakapan"
             >
               <Trash2 className="h-4 w-4" />
@@ -259,7 +247,7 @@ export default function UsulanBug() {
           </div>
 
           {/* Chat Message Scrollport */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-none bg-black/5">
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-none bg-slate-50/30">
             {messages.map((msg) => {
               const isAi = msg.sender === 'ai';
               return (
@@ -270,13 +258,13 @@ export default function UsulanBug() {
                   <div 
                     className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
                       isAi 
-                        ? 'bg-white/95 text-slate-900 border border-white font-medium' 
-                        : 'bg-teal-550 text-white font-semibold'
+                        ? 'bg-white text-slate-800 border border-slate-200/80 font-medium' 
+                        : 'bg-indigo-600 text-white font-semibold'
                     }`}
-                    style={isAi ? { boxShadow: '0 4px 12px rgba(0,0,0,0.05)' } : {}}
+                    style={isAi ? { boxShadow: '0 4px 12px rgba(0,0,0,0.02)' } : {}}
                   >
                     <p className="whitespace-pre-wrap">{msg.text}</p>
-                    <span className={`block text-[10px] text-right mt-1.5 font-mono ${isAi ? 'text-slate-400' : 'text-white/70'}`}>
+                    <span className={`block text-[10px] text-right mt-1.5 font-mono ${isAi ? 'text-slate-400' : 'text-indigo-200'}`}>
                       {msg.timestamp}
                     </span>
                   </div>
@@ -289,11 +277,11 @@ export default function UsulanBug() {
           {/* Chat Form Input */}
           <form 
             onSubmit={handleSendMessage}
-            className="p-4 bg-white/10 border-t border-white/20 flex items-center space-x-3"
+            className="p-4 bg-white border-t border-slate-100 flex items-center space-x-3"
           >
             <button 
               type="button"
-              className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors flex items-center justify-center cursor-pointer"
+              className="p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors flex items-center justify-center cursor-pointer"
               title="Lampirkan File/Tangkapan Layar"
               style={{ minHeight: '40px', minWidth: '40px' }}
               onClick={() => {
@@ -307,7 +295,7 @@ export default function UsulanBug() {
                   },
                   showCancelButton: true,
                   confirmButtonText: 'Pilih',
-                  confirmButtonColor: '#0c7075'
+                  confirmButtonColor: '#4f46e5'
                 }).then((fileResult) => {
                   if (fileResult.value) {
                     Swal.fire('Terpilih', `Berkas ${fileResult.value.name} siap dilampirkan.`, 'success');
@@ -323,13 +311,13 @@ export default function UsulanBug() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Tulis pesan atau usulan baru..."
-              className="flex-1 bg-white/90 border border-transparent rounded-full px-4 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-4 focus:ring-white/20 focus:bg-white transition-all"
+              className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2.5 text-xs font-semibold text-slate-850 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 focus:bg-white transition-all"
             />
 
-            {/* CIRCULAR SEND BUTTON WITH SEND ICON (Specifically addressing point 4 & 10) */}
+            {/* CIRCULAR SEND BUTTON WITH SEND ICON */}
             <button 
               type="submit"
-              className="h-10 w-10 rounded-full bg-teal-600 hover:bg-teal-700 text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="h-10 w-10 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer"
               title="Kirim Pesan"
               style={{ minHeight: '40px', minWidth: '40px' }}
             >
@@ -339,15 +327,15 @@ export default function UsulanBug() {
         </div>
 
         {/* RIGHT PANEL: Tracking Logs & Summary Tabs (5/12 cols) */}
-        <div className="lg:col-span-5 flex flex-col h-[580px] rounded-3xl overflow-hidden" style={glassPanelStyle}>
+        <div className="lg:col-span-5 flex flex-col h-[580px] rounded-3xl overflow-hidden glass-card p-0">
           {/* Segmented Tab Controllers */}
-          <div className="p-4 border-b border-white/20 bg-white/5 flex gap-2">
+          <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex gap-2">
             <button
               onClick={() => setActiveTab('RIWAYAT')}
               className={`flex-1 py-2 text-xs font-bold tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === 'RIWAYAT' 
-                  ? 'bg-white text-slate-900 shadow-md font-extrabold' 
-                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold' 
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
               }`}
             >
               <FileText className="h-3.5 w-3.5" />
@@ -357,8 +345,8 @@ export default function UsulanBug() {
               onClick={() => setActiveTab('KELOLA')}
               className={`flex-1 py-2 text-xs font-bold tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === 'KELOLA' 
-                  ? 'bg-white text-slate-900 shadow-md font-extrabold' 
-                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+                  ? 'bg-indigo-600 text-white shadow-xs font-bold' 
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
               }`}
             >
               <Clock className="h-3.5 w-3.5" />
@@ -367,13 +355,13 @@ export default function UsulanBug() {
           </div>
 
           {/* Proposals / Logs Scroll View */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-3.5 scrollbar-none bg-black/5">
+          <div className="flex-1 overflow-y-auto p-5 space-y-3.5 scrollbar-none bg-slate-50/30">
             <AnimatePresence mode="popLayout">
               {proposals.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-white/75">
-                  <MessageSquare className="h-10 w-10 text-white/50 mb-3 animate-bounce" />
+                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
+                  <MessageSquare className="h-10 w-10 text-slate-300 mb-3 animate-bounce" />
                   <p className="font-bold text-xs">Belum Ada Usulan</p>
-                  <p className="text-xs text-white/60 mt-1 font-normal leading-relaxed">
+                  <p className="text-xs text-slate-400 mt-1 font-normal leading-relaxed">
                     Kirim pesan keluhan atau saran fitur Anda melalui ruang obrolan untuk membuat catatan pertama.
                   </p>
                 </div>
@@ -389,7 +377,7 @@ export default function UsulanBug() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.25 }}
-                        className="bg-white/95 rounded-2xl p-4 border border-white shadow-sm hover:translate-y-[-1px] transition-all flex flex-col justify-between"
+                        className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:translate-y-[-1px] transition-all flex flex-col justify-between"
                       >
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
@@ -424,7 +412,7 @@ export default function UsulanBug() {
                           
                           <button
                             onClick={() => handleDeleteProposal(item.id)}
-                            className="p-1.5 rounded-lg text-slate-350 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                             title="Hapus Usulan"
                           >
                             <Trash2 className="h-4 w-4" />
