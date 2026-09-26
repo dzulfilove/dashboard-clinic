@@ -2914,23 +2914,34 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   if (norm.startsWith('SELECT pasien_no_rm FROM pasien_loyal WHERE status = \'aktif\'') || norm.startsWith('SELECT pasien_no_rm FROM pasien_loyal WHERE status = "aktif"')) {
     if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
     return vdb.pasien_loyal
-      .filter((pl: any) => pl.status === 'aktif')
+      .filter((pl: any) => pl.status === 'aktif' || !pl.status)
       .map((pl: any) => ({ pasien_no_rm: pl.pasien_no_rm }));
   }
 
   if (norm.includes('FROM pasien_loyal pl') || norm.includes('FROM pasien_loyal WHERE') || norm.includes('SELECT * FROM pasien_loyal')) {
     if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
     const patients = vdb.pasien || [];
-    const list = vdb.pasien_loyal.map((pl: any) => {
-      const p = patients.find((pas: any) => String(pas.no_rm) === String(pl.pasien_no_rm));
-      return {
-        ...pl,
-        pasien_nama: p ? p.nama : pl.pasien_nama,
-        no_telp: p ? p.no_telp : pl.no_telp
-      };
-    });
+    const list = vdb.pasien_loyal
+      .filter((pl: any) => pl.status === 'aktif' || !pl.status)
+      .map((pl: any) => {
+        const p = patients.find((pas: any) => String(pas.no_rm) === String(pl.pasien_no_rm));
+        return {
+          ...pl,
+          pasien_nama: p ? p.nama : pl.pasien_nama,
+          no_telp: p ? p.no_telp : pl.no_telp
+        };
+      });
     list.sort((a: any, b: any) => new Date(b.tanggal_ditetapkan).getTime() - new Date(a.tanggal_ditetapkan).getTime());
     return list;
+  }
+
+  if (norm.startsWith('DELETE FROM pasien_loyal WHERE pasien_no_rm = ?') || norm.startsWith('DELETE FROM pasien_loyal WHERE')) {
+    const pasien_no_rm = params[0];
+    if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
+    const initialLen = vdb.pasien_loyal.length;
+    vdb.pasien_loyal = vdb.pasien_loyal.filter((pl: any) => String(pl.pasien_no_rm) !== String(pasien_no_rm));
+    writeVirtualDb(vdb);
+    return { affectedRows: initialLen - vdb.pasien_loyal.length };
   }
 
   if (norm.startsWith('INSERT INTO pasien_loyal')) {
@@ -2972,14 +2983,10 @@ function simulateSqlQuery(sqlText: string, params: any[]): any {
   if (norm.startsWith('UPDATE pasien_loyal SET status = \'nonaktif\' WHERE pasien_no_rm = ?') || norm.startsWith('UPDATE pasien_loyal SET status = "nonaktif" WHERE pasien_no_rm = ?')) {
     const pasien_no_rm = params[0];
     if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
-    const idx = vdb.pasien_loyal.findIndex((pl: any) => String(pl.pasien_no_rm) === String(pasien_no_rm));
-    if (idx !== -1) {
-      vdb.pasien_loyal[idx].status = 'nonaktif';
-      vdb.pasien_loyal[idx].updated_at = new Date().toISOString();
-      writeVirtualDb(vdb);
-      return { affectedRows: 1 };
-    }
-    return { affectedRows: 0 };
+    const initialLen = vdb.pasien_loyal.length;
+    vdb.pasien_loyal = vdb.pasien_loyal.filter((pl: any) => String(pl.pasien_no_rm) !== String(pasien_no_rm));
+    writeVirtualDb(vdb);
+    return { affectedRows: initialLen - vdb.pasien_loyal.length };
   }
 
   // --- PASIEN LOYAL PESAN (WA LOGS) SIMULATION ---

@@ -2861,7 +2861,7 @@ app.get('/api/pelayanan/demografi/loyal', authenticateToken, roleGuard(['admin',
     const isVirtual = db.getDiagnosticStatus().isVirtual;
     if (isVirtual) {
       const vdb = readVirtualDb();
-      const plList = vdb.pasien_loyal || [];
+      const plList = (vdb.pasien_loyal || []).filter((pl: any) => pl.status === 'aktif' || !pl.status);
       const patients = vdb.pasien || [];
       // Join with patients for latest names and numbers
       const list = plList.map((pl: any) => {
@@ -2878,6 +2878,7 @@ app.get('/api/pelayanan/demografi/loyal', authenticateToken, roleGuard(['admin',
         SELECT pl.*, IFNULL(p.nama, pl.pasien_nama) as pasien_nama, IFNULL(p.no_telp, pl.no_telp) as no_telp
         FROM pasien_loyal pl
         LEFT JOIN pasien p ON pl.pasien_no_rm = p.no_rm
+        WHERE pl.status = 'aktif'
         ORDER BY pl.tanggal_ditetapkan DESC
       `);
       res.json(list);
@@ -2969,7 +2970,7 @@ app.post('/api/pelayanan/demografi/loyal', authenticateToken, roleGuard(['admin'
   }
 });
 
-// DELETE /api/pelayanan/demografi/loyal/:no_rm -> cabut status loyal (set status 'nonaktif')
+// DELETE /api/pelayanan/demografi/loyal/:no_rm -> hapus pasien loyal dari database
 app.delete('/api/pelayanan/demografi/loyal/:no_rm', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
   try {
     const { no_rm } = req.params;
@@ -2979,20 +2980,16 @@ app.delete('/api/pelayanan/demografi/loyal/:no_rm', authenticateToken, roleGuard
     if (isVirtual) {
       const vdb = readVirtualDb();
       if (!vdb.pasien_loyal) vdb.pasien_loyal = [];
-      const idx = vdb.pasien_loyal.findIndex((pl: any) => String(pl.pasien_no_rm) === String(no_rm));
-      if (idx !== -1) {
-        vdb.pasien_loyal[idx].status = 'nonaktif';
-        vdb.pasien_loyal[idx].updated_at = new Date().toISOString();
-        writeVirtualDb(vdb);
-      }
+      vdb.pasien_loyal = vdb.pasien_loyal.filter((pl: any) => String(pl.pasien_no_rm) !== String(no_rm));
+      writeVirtualDb(vdb);
     } else {
-      await db.query("UPDATE pasien_loyal SET status = 'nonaktif' WHERE pasien_no_rm = ?", [no_rm]);
+      await db.query("DELETE FROM pasien_loyal WHERE pasien_no_rm = ?", [no_rm]);
     }
 
     // Tulis ke user_logs
-    await logActivity(userEmail, 'DELETE', 'Pasien Loyal', `Mencabut status loyal pasien: ${no_rm}`);
+    await logActivity(userEmail, 'DELETE', 'Pasien Loyal', `Menghapus pasien loyal: ${no_rm}`);
 
-    res.json({ success: true, message: 'Berhasil mencabut status loyal pasien.' });
+    res.json({ success: true, message: 'Berhasil menghapus data pasien loyal dari database.' });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }

@@ -1302,11 +1302,11 @@ export default React.memo(function RawatInap() {
           {activeTab === 'statistik' && (
             <div className="space-y-6 anim-fade-up anim-delay-4">
               {/* Filter Bar for Statistics: Rentang Tanggal, Kamar, dan Filter Kunjungan Per Tindakan */}
-              <div className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm space-y-3">
+              <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl border border-teal-300/60 shadow-sm space-y-3">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {/* 1. Rentang Tanggal */}
                   <div>
-                    <label className="block text-[12px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                    <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       Rentang Tanggal
                     </label>
                     <div className="flex items-center space-x-1.5">
@@ -1314,7 +1314,7 @@ export default React.memo(function RawatInap() {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="w-full px-2.5 h-[38px] bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer"
+                        className="w-full px-2.5 h-[38px] bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer shadow-2xs"
                         title="Tanggal Mulai"
                       />
                       <span className="text-slate-400 font-mono text-xs">-</span>
@@ -1322,7 +1322,7 @@ export default React.memo(function RawatInap() {
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="w-full px-2.5 h-[38px] bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer"
+                        className="w-full px-2.5 h-[38px] bg-slate-50 border border-slate-200/80 rounded-xl text-xs text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all cursor-pointer shadow-2xs"
                         title="Tanggal Selesai"
                       />
                     </div>
@@ -1330,7 +1330,7 @@ export default React.memo(function RawatInap() {
 
                   {/* 2. Kamar / Ruang Rawat Inap */}
                   <div>
-                    <label className="block text-[12px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                    <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       Kamar / Ruang Perawatan
                     </label>
                     <SearchableSelect
@@ -1339,7 +1339,7 @@ export default React.memo(function RawatInap() {
                         setRoomFilter(e.target.value);
                         setCurrentPage(1);
                       }}
-                      className="w-full text-xs"
+                      className="w-full text-xs shadow-2xs"
                       placeholder="Pilih Ruang Kamar..."
                     >
                       <option value="all">Semua Ruang Kamar ({allRooms.length} Kamar)</option>
@@ -1351,13 +1351,13 @@ export default React.memo(function RawatInap() {
 
                   {/* 3. Kunjungan Per Tindakan */}
                   <div>
-                    <label className="block text-[12px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">
+                    <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       Kunjungan Per Tindakan
                     </label>
                     <SearchableSelect
                       value={procedureFilter || ''}
                       onChange={(e) => setProcedureFilter(e.target.value ? e.target.value : null)}
-                      className="w-full text-xs"
+                      className="w-full text-xs shadow-2xs"
                       placeholder="Pilih Tindakan..."
                     >
                       <option value="">Semua Jenis Tindakan Ranap ({allTreatmentData.length} Jenis)</option>
@@ -1371,29 +1371,29 @@ export default React.memo(function RawatInap() {
                 </div>
 
                 {/* Active Filter Chips & Summary */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100 text-xs">
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-slate-400 font-medium uppercase tracking-wider text-xs">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider text-xs">
                       Filter Aktif:
                     </span>
                     {roomFilter !== 'all' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-teal-50 border border-teal-200 text-teal-700 rounded-md text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-teal-50 border border-teal-200 text-teal-700 rounded-md text-xs font-semibold shadow-2xs">
                         Kamar: {roomFilter}
-                        <button onClick={() => setRoomFilter('all')} className="hover:text-teal-900 cursor-pointer">
+                        <button onClick={() => setRoomFilter('all')} className="hover:text-teal-900 cursor-pointer ml-0.5">
                           <X className="h-3 w-3" />
                         </button>
                       </span>
                     )}
                     {procedureFilter && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-md text-xs font-medium">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-purple-50 border border-purple-200 text-purple-700 rounded-md text-xs font-semibold shadow-2xs">
                         Tindakan: {procedureFilter}
-                        <button onClick={() => setProcedureFilter(null)} className="hover:text-purple-900 cursor-pointer">
+                        <button onClick={() => setProcedureFilter(null)} className="hover:text-purple-900 cursor-pointer ml-0.5">
                           <X className="h-3 w-3" />
                         </button>
                       </span>
                     )}
                     {roomFilter === 'all' && !procedureFilter && (
-                      <span className="text-slate-400 italic text-xs">Semua Data (Tanpa Filter Tambahan)</span>
+                      <span className="text-slate-400 italic text-xs font-medium">Semua Data (Tanpa Filter Tambahan)</span>
                     )}
                     {(roomFilter !== 'all' || procedureFilter) && (
                       <button
@@ -1402,15 +1402,15 @@ export default React.memo(function RawatInap() {
                           setProcedureFilter(null);
                           setCurrentPage(1);
                         }}
-                        className="text-xs font-semibold text-rose-600 hover:text-rose-700 underline ml-1 cursor-pointer"
+                        className="text-xs font-bold text-rose-600 hover:text-rose-700 underline ml-1 cursor-pointer"
                       >
                         Reset Filter
                       </button>
                     )}
                   </div>
 
-                  <div className="text-slate-500 font-medium text-xs">
-                    Menampilkan statistik dari <strong className="text-teal-700 font-bold">{filteredRecords.length}</strong> dari <strong>{records.length}</strong> kunjungan
+                  <div className="text-slate-600 font-medium text-xs">
+                    Menampilkan statistik dari <strong className="text-teal-700 font-extrabold">{filteredRecords.length}</strong> dari <strong className="text-slate-800 font-extrabold">{records.length}</strong> kunjungan
                   </div>
                 </div>
               </div>

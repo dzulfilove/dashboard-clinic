@@ -43,7 +43,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       boxShadow: state.isFocused ? '0 0 0 2px rgba(13, 148, 136, 0.15)' : 'none',
       backgroundColor: state.isDisabled 
         ? (isDarkMode ? '#0f172a' : '#f1f5f9') 
-        : (isDarkMode ? 'rgba(15, 23, 42, 0.6)' : '#f8fafc'),
+        : (isDarkMode ? 'rgba(15, 23, 42, 0.6)' : '#ffffff'),
       fontSize: '0.75rem', // 12px / text-xs
       color: isDarkMode ? '#f8fafc' : '#1e293b',
       transition: 'all 0.15s ease',

@@ -255,20 +255,20 @@ export default React.memo(function DemografiKunjungan() {
 
   const handleRemoveLoyal = async (no_rm: string) => {
     const result = await Swal.fire({
-      title: 'Cabut Status Loyal?',
-      text: 'Status pasien loyal akan dinonaktifkan.',
+      title: 'Hapus Pasien Loyal?',
+      text: 'Data pasien akan dihapus dari daftar pasien loyal.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#e11d48',
       cancelButtonColor: '#94a3b8',
-      confirmButtonText: 'Ya, Cabut',
+      confirmButtonText: 'Ya, Hapus',
       cancelButtonText: 'Batal'
     });
     
     if (!result.isConfirmed) return;
     
     Swal.fire({
-      title: 'Memproses...',
+      title: 'Menghapus...',
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
@@ -277,12 +277,16 @@ export default React.memo(function DemografiKunjungan() {
     
     try {
       await api.delete(`/pelayanan/demografi/loyal/${no_rm}`);
-      await Swal.fire('Berhasil', 'Status loyal pasien berhasil dicabut.', 'success');
+      await Swal.fire('Berhasil', 'Data pasien loyal berhasil dihapus dari database.', 'success');
+      setLoyalPatients(prev => prev.filter(p => String(p.pasien_no_rm || p.no_rm) !== String(no_rm)));
+      setSelectedRegisteredLoyal(prev => prev.filter(id => id !== no_rm));
+      setSelectedAllTime(prev => prev.filter(id => id !== no_rm));
+      setSelectedPeriod(prev => prev.filter(id => id !== no_rm));
       fetchData();
       fetchLoyalPatients();
     } catch (err: any) {
       console.error(err);
-      Swal.fire('Gagal', err.response?.data?.message || 'Gagal mencabut status loyal.', 'error');
+      Swal.fire('Gagal', err.response?.data?.message || 'Gagal menghapus data pasien loyal.', 'error');
     }
   };
 
@@ -973,10 +977,10 @@ export default React.memo(function DemografiKunjungan() {
                               </div>
                             </td>
                             <td className="py-3 text-xs font-semibold text-slate-850">
-                              {p.total_visits_snapshot} Kunjungan
+                              {p.total_kunjungan_snapshot || p.total_visits_snapshot || p.total_visits || 0} Kunjungan
                             </td>
                             <td className="py-3 text-xs font-medium text-slate-500">
-                              {new Date(p.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
+                              {new Date(p.tanggal_ditetapkan || p.created_at || Date.now()).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
                             </td>
                             <td className="py-3 text-xs text-slate-500 max-w-[180px] truncate" title={p.catatan}>
                               {p.catatan || '-'}
