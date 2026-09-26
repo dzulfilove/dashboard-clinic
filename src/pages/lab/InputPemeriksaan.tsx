@@ -33,8 +33,8 @@ import { SearchableSelect } from '../../components/SearchableSelect.js';
 export default React.memo(function InputPemeriksaan() {
   const { user } = useAuthStore();
   
-  // Tab State: 'manual' | 'import' | 'rekap' | 'tersimpan'
-  const [activeTab, setActiveTab] = useState<'manual' | 'import' | 'rekap' | 'tersimpan'>('manual');
+  // Tab State: 'manual' | 'import' | 'tersimpan'
+  const [activeTab, setActiveTab] = useState<'manual' | 'import' | 'tersimpan'>('manual');
 
   // Parameters & loading states
   const [parameters, setParameters] = useState<LabParameter[]>([]);
@@ -658,79 +658,58 @@ export default React.memo(function InputPemeriksaan() {
   return (
     <div className="space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-xl border border-teal-200/50 dark:border-teal-800/50">
-              <FlaskConical className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                Entri Pemeriksaan Laboratorium
-              </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Pencatatan data pemeriksaan laboratorium pasien, import antrean massal, dan rekapitulasi harian
-              </p>
-            </div>
-          </div>
+      <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-800">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+            Entri Pemeriksaan Laboratorium
+          </h1>
+        </div>
 
-          {/* Tab Navigation */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
-            <button
-              onClick={() => setActiveTab('manual')}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'manual'
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Input Formulir Pasien</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('import')}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'import'
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <FileSpreadsheet className="w-4 h-4" />
-              <span>Import Tabel / Antrean</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('rekap')}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'rekap'
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Layers className="w-4 h-4" />
-              <span>Rekap Harian Cepat</span>
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('tersimpan');
-                fetchSavedRecords(1);
-              }}
-              className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
-                activeTab === 'tersimpan'
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Database className="w-4 h-4" />
-              <span>Data Pemeriksaan Tersimpan</span>
-              {totalServerRecords > 0 && (
-                <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-bold ${
-                  activeTab === 'tersimpan' ? 'bg-teal-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                }`}>
-                  {totalServerRecords}
-                </span>
-              )}
-            </button>
-          </div>
+        {/* Tab Navigation */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
+          <button
+            onClick={() => setActiveTab('manual')}
+            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
+              activeTab === 'manual'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Input Formulir Pasien</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('import')}
+            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
+              activeTab === 'import'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            <span>Import Tabel / Antrean</span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('tersimpan');
+              fetchSavedRecords(1);
+            }}
+            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
+              activeTab === 'tersimpan'
+                ? 'bg-teal-600 text-white shadow-sm'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Database className="w-4 h-4" />
+            <span>Data Pemeriksaan Tersimpan</span>
+            {totalServerRecords > 0 && (
+              <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-bold ${
+                activeTab === 'tersimpan' ? 'bg-teal-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              }`}>
+                {totalServerRecords}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
@@ -739,16 +718,10 @@ export default React.memo(function InputPemeriksaan() {
         <div className="glass-card p-6">
           <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-700/60">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-lg">
-                <UserPlus className="w-5 h-5" />
-              </div>
               <div>
                 <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                   Formulir Entri Pemeriksaan Laboratorium
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Input data pemeriksaan per pasien langsung ke database tanpa perlu copy-paste tabel
-                </p>
               </div>
             </div>
             <button
@@ -790,14 +763,6 @@ export default React.memo(function InputPemeriksaan() {
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
                     No. Registrasi <span className="text-rose-500">*</span>
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => setManualNoReg(generateAutoNoReg())}
-                    className="text-[11px] text-teal-600 hover:text-teal-700 dark:text-teal-400 font-medium flex items-center gap-1"
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    <span>Auto-generate</span>
-                  </button>
                 </div>
                 <input
                   type="text"
@@ -964,19 +929,13 @@ export default React.memo(function InputPemeriksaan() {
       {/* ==================== TAB 2: IMPORT TABEL MASSAL ==================== */}
       {activeTab === 'import' && (
         <div className="space-y-6">
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/60 shadow-sm space-y-5">
+          <div className="glass-card p-6 space-y-5">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-700/60">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-lg">
-                  <FileSpreadsheet className="w-5 h-5" />
-                </div>
                 <div>
                   <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                     Import Data Pemeriksaan Pasien (Copy-Paste)
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Salin seluruh baris tabel dari antrean pelayanan, spreadsheet, atau SIMRS lalu tempel di bawah
-                  </p>
                 </div>
               </div>
               <button
@@ -990,31 +949,22 @@ export default React.memo(function InputPemeriksaan() {
             </div>
 
             {/* Step 1: Pilih Parameter */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  1. Pilih Jenis Pemeriksaan Laboratorium <span className="text-rose-500">*</span>
-                </label>
-                <SearchableSelect
-                  options={parameters.map(p => ({
-                    value: p.id,
-                    label: `${p.nama_parameter} (${p.kategori || 'Umum'})`
-                  }))}
-                  value={selectedParameter || ''}
-                  onChange={(e: any) => {
-                    const rawVal = e?.target ? e.target.value : e;
-                    setSelectedParameter(rawVal ? Number(rawVal) : null);
-                  }}
-                  placeholder="-- Pilih Jenis Pemeriksaan --"
-                />
-              </div>
-
-              <div className="p-3 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-400 flex items-start gap-2.5">
-                <Info className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                <span>
-                  Mendukung kolom standar: <strong>No | No. Registrasi | No. RM | NIK | Nama Pasien | Dokter DPJP | Tanggal</strong> (Pemisah Tab, Titik Koma, atau Koma).
-                </span>
-              </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                1. Pilih Jenis Pemeriksaan Laboratorium <span className="text-rose-500">*</span>
+              </label>
+              <SearchableSelect
+                options={parameters.map(p => ({
+                  value: p.id,
+                  label: `${p.nama_parameter} (${p.kategori || 'Umum'})`
+                }))}
+                value={selectedParameter || ''}
+                onChange={(e: any) => {
+                  const rawVal = e?.target ? e.target.value : e;
+                  setSelectedParameter(rawVal ? Number(rawVal) : null);
+                }}
+                placeholder="-- Pilih Jenis Pemeriksaan --"
+              />
             </div>
 
             {/* Step 2: Textarea Copy-Paste */}
@@ -1139,123 +1089,17 @@ export default React.memo(function InputPemeriksaan() {
         </div>
       )}
 
-      {/* ==================== TAB 3: REKAPITULASI JUMLAH HARIAN ==================== */}
-      {activeTab === 'rekap' && (
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/60 shadow-sm space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-700/60">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-lg">
-                <Layers className="w-5 h-5" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-                  Rekapitulasi Jumlah Harian Laboratorium
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Input kuantitas pemeriksaan secara langsung per parameter untuk tanggal tertentu
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <input
-                type="date"
-                value={selectedRekapDate}
-                onChange={(e) => setSelectedRekapDate(e.target.value)}
-                className="px-3.5 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
-              />
-              <button
-                type="button"
-                onClick={fetchDailyData}
-                disabled={loadingData}
-                className="p-2 text-slate-600 dark:text-slate-400 hover:text-teal-600 rounded-lg bg-slate-100 dark:bg-slate-800"
-                title="Refresh data rekap"
-              >
-                <RefreshCw className={`w-4 h-4 ${loadingData ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
-          </div>
-
-          {/* Grouped Categories */}
-          {loadingData ? (
-            <div className="py-12 flex flex-col items-center justify-center gap-3 text-slate-400">
-              <RefreshCw className="w-6 h-6 animate-spin text-teal-600" />
-              <span className="text-xs">Memuat data rekap laboratorium...</span>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {Object.keys(categorizedParameters).map((cat) => (
-                <div key={cat} className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                      {cat}
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
-                    {categorizedParameters[cat].map((param) => (
-                      <div
-                        key={param.id}
-                        className="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-700/60 rounded-xl flex items-center justify-between gap-3"
-                      >
-                        <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate" title={param.nama_parameter}>
-                          {param.nama_parameter}
-                        </span>
-                        <input
-                          type="text"
-                          value={quantities[param.id] ?? '0'}
-                          onChange={(e) => handleQuantityChange(param.id, e.target.value)}
-                          className="w-16 px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-center text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-700/60">
-                <button
-                  type="button"
-                  onClick={handleSaveRekap}
-                  disabled={savingRekap}
-                  className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
-                >
-                  {savingRekap ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Menyimpan Rekap...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      <span>Simpan Rekapitulasi Harian</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ==================== TAB 4: DATA PEMERIKSAAN TERSIMPAN ==================== */}
+      {/* ==================== TAB 3: DATA PEMERIKSAAN TERSIMPAN ==================== */}
       {activeTab === 'tersimpan' && (
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/60 shadow-sm space-y-5">
+        <div className="glass-card p-6 space-y-5">
           {/* Header & Filter Controls */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-700/60">
             <div>
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-lg">
-                  <Database className="w-5 h-5" />
-                </div>
                 <div>
                   <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                     Data Pemeriksaan Laboratorium Pasien
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Total {totalServerRecords} data pemeriksaan pasien tersimpan di database
-                  </p>
                 </div>
               </div>
             </div>

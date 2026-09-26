@@ -37,7 +37,6 @@ const DemografiDiagnosa = lazy(() => import('./pages/demografi/DemografiDiagnosa
 const DashboardDokter = lazy(() => import('./pages/pelayanan/DashboardDokter.js'));
 const FollowUpVaksin = lazy(() => import('./pages/pelayanan/FollowUpVaksin.js'));
 const DesignSystem = lazy(() => import('./pages/DesignSystem.js'));
-const UsulanBug = lazy(() => import('./pages/UsulanBug.js'));
 
 export default function App() {
   useEffect(() => {
@@ -278,15 +277,6 @@ function AppContent() {
                         element={
                           <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
                             <DesignSystem />
-                          </ProtectedRoute>
-                        } 
-                      />
-
-                      <Route 
-                        path="/usulan-bug" 
-                        element={
-                          <ProtectedRoute allowedRoles={['admin', 'perawat', 'analis', 'farmasi', 'lab']}>
-                            <UsulanBug />
                           </ProtectedRoute>
                         } 
                       />

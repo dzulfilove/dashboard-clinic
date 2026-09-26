@@ -43,12 +43,6 @@ const menuItems = [
     roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
   },
   {
-    title: 'Usulan & Bug',
-    path: '/usulan-bug',
-    icon: MessageSquare,
-    roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
-  },
-  {
     isGroup: true,
     title: 'Laboratorium',
     icon: FlaskConical,
