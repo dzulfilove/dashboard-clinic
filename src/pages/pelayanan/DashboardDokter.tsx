@@ -127,7 +127,7 @@ export default React.memo(function DashboardDokter() {
     <>
       <div className="space-y-6">
       {/* SECTION 1 — Header */}
-      <div className="bg-white p-6 border border-slate-100 shadow-sm rounded-2xl flex items-center justify-between">
+      <div className="glass-card p-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="p-3 bg-teal-50 text-teal-600 rounded-xl">
             <Stethoscope className="h-6 w-6" />
@@ -142,7 +142,7 @@ export default React.memo(function DashboardDokter() {
       </div>
 
       {/* SECTION 2 — Filter Bar */}
-      <div className="bg-white p-4 border border-slate-100 shadow-sm rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 anim-fade-up">
+      <div className="glass-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 anim-fade-up">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="flex items-center space-x-2 w-full sm:w-auto">
             <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
@@ -263,7 +263,7 @@ export default React.memo(function DashboardDokter() {
       </div>
 
       {/* SECTION 4 & 5 — Tabel & Detail */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden anim-fade-up anim-delay-2">
+      <div className="glass-card overflow-hidden anim-fade-up anim-delay-2">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>

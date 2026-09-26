@@ -117,7 +117,7 @@ export default React.memo(function MasterICD10() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
         style={{ willChange: 'transform, opacity' }}
-        className="bg-white p-4 border border-slate-100 rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between"
+        className="glass-card p-4 flex flex-col md:flex-row gap-4 items-center justify-between"
       >
         <div className="relative w-full md:max-w-md">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -140,7 +140,7 @@ export default React.memo(function MasterICD10() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
         style={{ willChange: 'transform, opacity' }}
-        className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden"
+        className="glass-card overflow-hidden"
       >
         <table className="w-full">
           <thead className="bg-slate-50/50 border-b border-slate-100/70 text-xs text-slate-500 uppercase font-black tracking-wider">

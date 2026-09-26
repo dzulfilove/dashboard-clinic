@@ -25,6 +25,10 @@
   line-height: 1rem;
 }
 
+html, body {
+  background-color: #6DA1BE;
+}
+
 body, button, input, select, textarea {
   font-family: var(--font-sans);
 }

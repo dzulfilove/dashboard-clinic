@@ -566,7 +566,7 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.08 }}
-                  className="lg:col-span-2 bg-white p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  className="lg:col-span-2 glass-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
                   <div className="flex items-center space-x-3 text-slate-850">
                     <Filter className="h-4.5 w-4.5 text-teal-600" />
@@ -580,14 +580,14 @@ export default React.memo(function DemografiKunjungan() {
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
+                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-white font-medium"
                     />
                     <span className="text-xs text-slate-400 font-medium">s/d</span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-slate-50 font-medium"
+                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-white font-medium"
                     />
                   </div>
                 </motion.div>
@@ -596,7 +596,7 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.16 }}
-                  className="bg-white p-5 rounded-2xl shadow-xs flex items-center space-x-4"
+                  className="glass-card p-5 flex items-center space-x-4"
                 >
                   <div className="p-3 rounded-xl bg-amber-50 text-amber-500">
                     <Star className="h-5 w-5 fill-amber-400" />
@@ -616,7 +616,7 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.24 }}
-                  className="bg-white rounded-2xl shadow-xs p-6 space-y-4 flex flex-col justify-between"
+                  className="glass-card p-6 space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
@@ -754,7 +754,7 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.32 }}
-                  className="bg-white rounded-2xl shadow-xs p-6 space-y-4 flex flex-col justify-between"
+                  className="glass-card p-6 space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
@@ -881,7 +881,7 @@ export default React.memo(function DemografiKunjungan() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
-                className="bg-white rounded-2xl shadow-xs p-6 space-y-4"
+                className="glass-card p-6 space-y-4"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100/70 pb-4 gap-4">
                   <div className="flex items-center space-x-3">
@@ -1090,7 +1090,7 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.32 }}
-                  className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                  className="lg:col-span-2 glass-card p-6 space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                     <div>
@@ -1122,7 +1122,7 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 }}
-                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                  className="glass-card p-6 space-y-4"
                 >
                   <div className="border-b border-slate-100 pb-3">
                     <h3 className="text-sm font-bold text-slate-850 font-display">Data Populasi Wilayah (Kota)</h3>

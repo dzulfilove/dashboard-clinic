@@ -190,7 +190,7 @@ export default React.memo(function MasterTindakan() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
         style={{ willChange: 'transform, opacity' }}
-        className="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden"
+        className="glass-card overflow-hidden"
       >
         {/* Controls header */}
         <div className="p-4 sm:p-5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/30">

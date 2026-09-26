@@ -464,7 +464,7 @@ export default React.memo(function InputKonsumsi() {
         <div className="space-y-6">
           {/* Rentang Tanggal Filter UI Card */}
           <div
-            className="bg-white p-4.5 border border-slate-100 shadow-sm rounded-2xl anim-fade-up"
+            className="glass-card p-4.5 anim-fade-up"
           >
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3.5 flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4 text-teal-600" />
@@ -632,7 +632,7 @@ export default React.memo(function InputKonsumsi() {
                 >
                   
                   {/* Chart 1: Tren Arus Logistik Obat Harian */}
-                  <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 space-y-4">
+                  <div className="glass-card p-5 lg:col-span-2 space-y-4">
                     <div>
                       <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">Grafik Tren Arus Logistik Obat Harian</h3>
                       <p className="text-xs text-slate-400 font-medium mt-0.5">Laporan pemakaian dan penerimaan obat klinis (dalam satuan unit)</p>
@@ -659,7 +659,7 @@ export default React.memo(function InputKonsumsi() {
                   </div>
 
                   {/* Chart 2: 5 Obat Berpengaruh Terbesar (PieChart distribution) */}
-                  <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                  <div className="glass-card p-5 space-y-4">
                     <div>
                       <h3 className="text-sm font-semibold text-slate-800 tracking-wide font-display">5 Obat Berpengaruh Terbesar</h3>
                       <p className="text-xs text-slate-400 font-medium mt-0.5">Proporsi volume pemakaian obat kumulatif harian</p>
@@ -740,7 +740,7 @@ export default React.memo(function InputKonsumsi() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div className="glass-card overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-slate-100/70 text-left">
                       <thead className="bg-slate-50/50">

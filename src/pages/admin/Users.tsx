@@ -371,7 +371,7 @@ export default React.memo(function UsersManagement() {
 
       {/* Accounts display catalog */}
       <div 
-        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden anim-fade-up anim-delay-1"
+        className="glass-card overflow-hidden anim-fade-up anim-delay-1"
       >
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-100/70 text-left">

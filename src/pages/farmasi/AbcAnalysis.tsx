@@ -260,7 +260,7 @@ export default React.memo(function AbcAnalysis() {
 
           {/* Pareto Ranked Items List */}
           <div 
-            className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden anim-fade-up anim-delay-5"
+            className="glass-card overflow-hidden anim-fade-up anim-delay-5"
           >
             <div className="bg-slate-50/50 px-6 py-4.5 border-b border-slate-100/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <h3 className="text-sm font-semibold text-slate-800 uppercase tracking-wider">

@@ -184,7 +184,7 @@ export default React.memo(function MasterWilayah() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: "easeOut", delay: 0.05 }}
             style={{ willChange: 'transform, opacity' }}
-            className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
+            className="glass-card p-5 flex flex-col h-[650px]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <h2 className="font-bold text-slate-800 text-base">Kota ({kota.length})</h2>
@@ -277,7 +277,7 @@ export default React.memo(function MasterWilayah() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: "easeOut", delay: 0.10 }}
             style={{ willChange: 'transform, opacity' }}
-            className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
+            className="glass-card p-5 flex flex-col h-[650px]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <h2 className="font-bold text-slate-800 text-base">Kecamatan ({kecamatan.length})</h2>
@@ -384,7 +384,7 @@ export default React.memo(function MasterWilayah() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, ease: "easeOut", delay: 0.15 }}
             style={{ willChange: 'transform, opacity' }}
-            className="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 flex flex-col h-[650px]"
+            className="glass-card p-5 flex flex-col h-[650px]"
           >
             <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
               <h2 className="font-bold text-slate-800 text-base">Kelurahan ({kelurahan.length})</h2>

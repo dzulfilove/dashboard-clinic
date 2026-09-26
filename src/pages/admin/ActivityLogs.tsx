@@ -378,7 +378,7 @@ export default React.memo(function ActivityLogs() {
       {/* Main Logs Table Grid card */}
       <div 
         id="logs-list-card" 
-        className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden anim-fade-up anim-delay-3"
+        className="glass-card overflow-hidden anim-fade-up anim-delay-3"
       >
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center space-y-4">

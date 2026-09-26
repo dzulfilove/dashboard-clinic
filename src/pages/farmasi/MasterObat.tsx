@@ -480,7 +480,7 @@ export default React.memo(function MasterObat() {
 
       {/* Import module with tabs */}
       {(user?.role === 'admin' || user?.role === 'farmasi') && (
-        <motion.div variants={itemVariants} className="bg-white p-5 border border-slate-100/80 shadow-sm rounded-2xl space-y-4">
+        <motion.div variants={itemVariants} className="glass-card p-5 space-y-4">
           <div className="flex border-b border-slate-100 pb-2 space-x-4">
             <button
               id="tab-excel-btn"
@@ -817,7 +817,7 @@ export default React.memo(function MasterObat() {
       </AnimatePresence>
 
       {/* Searching & Filter tool rails */}
-      <motion.div variants={itemVariants} className="bg-white p-3.5 border border-slate-100/80 shadow-sm rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div variants={itemVariants} className="glass-card p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="relative rounded-xl shadow-xs w-full">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-slate-400" />
@@ -828,14 +828,14 @@ export default React.memo(function MasterObat() {
             placeholder="Cari berdasarkan nama/kode..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 block w-full px-3 py-2 bg-slate-50 border border-slate-200/70 rounded-2xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 text-xs font-medium animate-none placeholder-slate-400"
+            className="pl-9 block w-full px-3 py-2 bg-white/80 border border-slate-200/70 rounded-2xl text-slate-850 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 text-xs font-medium animate-none placeholder-slate-400"
             style={{ minHeight: '38px' }}
           />
         </div>
       </motion.div>
 
       {/* Catalog lists table */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden text-xs">
+      <motion.div variants={itemVariants} className="glass-card overflow-hidden text-xs">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-100/70 text-left">
             <thead className="bg-slate-50/50">

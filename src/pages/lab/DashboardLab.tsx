@@ -580,7 +580,7 @@ export default React.memo(function DashboardLab() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
-                className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-2"
+                className="glass-card p-4 lg:col-span-2"
               >
                 <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
                   <h3 className="font-medium text-slate-700 flex items-center gap-1.5 text-xs tracking-wider uppercase">
@@ -620,7 +620,7 @@ export default React.memo(function DashboardLab() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.48 }}
-                className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm flex flex-col justify-between"
+                className="glass-card p-4 flex flex-col justify-between"
               >
                 <div>
                   <div className="border-b border-slate-100 pb-2 mb-3">
@@ -680,7 +680,7 @@ export default React.memo(function DashboardLab() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.56 }}
-            className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm"
+            className="glass-card p-4"
           >
             <h3 className="font-medium text-slate-700 text-xs tracking-wider uppercase mb-3 flex items-center gap-1.5">
               <Activity className="h-4 w-4 text-slate-500" />

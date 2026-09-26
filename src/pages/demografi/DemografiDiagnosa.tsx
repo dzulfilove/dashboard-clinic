@@ -247,7 +247,7 @@ export default React.memo(function DemografiDiagnosa() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.08 }}
-                className="bg-white rounded-2xl p-5 flex flex-col h-[320px]"
+                className="glass-card p-5 flex flex-col h-[320px]"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
@@ -294,7 +294,7 @@ export default React.memo(function DemografiDiagnosa() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.16 }}
-                className="bg-white rounded-2xl p-5 flex flex-col h-[320px]"
+                className="glass-card p-5 flex flex-col h-[320px]"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center space-x-2">
@@ -361,7 +361,7 @@ export default React.memo(function DemografiDiagnosa() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.24 }}
-              className="bg-white rounded-3xl p-6 space-y-4"
+              className="glass-card p-6 space-y-4"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-0.5">
@@ -453,7 +453,7 @@ export default React.memo(function DemografiDiagnosa() {
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 15 }}
-                  className="bg-white rounded-3xl p-6 shadow-xs space-y-6 sticky top-6"
+                  className="glass-card p-6 space-y-6 sticky top-6"
                 >
                   {/* Diagnosis Header */}
                   <div className="space-y-1 pb-4 border-b border-slate-100/70">

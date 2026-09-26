@@ -204,7 +204,7 @@ export default React.memo(function Forecasting() {
           </div>
 
           {/* Filters & Sorting Control Panel */}
-          <div className="bg-white p-4.5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 anim-fade-up anim-delay-3">
+          <div className="glass-card p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 anim-fade-up anim-delay-3">
             
             {/* Search Input */}
             <div className="relative flex-1 max-w-sm">
@@ -283,7 +283,7 @@ export default React.memo(function Forecasting() {
           </div>
 
           {/* Forecasting data table */}
-          <div className="bg-white rounded-2xl border border-slate-100/80 shadow-sm overflow-hidden anim-fade-up anim-delay-3">
+          <div className="glass-card overflow-hidden anim-fade-up anim-delay-3">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-slate-100/70 text-left">
                 <thead className="bg-slate-50/50">

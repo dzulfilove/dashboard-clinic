@@ -736,7 +736,7 @@ export default React.memo(function InputPemeriksaan() {
 
       {/* ==================== TAB 1: FORMULIR INPUT MANUAL ==================== */}
       {activeTab === 'manual' && (
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/60 shadow-sm">
+        <div className="glass-card p-6">
           <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-700/60">
             <div className="flex items-center gap-2.5">
               <div className="p-2 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-lg">

@@ -1130,7 +1130,7 @@ export default React.memo(function FollowUpVaksinPage() {
 
       {/* List Tab */}
       {activeTab === 'list' && (
-        <div className="bg-white/70 backdrop-blur-md border border-slate-100/80 rounded-2xl shadow-sm overflow-hidden">
+        <div className="glass-card overflow-hidden">
           {loading ? (
             <div className="p-12 text-center text-slate-400">Loading...</div>
           ) : (

@@ -127,7 +127,7 @@ export default React.memo(function Login() {
   };
 
   return (
-    <div id="login-container" className="relative min-h-screen bg-gradient-to-tr from-[#98aab2] via-[#b5c6cc] to-[#ccd7dc] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
+    <div id="login-container" className="relative min-h-screen bg-[#6DA1BE] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       {/* Post-Login Splash Screen */}
       <AnimatePresence>
         {loginSuccessData && (
@@ -138,11 +138,6 @@ export default React.memo(function Login() {
           />
         )}
       </AnimatePresence>
-
-      {/* Dynamic Background Glass Blows - Optimized to transform-gpu static circles to prevent continuous repaints */}
-      <div className="absolute top-[-5%] left-[-5%] w-[60%] h-[60%] bg-teal-300/20 rounded-full blur-[80px] pointer-events-none transform-gpu" />
-      <div className="absolute bottom-[-5%] right-[-5%] w-[60%] h-[60%] bg-sky-300/20 rounded-full blur-[80px] pointer-events-none transform-gpu" />
-      <div className="absolute top-[40%] right-[10%] w-[25%] h-[25%] bg-sky-200/15 rounded-full blur-[60px] pointer-events-none transform-gpu" />
 
       <div className="relative z-10 w-full max-w-md mx-auto flex flex-col items-center justify-center text-center">
         {/* Animated Brand Header inside Glass Container */}

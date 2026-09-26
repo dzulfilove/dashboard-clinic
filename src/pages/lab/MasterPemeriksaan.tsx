@@ -679,7 +679,7 @@ export default React.memo(function MasterPemeriksaan() {
               <span>Sinkronisasi database master...</span>
             </div>
           ) : (
-            <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm">
+            <div className="glass-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
