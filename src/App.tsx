@@ -70,10 +70,10 @@ function AppContent() {
           path="/*"
           element={
             <ProtectedRoute>
-              <div className="relative min-h-screen bg-teal-200 flex flex-col md:flex-row font-sans overflow-hidden">
+              <div className="relative min-h-screen bg-[#CBFBF1] flex flex-col md:flex-row font-sans overflow-hidden">
                 {/* Glowing ambient background spots for glass backdrop blur effect */}
-                <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-300/20 rounded-full blur-[60px] pointer-events-none" />
-                <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-teal-100/30 rounded-full blur-[60px] pointer-events-none" />
+                <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-200/30 rounded-full blur-[60px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-white/40 rounded-full blur-[60px] pointer-events-none" />
                 
                 {/* Sidebar Navigation */}
                 <Sidebar />
@@ -82,7 +82,7 @@ function AppContent() {
                 <InteractiveGuide />
 
                 {/* Core Main Viewport Stage */}
-                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen bg-teal-200">
+                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen bg-[#CBFBF1]">
                   <div className="max-w-7xl mx-auto h-full">
                     <Suspense fallback={<Loader />}>
                       <Routes location={location} key={location.pathname}>
