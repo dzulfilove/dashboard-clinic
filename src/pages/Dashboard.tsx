@@ -139,26 +139,26 @@ export default React.memo(function Dashboard() {
       {/* Welcome Banner */}
       <div 
         id="welcome-banner" 
-        className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 text-white"
+        className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-800"
       >
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
             Selamat Datang, {user?.nama}!
           </h1>
-          <p className="text-teal-100/90 mt-1 text-xs font-normal">
-            Anda login sebagai <span className="font-bold text-teal-200 capitalize">{user?.role}</span>. Kelola rekam data klinik Puri Medika terpadu di bawah ini.
+          <p className="text-slate-600 mt-1 text-xs font-normal">
+            Anda login sebagai <span className="font-bold text-indigo-600 capitalize">{user?.role}</span>. Kelola rekam data klinik Puri Medika terpadu di bawah ini.
           </p>
         </div>
 
         {/* Database Diagnostic health */}
-        <div className="flex items-center space-x-3 glass-pill-action px-4 py-2.5 rounded-xl text-white">
-          <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-teal-200 animate-pulse' : 'text-amber-300 animate-pulse'}`} />
+        <div className="flex items-center space-x-3 bg-slate-50 border border-slate-100 px-4 py-2.5 rounded-xl text-slate-700">
+          <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-emerald-600 animate-pulse' : 'text-amber-600 animate-pulse'}`} />
           <div>
-            <div className="text-xs font-bold flex items-center gap-1.5">
+            <div className="text-xs font-bold flex items-center gap-1.5 text-slate-800">
               <span>Database Sync</span>
-              <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-teal-300' : 'bg-amber-400'}`} />
+              <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
             </div>
-            <p className="text-xs text-teal-100/80 font-mono">
+            <p className="text-xs text-slate-500 font-mono">
               {dbStatus?.status === 'ONLINE' ? 'VPS MySQL Terkoneksi' : 'Menggunakan Mode Virtual'}
             </p>
           </div>
@@ -296,50 +296,50 @@ export default React.memo(function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
-              className="glass-card p-6 lg:col-span-2 text-white"
+              className="glass-card p-6 lg:col-span-2 text-slate-800"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <AlertTriangle className="h-4.5 w-4.5 text-amber-300" />
-                  <h2 className="text-sm font-bold text-white font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
+                  <AlertTriangle className="h-4.5 w-4.5 text-amber-500" />
+                  <h2 className="text-sm font-bold text-slate-900 font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
                 </div>
                 {criticalItems.length > 0 && (
-                  <span className="bg-amber-400/20 text-amber-200 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-300/40 font-mono animate-pulse">
+                  <span className="bg-amber-50 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200 font-mono animate-pulse">
                     Butuh Order Darurat
                   </span>
                 )}
               </div>
 
               {loading ? (
-                <div className="py-12 text-center text-teal-100/70 text-xs">Menghitung inventory farmasi...</div>
+                <div className="py-12 text-center text-slate-400 text-xs">Menghitung inventory farmasi...</div>
               ) : criticalItems.length === 0 ? (
-                <div className="glass-inset-state p-6 text-center text-white">
-                  <CheckCircle className="h-8 w-8 text-teal-300 mx-auto mb-2" />
-                  <p className="font-bold text-xs text-white">Semua stok obat aman!</p>
-                  <p className="text-xs text-teal-100/80 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
+                <div className="glass-inset-state p-6 text-center text-slate-600">
+                  <CheckCircle className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+                  <p className="font-bold text-xs text-slate-800">Semua stok obat aman!</p>
+                  <p className="text-xs text-slate-500 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                   {criticalItems.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3.5 glass-inset-state text-xs">
+                    <div key={idx} className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs">
                       <div>
-                        <span className="text-xs font-mono font-bold text-white bg-white/20 px-2 py-0.5 rounded border border-white/30">
+                        <span className="text-xs font-mono font-bold text-slate-700 bg-slate-200/60 px-2 py-0.5 rounded border border-slate-300">
                           {item.kode_obat}
                         </span>
-                        <h4 className="font-bold text-white mt-1.5 text-xs">{item.nama_obat}</h4>
-                        <div className="flex items-center space-x-3 text-xs text-teal-100/80 mt-1 font-normal">
-                          <span>Proyeksi Kebutuhan (3 bln): <span className="font-bold text-white">{item.proyeksi_kebutuhan}</span></span>
+                        <h4 className="font-bold text-slate-800 mt-1.5 text-xs">{item.nama_obat}</h4>
+                        <div className="flex items-center space-x-3 text-xs text-slate-500 mt-1 font-normal">
+                          <span>Proyeksi Kebutuhan (3 bln): <span className="font-bold text-slate-700">{item.proyeksi_kebutuhan}</span></span>
                           <span>•</span>
-                          <span>Lead Time: <span className="font-bold text-white">{item.lead_time_hari} Hari</span></span>
+                          <span>Lead Time: <span className="font-bold text-slate-700">{item.lead_time_hari} Hari</span></span>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <p className="text-xs text-teal-100/80 font-normal">Stok Saat Ini / Reorder Point</p>
-                        <p className="text-sm font-bold text-amber-300 mt-0.5 font-mono">
-                          {item.current_stock} <span className="text-xs font-normal text-teal-100/70">/ {item.reorder_qty}</span>
+                        <p className="text-xs text-slate-500 font-normal">Stok Saat Ini / Reorder Point</p>
+                        <p className="text-sm font-bold text-amber-600 mt-0.5 font-mono">
+                          {item.current_stock} <span className="text-xs font-normal text-slate-400">/ {item.reorder_qty}</span>
                         </p>
-                        <span className="text-xs inline-block bg-rose-500/20 text-rose-200 px-2 py-0.5 rounded-full border border-rose-400/40 mt-1 font-bold">
+                        <span className="text-xs inline-block bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-100 mt-1 font-bold">
                           Defisit: {item.reorder_qty - item.current_stock}
                         </span>
                       </div>
@@ -348,10 +348,10 @@ export default React.memo(function Dashboard() {
                 </div>
               )}
 
-              <div className="mt-4 border-t border-white/15 pt-4 flex justify-end">
+              <div className="mt-4 border-t border-slate-100 pt-4 flex justify-end">
                 <Link 
                   to="/farmasi/forecast" 
-                  className="text-xs font-bold text-teal-200 hover:text-white flex items-center space-x-1"
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
                 >
                   <span>Lihat Detail Peramalan</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -364,11 +364,11 @@ export default React.memo(function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
-              className="glass-card p-6 flex flex-col justify-between text-white"
+              className="glass-card p-6 flex flex-col justify-between text-slate-800"
             >
               <div>
-                <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2 font-display">
-                  <Activity className="h-4.5 w-4.5 text-teal-300" />
+                <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2 font-display">
+                  <Activity className="h-4.5 w-4.5 text-indigo-600" />
                   <span>Akses Cepat Modul</span>
                 </h2>
                 
@@ -377,13 +377,13 @@ export default React.memo(function Dashboard() {
                   {(user?.role === 'admin' || user?.role === 'lab') && (
                     <Link 
                       to="/lab/input" 
-                      className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
                     >
                       <div>
-                        <h4 className="font-bold text-white text-xs">Input Laboratorium</h4>
-                        <p className="text-xs text-teal-100/80 mt-1 font-medium">Submit jumlah pemeriksaan bulanan klinis</p>
+                        <h4 className="font-bold text-slate-800 text-xs">Input Laboratorium</h4>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Submit jumlah pemeriksaan bulanan klinis</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-teal-200 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
 
@@ -391,13 +391,13 @@ export default React.memo(function Dashboard() {
                   {(user?.role === 'admin' || user?.role === 'farmasi') && (
                     <Link 
                       to="/farmasi/input" 
-                      className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
                     >
                       <div>
-                        <h4 className="font-bold text-white text-xs">Konsumsi Obat</h4>
-                        <p className="text-xs text-teal-100/80 mt-1 font-medium">Input log penerimaan & pemakaian obat</p>
+                        <h4 className="font-bold text-slate-800 text-xs">Konsumsi Obat</h4>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Input log penerimaan & pemakaian obat</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-teal-200 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
 
@@ -405,13 +405,13 @@ export default React.memo(function Dashboard() {
                   {(user?.role === 'admin' || user?.role === 'farmasi') && (
                     <Link 
                       to="/farmasi/abc" 
-                      className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
                     >
                       <div>
-                        <h4 className="font-bold text-white text-xs">Analisis ABC (Spend)</h4>
-                        <p className="text-xs text-teal-100/80 mt-1 font-medium">Klasifikasi nilai kontribusi biaya obat</p>
+                        <h4 className="font-bold text-slate-800 text-xs">Analisis ABC (Spend)</h4>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Klasifikasi nilai kontribusi biaya obat</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-teal-200 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
 
@@ -419,20 +419,20 @@ export default React.memo(function Dashboard() {
                   {user?.role === 'admin' && (
                     <Link 
                       to="/admin/users" 
-                      className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
                     >
                       <div>
-                        <h4 className="font-bold text-[#05161A] text-xs">Kelola Petugas</h4>
-                        <p className="text-xs text-[#072E33]/80 mt-1 font-medium">Tambah akun & ubah hak akses role</p>
+                        <h4 className="font-bold text-slate-800 text-xs">Kelola Petugas</h4>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Tambah akun & ubah hak akses role</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-[#05161A] group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
                 </div>
               </div>
 
-              <div className="mt-4 pt-4 border-t border-[#0C7075]/20 text-center">
-                <span className="text-xs text-[#072E33]/70 font-mono tracking-wider font-bold">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
+              <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+                <span className="text-xs text-slate-400 font-mono tracking-wider font-bold">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
               </div>
             </motion.div>
           </div>
