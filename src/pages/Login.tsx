@@ -127,7 +127,7 @@ export default React.memo(function Login() {
   };
 
   return (
-    <div id="login-container" className="relative min-h-screen bg-[#6DA1BE] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
+    <div id="login-container" className="relative min-h-screen bg-[#0C6B71] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       {/* Post-Login Splash Screen */}
       <AnimatePresence>
         {loginSuccessData && (

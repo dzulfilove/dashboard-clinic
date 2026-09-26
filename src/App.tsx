@@ -70,7 +70,7 @@ function AppContent() {
           path="/*"
           element={
             <ProtectedRoute>
-              <div className="relative min-h-screen bg-[#6DA1BE] flex flex-col md:flex-row font-sans overflow-hidden">
+              <div className="relative min-h-screen bg-[#0C6B71] flex flex-col md:flex-row font-sans overflow-hidden">
                 {/* Sidebar Navigation */}
                 <Sidebar />
 
