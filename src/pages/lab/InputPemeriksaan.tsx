@@ -660,19 +660,19 @@ export default React.memo(function InputPemeriksaan() {
       {/* Top Header Card */}
       <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-800">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
             Entri Pemeriksaan Laboratorium
           </h1>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900/60 rounded-xl border border-slate-200/60 dark:border-slate-800">
+        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 rounded-xl border border-slate-200">
           <button
             onClick={() => setActiveTab('manual')}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
               activeTab === 'manual'
-                ? 'bg-teal-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-teal-600 text-white shadow-sm border border-teal-600'
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xxs'
             }`}
           >
             <UserPlus className="w-4 h-4" />
@@ -680,10 +680,10 @@ export default React.memo(function InputPemeriksaan() {
           </button>
           <button
             onClick={() => setActiveTab('import')}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
               activeTab === 'import'
-                ? 'bg-teal-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-teal-600 text-white shadow-sm border border-teal-600'
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xxs'
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
@@ -694,17 +694,17 @@ export default React.memo(function InputPemeriksaan() {
               setActiveTab('tersimpan');
               fetchSavedRecords(1);
             }}
-            className={`px-3.5 py-2 text-xs font-semibold rounded-lg transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
               activeTab === 'tersimpan'
-                ? 'bg-teal-600 text-white shadow-sm'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-teal-600 text-white shadow-sm border border-teal-600'
+                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xxs'
             }`}
           >
             <Database className="w-4 h-4" />
             <span>Data Pemeriksaan Tersimpan</span>
             {totalServerRecords > 0 && (
               <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-bold ${
-                activeTab === 'tersimpan' ? 'bg-teal-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                activeTab === 'tersimpan' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-700'
               }`}>
                 {totalServerRecords}
               </span>
@@ -716,10 +716,10 @@ export default React.memo(function InputPemeriksaan() {
       {/* ==================== TAB 1: FORMULIR INPUT MANUAL ==================== */}
       {activeTab === 'manual' && (
         <div className="glass-card p-6">
-          <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-700/60">
+          <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
               <div>
-                <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                <h2 className="text-base font-bold text-slate-800">
                   Formulir Entri Pemeriksaan Laboratorium
                 </h2>
               </div>
@@ -732,9 +732,9 @@ export default React.memo(function InputPemeriksaan() {
                 setManualNama('');
                 setManualNik('');
               }}
-              className="text-xs font-medium text-teal-600 hover:text-teal-700 dark:text-teal-400 flex items-center gap-1"
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xxs"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
               <span>Reset Form</span>
             </button>
           </div>
@@ -1003,7 +1003,7 @@ export default React.memo(function InputPemeriksaan() {
                     Preview Data Siap Disimpan ({parsedData.length} Pasien)
                   </h3>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -1011,17 +1011,18 @@ export default React.memo(function InputPemeriksaan() {
                       parsedData.forEach(d => { all[d.no_registrasi] = true; });
                       setSelectedRows(all);
                     }}
-                    className="text-xs text-teal-600 hover:underline font-bold"
+                    className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl text-xs font-bold text-teal-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xxs"
                   >
-                    Pilih Semua
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Pilih Semua</span>
                   </button>
-                  <span className="text-slate-200">|</span>
                   <button
                     type="button"
                     onClick={() => setSelectedRows({})}
-                    className="text-xs text-slate-500 hover:underline font-semibold"
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xxs"
                   >
-                    Batal Pilih
+                    <X className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Batal Pilih</span>
                   </button>
                 </div>
               </div>
