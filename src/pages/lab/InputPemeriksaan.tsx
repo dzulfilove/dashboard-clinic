@@ -743,7 +743,7 @@ export default React.memo(function InputPemeriksaan() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {/* Tanggal Pemeriksaan */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Tanggal Pemeriksaan <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
@@ -751,7 +751,7 @@ export default React.memo(function InputPemeriksaan() {
                     type="date"
                     value={manualTanggal}
                     onChange={(e) => setManualTanggal(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 dark:text-white"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
                     required
                   />
                 </div>
@@ -760,7 +760,7 @@ export default React.memo(function InputPemeriksaan() {
               {/* No Registrasi */}
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300">
+                  <label className="block text-xs font-semibold text-slate-700">
                     No. Registrasi <span className="text-rose-500">*</span>
                   </label>
                 </div>
@@ -769,14 +769,14 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNoReg}
                   onChange={(e) => setManualNoReg(e.target.value)}
                   placeholder="Contoh: REG-LAB-20260814-1029"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
                   required
                 />
               </div>
 
               {/* Parameter Pemeriksaan Lab */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Jenis Pemeriksaan Lab <span className="text-rose-500">*</span>
                 </label>
                 <SearchableSelect
@@ -795,11 +795,11 @@ export default React.memo(function InputPemeriksaan() {
 
               {/* Pencarian Pasien Master */}
               <div className="relative">
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Cari Pasien Terdaftar (Opsional)
                 </label>
                 <div className="relative">
-                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5" />
                   <input
                     type="text"
                     value={pasienSearchQuery}
@@ -809,25 +809,25 @@ export default React.memo(function InputPemeriksaan() {
                       setShowPasienDropdown(true);
                     }}
                     placeholder="Ketik No. RM atau Nama Pasien..."
-                    className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                    className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 text-slate-800"
                   />
                   {isSearchingPasien && (
-                    <RefreshCw className="w-4 h-4 text-teal-600 animate-spin absolute right-3.5 top-3" />
+                    <RefreshCw className="w-4 h-4 text-teal-650 animate-spin absolute right-3.5 top-2.5" />
                   )}
                 </div>
 
                 {/* Suggestions Dropdown */}
                 {showPasienDropdown && pasienSuggestions.length > 0 && (
-                  <div className="absolute z-20 left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg max-h-48 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
+                  <div className="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-48 overflow-y-auto divide-y divide-slate-100">
                     {pasienSuggestions.map((p: any) => (
                       <button
                         key={p.no_rm}
                         type="button"
                         onClick={() => handleSelectPasien(p)}
-                        className="w-full text-left px-3.5 py-2 hover:bg-teal-50 dark:hover:bg-slate-700/50 transition-colors flex justify-between items-center"
+                        className="w-full text-left px-3.5 py-2 hover:bg-teal-50 transition-colors flex justify-between items-center"
                       >
                         <div>
-                          <span className="font-semibold text-xs text-slate-900 dark:text-white">{p.nama}</span>
+                          <span className="font-semibold text-xs text-slate-900">{p.nama}</span>
                           <span className="text-[11px] text-slate-500 ml-2 font-mono">RM: {p.no_rm}</span>
                         </div>
                         {p.nik && <span className="text-[10px] text-slate-400 font-mono">NIK: {p.nik}</span>}
@@ -839,7 +839,7 @@ export default React.memo(function InputPemeriksaan() {
 
               {/* No. Rekam Medis (RM) */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Nomor Rekam Medis (RM) <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -847,14 +847,14 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNoRm}
                   onChange={(e) => setManualNoRm(e.target.value)}
                   placeholder="Contoh: RM-00123"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
                   required
                 />
               </div>
 
               {/* Nama Pasien */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Nama Pasien <span className="text-rose-500">*</span>
                 </label>
                 <input
@@ -862,14 +862,14 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNama}
                   onChange={(e) => setManualNama(e.target.value)}
                   placeholder="Nama Lengkap Pasien"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
                   required
                 />
               </div>
 
               {/* NIK Pasien */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   NIK Pasien (16 digit)
                 </label>
                 <input
@@ -878,7 +878,7 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNik}
                   onChange={(e) => setManualNik(e.target.value.replace(/\D/g, ''))}
                   placeholder="Contoh: 320101..."
-                  className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 dark:text-white"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
                 />
               </div>
 
@@ -930,10 +930,10 @@ export default React.memo(function InputPemeriksaan() {
       {activeTab === 'import' && (
         <div className="space-y-6">
           <div className="glass-card p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-700/60">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                  <h2 className="text-base font-semibold text-slate-900">
                     Import Data Pemeriksaan Pasien (Copy-Paste)
                   </h2>
                 </div>
@@ -941,7 +941,7 @@ export default React.memo(function InputPemeriksaan() {
               <button
                 type="button"
                 onClick={handleUseDemoTemplate}
-                className="px-3 py-1.5 text-xs font-medium text-teal-700 bg-teal-50 dark:bg-teal-950/50 border border-teal-200 dark:border-teal-800 rounded-lg hover:bg-teal-100 transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors flex items-center gap-1.5"
               >
                 <Sparkles className="w-3.5 h-3.5 text-teal-600" />
                 <span>Gunakan Contoh Format</span>
@@ -950,7 +950,7 @@ export default React.memo(function InputPemeriksaan() {
 
             {/* Step 1: Pilih Parameter */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 1. Pilih Jenis Pemeriksaan Laboratorium <span className="text-rose-500">*</span>
               </label>
               <SearchableSelect
@@ -969,7 +969,7 @@ export default React.memo(function InputPemeriksaan() {
 
             {/* Step 2: Textarea Copy-Paste */}
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                 2. Tempelkan Data Tabel Pasien Di Sini
               </label>
               <textarea
@@ -977,7 +977,7 @@ export default React.memo(function InputPemeriksaan() {
                 onChange={(e) => setRawText(e.target.value)}
                 rows={5}
                 placeholder={`Contoh isi data yang di-paste:\n1\tREG-2026-0001\tRM-10291\t3201019283740001\tBudi Santoso\tDr. Hendra Wijaya\t${getTodayDateString()}\n2\tREG-2026-0002\tRM-10292\t3201019283740002\tSiti Aminah\tDr. Sri Rahayu\t${getTodayDateString()}`}
-                className="w-full p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-teal-500 text-slate-800"
               />
             </div>
 
@@ -985,7 +985,7 @@ export default React.memo(function InputPemeriksaan() {
               <button
                 type="button"
                 onClick={handleParse}
-                className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
+                className="px-5 py-2 bg-teal-650 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>Proses & Urai Data</span>
@@ -995,11 +995,11 @@ export default React.memo(function InputPemeriksaan() {
 
           {/* Step 3: Hasil Parse & Preview Table */}
           {isParsed && parsedData.length > 0 && (
-            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-6 border border-slate-200/60 dark:border-slate-700/60 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-700/60">
+            <div className="glass-card p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-teal-600" />
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-slate-900">
                     Preview Data Siap Disimpan ({parsedData.length} Pasien)
                   </h3>
                 </div>
@@ -1011,15 +1011,15 @@ export default React.memo(function InputPemeriksaan() {
                       parsedData.forEach(d => { all[d.no_registrasi] = true; });
                       setSelectedRows(all);
                     }}
-                    className="text-xs text-teal-600 hover:underline font-medium"
+                    className="text-xs text-teal-600 hover:underline font-bold"
                   >
                     Pilih Semua
                   </button>
-                  <span className="text-slate-300">|</span>
+                  <span className="text-slate-200">|</span>
                   <button
                     type="button"
                     onClick={() => setSelectedRows({})}
-                    className="text-xs text-slate-500 hover:underline font-medium"
+                    className="text-xs text-slate-500 hover:underline font-semibold"
                   >
                     Batal Pilih
                   </button>
@@ -1027,9 +1027,9 @@ export default React.memo(function InputPemeriksaan() {
               </div>
 
               {/* Table */}
-              <div className="overflow-x-auto border border-slate-200/60 dark:border-slate-700/60 rounded-xl">
+              <div className="overflow-x-auto border border-slate-200 rounded-xl">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200/60 dark:border-slate-700/60">
+                  <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                     <tr>
                       <th className="p-3 w-10 text-center">Pilih</th>
                       <th className="p-3">No. Registrasi</th>
@@ -1040,9 +1040,9 @@ export default React.memo(function InputPemeriksaan() {
                       <th className="p-3">Tanggal</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+                  <tbody className="divide-y divide-slate-100">
                     {parsedData.map((row) => (
-                      <tr key={row.no_registrasi} className="hover:bg-teal-50/40 dark:hover:bg-slate-700/30 transition-colors">
+                      <tr key={row.no_registrasi} className="hover:bg-teal-50/40 transition-colors">
                         <td className="p-3 text-center">
                           <input
                             type="checkbox"
@@ -1051,12 +1051,12 @@ export default React.memo(function InputPemeriksaan() {
                             className="rounded text-teal-600 focus:ring-teal-500"
                           />
                         </td>
-                        <td className="p-3 font-mono font-medium text-slate-900 dark:text-white">{row.no_registrasi}</td>
-                        <td className="p-3 font-mono text-slate-700 dark:text-slate-300">{row.no_rm}</td>
+                        <td className="p-3 font-mono font-bold text-slate-800">{row.no_registrasi}</td>
+                        <td className="p-3 font-mono text-slate-700">{row.no_rm}</td>
                         <td className="p-3 font-mono text-slate-500">{row.nik || '-'}</td>
-                        <td className="p-3 font-medium text-slate-900 dark:text-white">{row.nama_pasien}</td>
-                        <td className="p-3 text-slate-600 dark:text-slate-400">{row.dpjp || '-'}</td>
-                        <td className="p-3 text-slate-600 dark:text-slate-400">{formatTanggalIndo(row.tanggal_pemeriksaan)}</td>
+                        <td className="p-3 font-bold text-slate-800">{row.nama_pasien}</td>
+                        <td className="p-3 text-slate-600">{row.dpjp || '-'}</td>
+                        <td className="p-3 text-slate-600">{formatTanggalIndo(row.tanggal_pemeriksaan)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1093,11 +1093,11 @@ export default React.memo(function InputPemeriksaan() {
       {activeTab === 'tersimpan' && (
         <div className="glass-card p-6 space-y-5">
           {/* Header & Filter Controls */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-700/60">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2.5">
                 <div>
-                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                  <h2 className="text-base font-semibold text-slate-900">
                     Data Pemeriksaan Laboratorium Pasien
                   </h2>
                 </div>
@@ -1112,7 +1112,7 @@ export default React.memo(function InputPemeriksaan() {
                   setFilterCategory(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500"
+                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-teal-500"
               >
                 <option value="">Semua Kategori</option>
                 {categoryList.map(cat => (
@@ -1131,7 +1131,7 @@ export default React.memo(function InputPemeriksaan() {
                     setCurrentPage(1);
                   }}
                   placeholder="Cari pasien, RM, no reg..."
-                  className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                  className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 text-slate-800 placeholder-slate-400"
                 />
               </div>
 
@@ -1140,7 +1140,7 @@ export default React.memo(function InputPemeriksaan() {
                 type="button"
                 onClick={() => fetchSavedRecords(currentPage)}
                 disabled={loadingSaved}
-                className="p-2 text-slate-600 dark:text-slate-400 hover:text-teal-600 rounded-xl bg-slate-100 dark:bg-slate-800 transition-colors"
+                className="p-2 text-slate-650 hover:text-teal-650 hover:bg-slate-100 rounded-xl bg-slate-50 border border-slate-200 transition-colors"
                 title="Refresh data"
               >
                 <RefreshCw className={`w-4 h-4 ${loadingSaved ? 'animate-spin' : ''}`} />
@@ -1156,10 +1156,10 @@ export default React.memo(function InputPemeriksaan() {
             </div>
           ) : savedRecords.length === 0 ? (
             <div className="py-16 flex flex-col items-center justify-center gap-3 text-center">
-              <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-slate-400">
+              <div className="p-4 bg-slate-50 rounded-2xl text-slate-400">
                 <FlaskConical className="w-8 h-8 text-slate-400" />
               </div>
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <h3 className="text-sm font-bold text-slate-700">
                 Belum Ada Data Pemeriksaan Tersimpan
               </h3>
               <p className="text-xs text-slate-500 max-w-sm">
@@ -1176,9 +1176,9 @@ export default React.memo(function InputPemeriksaan() {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto border border-slate-200/60 dark:border-slate-700/60 rounded-xl">
+              <div className="overflow-x-auto border border-slate-200 rounded-xl">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200/60 dark:border-slate-700/60">
+                  <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                     <tr>
                       <th className="p-3 w-12 text-center">No</th>
                       <th className="p-3">Tanggal</th>
@@ -1192,36 +1192,36 @@ export default React.memo(function InputPemeriksaan() {
                       <th className="p-3 text-center">Aksi</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+                  <tbody className="divide-y divide-slate-100">
                     {savedRecords.map((item, idx) => (
-                      <tr key={item.id} className="hover:bg-teal-50/40 dark:hover:bg-slate-700/30 transition-colors">
-                        <td className="p-3 text-center font-mono text-slate-500">
+                      <tr key={item.id} className="hover:bg-teal-50/40 transition-colors">
+                        <td className="p-3 text-center font-mono text-slate-500 font-medium">
                           {(currentPage - 1) * recordsPerPage + idx + 1}
                         </td>
-                        <td className="p-3 text-slate-600 dark:text-slate-400">
+                        <td className="p-3 text-slate-600 font-medium">
                           {formatTanggalIndo(item.tanggal_pemeriksaan)}
                         </td>
-                        <td className="p-3 font-mono font-medium text-slate-900 dark:text-white">
+                        <td className="p-3 font-mono font-bold text-slate-800">
                           {item.no_registrasi}
                         </td>
-                        <td className="p-3 font-mono font-medium text-teal-600 dark:text-teal-400">
+                        <td className="p-3 font-mono font-bold text-teal-600">
                           {item.pasien_no_rm}
                         </td>
-                        <td className="p-3 font-mono text-slate-500">
+                        <td className="p-3 font-mono text-slate-500 font-medium">
                           {item.pasien_nik || '-'}
                         </td>
-                        <td className="p-3 font-medium text-slate-900 dark:text-white">
+                        <td className="p-3 font-bold text-slate-800">
                           {item.pasien_nama}
                         </td>
-                        <td className="p-3 font-semibold text-slate-800 dark:text-slate-200">
+                        <td className="p-3 font-bold text-slate-800">
                           {item.nama_parameter || 'Pemeriksaan Lab'}
                         </td>
                         <td className="p-3">
-                          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md font-medium text-[10px]">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-semibold text-[10px]">
                             {item.kategori || 'Umum'}
                           </span>
                         </td>
-                        <td className="p-3 text-slate-600 dark:text-slate-400">
+                        <td className="p-3 text-slate-600 font-medium">
                           {item.dpjp || '-'}
                         </td>
                         <td className="p-3 text-center">
@@ -1229,7 +1229,7 @@ export default React.memo(function InputPemeriksaan() {
                             <button
                               type="button"
                               onClick={() => handleOpenEditModal(item)}
-                              className="p-1.5 text-slate-500 hover:text-teal-600 hover:bg-teal-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              className="p-1.5 text-slate-500 hover:text-teal-650 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
                               title="Edit Data"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -1237,7 +1237,7 @@ export default React.memo(function InputPemeriksaan() {
                             <button
                               type="button"
                               onClick={() => handleDeleteRecord(item.id, item.pasien_nama)}
-                              className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                              className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                               title="Hapus Data"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

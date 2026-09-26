@@ -31,7 +31,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   isClearable = false,
   ...props
 }) => {
-  const isDarkMode = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const isDarkMode = false;
 
   const customStyles = useMemo(() => ({
     control: (base: any, state: any) => ({
