@@ -9,7 +9,7 @@
   --text-xxs: 0.75rem;
   --color-brand-darkest: #1E293B;
   --color-brand-dark: #475569;
-  --color-brand-primary: #16A34A;
+  --color-brand-primary: #0F969C;
   --color-brand-secondary: #3B82F6;
   --color-brand-muted: #64748B;
   --color-brand-slate: #94A3B8;
@@ -77,12 +77,12 @@ svg text {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(22, 163, 74, 0.15);
+  background-color: rgba(15, 150, 156, 0.15);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(22, 163, 74, 0.3);
+  background-color: rgba(15, 150, 156, 0.3);
 }
 
 /* Force vertical scrollbar on the root element */
@@ -266,7 +266,7 @@ html {
 .three-body {
  --uib-size: 30px;
  --uib-speed: 0.8s;
- --uib-color: #16A34A;
+ --uib-color: #0F969C;
  position: relative;
  display: inline-block;
  height: var(--uib-size);
