@@ -13,6 +13,16 @@
   --color-brand-secondary: #3B82F6;
   --color-brand-muted: #64748B;
   --color-brand-slate: #94A3B8;
+  --color-green-50: #EAF8F9;
+  --color-green-100: #D0F3F5;
+  --color-green-150: #B2ECED;
+  --color-green-200: #A2E5E8;
+  --color-green-300: #71D5D9;
+  --color-green-500: #0F969C;
+  --color-green-600: #0F969C;
+  --color-green-700: #0C7E83;
+  --color-green-800: #0A666A;
+  --color-green-850: #085256;
 }
 
 @utility text-xs {
