@@ -145,23 +145,6 @@ export default React.memo(function Dashboard() {
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
             Selamat Datang, {user?.nama}!
           </h1>
-          <p className="text-slate-600 mt-1 text-xs font-normal">
-            Anda login sebagai <span className="font-bold text-indigo-600 capitalize">{user?.role}</span>. Kelola rekam data klinik Puri Medika terpadu di bawah ini.
-          </p>
-        </div>
-
-        {/* Database Diagnostic health */}
-        <div className="flex items-center space-x-3 bg-slate-50 border border-slate-100 px-4 py-2.5 rounded-xl text-slate-700">
-          <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-emerald-600 animate-pulse' : 'text-amber-600 animate-pulse'}`} />
-          <div>
-            <div className="text-xs font-bold flex items-center gap-1.5 text-slate-800">
-              <span>Database Sync</span>
-              <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-            </div>
-            <p className="text-xs text-slate-500 font-mono">
-              {dbStatus?.status === 'ONLINE' ? 'VPS MySQL Terkoneksi' : 'Menggunakan Mode Virtual'}
-            </p>
-          </div>
         </div>
       </div>
 
@@ -367,10 +350,6 @@ export default React.memo(function Dashboard() {
               className="glass-card p-6 flex flex-col justify-between text-slate-800"
             >
               <div>
-                <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2 font-display">
-                  <Activity className="h-4.5 w-4.5 text-indigo-600" />
-                  <span>Akses Cepat Modul</span>
-                </h2>
                 
                 <div className="space-y-3">
                   {/* Shortcut 1: Input Lab */}
@@ -429,10 +408,6 @@ export default React.memo(function Dashboard() {
                     </Link>
                   )}
                 </div>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-                <span className="text-xs text-slate-400 font-mono tracking-wider font-bold">PURI MEDIKA INTEGRATED CONTROL PANEL</span>
               </div>
             </motion.div>
           </div>

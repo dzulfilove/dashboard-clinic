@@ -23,7 +23,8 @@ import {
   AlertTriangle,
   Bed,
   Stethoscope,
-  Syringe
+  Syringe,
+  MessageSquare
 } from 'lucide-react';
 import api from '../services/api.js';
 import { DbStatus } from '../types.js';
@@ -39,6 +40,12 @@ const menuItems = [
     title: 'Design System Guide',
     path: '/design-system',
     icon: Layers,
+    roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
+  },
+  {
+    title: 'Usulan & Bug',
+    path: '/usulan-bug',
+    icon: MessageSquare,
     roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
   },
   {
