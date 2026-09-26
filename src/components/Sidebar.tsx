@@ -86,7 +86,6 @@ const menuItems = [
       { name: 'Peramalan (Forecast)', path: '/farmasi/forecast', icon: TrendingUp, roles: ['admin', 'farmasi'] },
       { name: 'Analisis ABC Spend', path: '/farmasi/abc', icon: Layers, roles: ['admin', 'farmasi'] },
       { name: 'Master Data Obat', path: '/farmasi/master', icon: Package, roles: ['admin', 'farmasi'] },
-
     ]
   },
   {
@@ -131,7 +130,6 @@ export default React.memo(function Sidebar() {
         const res = await api.get('/db/status');
         setDbStatus(res.data);
       } catch (err: any) {
-        // Silently capture transient network drops or server restarts
         if (err?.message !== 'Network Error') {
           console.warn('Failed to load DB status silently:', err?.message || err);
         }
@@ -167,24 +165,23 @@ export default React.memo(function Sidebar() {
 
   return (
     <>
-      {/* Mobile Header with Glass Look */}
-      <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-slate-950/95 backdrop-blur-md text-white shadow-lg z-40">
+      {/* Mobile Header with White Minimal Look */}
+      <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-white border-b border-slate-100 text-slate-800 shadow-sm z-40">
         <div className="flex items-center space-x-3">
-          <div className="bg-slate-100 p-1.5 rounded-xl flex items-center justify-center shadow-md flex-shrink-0 border border-slate-800">
+          <div className="bg-slate-50 p-1.5 rounded-xl flex items-center justify-center shadow-xs border border-slate-100">
             <Logo size={36} />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="font-extrabold text-sm text-white font-display leading-tight">Klinik Puri Medika</span>
-      
+            <span className="font-extrabold text-sm text-slate-900 font-display leading-tight">Klinik Puri Medika</span>
           </div>
         </div>
         <button 
           id="mobile-menu-toggle"
           onClick={() => setMobileOpen(!mobileOpen)} 
-          className="p-2 rounded-lg bg-slate-900 border border-slate-850 hover:bg-slate-800 focus:outline-none transition-all"
+          className="p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 focus:outline-none transition-all"
           style={{ minHeight: '44px', minWidth: '44px' }}
         >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileOpen ? <X className="h-6 w-6 text-slate-800" /> : <Menu className="h-6 w-6 text-slate-800" />}
         </button>
       </header>
 
@@ -197,7 +194,7 @@ export default React.memo(function Sidebar() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             style={{ willChange: 'opacity' }}
-            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-30 pointer-events-auto" 
+            className="md:hidden fixed inset-0 bg-black/30 backdrop-blur-xs z-30 pointer-events-auto" 
             onClick={() => setMobileOpen(false)} 
           />
         )}
@@ -206,7 +203,7 @@ export default React.memo(function Sidebar() {
       {/* Sidebar Container */}
       <aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen glass-sidebar text-slate-100 flex flex-col justify-between z-45 transition-[width] duration-200 ease-out will-change-width
+        className={`fixed md:sticky top-0 left-0 h-screen glass-sidebar text-slate-700 flex flex-col justify-between z-45 transition-[width] duration-200 ease-out will-change-width
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         `}
@@ -214,19 +211,19 @@ export default React.memo(function Sidebar() {
       >
         {/* Upper Brand Section */}
         <div>
-          <div className="flex items-center justify-between px-6 py-5 bg-[#05161A]/50 backdrop-blur-md border-b border-white/10">
+          <div className="flex items-center justify-between px-6 py-5 bg-white border-b border-slate-100">
             <div className="flex items-center space-x-3 overflow-hidden">
               {collapsed ? (
-                <div className="h-11 w-11 flex-shrink-0 bg-[#072E33] p-1.5 rounded-xl flex items-center justify-center shadow-md border border-white/20">
+                <div className="h-11 w-11 flex-shrink-0 bg-slate-50 p-1.5 rounded-xl flex items-center justify-center shadow-xs border border-slate-100">
                   <Logo size={32} />
                 </div>
               ) : (
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="h-11 w-11 flex-shrink-0 bg-white p-1 rounded-xl flex items-center justify-center shadow-md border border-white/30">
+                  <div className="h-11 w-11 flex-shrink-0 bg-slate-50 p-1.5 rounded-xl flex items-center justify-center shadow-xs border border-slate-100">
                     <Logo size={34} />
                   </div>
                   <div className="flex flex-col justify-center whitespace-nowrap overflow-hidden">
-                    <span className="font-extrabold text-base text-white tracking-tight leading-none">Klinik Puri Medika<span className="text-[#0F969C]">.</span></span>
+                    <span className="font-extrabold text-base text-slate-900 tracking-tight leading-none">Klinik Puri Medika<span className="text-indigo-600">.</span></span>
                   </div>
                 </div>
               )}
@@ -236,7 +233,7 @@ export default React.memo(function Sidebar() {
             <button 
               id="sidebar-collapse-btn"
               onClick={() => setCollapsed(!collapsed)} 
-              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-[#072E33]/80 border border-white/20 text-slate-200 hover:text-white hover:bg-[#0C7075] transition-all cursor-pointer"
+              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-slate-50 border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"
               style={{ minHeight: '32px', minWidth: '32px' }}
             >
               <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`} />
@@ -258,19 +255,13 @@ export default React.memo(function Sidebar() {
                     className={`
                       relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
                       ${isActive 
-                        ? 'bg-teal-500/20 border-teal-400/45 text-teal-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),_0_4px_12px_rgba(20,184,166,0.2)] backdrop-blur-md font-bold' 
-                        : 'border-transparent text-slate-300 hover:bg-white/5 hover:text-slate-100'}
+                        ? 'bg-indigo-50 border-indigo-100 text-indigo-600 font-bold shadow-xs' 
+                        : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-indigo-600'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
                     style={{ minHeight: '44px' }}
                   >
-                    {isActive && (
-                      <>
-                        {/* Elegant Subtle Specular Reflection strictly at the top-left */}
-                        <div className="absolute -top-4 -left-4 w-10 h-10 bg-white/15 rounded-full blur-sm pointer-events-none" />
-                      </>
-                    )}
-                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-teal-200 scale-105 relative z-10' : 'text-slate-400'}`} />
+                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-indigo-650 scale-105 relative z-10' : 'text-slate-400'}`} />
                     <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                       {item.title}
                     </span>
@@ -290,19 +281,19 @@ export default React.memo(function Sidebar() {
                     onClick={() => toggleSection(item.title)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors] duration-150 cursor-pointer group
                       ${isChildActive 
-                        ? 'bg-white/5 text-teal-400' 
-                        : 'text-slate-300 hover:bg-white/5 hover:text-slate-100'}
+                        ? 'bg-indigo-50/40 text-indigo-600 font-bold border border-indigo-50' 
+                        : 'border border-transparent text-slate-600 hover:bg-slate-50 hover:text-indigo-600'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
                     style={{ minHeight: '44px' }}
                   >
                     <div className="flex items-center space-x-3 overflow-hidden">
-                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-teal-400' : 'text-slate-400 group-hover:text-teal-300'}`} />
+                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-550'}`} />
                       <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                         {item.title}
                       </span>
                     </div>
-                    <ChevronDown className={`h-3.5 w-3.5 text-slate-500 transition-colors duration-200 ${isOpen ? 'rotate-180 text-teal-400' : 'group-hover:text-slate-300'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
+                    <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-colors duration-200 ${isOpen ? 'rotate-180 text-indigo-500' : 'group-hover:text-slate-600'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
                   </button>
 
                   <div className="overflow-hidden">
@@ -314,16 +305,16 @@ export default React.memo(function Sidebar() {
                             return (
                               <div
                                 key={subIdx}
-                                className="relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-500/80 cursor-not-allowed mt-1 bg-slate-900/10 hover:bg-slate-900/20 font-display"
+                                className="relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 cursor-not-allowed mt-1 bg-slate-50"
                                 style={{ minHeight: '38px' }}
                               >
                                 <div className="flex items-center space-x-3">
-                                  <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-650" />
+                                  <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-350" />
                                   <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                                     {subItem.name}
                                   </span>
                                 </div>
-                                <span className={`text-xs leading-none bg-slate-900 text-teal-400/80 px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>Segera</span>
+                                <span className="text-[10px] leading-none bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Segera</span>
                               </div>
                             );
                           }
@@ -336,18 +327,12 @@ export default React.memo(function Sidebar() {
                               className={`
                                 relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
                                 ${isSubActive 
-                                  ? 'bg-teal-500/20 border-teal-400/45 text-teal-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3),_0_2px_8px_rgba(20,184,166,0.15)] backdrop-blur-md font-semibold' 
-                                  : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200'}
+                                  ? 'bg-indigo-50 border-indigo-100 text-indigo-600 font-bold shadow-xs' 
+                                  : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}
                               `}
                               style={{ minHeight: '38px' }}
                             >
-                              {isSubActive && (
-                                <>
-                                  {/* Elegant Subtle Specular Reflection strictly at the top-left */}
-                                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-white/12 rounded-full blur-sm pointer-events-none" />
-                                </>
-                              )}
-                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-teal-200 relative z-10' : 'text-slate-500'}`} />
+                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-indigo-600 relative z-10' : 'text-slate-400'}`} />
                               <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                                 {subItem.name}
                               </span>
@@ -364,16 +349,16 @@ export default React.memo(function Sidebar() {
         </div>
 
         {/* Lower User/Logout Section */}
-        <div className="p-4 bg-slate-950/40 backdrop-blur-md">
+        <div className="p-4 bg-slate-50 border-t border-slate-100">
           <div className="flex items-center justify-between gap-2">
             {user && (
               <div className="flex items-center space-x-3 overflow-hidden">
-                <div className="h-9 w-9 rounded-full bg-slate-900 flex items-center justify-center font-semibold text-teal-400 uppercase flex-shrink-0 text-xs">
+                <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-650 flex items-center justify-center font-bold uppercase flex-shrink-0 text-xs">
                   {user.nama.substring(0, 2)}
                 </div>
                 <div className={`flex flex-col truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
-                  <span className="text-xs font-semibold text-slate-200 truncate">{user.nama}</span>
-                  <span className="text-xs font-mono uppercase bg-teal-950/60 text-teal-350 px-2 py-0.5 rounded self-start mt-0.5 tracking-wider font-medium">
+                  <span className="text-xs font-bold text-slate-800 truncate">{user.nama}</span>
+                  <span className="text-[10px] font-mono uppercase bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full self-start mt-0.5 tracking-wider font-extrabold">
                     {user.role}
                   </span>
                 </div>
@@ -383,7 +368,7 @@ export default React.memo(function Sidebar() {
             <button
               id="sidebar-logout-btn"
               onClick={handleLogout}
-              className={`p-2 rounded-xl bg-slate-900/60 hover:bg-rose-500/10 hover:text-rose-400 text-slate-400 transition-[colors] duration-150 flex items-center justify-center cursor-pointer
+              className={`p-2 rounded-xl bg-slate-200/80 hover:bg-rose-500/10 hover:text-rose-500 text-slate-500 transition-[colors] duration-150 flex items-center justify-center cursor-pointer
                 ${collapsed ? 'w-full' : ''}
               `}
               title="Keluar dari Sistem"

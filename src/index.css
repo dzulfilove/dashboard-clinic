@@ -179,10 +179,10 @@ html {
 
 /* Vibrant Minimalist Colored Cards like Jiron top deck cards */
 
-/* KPI 1 - Soft Lavender/Purple Gradient */
+/* KPI 1 - Solid Purple/Lavender */
 .glass-card-primary {
   position: relative;
-  background: linear-gradient(135deg, #B588F7 0%, #9066F5 100%) !important;
+  background: #9066F5 !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 1.5rem !important;
@@ -191,10 +191,10 @@ html {
   -webkit-backdrop-filter: none !important;
 }
 
-/* KPI 2 - Soft Blue/Cobalt Gradient */
+/* KPI 2 - Solid Cobalt Blue */
 .glass-card-secondary {
   position: relative;
-  background: linear-gradient(135deg, #5CA4F8 0%, #3B82F6 100%) !important;
+  background: #3B82F6 !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 1.5rem !important;
@@ -203,20 +203,20 @@ html {
   -webkit-backdrop-filter: none !important;
 }
 
-/* KPI 3 - Soft Warm Amber/Yellow Gradient */
+/* KPI 3 - Solid Amber/Yellow */
 .glass-card-amber {
   position: relative;
-  background: linear-gradient(135deg, #FFC15E 0%, #F59E0B 100%) !important;
+  background: #F59E0B !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 1.5rem !important;
   box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.3) !important;
 }
 
-/* KPI 4 - Soft Rose/Pink Gradient */
+/* KPI 4 - Solid Rose/Pink */
 .glass-card-rose {
   position: relative;
-  background: linear-gradient(135deg, #FDA4AF 0%, #F43F5E 100%) !important;
+  background: #F43F5E !important;
   color: #ffffff !important;
   border: none !important;
   border-radius: 1.5rem !important;
