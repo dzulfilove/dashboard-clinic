@@ -70,10 +70,11 @@ function AppContent() {
           path="/*"
           element={
             <ProtectedRoute>
-              <div className="relative min-h-screen bg-[#CBFBF1] flex flex-col md:flex-row font-sans overflow-hidden">
-                {/* Glowing ambient background spots for glass backdrop blur effect */}
-                <div className="absolute top-[10%] right-[-10%] w-[45rem] h-[45rem] bg-teal-200/30 rounded-full blur-[60px] pointer-events-none" />
-                <div className="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-white/40 rounded-full blur-[60px] pointer-events-none" />
+              <div className="relative min-h-screen bg-gradient-to-br from-[#6DA5C0]/35 via-[#0F969C]/25 to-[#072E33]/30 flex flex-col md:flex-row font-sans overflow-hidden">
+                {/* Glowing ambient background waves for 3D Liquid Glassmorphism backdrop blur effect */}
+                <div className="absolute top-[-10%] right-[-5%] w-[55rem] h-[55rem] bg-gradient-to-br from-[#0F969C]/40 to-[#0C7075]/35 rounded-full blur-[85px] pointer-events-none" />
+                <div className="absolute bottom-[-15%] left-[10%] w-[45rem] h-[45rem] bg-gradient-to-tr from-[#05161A]/25 to-[#294D61]/35 rounded-full blur-[90px] pointer-events-none" />
+                <div className="absolute top-[35%] left-[-10%] w-[35rem] h-[35rem] bg-[#6DA5C0]/45 rounded-full blur-[75px] pointer-events-none" />
                 
                 {/* Sidebar Navigation */}
                 <Sidebar />
@@ -82,7 +83,7 @@ function AppContent() {
                 <InteractiveGuide />
 
                 {/* Core Main Viewport Stage */}
-                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen bg-[#CBFBF1]">
+                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
                   <div className="max-w-7xl mx-auto h-full">
                     <Suspense fallback={<Loader />}>
                       <Routes location={location} key={location.pathname}>

@@ -200,7 +200,7 @@ export default React.memo(function Sidebar() {
       {/* Sidebar Container */}
       <aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen bg-slate-950/92 backdrop-blur-xl text-slate-200 flex flex-col justify-between z-45 transition-[width] duration-200 ease-out border-r border-slate-100/50 will-change-width
+        className={`fixed md:sticky top-0 left-0 h-screen glass-sidebar text-slate-100 flex flex-col justify-between z-45 transition-[width] duration-200 ease-out will-change-width
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         `}
@@ -208,20 +208,19 @@ export default React.memo(function Sidebar() {
       >
         {/* Upper Brand Section */}
         <div>
-          <div className="flex items-center justify-between px-6 py-5 bg-slate-950/40 backdrop-blur-md">
+          <div className="flex items-center justify-between px-6 py-5 bg-[#05161A]/50 backdrop-blur-md border-b border-white/10">
             <div className="flex items-center space-x-3 overflow-hidden">
               {collapsed ? (
-                <div className="h-11 w-11 flex-shrink-0 bg-slate-900 p-1.5 rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                <div className="h-11 w-11 flex-shrink-0 bg-[#072E33] p-1.5 rounded-xl flex items-center justify-center shadow-md border border-white/20">
                   <Logo size={32} />
                 </div>
               ) : (
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="h-11 w-11 flex-shrink-0 bg-slate-100 p-1 rounded-xl flex items-center justify-center shadow-md border border-slate-800">
+                  <div className="h-11 w-11 flex-shrink-0 bg-white p-1 rounded-xl flex items-center justify-center shadow-md border border-white/30">
                     <Logo size={34} />
                   </div>
                   <div className="flex flex-col justify-center whitespace-nowrap overflow-hidden">
-                    <span className="font-extrabold text-base text-white tracking-tight leading-none">Klinik Puri Medika<span className="text-teal-400">.</span></span>
-                   
+                    <span className="font-extrabold text-base text-white tracking-tight leading-none">Klinik Puri Medika<span className="text-[#0F969C]">.</span></span>
                   </div>
                 </div>
               )}
@@ -231,7 +230,7 @@ export default React.memo(function Sidebar() {
             <button 
               id="sidebar-collapse-btn"
               onClick={() => setCollapsed(!collapsed)} 
-              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700 hover:bg-slate-850 transition-all cursor-pointer"
+              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-[#072E33]/80 border border-white/20 text-slate-200 hover:text-white hover:bg-[#0C7075] transition-all cursor-pointer"
               style={{ minHeight: '32px', minWidth: '32px' }}
             >
               <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`} />

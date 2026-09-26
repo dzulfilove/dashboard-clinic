@@ -1243,7 +1243,7 @@ export default React.memo(function RawatJalan() {
           <div key="statistik" className="space-y-6 anim-fade-up anim-delay-4"
           >
             {/* Filter Bar for Statistics: Rentang Tanggal, Poli, dan Filter Kunjungan Per Tindakan */}
-            <div className="bg-white/95 backdrop-blur-sm p-4 rounded-2xl border border-teal-300/60 shadow-sm space-y-3">
+            <div className="glass-card p-4 space-y-3">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* 1. Rentang Tanggal */}
                 <div>
