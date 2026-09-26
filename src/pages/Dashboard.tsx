@@ -139,26 +139,26 @@ export default React.memo(function Dashboard() {
       {/* Welcome Banner */}
       <div 
         id="welcome-banner" 
-        className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 text-white"
       >
         <div>
-          <h1 className="text-xl font-bold text-[#05161A] tracking-tight">
+          <h1 className="text-xl font-bold text-white tracking-tight">
             Selamat Datang, {user?.nama}!
           </h1>
-          <p className="text-[#072E33]/80 mt-1 text-xs font-normal">
-            Anda login sebagai <span className="font-bold text-[#0C7075] capitalize">{user?.role}</span>. Kelola rekam data klinik Puri Medika terpadu di bawah ini.
+          <p className="text-teal-100/90 mt-1 text-xs font-normal">
+            Anda login sebagai <span className="font-bold text-teal-200 capitalize">{user?.role}</span>. Kelola rekam data klinik Puri Medika terpadu di bawah ini.
           </p>
         </div>
 
         {/* Database Diagnostic health */}
-        <div className="flex items-center space-x-3 glass-pill-action px-4 py-2.5 rounded-xl text-[#05161A]">
-          <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-[#0C7075] animate-pulse' : 'text-amber-600 animate-pulse'}`} />
+        <div className="flex items-center space-x-3 glass-pill-action px-4 py-2.5 rounded-xl text-white">
+          <Database className={`h-5 w-5 ${dbStatus?.status === 'ONLINE' ? 'text-teal-200 animate-pulse' : 'text-amber-300 animate-pulse'}`} />
           <div>
             <div className="text-xs font-bold flex items-center gap-1.5">
               <span>Database Sync</span>
-              <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-[#0C7075]' : 'bg-amber-500'}`} />
+              <span className={`h-2 w-2 rounded-full ${dbStatus?.status === 'ONLINE' ? 'bg-teal-300' : 'bg-amber-400'}`} />
             </div>
-            <p className="text-xs text-[#072E33]/70 font-mono">
+            <p className="text-xs text-teal-100/80 font-mono">
               {dbStatus?.status === 'ONLINE' ? 'VPS MySQL Terkoneksi' : 'Menggunakan Mode Virtual'}
             </p>
           </div>
@@ -296,50 +296,50 @@ export default React.memo(function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
-              className="glass-card p-6 lg:col-span-2"
+              className="glass-card p-6 lg:col-span-2 text-white"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
-                  <AlertTriangle className="h-4.5 w-4.5 text-[#0C7075]" />
-                  <h2 className="text-sm font-bold text-[#05161A] font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
+                  <AlertTriangle className="h-4.5 w-4.5 text-amber-300" />
+                  <h2 className="text-sm font-bold text-white font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
                 </div>
                 {criticalItems.length > 0 && (
-                  <span className="bg-[#0C7075]/15 text-[#05161A] text-xs font-bold px-2 py-0.5 rounded border border-[#0C7075]/30 font-mono animate-pulse">
+                  <span className="bg-amber-400/20 text-amber-200 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-300/40 font-mono animate-pulse">
                     Butuh Order Darurat
                   </span>
                 )}
               </div>
 
               {loading ? (
-                <div className="py-12 text-center text-[#072E33]/60 text-xs">Menghitung inventory farmasi...</div>
+                <div className="py-12 text-center text-teal-100/70 text-xs">Menghitung inventory farmasi...</div>
               ) : criticalItems.length === 0 ? (
-                <div className="glass-inset-state p-6 text-center text-[#05161A]">
-                  <CheckCircle className="h-8 w-8 text-[#0C7075] mx-auto mb-2" />
-                  <p className="font-bold text-xs">Semua stok obat aman!</p>
-                  <p className="text-xs text-[#072E33]/80 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
+                <div className="glass-inset-state p-6 text-center text-white">
+                  <CheckCircle className="h-8 w-8 text-teal-300 mx-auto mb-2" />
+                  <p className="font-bold text-xs text-white">Semua stok obat aman!</p>
+                  <p className="text-xs text-teal-100/80 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                   {criticalItems.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3.5 glass-inset-state text-xs">
                       <div>
-                        <span className="text-xs font-mono font-bold text-[#05161A] bg-[#6DA5C0]/35 px-2 py-0.5 rounded border border-[#0C7075]/20">
+                        <span className="text-xs font-mono font-bold text-white bg-white/20 px-2 py-0.5 rounded border border-white/30">
                           {item.kode_obat}
                         </span>
-                        <h4 className="font-bold text-[#05161A] mt-1.5 text-xs">{item.nama_obat}</h4>
-                        <div className="flex items-center space-x-3 text-xs text-[#072E33]/70 mt-1 font-normal">
-                          <span>Proyeksi Kebutuhan (3 bln): <span className="font-bold text-[#05161A]">{item.proyeksi_kebutuhan}</span></span>
+                        <h4 className="font-bold text-white mt-1.5 text-xs">{item.nama_obat}</h4>
+                        <div className="flex items-center space-x-3 text-xs text-teal-100/80 mt-1 font-normal">
+                          <span>Proyeksi Kebutuhan (3 bln): <span className="font-bold text-white">{item.proyeksi_kebutuhan}</span></span>
                           <span>•</span>
-                          <span>Lead Time: <span className="font-bold text-[#05161A]">{item.lead_time_hari} Hari</span></span>
+                          <span>Lead Time: <span className="font-bold text-white">{item.lead_time_hari} Hari</span></span>
                         </div>
                       </div>
 
                       <div className="text-right">
-                        <p className="text-xs text-[#072E33]/70 font-normal">Stok Saat Ini / Reorder Point</p>
-                        <p className="text-sm font-bold text-[#0C7075] mt-0.5 font-mono">
-                          {item.current_stock} <span className="text-xs font-normal text-[#072E33]/70">/ {item.reorder_qty}</span>
+                        <p className="text-xs text-teal-100/80 font-normal">Stok Saat Ini / Reorder Point</p>
+                        <p className="text-sm font-bold text-amber-300 mt-0.5 font-mono">
+                          {item.current_stock} <span className="text-xs font-normal text-teal-100/70">/ {item.reorder_qty}</span>
                         </p>
-                        <span className="text-xs inline-block bg-white/80 text-[#05161A] px-1.5 py-0.5 rounded border border-[#0C7075]/30 mt-1 font-bold">
+                        <span className="text-xs inline-block bg-rose-500/20 text-rose-200 px-2 py-0.5 rounded-full border border-rose-400/40 mt-1 font-bold">
                           Defisit: {item.reorder_qty - item.current_stock}
                         </span>
                       </div>
@@ -348,10 +348,10 @@ export default React.memo(function Dashboard() {
                 </div>
               )}
 
-              <div className="mt-4 border-t border-[#0C7075]/20 pt-4 flex justify-end">
+              <div className="mt-4 border-t border-white/15 pt-4 flex justify-end">
                 <Link 
                   to="/farmasi/forecast" 
-                  className="text-xs font-bold text-[#0C7075] hover:text-[#05161A] flex items-center space-x-1"
+                  className="text-xs font-bold text-teal-200 hover:text-white flex items-center space-x-1"
                 >
                   <span>Lihat Detail Peramalan</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -364,11 +364,11 @@ export default React.memo(function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.25 }}
-              className="glass-card p-6 flex flex-col justify-between"
+              className="glass-card p-6 flex flex-col justify-between text-white"
             >
               <div>
-                <h2 className="text-sm font-bold text-[#05161A] mb-4 flex items-center gap-2 font-display">
-                  <Activity className="h-4.5 w-4.5 text-[#0C7075]" />
+                <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2 font-display">
+                  <Activity className="h-4.5 w-4.5 text-teal-300" />
                   <span>Akses Cepat Modul</span>
                 </h2>
                 
@@ -380,10 +380,10 @@ export default React.memo(function Dashboard() {
                       className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
                     >
                       <div>
-                        <h4 className="font-bold text-[#05161A] text-xs">Input Laboratorium</h4>
-                        <p className="text-xs text-[#0C7075] mt-1 font-medium">Submit jumlah pemeriksaan bulanan klinis</p>
+                        <h4 className="font-bold text-white text-xs">Input Laboratorium</h4>
+                        <p className="text-xs text-teal-100/80 mt-1 font-medium">Submit jumlah pemeriksaan bulanan klinis</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-[#0C7075] group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-teal-200 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
 
@@ -394,10 +394,10 @@ export default React.memo(function Dashboard() {
                       className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
                     >
                       <div>
-                        <h4 className="font-bold text-[#05161A] text-xs">Konsumsi Obat</h4>
-                        <p className="text-xs text-[#0C7075] mt-1 font-medium">Input log penerimaan & pemakaian obat</p>
+                        <h4 className="font-bold text-white text-xs">Konsumsi Obat</h4>
+                        <p className="text-xs text-teal-100/80 mt-1 font-medium">Input log penerimaan & pemakaian obat</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-[#0C7075] group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-teal-200 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
 
@@ -408,10 +408,10 @@ export default React.memo(function Dashboard() {
                       className="flex items-center justify-between p-3.5 glass-pill-action rounded-xl text-left group"
                     >
                       <div>
-                        <h4 className="font-bold text-[#05161A] text-xs">Analisis ABC (Spend)</h4>
-                        <p className="text-xs text-[#072E33]/80 mt-1 font-medium">Klasifikasi nilai kontribusi biaya obat</p>
+                        <h4 className="font-bold text-white text-xs">Analisis ABC (Spend)</h4>
+                        <p className="text-xs text-teal-100/80 mt-1 font-medium">Klasifikasi nilai kontribusi biaya obat</p>
                       </div>
-                      <ArrowRight className="h-4.5 w-4.5 text-[#05161A] group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4.5 w-4.5 text-teal-200 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   )}
 

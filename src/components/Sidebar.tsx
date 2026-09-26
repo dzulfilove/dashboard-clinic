@@ -36,6 +36,12 @@ const menuItems = [
     roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
   },
   {
+    title: 'Design System Guide',
+    path: '/design-system',
+    icon: Layers,
+    roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
+  },
+  {
     isGroup: true,
     title: 'Laboratorium',
     icon: FlaskConical,
