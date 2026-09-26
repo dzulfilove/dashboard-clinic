@@ -657,22 +657,26 @@ export default React.memo(function InputPemeriksaan() {
 
   return (
     <div className="space-y-6">
-      {/* Top Header Card */}
-      <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-800">
+      {/* Top Header Card - Proper prominent page header with description and icon */}
+      <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-800 border-l-4 border-l-green-600">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 font-display">
+            <FlaskConical className="w-6 h-6 text-green-600 animate-pulse" />
             Entri Pemeriksaan Laboratorium
           </h1>
+          <p className="text-xs text-slate-500 mt-1 font-medium">
+            Pencatatan data hasil pemeriksaan klinis & laboratorium pasien terintegrasi klinik
+          </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-100 rounded-xl border border-slate-200">
+        {/* Tab Navigation - Fully light-themed with colored containers for all buttons */}
+        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-50 rounded-xl border border-slate-200/80">
           <button
             onClick={() => setActiveTab('manual')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'manual'
-                ? 'bg-teal-600 text-white shadow-sm border border-teal-600'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xxs'
+                ? 'bg-green-600 text-white shadow-sm border border-green-600'
+                : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
             }`}
           >
             <UserPlus className="w-4 h-4" />
@@ -680,10 +684,10 @@ export default React.memo(function InputPemeriksaan() {
           </button>
           <button
             onClick={() => setActiveTab('import')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'import'
-                ? 'bg-teal-600 text-white shadow-sm border border-teal-600'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xxs'
+                ? 'bg-green-600 text-white shadow-sm border border-green-600'
+                : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
             }`}
           >
             <FileSpreadsheet className="w-4 h-4" />
@@ -694,17 +698,17 @@ export default React.memo(function InputPemeriksaan() {
               setActiveTab('tersimpan');
               fetchSavedRecords(1);
             }}
-            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'tersimpan'
-                ? 'bg-teal-600 text-white shadow-sm border border-teal-600'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xxs'
+                ? 'bg-green-600 text-white shadow-sm border border-green-600'
+                : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
             }`}
           >
             <Database className="w-4 h-4" />
             <span>Data Pemeriksaan Tersimpan</span>
             {totalServerRecords > 0 && (
               <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-bold ${
-                activeTab === 'tersimpan' ? 'bg-teal-700 text-white' : 'bg-slate-100 text-slate-700'
+                activeTab === 'tersimpan' ? 'bg-green-700 text-white' : 'bg-green-100 text-green-800'
               }`}>
                 {totalServerRecords}
               </span>
@@ -732,9 +736,9 @@ export default React.memo(function InputPemeriksaan() {
                 setManualNama('');
                 setManualNik('');
               }}
-              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xxs"
+              className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 border border-amber-300 rounded-xl text-xs font-bold text-amber-800 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+              <RefreshCw className="w-3.5 h-3.5 text-amber-750" />
               <span>Reset Form</span>
             </button>
           </div>
@@ -751,7 +755,7 @@ export default React.memo(function InputPemeriksaan() {
                     type="date"
                     value={manualTanggal}
                     onChange={(e) => setManualTanggal(e.target.value)}
-                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 text-slate-800"
                     required
                   />
                 </div>
@@ -769,7 +773,7 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNoReg}
                   onChange={(e) => setManualNoReg(e.target.value)}
                   placeholder="Contoh: REG-LAB-20260814-1029"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 text-slate-800"
                   required
                 />
               </div>
@@ -809,10 +813,10 @@ export default React.memo(function InputPemeriksaan() {
                       setShowPasienDropdown(true);
                     }}
                     placeholder="Ketik No. RM atau Nama Pasien..."
-                    className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 text-slate-800"
+                    className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 text-slate-800"
                   />
                   {isSearchingPasien && (
-                    <RefreshCw className="w-4 h-4 text-teal-650 animate-spin absolute right-3.5 top-2.5" />
+                    <RefreshCw className="w-4 h-4 text-green-600 animate-spin absolute right-3.5 top-2.5" />
                   )}
                 </div>
 
@@ -824,7 +828,7 @@ export default React.memo(function InputPemeriksaan() {
                         key={p.no_rm}
                         type="button"
                         onClick={() => handleSelectPasien(p)}
-                        className="w-full text-left px-3.5 py-2 hover:bg-teal-50 transition-colors flex justify-between items-center"
+                        className="w-full text-left px-3.5 py-2 hover:bg-green-50 transition-colors flex justify-between items-center"
                       >
                         <div>
                           <span className="font-semibold text-xs text-slate-900">{p.nama}</span>
@@ -847,7 +851,7 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNoRm}
                   onChange={(e) => setManualNoRm(e.target.value)}
                   placeholder="Contoh: RM-00123"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 text-slate-800"
                   required
                 />
               </div>
@@ -862,7 +866,7 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNama}
                   onChange={(e) => setManualNama(e.target.value)}
                   placeholder="Nama Lengkap Pasien"
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 text-slate-800"
                   required
                 />
               </div>
@@ -878,13 +882,13 @@ export default React.memo(function InputPemeriksaan() {
                   value={manualNik}
                   onChange={(e) => setManualNik(e.target.value.replace(/\D/g, ''))}
                   placeholder="Contoh: 320101..."
-                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-800"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500 text-slate-800"
                 />
               </div>
 
               {/* Dokter DPJP */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Dokter DPJP / Perujuk
                 </label>
                 <SearchableSelect
@@ -903,11 +907,11 @@ export default React.memo(function InputPemeriksaan() {
             </div>
 
             {/* Action Buttons */}
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-end gap-3">
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
               <button
                 type="submit"
                 disabled={savingManual}
-                className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
+                className="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border border-green-600"
               >
                 {savingManual ? (
                   <>
@@ -941,9 +945,9 @@ export default React.memo(function InputPemeriksaan() {
               <button
                 type="button"
                 onClick={handleUseDemoTemplate}
-                className="px-3 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-bold text-sky-800 bg-sky-100 border border-sky-300 rounded-xl hover:bg-sky-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
-                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                <Sparkles className="w-3.5 h-3.5 text-sky-600 animate-pulse" />
                 <span>Gunakan Contoh Format</span>
               </button>
             </div>
@@ -977,7 +981,7 @@ export default React.memo(function InputPemeriksaan() {
                 onChange={(e) => setRawText(e.target.value)}
                 rows={5}
                 placeholder={`Contoh isi data yang di-paste:\n1\tREG-2026-0001\tRM-10291\t3201019283740001\tBudi Santoso\tDr. Hendra Wijaya\t${getTodayDateString()}\n2\tREG-2026-0002\tRM-10292\t3201019283740002\tSiti Aminah\tDr. Sri Rahayu\t${getTodayDateString()}`}
-                className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-teal-500 text-slate-800"
+                className="w-full p-3.5 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:ring-2 focus:ring-green-500 text-slate-800"
               />
             </div>
 
@@ -985,7 +989,7 @@ export default React.memo(function InputPemeriksaan() {
               <button
                 type="button"
                 onClick={handleParse}
-                className="px-5 py-2 bg-teal-650 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border border-green-600"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>Proses & Urai Data</span>
@@ -998,7 +1002,7 @@ export default React.memo(function InputPemeriksaan() {
             <div className="glass-card p-6 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-teal-600" />
+                  <CheckCircle className="w-5 h-5 text-green-600" />
                   <h3 className="text-sm font-bold text-slate-900">
                     Preview Data Siap Disimpan ({parsedData.length} Pasien)
                   </h3>
@@ -1011,7 +1015,7 @@ export default React.memo(function InputPemeriksaan() {
                       parsedData.forEach(d => { all[d.no_registrasi] = true; });
                       setSelectedRows(all);
                     }}
-                    className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl text-xs font-bold text-teal-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xxs"
+                    className="px-3 py-1.5 bg-green-100 hover:bg-green-200 border border-green-300 rounded-xl text-xs font-bold text-green-850 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>Pilih Semua</span>
@@ -1019,9 +1023,9 @@ export default React.memo(function InputPemeriksaan() {
                   <button
                     type="button"
                     onClick={() => setSelectedRows({})}
-                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xxs"
+                    className="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 border border-rose-300 rounded-xl text-xs font-bold text-rose-850 transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
                   >
-                    <X className="w-3.5 h-3.5 text-slate-500" />
+                    <X className="w-3.5 h-3.5 text-rose-700" />
                     <span>Batal Pilih</span>
                   </button>
                 </div>
@@ -1043,13 +1047,13 @@ export default React.memo(function InputPemeriksaan() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {parsedData.map((row) => (
-                      <tr key={row.no_registrasi} className="hover:bg-teal-50/40 transition-colors">
+                      <tr key={row.no_registrasi} className="hover:bg-green-50/40 transition-colors">
                         <td className="p-3 text-center">
                           <input
                             type="checkbox"
                             checked={!!selectedRows[row.no_registrasi]}
                             onChange={(e) => setSelectedRows(prev => ({ ...prev, [row.no_registrasi]: e.target.checked }))}
-                            className="rounded text-teal-600 focus:ring-teal-500"
+                            className="rounded text-green-600 focus:ring-green-500"
                           />
                         </td>
                         <td className="p-3 font-mono font-bold text-slate-800">{row.no_registrasi}</td>
@@ -1070,7 +1074,7 @@ export default React.memo(function InputPemeriksaan() {
                   type="button"
                   onClick={handleSaveImport}
                   disabled={submitting}
-                  className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
+                  className="px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer border border-green-600"
                 >
                   {submitting ? (
                     <>
@@ -1113,7 +1117,7 @@ export default React.memo(function InputPemeriksaan() {
                   setFilterCategory(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-teal-500"
+                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-green-500"
               >
                 <option value="">Semua Kategori</option>
                 {categoryList.map(cat => (
@@ -1132,7 +1136,7 @@ export default React.memo(function InputPemeriksaan() {
                     setCurrentPage(1);
                   }}
                   placeholder="Cari pasien, RM, no reg..."
-                  className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-teal-500 text-slate-800 placeholder-slate-400"
+                  className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-green-500 text-slate-800 placeholder-slate-400"
                 />
               </div>
 
@@ -1141,7 +1145,7 @@ export default React.memo(function InputPemeriksaan() {
                 type="button"
                 onClick={() => fetchSavedRecords(currentPage)}
                 disabled={loadingSaved}
-                className="p-2 text-slate-650 hover:text-teal-650 hover:bg-slate-100 rounded-xl bg-slate-50 border border-slate-200 transition-colors"
+                className="p-2.5 bg-green-100 hover:bg-green-200 border border-green-300 rounded-xl text-green-700 hover:text-green-800 transition-colors shadow-sm flex items-center justify-center cursor-pointer min-h-[38px] min-w-[38px]"
                 title="Refresh data"
               >
                 <RefreshCw className={`w-4 h-4 ${loadingSaved ? 'animate-spin' : ''}`} />
@@ -1152,7 +1156,7 @@ export default React.memo(function InputPemeriksaan() {
           {/* Table */}
           {loadingSaved ? (
             <div className="py-16 flex flex-col items-center justify-center gap-3 text-slate-400">
-              <RefreshCw className="w-6 h-6 animate-spin text-teal-600" />
+              <RefreshCw className="w-6 h-6 animate-spin text-green-600" />
               <span className="text-xs">Memuat daftar pemeriksaan tersimpan...</span>
             </div>
           ) : savedRecords.length === 0 ? (
@@ -1169,7 +1173,7 @@ export default React.memo(function InputPemeriksaan() {
               <button
                 type="button"
                 onClick={() => setActiveTab('manual')}
-                className="mt-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5"
+                className="mt-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer border border-green-600"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Tambah Pemeriksaan Baru</span>
@@ -1195,7 +1199,7 @@ export default React.memo(function InputPemeriksaan() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {savedRecords.map((item, idx) => (
-                      <tr key={item.id} className="hover:bg-teal-50/40 transition-colors">
+                      <tr key={item.id} className="hover:bg-green-50/40 transition-colors">
                         <td className="p-3 text-center font-mono text-slate-500 font-medium">
                           {(currentPage - 1) * recordsPerPage + idx + 1}
                         </td>
@@ -1205,7 +1209,7 @@ export default React.memo(function InputPemeriksaan() {
                         <td className="p-3 font-mono font-bold text-slate-800">
                           {item.no_registrasi}
                         </td>
-                        <td className="p-3 font-mono font-bold text-teal-600">
+                        <td className="p-3 font-mono font-bold text-green-700">
                           {item.pasien_no_rm}
                         </td>
                         <td className="p-3 font-mono text-slate-500 font-medium">
@@ -1218,7 +1222,7 @@ export default React.memo(function InputPemeriksaan() {
                           {item.nama_parameter || 'Pemeriksaan Lab'}
                         </td>
                         <td className="p-3">
-                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md font-semibold text-[10px]">
+                          <span className="px-2 py-0.5 bg-green-50 text-green-800 rounded-md font-bold text-[10px] border border-green-200">
                             {item.kategori || 'Umum'}
                           </span>
                         </td>
@@ -1230,7 +1234,7 @@ export default React.memo(function InputPemeriksaan() {
                             <button
                               type="button"
                               onClick={() => handleOpenEditModal(item)}
-                              className="p-1.5 text-slate-500 hover:text-teal-650 hover:bg-teal-50 rounded-lg transition-colors cursor-pointer"
+                              className="p-2 bg-sky-100 text-sky-800 hover:bg-sky-200 hover:text-sky-900 border border-sky-300 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center"
                               title="Edit Data"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -1238,7 +1242,7 @@ export default React.memo(function InputPemeriksaan() {
                             <button
                               type="button"
                               onClick={() => handleDeleteRecord(item.id, item.pasien_nama)}
-                              className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                              className="p-2 bg-rose-100 text-rose-800 hover:bg-rose-200 hover:text-rose-900 border border-rose-300 rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center"
                               title="Hapus Data"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1254,7 +1258,7 @@ export default React.memo(function InputPemeriksaan() {
               {/* Pagination Controls */}
               {serverTotalPages > 1 && (
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
-                  <span className="text-xs text-slate-500 dark:text-slate-400">
+                  <span className="text-xs text-slate-500">
                     Menampilkan halaman {currentPage} dari {serverTotalPages} (Total {totalServerRecords} data)
                   </span>
 
@@ -1263,7 +1267,7 @@ export default React.memo(function InputPemeriksaan() {
                       type="button"
                       disabled={currentPage <= 1}
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors"
+                      className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -1279,10 +1283,10 @@ export default React.memo(function InputPemeriksaan() {
                           key={pNum}
                           type="button"
                           onClick={() => setCurrentPage(pNum)}
-                          className={`w-7 h-7 text-xs rounded-lg font-medium transition-colors ${
+                          className={`w-7 h-7 text-xs rounded-lg font-bold transition-colors ${
                             currentPage === pNum
-                              ? 'bg-teal-600 text-white'
-                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                              ? 'bg-green-600 text-white'
+                              : 'text-slate-600 hover:bg-slate-100'
                           }`}
                         >
                           {pNum}
@@ -1294,7 +1298,7 @@ export default React.memo(function InputPemeriksaan() {
                       type="button"
                       disabled={currentPage >= serverTotalPages}
                       onClick={() => setCurrentPage(prev => Math.min(serverTotalPages, prev + 1))}
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 transition-colors"
+                      className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-40 transition-colors"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -1313,17 +1317,17 @@ export default React.memo(function InputPemeriksaan() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6 space-y-5"
+            className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-slate-200 p-6 space-y-5"
           >
-            <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-700">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-teal-600" />
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-green-600" />
                 <span>Edit Pemeriksaan Laboratorium</span>
               </h3>
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                className="text-slate-400 hover:text-slate-650 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1331,20 +1335,20 @@ export default React.memo(function InputPemeriksaan() {
 
             <form onSubmit={handleSaveEdit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Tanggal Pemeriksaan <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="date"
                   value={editTanggalPemeriksaan}
                   onChange={(e) => setEditTanggalPemeriksaan(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500 text-slate-800"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Jenis Pemeriksaan <span className="text-rose-500">*</span>
                 </label>
                 <SearchableSelect
@@ -1363,26 +1367,26 @@ export default React.memo(function InputPemeriksaan() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     No. Registrasi <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={editNoRegistrasi}
                     onChange={(e) => setEditNoRegistrasi(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500 text-slate-800"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     No. RM <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={editPasienNoRm}
                     onChange={(e) => setEditPasienNoRm(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500 text-slate-800"
                     required
                   />
                 </div>
@@ -1390,19 +1394,19 @@ export default React.memo(function InputPemeriksaan() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Nama Pasien <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={editPasienNama}
                     onChange={(e) => setEditPasienNama(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500 text-slate-800"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     NIK Pasien
                   </label>
                   <input
@@ -1410,13 +1414,13 @@ export default React.memo(function InputPemeriksaan() {
                     maxLength={16}
                     value={editPasienNik}
                     onChange={(e) => setEditPasienNik(e.target.value.replace(/\D/g, ''))}
-                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 text-slate-900 dark:text-white"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-green-500 text-slate-800"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Dokter DPJP / Perujuk
                 </label>
                 <SearchableSelect
@@ -1433,18 +1437,19 @@ export default React.memo(function InputPemeriksaan() {
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-2.5">
+              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-xl transition-colors"
+                  className="px-4 py-2 bg-rose-100 hover:bg-rose-200 border border-rose-300 text-rose-800 text-xs font-bold rounded-xl transition-colors flex items-center gap-1 cursor-pointer shadow-sm"
                 >
-                  Batal
+                  <X className="w-3.5 h-3.5 text-rose-700" />
+                  <span>Batal</span>
                 </button>
                 <button
                   type="submit"
                   disabled={updating}
-                  className="px-5 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl transition-colors flex items-center gap-1.5"
+                  className="px-5 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 border border-green-600 cursor-pointer shadow-md"
                 >
                   {updating ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                   <span>Simpan Perubahan</span>

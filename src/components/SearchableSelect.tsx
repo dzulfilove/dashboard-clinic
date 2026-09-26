@@ -39,8 +39,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       minHeight: '38px',
       height: '38px',
       borderRadius: '0.75rem', // rounded-xl
-      borderColor: state.isFocused ? '#0d9488' : isDarkMode ? '#334155' : '#e2e8f0', // teal-600 / slate-700 / slate-200
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(13, 148, 136, 0.15)' : 'none',
+      borderColor: state.isFocused ? '#16a34a' : isDarkMode ? '#334155' : '#e2e8f0', // green-600 / slate-700 / slate-200
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(22, 163, 74, 0.15)' : 'none',
       backgroundColor: state.isDisabled 
         ? (isDarkMode ? '#0f172a' : '#f1f5f9') 
         : (isDarkMode ? 'rgba(15, 23, 42, 0.6)' : '#ffffff'),
@@ -49,7 +49,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       transition: 'all 0.15s ease',
       cursor: 'pointer',
       '&:hover': {
-        borderColor: state.isFocused ? '#0d9488' : isDarkMode ? '#475569' : '#cbd5e1',
+        borderColor: state.isFocused ? '#16a34a' : isDarkMode ? '#475569' : '#cbd5e1',
       }
     }),
     valueContainer: (base: any) => ({
@@ -85,9 +85,9 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     dropdownIndicator: (base: any, state: any) => ({
       ...base,
       padding: '4px 8px',
-      color: state.isFocused ? '#0d9488' : '#94a3b8',
+      color: state.isFocused ? '#16a34a' : '#94a3b8',
       '&:hover': {
-        color: '#0d9488',
+        color: '#16a34a',
       }
     }),
     clearIndicator: (base: any) => ({
@@ -120,16 +120,16 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
       margin: '2px 0',
       padding: '7px 10px',
       backgroundColor: state.isSelected 
-        ? '#0d9488' 
+        ? '#16a34a' 
         : state.isFocused 
-          ? (isDarkMode ? '#334155' : '#f0fdfa') 
+          ? (isDarkMode ? '#334155' : '#f0fdf4') 
           : 'transparent',
       color: state.isSelected 
         ? '#ffffff' 
         : (isDarkMode ? '#f1f5f9' : '#1e293b'),
       cursor: 'pointer',
       '&:active': {
-        backgroundColor: '#0f766e',
+        backgroundColor: '#15803d',
       }
     }),
     menuPortal: (base: any) => ({

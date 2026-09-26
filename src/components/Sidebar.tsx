@@ -234,7 +234,7 @@ export default React.memo(function Sidebar() {
             <button 
               id="sidebar-collapse-btn"
               onClick={() => setCollapsed(!collapsed)} 
-              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-slate-50 border border-slate-200 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all cursor-pointer"
+              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-slate-50 border border-slate-200 text-slate-500 hover:text-teal-600 hover:bg-teal-50 transition-all cursor-pointer"
               style={{ minHeight: '32px', minWidth: '32px' }}
             >
               <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`} />
@@ -256,13 +256,13 @@ export default React.memo(function Sidebar() {
                     className={`
                       relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
                       ${isActive 
-                        ? 'bg-indigo-50 border-indigo-100 text-indigo-600 font-bold shadow-xs' 
-                        : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-indigo-600'}
+                        ? 'bg-teal-50 border-teal-100 text-teal-600 font-bold shadow-xs' 
+                        : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-teal-600'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
                     style={{ minHeight: '44px' }}
                   >
-                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-indigo-650 scale-105 relative z-10' : 'text-slate-400'}`} />
+                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-teal-700 scale-105 relative z-10' : 'text-slate-400'}`} />
                     <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                       {item.title}
                     </span>
@@ -282,19 +282,19 @@ export default React.memo(function Sidebar() {
                     onClick={() => toggleSection(item.title)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors] duration-150 cursor-pointer group
                       ${isChildActive 
-                        ? 'bg-indigo-50/40 text-indigo-600 font-bold border border-indigo-50' 
-                        : 'border border-transparent text-slate-600 hover:bg-slate-50 hover:text-indigo-600'}
+                        ? 'bg-teal-50/40 text-teal-600 font-bold border border-teal-50' 
+                        : 'border border-transparent text-slate-600 hover:bg-slate-50 hover:text-teal-600'}
                       ${collapsed ? 'justify-center font-normal' : ''}
                     `}
                     style={{ minHeight: '44px' }}
                   >
                     <div className="flex items-center space-x-3 overflow-hidden">
-                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-indigo-550'}`} />
+                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-600'}`} />
                       <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                         {item.title}
                       </span>
                     </div>
-                    <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-colors duration-200 ${isOpen ? 'rotate-180 text-indigo-500' : 'group-hover:text-slate-600'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
+                    <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-colors duration-200 ${isOpen ? 'rotate-180 text-teal-500' : 'group-hover:text-slate-600'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
                   </button>
 
                   <div className="overflow-hidden">
@@ -328,12 +328,12 @@ export default React.memo(function Sidebar() {
                               className={`
                                 relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
                                 ${isSubActive 
-                                  ? 'bg-indigo-50 border-indigo-100 text-indigo-600 font-bold shadow-xs' 
-                                  : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}
+                                  ? 'bg-teal-50 border-teal-100 text-teal-600 font-bold shadow-xs' 
+                                  : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-teal-600'}
                               `}
                               style={{ minHeight: '38px' }}
                             >
-                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-indigo-600 relative z-10' : 'text-slate-400'}`} />
+                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-teal-600 relative z-10' : 'text-slate-400'}`} />
                               <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                                 {subItem.name}
                               </span>
@@ -349,17 +349,17 @@ export default React.memo(function Sidebar() {
           </nav>
         </div>
 
-        {/* Lower User/Logout Section */}
+         {/* Lower User/Logout Section */}
         <div className="p-4 bg-slate-50 border-t border-slate-100">
           <div className="flex items-center justify-between gap-2">
             {user && (
               <div className="flex items-center space-x-3 overflow-hidden">
-                <div className="h-9 w-9 rounded-full bg-indigo-100 text-indigo-650 flex items-center justify-center font-bold uppercase flex-shrink-0 text-xs">
+                <div className="h-9 w-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold uppercase flex-shrink-0 text-xs">
                   {user.nama.substring(0, 2)}
                 </div>
                 <div className={`flex flex-col truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                   <span className="text-xs font-bold text-slate-800 truncate">{user.nama}</span>
-                  <span className="text-[10px] font-mono uppercase bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full self-start mt-0.5 tracking-wider font-extrabold">
+                  <span className="text-[10px] font-mono uppercase bg-teal-50 text-teal-600 px-2 py-0.5 rounded-full self-start mt-0.5 tracking-wider font-extrabold">
                     {user.role}
                   </span>
                 </div>
