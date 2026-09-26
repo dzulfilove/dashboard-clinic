@@ -206,7 +206,7 @@ export default React.memo(function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
               whileHover={{ y: -2 }}
-              className="glass-card-primary p-5 flex flex-col justify-between"
+              className="glass-card-secondary p-5 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center gap-3 text-white mb-5">
@@ -235,11 +235,11 @@ export default React.memo(function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
               whileHover={{ y: -2 }}
-              className="glass-card-secondary p-5 flex flex-col justify-between text-white"
+              className="glass-card-amber p-5 flex flex-col justify-between text-white"
             >
               <div>
                 <div className="flex items-center gap-3 text-white mb-5">
-                  <AlertTriangle className={`h-5 w-5 ${criticalItems.length > 0 ? 'animate-pulse text-amber-200' : ''}`} />
+                  <AlertTriangle className={`h-5 w-5 ${criticalItems.length > 0 ? 'animate-pulse text-amber-250' : ''}`} />
                   <h3 className="font-semibold text-lg tracking-tight">Stok Kritis</h3>
                 </div>
                 
@@ -249,7 +249,7 @@ export default React.memo(function Dashboard() {
                 </div>
                 
                 <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
-                  <div className={`h-2.5 rounded-full ${criticalItems.length > 0 ? 'bg-amber-300' : 'bg-white'}`} style={{ width: criticalItems.length > 0 ? '100%' : '10%' }}></div>
+                  <div className={`h-2.5 rounded-full ${criticalItems.length > 0 ? 'bg-amber-100' : 'bg-white'}`} style={{ width: criticalItems.length > 0 ? '100%' : '10%' }}></div>
                 </div>
               </div>
 
@@ -264,7 +264,7 @@ export default React.memo(function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
               whileHover={{ y: -2 }}
-              className="glass-card-primary p-5 flex flex-col justify-between"
+              className="glass-card-rose p-5 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center gap-3 text-white mb-5">

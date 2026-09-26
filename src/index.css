@@ -1,18 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300..1000;1,300..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Nunito", sans-serif;
-  --font-mono: "Nunito", sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-mono: "Plus Jakarta Sans", sans-serif;
   --text-xs: 0.75rem;
   --text-xxs: 0.75rem;
-  --color-brand-darkest: #05161A;
-  --color-brand-dark: #072E33;
-  --color-brand-primary: #0C7075;
-  --color-brand-secondary: #0F969C;
-  --color-brand-muted: #6DA5C0;
-  --color-brand-slate: #294D61;
+  --color-brand-darkest: #1E293B;
+  --color-brand-dark: #475569;
+  --color-brand-primary: #4F46E5;
+  --color-brand-secondary: #3B82F6;
+  --color-brand-muted: #64748B;
+  --color-brand-slate: #94A3B8;
 }
 
 @utility text-xs {
@@ -26,7 +26,8 @@
 }
 
 html, body {
-  background-color: #0C6B71;
+  background-color: #F3F6FF;
+  color: #475569;
 }
 
 body, button, input, select, textarea {
@@ -65,10 +66,10 @@ svg text {
   font-size: 12px !important;
 }
 
-/* Custom Scrollbar Styling */
+/* Custom Scrollbar Styling - Clean Minimal */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -76,12 +77,12 @@ svg text {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(15, 150, 156, 0.4);
-  border-radius: 999px;
+  background-color: rgba(79, 70, 229, 0.15);
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(7, 46, 51, 0.6);
+  background-color: rgba(79, 70, 229, 0.3);
 }
 
 /* Force vertical scrollbar on the root element */
@@ -90,202 +91,151 @@ html {
 }
 
 
-/* ----------------------------------------------
- * SIGNATURE 3D LIQUID GLASSMORPHISM DESIGN SYSTEM
- * Official Swatch Palette:
- * 1. #05161A (Midnight Teal)
- * 2. #072E33 (Deep Cyan Dark)
- * 3. #0C7075 (Teal Primary)
- * 4. #0F969C (Bright Cyan)
- * 5. #6DA5C0 (Ice Blue Muted)
- * 6. #294D61 (Slate Blue Muted)
- * ---------------------------------------------- */
+/* ----------------------------------------------------------------
+ * HIGH FIDELITY MINIMALIST DESIGN SYSTEM (Inspired by Jiron SaaS)
+ * ---------------------------------------------------------------- */
 
-/* 1. Base Liquid Glass Card (Matching Reference Liquid Glass Interface) */
+/* 1. Base Minimalist White Card */
 .glass-card,
 .dashboard-refraction-card,
 .login-refraction-card {
   position: relative;
-  isolation: isolate;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(105%) !important;
-  backdrop-filter: blur(32px) saturate(180%) brightness(105%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important;
-  border-left: 1.5px solid rgba(255, 255, 255, 0.45) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25) !important;
-  border-radius: 1.5rem;
-  box-shadow:
-    0 24px 48px -12px rgba(0, 0, 0, 0.35),
-    0 8px 20px -4px rgba(0, 0, 0, 0.20),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.60),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.30),
-    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.20) !important;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #ffffff !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 
+    0 10px 25px -4px rgba(79, 70, 229, 0.03),
+    0 4px 12px -2px rgba(0, 0, 0, 0.01) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
+/* Clean subtle hover lift */
 .glass-card:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.10) 100%) !important;
-  box-shadow:
-    0 28px 56px -10px rgba(0, 0, 0, 0.40),
-    0 12px 24px -2px rgba(0, 0, 0, 0.25),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.75),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.45),
-    inset 0 -2px 4px 0 rgba(0, 0, 0, 0.25) !important;
-  transform: translateY(-2px);
+  transform: translateY(-2px) !important;
+  box-shadow: 
+    0 20px 35px -8px rgba(79, 70, 229, 0.06),
+    0 8px 16px -4px rgba(0, 0, 0, 0.02) !important;
+  border-color: #CBD5E1 !important;
 }
 
-/* Surface Sheen (::before) */
+/* Disable specular highlight overlays since we are clean minimalist now */
 .glass-card::before,
 .login-refraction-card::before,
-.dashboard-refraction-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: 
-    radial-gradient(
-      ellipse 100% 70% at 15% 0%,
-      rgba(255, 255, 255, 0.40) 0%,
-      rgba(255, 255, 255, 0.15) 30%,
-      rgba(255, 255, 255, 0.02) 60%,
-      transparent 80%
-    ),
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.30) 0%,
-      rgba(255, 255, 255, 0.10) 35%,
-      transparent 65%
-    );
-  pointer-events: none;
-  opacity: 1;
-  z-index: 0;
-}
-
-/* Specular Bevel Edge Highlight (::after) */
+.dashboard-refraction-card::before,
 .glass-card::after,
 .login-refraction-card::after,
 .dashboard-refraction-card::after {
-  content: "";
-  position: absolute;
-  top: 1px;
-  left: 2%;
-  right: 2%;
-  height: 1.5px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.70) 15%,
-    rgba(255, 255, 255, 0.95) 35%,
-    rgba(255, 255, 255, 0.80) 65%,
-    rgba(255, 255, 255, 0.40) 88%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  border-radius: 9999px;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.95;
-  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.7));
+  display: none !important;
 }
 
 .glass-card > *,
 .login-refraction-card > *,
 .dashboard-refraction-card > * {
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
-/* Glass Table Wrapper */
+/* Clean Minimalist Table Wrapper */
 .glass-table-wrapper,
 .glass-table-refraction {
   position: relative;
-  isolation: isolate;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
-  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-  backdrop-filter: blur(28px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.60) !important;
-  border-radius: 1.5rem;
-  box-shadow:
-    0 20px 40px -10px rgba(0, 0, 0, 0.30),
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.50),
-    inset 0 -2px 3px 0 rgba(0, 0, 0, 0.18) !important;
+  background: #ffffff !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.02) !important;
   overflow: hidden;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Inset Empty State */
+/* Minimalist Inset State background */
 .glass-inset-state {
-  background: rgba(0, 0, 0, 0.15) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.30) !important;
-  border-radius: 1.25rem;
+  background: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: none !important;
+  border-radius: 1rem !important;
 }
 
-/* Glass Pill Action / Buttons */
+/* Minimalist Pills / Buttons */
 .glass-pill-action {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.40) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.20), inset 0 1px 1px rgba(255, 255, 255, 0.50) !important;
-  transition: all 0.2s ease;
+  background: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #475569 !important;
+  box-shadow: none !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .glass-pill-action:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.14) 100%) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 1.5px rgba(255, 255, 255, 0.70) !important;
+  background: #F1F5F9 !important;
+  color: #1E293B !important;
+  border-color: #CBD5E1 !important;
+  transform: translateY(-1px) !important;
 }
 
-/* Primary Glass Gradient Cards */
+/* Vibrant Minimalist Colored Cards like Jiron top deck cards */
+
+/* KPI 1 - Soft Lavender/Purple Gradient */
 .glass-card-primary {
   position: relative;
-  isolation: isolate;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 100%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
-  backdrop-filter: blur(32px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important;
-  border-radius: 1.5rem;
+  background: linear-gradient(135deg, #B588F7 0%, #9066F5 100%) !important;
   color: #ffffff !important;
-  box-shadow:
-    0 24px 48px -12px rgba(0, 0, 0, 0.35),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.60) !important;
+  border: none !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 10px 25px -4px rgba(144, 102, 245, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Secondary Glass Accent Cards */
+/* KPI 2 - Soft Blue/Cobalt Gradient */
 .glass-card-secondary {
   position: relative;
-  isolation: isolate;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.08) 100%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(180%) !important;
-  backdrop-filter: blur(32px) saturate(180%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.40) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.70) !important;
-  border-radius: 1.5rem;
+  background: linear-gradient(135deg, #5CA4F8 0%, #3B82F6 100%) !important;
   color: #ffffff !important;
-  box-shadow:
-    0 24px 48px -12px rgba(0, 0, 0, 0.35),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.65) !important;
+  border: none !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 10px 25px -4px rgba(59, 130, 246, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Glass Sidebar Container (#05161A -> #072E33) */
+/* KPI 3 - Soft Warm Amber/Yellow Gradient */
+.glass-card-amber {
+  position: relative;
+  background: linear-gradient(135deg, #FFC15E 0%, #F59E0B 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* KPI 4 - Soft Rose/Pink Gradient */
+.glass-card-rose {
+  position: relative;
+  background: linear-gradient(135deg, #FDA4AF 0%, #F43F5E 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.3) !important;
+}
+
+/* Minimalist Pure White Sidebar (Jiron style) */
 .glass-sidebar {
-  background: linear-gradient(180deg, rgba(5, 22, 26, 0.95) 0%, rgba(7, 46, 51, 0.95) 100%) !important;
-  -webkit-backdrop-filter: blur(32px) saturate(210%) !important;
-  backdrop-filter: blur(32px) saturate(210%) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-  box-shadow: 4px 0 24px rgba(5, 22, 26, 0.25) !important;
+  background: #ffffff !important;
+  border-right: 1px solid #E2E8F0 !important;
+  box-shadow: 10px 0 30px -10px rgba(79, 70, 229, 0.04) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Animations */
 @keyframes fade-in-bottom {
   0% {
-    transform: translateY(30px);
+    transform: translateY(15px);
     opacity: 0;
   }
   100% {
@@ -295,13 +245,13 @@ html {
 }
 
 .anim-fade-up {
-  animation: fade-in-bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fade-in-bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.anim-delay-1 { animation-delay: 0.1s; }
-.anim-delay-2 { animation-delay: 0.2s; }
-.anim-delay-3 { animation-delay: 0.3s; }
-.anim-delay-4 { animation-delay: 0.4s; }
+.anim-delay-1 { animation-delay: 0.05s; }
+.anim-delay-2 { animation-delay: 0.1s; }
+.anim-delay-3 { animation-delay: 0.15s; }
+.anim-delay-4 { animation-delay: 0.2s; }
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
@@ -312,11 +262,11 @@ html {
   }
 }
 
-/* Spinner Loader */
+/* Clean Minimal Loader Spinner */
 .three-body {
- --uib-size: 35px;
+ --uib-size: 30px;
  --uib-speed: 0.8s;
- --uib-color: #2D9596;
+ --uib-color: #4F46E5;
  position: relative;
  display: inline-block;
  height: var(--uib-size);
@@ -398,4 +348,3 @@ html {
 .will-change-width {
   will-change: width;
 }
-

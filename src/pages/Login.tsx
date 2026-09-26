@@ -127,7 +127,7 @@ export default React.memo(function Login() {
   };
 
   return (
-    <div id="login-container" className="relative min-h-screen bg-[#0C6B71] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
+    <div id="login-container" className="relative min-h-screen bg-[#F3F6FF] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans">
       {/* Post-Login Splash Screen */}
       <AnimatePresence>
         {loginSuccessData && (
@@ -145,7 +145,7 @@ export default React.memo(function Login() {
           initial={{ opacity: 0, y: -10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="mb-4 inline-flex items-center justify-center bg-white/30 backdrop-blur-xl px-7 py-4 border border-white/50 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.8),0_15px_35px_-10px_rgba(15,23,42,0.12)] rounded-3xl transform-gpu"
+          className="mb-4 inline-flex items-center justify-center bg-white px-7 py-4 border border-slate-100 shadow-[0_10px_25px_rgba(79,70,229,0.04)] rounded-3xl"
         >
           <Logo size={64} showText={true} />
         </motion.div>
@@ -157,7 +157,7 @@ export default React.memo(function Login() {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="bg-white/20 backdrop-blur-lg py-8 px-6 border border-white/40 shadow-[inset_0_1.5px_1.5px_rgba(255,255,255,0.6),0_20px_50px_-12px_rgba(15,23,42,0.15)] rounded-3xl sm:px-10 transform-gpu"
+          className="bg-white py-8 px-6 border border-slate-100 shadow-[0_20px_40px_rgba(79,70,229,0.06)] rounded-3xl sm:px-10"
         >
           {error && (
             <motion.div 
@@ -204,7 +204,7 @@ export default React.memo(function Login() {
                   </p>
                   <div className="relative rounded-xl shadow-sm group">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-slate-500 group-focus-within:text-teal-700 transition-colors" />
+                      <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                     </div>
                     <input
                       id="email"
@@ -214,7 +214,7 @@ export default React.memo(function Login() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-11 block w-full px-4 py-3 bg-white/35 backdrop-blur-md rounded-xl text-slate-900 border border-white/40 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600/50 text-sm transition-all placeholder-slate-500 font-semibold"
+                      className="pl-11 block w-full px-4 py-3 bg-[#F8FAFC] rounded-xl text-slate-900 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/55 text-sm transition-all placeholder-slate-400 font-semibold"
                       placeholder="contoh: dzulfivector@gmail.com"
                     />
                   </div>
@@ -227,7 +227,7 @@ export default React.memo(function Login() {
                     disabled={loading}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-teal-600/30 rounded-xl shadow-lg shadow-teal-700/10 text-sm font-bold text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:opacity-50 transition-all cursor-pointer"
+                    className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-indigo-600/20 rounded-xl shadow-lg shadow-indigo-600/10 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:opacity-50 transition-all cursor-pointer"
                     style={{ minHeight: '44px' }}
                   >
                     <span>{loading ? 'Menghubungkan...' : 'Kirim Kode OTP'}</span>
@@ -252,11 +252,11 @@ export default React.memo(function Login() {
                     Masukkan Kode OTP
                   </label>
                   <p className="text-xs text-slate-700 mb-3 font-semibold leading-relaxed">
-                    Silakan salin kode OTP 6-Digit yang dikirimkan ke email <span className="text-teal-850 font-bold font-mono">{email}</span> (juga tercatat di kolom <strong>OTP</strong> pada database Baserow Anda).
+                    Silakan salin kode OTP 6-Digit yang dikirimkan ke email <span className="text-indigo-650 font-bold font-mono">{email}</span> (juga tercatat di kolom <strong>OTP</strong> pada database Baserow Anda).
                   </p>
                   <div className="relative rounded-xl shadow-sm group">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <Key className="h-5 w-5 text-slate-500 group-focus-within:text-teal-700 transition-colors" />
+                      <Key className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
                     </div>
                     <input
                       id="otp"
@@ -266,7 +266,7 @@ export default React.memo(function Login() {
                       required
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                      className="pl-11 block w-full px-4 py-3 bg-white/35 backdrop-blur-md rounded-xl text-slate-900 border border-white/40 focus:outline-none focus:ring-4 focus:ring-teal-500/15 focus:border-teal-600/50 text-sm font-bold tracking-widest font-mono text-center transition-all placeholder-slate-500"
+                      className="pl-11 block w-full px-4 py-3 bg-[#F8FAFC] rounded-xl text-slate-900 border border-slate-200 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/55 text-sm font-bold tracking-widest font-mono text-center transition-all placeholder-slate-400"
                       placeholder="******"
                     />
                   </div>
@@ -279,7 +279,7 @@ export default React.memo(function Login() {
                     disabled={loading}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
-                    className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-teal-600/30 rounded-xl shadow-lg shadow-teal-700/10 text-sm font-bold text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-100 disabled:opacity-50 transition-all cursor-pointer"
+                    className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-indigo-600/20 rounded-xl shadow-lg shadow-indigo-600/10 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 disabled:opacity-50 transition-all cursor-pointer"
                     style={{ minHeight: '44px' }}
                   >
                     <span>{loading ? 'Memverifikasi...' : 'Verifikasi & Masuk Klinik'}</span>
