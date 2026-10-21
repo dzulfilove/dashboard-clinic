@@ -364,18 +364,19 @@ export default React.memo(function MasterPemeriksaan() {
 
   return (
     <div className="space-y-5 font-sans max-w-7xl mx-auto text-xs">
-      {/* Page Header */}
+      {/* Page Header Container */}
       <div 
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3"
+        className="bg-white border border-slate-100/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
       >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2.5 bg-teal-50 text-teal-700 rounded-xl">
             <FlaskConical className="h-5 w-5 text-teal-600" />
-            <span>Master Data Pemeriksaan Laboratorium</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Kelola pengelompokan kategori klinis and daftar jenis pengujian laboratorium Klinik Puri Medika.
-          </p>
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-slate-900 tracking-tight">
+              Master Data Pemeriksaan Laboratorium
+            </h1>
+          </div>
         </div>
         <button
           id="btn-add-pemeriksaan"
@@ -450,15 +451,11 @@ export default React.memo(function MasterPemeriksaan() {
             className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
           >
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-              <FolderPlus className="h-4 w-4 text-emerald-600" />
+              <FolderPlus className="h-4 w-4 text-teal-600" />
               <span>Registrasi Kelompok Baru</span>
             </h2>
             
             <form onSubmit={handleQuickCreateCategory} className="space-y-2.5">
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Daftarkan kelompok uji klinis baru directly ke database dalam sekejap.
-              </p>
-              
               <div className="flex gap-2">
                 <input
                   id="quick-cat-name"
@@ -471,7 +468,7 @@ export default React.memo(function MasterPemeriksaan() {
                 />
                 <button
                   type="submit"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 rounded-lg text-xs transition-colors flex items-center justify-center cursor-pointer min-h-[34px]"
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 rounded-lg text-xs transition-colors flex items-center justify-center cursor-pointer min-h-[34px]"
                 >
                   Daftar
                 </button>
@@ -483,7 +480,7 @@ export default React.memo(function MasterPemeriksaan() {
                 </p>
               )}
               {quickCategorySuccess && (
-                <p id="quick-cat-success" className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg p-2 mt-1">
+                <p id="quick-cat-success" className="text-xs font-semibold text-teal-800 bg-teal-50 border border-teal-100 rounded-lg p-2 mt-1">
                   ✓ {quickCategorySuccess}
                 </p>
               )}
@@ -497,7 +494,7 @@ export default React.memo(function MasterPemeriksaan() {
             transition={{ duration: 0.4, delay: 0.4 }}
             className="bg-white border border-slate-100/80 shadow-sm rounded-2xl p-4"
           >
-            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <UploadCloud className="h-4 w-4 text-teal-600" />
                 <span>Import CSV Pemeriksaan</span>
@@ -509,10 +506,6 @@ export default React.memo(function MasterPemeriksaan() {
                 Unduh Template
               </button>
             </h2>
-            
-            <p className="text-xs text-slate-500 leading-relaxed mb-3">
-              Impor parameter pemeriksaan sekaligus dengan mengunggah file format CSV (.csv).
-            </p>
 
             <div
               onDragOver={handleDragOver}
@@ -558,11 +551,11 @@ export default React.memo(function MasterPemeriksaan() {
             {importFeedback && (
               <div className={`mt-3 p-2.5 rounded-xl border flex items-start gap-2 ${
                 importFeedback.type === 'success' 
-                  ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
+                  ? 'bg-teal-50 border-teal-100 text-teal-800' 
                   : 'bg-rose-50 border-rose-100 text-rose-800'
               }`}>
                 {importFeedback.type === 'success' ? (
-                  <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <CheckCircle className="h-4 w-4 text-teal-600 shrink-0 mt-0.5" />
                 ) : (
                   <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
                 )}
@@ -714,12 +707,12 @@ export default React.memo(function MasterPemeriksaan() {
                                 onClick={() => handleToggleActive(param)}
                                 className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg text-xs font-semibold border cursor-pointer transition-colors ${
                                   param.is_active === 1
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                    ? 'bg-teal-50 text-teal-700 border-teal-100'
                                     : 'bg-slate-100 text-slate-500 border-slate-200'
                                 }`}
                                 disabled={isPlaceholder}
                               >
-                                <span className={`h-1 w-1 rounded-full ${param.is_active === 1 ? 'bg-emerald-600 animate-pulse' : 'bg-slate-400'}`}></span>
+                                <span className={`h-1 w-1 rounded-full ${param.is_active === 1 ? 'bg-teal-600 animate-pulse' : 'bg-slate-400'}`}></span>
                                 <span>{param.is_active === 1 ? 'AKTIF' : 'INAKTIF'}</span>
                               </button>
                             </td>
@@ -740,7 +733,7 @@ export default React.memo(function MasterPemeriksaan() {
                                   className={`p-1 px-1.5 rounded-lg transition-colors cursor-pointer ${
                                     param.is_active === 1 
                                       ? 'text-rose-650 hover:bg-rose-50' 
-                                      : 'text-emerald-600 hover:bg-emerald-50'
+                                      : 'text-teal-600 hover:bg-teal-50'
                                   }`}
                                   title={param.is_active === 1 ? 'Nonaktifkan' : 'Aktifkan'}
                                   disabled={isPlaceholder}
