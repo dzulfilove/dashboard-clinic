@@ -1,5 +1,5 @@
 {
-  "name": "Sistem Informasi Klinik Puri Medika",
+  "name": "Dashboard Klinik Puri Medika",
   "description": "Sistem informasi fullstack dengan modul pemeriksaan laboratorium, monitoring konsumsi obat farmasi, analisis ABC, dan peramalan (forecasting) Moving Average.",
   "requestFramePermissions": [],
   "majorCapabilities": [
