@@ -26,11 +26,14 @@ export default defineConfig(() => {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-charts': ['recharts'],
-            'vendor-ui': ['react-select', 'sweetalert2', 'lucide-react'],
-            'vendor-motion': ['motion'],
+          // Vite 8 (Rolldown) hanya menerima manualChunks berupa FUNGSI, bukan objek.
+          manualChunks: (id: string) => {
+            if (!id.includes('node_modules')) return;
+            if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
+            if (id.includes('react-select') || id.includes('sweetalert2') || id.includes('lucide-react')) return 'vendor-ui';
+            if (id.includes('motion')) return 'vendor-motion';
+            if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('react-router')) return 'vendor-react';
+            return;
           }
         }
       }
