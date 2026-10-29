@@ -1833,15 +1833,6 @@ app.get('/api/master-tindakan', authenticateToken, async (req: any, res) => {
   }
 });
 
-app.get('/api/debug/migrate', async (req: any, res) => {
-  try {
-    const result = await runMigrationScript({ cleanReset: false });
-    res.json(result);
-  } catch (err: any) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 app.post('/api/master-tindakan', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   const { nama_tindakan, jenis } = req.body;
   try {
