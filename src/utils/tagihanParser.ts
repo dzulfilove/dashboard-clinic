@@ -17,7 +17,7 @@ export interface TagihanRow {
   error?: string;
 }
 
-// Urutan kolom nominal pada teks: kolom ke-10 s/d ke-19 (0-based 9..18)
+// 10 kolom nominal selalu ada di ujung kanan baris; kolom teks di depannya bisa bertambah (mis. PEMBAYARAN)
 export const NOMINAL_KEYS = ['tarif_pendaftaran', 'kartu_pasien', 'konsultasi', 'tindakan', 'penunjang', 'farmasi', 'bhp', 'lain_lain', 'potongan', 'tagihan'] as const;
 
 // "1.102.072,00" -> 1102072 ; NaN jika bukan angka
@@ -34,12 +34,14 @@ export const parseTagihanText = (text: string): TagihanRow[] => {
     const c = line.split('\t').map(x => x.trim());
     if (/^no$/i.test(c[0]) && /registrasi/i.test(c[1] || '')) continue; // baris header
 
+    // Format lama 19 kolom; format baru menyisipkan kolom PEMBAYARAN sehingga kolom setelah PASIEN bergeser
+    const shift = Math.max(0, c.length - 19);
     const row: TagihanRow = {
       no_registrasi: c[1] || '',
       nama_pasien: c[2] || '',
-      unit: c[3] || '',
-      penanggung: c[6] || '',
-      dokter: c[7] || '',
+      unit: c[3 + shift] || '',
+      penanggung: c[6 + shift] || '',
+      dokter: c[7 + shift] || '',
       tarif_pendaftaran: 0, kartu_pasien: 0, konsultasi: 0, tindakan: 0, penunjang: 0,
       farmasi: 0, bhp: 0, lain_lain: 0, potongan: 0, tagihan: 0
     };
@@ -49,7 +51,7 @@ export const parseTagihanText = (text: string): TagihanRow[] => {
     } else if (!row.no_registrasi) {
       row.error = 'No registrasi kosong';
     } else {
-      NOMINAL_KEYS.forEach((k, i) => { row[k] = parseNominalId(c[9 + i]); });
+      NOMINAL_KEYS.forEach((k, i) => { row[k] = parseNominalId(c[c.length - 10 + i]); });
       if (NOMINAL_KEYS.some(k => Number.isNaN(row[k]))) {
         row.error = 'Nominal tidak valid';
       } else {
