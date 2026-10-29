@@ -422,8 +422,33 @@ CREATE TABLE IF NOT EXISTS lab_pemeriksaan_pasien (
   FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-
-
-
-
+CREATE TABLE IF NOT EXISTS tagihan_pasien (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  no_registrasi VARCHAR(50) NOT NULL UNIQUE,
+  pasien_no_rm VARCHAR(20) DEFAULT NULL,
+  registrasi_rj_id INT DEFAULT NULL,
+  registrasi_igd_id INT DEFAULT NULL,
+  registrasi_ranap_id INT DEFAULT NULL,
+  nama_pasien VARCHAR(150) DEFAULT NULL,
+  unit VARCHAR(150) DEFAULT NULL,
+  penanggung VARCHAR(100) DEFAULT NULL,
+  dokter VARCHAR(250) DEFAULT NULL,
+  tarif_pendaftaran DECIMAL(15,2) NOT NULL DEFAULT 0,
+  kartu_pasien DECIMAL(15,2) NOT NULL DEFAULT 0,
+  konsultasi DECIMAL(15,2) NOT NULL DEFAULT 0,
+  tindakan DECIMAL(15,2) NOT NULL DEFAULT 0,
+  penunjang DECIMAL(15,2) NOT NULL DEFAULT 0,
+  farmasi DECIMAL(15,2) NOT NULL DEFAULT 0,
+  bhp DECIMAL(15,2) NOT NULL DEFAULT 0,
+  lain_lain DECIMAL(15,2) NOT NULL DEFAULT 0,
+  potongan DECIMAL(15,2) NOT NULL DEFAULT 0,
+  tagihan DECIMAL(15,2) NOT NULL DEFAULT 0,
+  created_by INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_tagihan_rm (pasien_no_rm),
+  FOREIGN KEY (pasien_no_rm) REFERENCES pasien(no_rm) ON DELETE SET NULL,
+  FOREIGN KEY (registrasi_rj_id) REFERENCES registrasi_rawat_jalan(id) ON DELETE SET NULL,
+  FOREIGN KEY (registrasi_igd_id) REFERENCES registrasi_igd(id) ON DELETE SET NULL,
+  FOREIGN KEY (registrasi_ranap_id) REFERENCES registrasi_ranap(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

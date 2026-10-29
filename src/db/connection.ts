@@ -98,7 +98,7 @@ export async function initializeDatabase(): Promise<DbStatus> {
 }
 
 // Check and complete tables on VPS MySQL
-export async function runMigrationScript(options: { cleanReset?: boolean } = {}): Promise<{ success: boolean; message: string }> {
+export async function runMigrationScript(options: { cleanReset?: boolean; schemaOnly?: boolean } = {}): Promise<{ success: boolean; message: string }> {
   if (!mysqlPool) {
     throw new Error('Koneksi pool MySQL belum diinisialisasi.');
   }
@@ -165,10 +165,11 @@ export async function runMigrationScript(options: { cleanReset?: boolean } = {})
       return line;
     });
     const cleanSql = cleanLines.join('\n');
+    // schemaOnly: lewati seed INSERT karena lab_parameter tidak punya UNIQUE key (akan duplikat jika dijalankan berulang)
     const queries = cleanSql
       .split(';')
       .map(q => q.trim())
-      .filter(q => q.length > 0);
+      .filter(q => q.length > 0 && (!options.schemaOnly || /^CREATE\s/i.test(q)));
 
     for (const query of queries) {
       await connection.query(query);
@@ -225,7 +226,8 @@ async function runMigrationsIfRequired() {
       !tableList.includes('kecamatan') ||
       !tableList.includes('kelurahan') ||
       !tableList.includes('pasien_loyal') ||
-      !tableList.includes('pasien_loyal_pesan')
+      !tableList.includes('pasien_loyal_pesan') ||
+      !tableList.includes('tagihan_pasien')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });
@@ -649,6 +651,9 @@ interface VirtualDatabase {
   followup_vaksin?: any[];
   pasien_loyal?: any[];
   pasien_loyal_pesan?: any[];
+  tagihan_pasien?: any[];
+  registrasi_igd?: any[];
+  registrasi_ranap?: any[];
 }
 
 function initVirtualDb() {
@@ -1093,6 +1098,10 @@ export function readVirtualDb(): VirtualDatabase {
   }
   if (!data.pasien_loyal_pesan) {
     data.pasien_loyal_pesan = [];
+    updated = true;
+  }
+  if (!data.tagihan_pasien) {
+    data.tagihan_pasien = [];
     updated = true;
   }
   if (!data.dokter) {

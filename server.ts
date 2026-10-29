@@ -2821,24 +2821,145 @@ app.get('/api/pelayanan/demografi/loyal-pasien/:no_rm', authenticateToken, async
       const igd = (vdb.registrasi_igd || []).filter((v: any) => String(v.pasien_no_rm) === String(no_rm));
       const ranap = (vdb.registrasi_ranap || []).filter((v: any) => String(v.pasien_no_rm) === String(no_rm));
 
+      const tagihanByReg = new Map<string, any>((vdb.tagihan_pasien || []).map((t: any) => [String(t.no_registrasi), t]));
+      const withTagihan = (v: any) => {
+        const t = tagihanByReg.get(String(v.no_registrasi));
+        return t ? Object.fromEntries(TAGIHAN_FIELDS.map(f => [f, t[f]])) : {};
+      };
+
       const history = [
-        ...rj.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Jalan', dpjp: v.dpjp || 'dr. Umum', icd: v.icd_kode || '-' })),
-        ...igd.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'IGD', dpjp: v.dpjp || 'dr. IGD', icd: v.icd_kode || '-' })),
-        ...ranap.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Inap', dpjp: v.dpjp || 'dr. Spesialis', icd: v.icd_masuk || v.icd_pulang || '-' }))
+        ...rj.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Jalan', dpjp: v.dpjp || 'dr. Umum', icd: v.icd_kode || '-', ...withTagihan(v) })),
+        ...igd.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'IGD', dpjp: v.dpjp || 'dr. IGD', icd: v.icd_kode || '-', ...withTagihan(v) })),
+        ...ranap.map((v: any) => ({ no_registrasi: v.no_registrasi, tanggal_pelayanan: v.tanggal_pelayanan, tipe: 'Rawat Inap', dpjp: v.dpjp || 'dr. Spesialis', icd: v.icd_masuk || v.icd_pulang || '-', ...withTagihan(v) }))
       ].sort((a, b) => new Date(b.tanggal_pelayanan).getTime() - new Date(a.tanggal_pelayanan).getTime());
 
       res.json(history);
     } else {
       const history = await db.query(`
+        SELECT h.*, t.tarif_pendaftaran, t.kartu_pasien, t.konsultasi, t.tindakan, t.penunjang, t.farmasi, t.bhp, t.lain_lain, t.potongan, t.tagihan
+        FROM (
         SELECT no_registrasi, tanggal_pelayanan, 'Rawat Jalan' as tipe, IFNULL(dpjp, 'dr. Umum') as dpjp, IFNULL(icd_kode, '-') as icd FROM registrasi_rawat_jalan WHERE pasien_no_rm = ?
         UNION ALL
         SELECT no_registrasi, tanggal_pelayanan, 'IGD' as tipe, IFNULL(dpjp, 'dr. IGD') as dpjp, IFNULL(icd_kode, '-') as icd FROM registrasi_igd WHERE pasien_no_rm = ?
         UNION ALL
         SELECT no_registrasi, tanggal_pelayanan, 'Rawat Inap' as tipe, IFNULL(dpjp, 'dr. Spesialis') as dpjp, CONCAT_WS(' / ', IFNULL(icd_masuk, '-'), IFNULL(icd_pulang, '-')) as icd FROM registrasi_ranap WHERE pasien_no_rm = ?
-        ORDER BY tanggal_pelayanan DESC
+        ) h
+        LEFT JOIN tagihan_pasien t ON t.no_registrasi = h.no_registrasi
+        ORDER BY h.tanggal_pelayanan DESC
       `, [no_rm, no_rm, no_rm]);
       res.json(history);
     }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// --- TAGIHAN PASIEN ---
+const TAGIHAN_FIELDS = ['tarif_pendaftaran', 'kartu_pasien', 'konsultasi', 'tindakan', 'penunjang', 'farmasi', 'bhp', 'lain_lain', 'potongan', 'tagihan'];
+
+// POST /api/tagihan-pasien/import -> upsert nominal tagihan per no_registrasi
+app.post('/api/tagihan-pasien/import', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  try {
+    const { rows } = req.body;
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ message: 'rows wajib diisi dan berupa array tidak kosong.' });
+    }
+
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    const userId = req.user?.id || null;
+    const errors: { no_registrasi: string; message: string }[] = [];
+    const valid: any[] = [];
+
+    for (const r of rows) {
+      const no = String(r?.no_registrasi || '').trim();
+      if (!no) { errors.push({ no_registrasi: '-', message: 'No registrasi kosong.' }); continue; }
+      const nominal: any = {};
+      let bad = false;
+      for (const f of TAGIHAN_FIELDS) {
+        const n = Number(r[f] ?? 0);
+        if (!Number.isFinite(n)) { bad = true; break; }
+        nominal[f] = n;
+      }
+      if (bad) { errors.push({ no_registrasi: no, message: 'Nominal tidak valid.' }); continue; }
+      valid.push({
+        no_registrasi: no,
+        nama_pasien: r.nama_pasien ? String(r.nama_pasien).trim() : null,
+        unit: r.unit ? String(r.unit).trim() : null,
+        penanggung: r.penanggung ? String(r.penanggung).trim() : null,
+        dokter: r.dokter ? String(r.dokter).trim() : null,
+        ...nominal
+      });
+    }
+
+    // Cari relasi registrasi di 3 tabel (no_registrasi unik per tabel)
+    const regMap = new Map<string, { jenis: 'rj' | 'igd' | 'ranap'; id: number; pasien_no_rm: string }>();
+    const nos = valid.map(v => v.no_registrasi);
+    const vdb = isVirtual ? readVirtualDb() : null;
+    if (vdb) {
+      for (const [jenis, list] of [['rj', vdb.registrasi_rawat_jalan], ['igd', vdb.registrasi_igd], ['ranap', vdb.registrasi_ranap]] as const) {
+        for (const x of (list || [])) {
+          if (nos.includes(String(x.no_registrasi)) && !regMap.has(String(x.no_registrasi))) {
+            regMap.set(String(x.no_registrasi), { jenis, id: x.id, pasien_no_rm: x.pasien_no_rm });
+          }
+        }
+      }
+      if (!vdb.tagihan_pasien) vdb.tagihan_pasien = [];
+    } else if (nos.length > 0) {
+      for (const [jenis, table] of [['rj', 'registrasi_rawat_jalan'], ['igd', 'registrasi_igd'], ['ranap', 'registrasi_ranap']] as const) {
+        const found = await db.query(`SELECT id, no_registrasi, pasien_no_rm FROM ${table} WHERE no_registrasi IN (?)`, [nos]);
+        for (const x of found) {
+          if (!regMap.has(String(x.no_registrasi))) regMap.set(String(x.no_registrasi), { jenis, id: x.id, pasien_no_rm: x.pasien_no_rm });
+        }
+      }
+    }
+
+    let inserted = 0;
+    let updated = 0;
+    const tidakDitemukan: string[] = [];
+    const cols = ['no_registrasi', 'pasien_no_rm', 'registrasi_rj_id', 'registrasi_igd_id', 'registrasi_ranap_id', 'nama_pasien', 'unit', 'penanggung', 'dokter', ...TAGIHAN_FIELDS, 'created_by'];
+    const updateCols = cols.filter(c => c !== 'no_registrasi' && c !== 'created_by');
+
+    for (const v of valid) {
+      const reg = regMap.get(v.no_registrasi);
+      if (!reg) tidakDitemukan.push(v.no_registrasi);
+      const rec: any = {
+        ...v,
+        pasien_no_rm: reg?.pasien_no_rm ?? null,
+        registrasi_rj_id: reg?.jenis === 'rj' ? reg.id : null,
+        registrasi_igd_id: reg?.jenis === 'igd' ? reg.id : null,
+        registrasi_ranap_id: reg?.jenis === 'ranap' ? reg.id : null,
+        created_by: userId
+      };
+
+      if (vdb) {
+        const list = vdb.tagihan_pasien!;
+        const idx = list.findIndex((t: any) => String(t.no_registrasi) === v.no_registrasi);
+        const now = new Date().toISOString();
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], ...rec, updated_at: now };
+          updated++;
+        } else {
+          const nextId = list.reduce((m: number, t: any) => Math.max(m, t.id || 0), 0) + 1;
+          list.push({ id: nextId, ...rec, created_at: now, updated_at: now });
+          inserted++;
+        }
+      } else {
+        const result: any = await db.query(
+          `INSERT INTO tagihan_pasien (${cols.join(', ')}) VALUES (${cols.map(() => '?').join(', ')})
+           ON DUPLICATE KEY UPDATE ${updateCols.map(c => `${c} = VALUES(${c})`).join(', ')}`,
+          cols.map(c => rec[c])
+        );
+        // MySQL: affectedRows 1 = baris baru, 2 = baris lama diperbarui
+        if (result?.affectedRows === 1) inserted++; else updated++;
+      }
+    }
+
+    if (vdb) writeVirtualDb(vdb);
+
+    await logActivity(req.user?.email, 'IMPORT', 'Tagihan Pasien',
+      `Import tagihan: ${inserted} baru, ${updated} diperbarui, ${errors.length} gagal, ${tidakDitemukan.length} registrasi tidak ditemukan.`);
+
+    res.json({ inserted, updated, errors, tidak_ditemukan: tidakDitemukan });
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
