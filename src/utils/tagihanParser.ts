@@ -42,20 +42,31 @@ export const parseTagihanText = (text: string): TagihanRow[] => {
       const c = line.split('\t').map(x => x.trim());
       if (/^no$/i.test(c[0]) && /registrasi/i.test(c[1] || '')) continue; // baris header
 
+      // Fungsi pembantu mengekstrak 7 kolom nominal (Tindakan, Penunjang, Farmasi, BHP, Lain-lain, Potongan, Tagihan)
+      const extractFinancials = (arr: string[]) => {
+        let r = arr.length - 1;
+        while (r >= 0 && arr[r] === '') r--;
+        if (r < 6) return null;
+        const candidate = arr.slice(r - 6, r + 1).map(parseNominalId);
+        if (candidate.every(n => !Number.isNaN(n))) {
+          return {
+            tindakan: candidate[0] || 0,
+            penunjang: candidate[1] || 0,
+            farmasi: candidate[2] || 0,
+            bhp: candidate[3] || 0,
+            lain_lain: candidate[4] || 0,
+            potongan: candidate[5] || 0,
+            tagihan: candidate[6] || 0
+          };
+        }
+        return null;
+      };
+
       // Baris data utama registrasi pasien: diawali nomor angka dan memiliki minimal 14 kolom
       const isMainRow = /^\d+$/.test(c[0]) && c.length >= 14;
       if (isMainRow) {
         if (cur) rows.push(cur);
 
-        // Kolom standar billing 25 kolom:
-        // c[1]: NO REGISTRASI
-        // c[4]: NAMA PASIEN
-        // c[10]: PENANGGUNG
-        // c[12]: UNIT/KLINIK
-        // c[13]: DOKTER
-        // c[14]: TARIF PENDAFTARAN
-        // c[15]: KARTU PASIEN
-        // c[16]: KONSULTASI
         cur = {
           no_registrasi: c[1] || '',
           nama_pasien: c[4] || '',
@@ -73,6 +84,16 @@ export const parseTagihanText = (text: string): TagihanRow[] => {
           potongan: 0,
           tagihan: 0
         };
+
+        // Jika baris utama sudah menyertakan 7 kolom nominal di ujung kanannya (misal c.length >= 24)
+        const fin = extractFinancials(c);
+        if (fin) {
+          Object.assign(cur, fin);
+          const hitung = cur.tarif_pendaftaran + cur.kartu_pasien + cur.konsultasi + cur.tindakan + cur.penunjang + cur.farmasi + cur.bhp + cur.lain_lain - cur.potongan;
+          if (Math.abs(hitung - cur.tagihan) > 0.5) {
+            cur.error = `Total tidak cocok dengan komponen (Dihitung: ${hitung}, Tagihan: ${cur.tagihan})`;
+          }
+        }
         continue;
       }
 
@@ -81,17 +102,10 @@ export const parseTagihanText = (text: string): TagihanRow[] => {
       // Abaikan baris Sub Total
       if (/^sub\s*total/i.test(c[0])) continue;
 
-      // Baris ringkasan angka tagihan (7 kolom angka: Tindakan, Penunjang, Farmasi, BHP, Lain-lain, Potongan, Tagihan)
-      const nums = c.map(parseNominalId);
-      if (c.length >= 7 && !nums.slice(0, 7).some(Number.isNaN)) {
-        cur.tindakan = nums[0] || 0;
-        cur.penunjang = nums[1] || 0;
-        cur.farmasi = nums[2] || 0;
-        cur.bhp = nums[3] || 0;
-        cur.lain_lain = nums[4] || 0;
-        cur.potongan = nums[5] || 0;
-        cur.tagihan = nums[6] || 0;
-
+      // Cek apakah baris ini memuat 7 angka nominal di bagian akhirnya (meskipun diawali banyak tab kosong)
+      const fin = extractFinancials(c);
+      if (fin) {
+        Object.assign(cur, fin);
         const hitung = cur.tarif_pendaftaran + cur.kartu_pasien + cur.konsultasi + cur.tindakan + cur.penunjang + cur.farmasi + cur.bhp + cur.lain_lain - cur.potongan;
         if (Math.abs(hitung - cur.tagihan) > 0.5) {
           cur.error = `Total tidak cocok dengan komponen (Dihitung: ${hitung}, Tagihan: ${cur.tagihan})`;
