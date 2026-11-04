@@ -36,7 +36,9 @@ function checkOtpRateLimit(email: string): boolean {
 
 const app = express();
 app.use(compression());
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const portArgIndex = process.argv.indexOf('--port');
+const portArg = portArgIndex !== -1 ? parseInt(process.argv[portArgIndex + 1], 10) : null;
+const PORT = portArg || (process.env.PORT && process.env.PORT !== '8080' ? parseInt(process.env.PORT, 10) : 3000);
 const JWT_SECRET = process.env.JWT_SECRET || 'klinik_puri_medika_fallback_secure_key_2026';
 
 const BASEROW_API_TOKEN = process.env.BASEROW_API_TOKEN;
