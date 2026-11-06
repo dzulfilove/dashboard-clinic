@@ -4,7 +4,7 @@
 @theme {
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Nunito", sans-serif;
-  --font-mono: "Nunito", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
   --text-xs: 0.75rem;
   --text-xxs: 0.75rem;
   --color-brand-darkest: #1E293B;
@@ -116,7 +116,9 @@ html {
   box-shadow: 
     0 10px 25px -4px rgba(13, 148, 136, 0.03),
     0 4px 12px -2px rgba(0, 0, 0, 0.01) !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -168,14 +170,14 @@ html {
   border-radius: 1rem !important;
 }
 
-/* Minimalist Pills / Buttons */
+/* Minimalist quiet action button */
 .glass-pill-action {
   background: #F8FAFC !important;
   border: 1px solid #E2E8F0 !important;
   color: #475569 !important;
   box-shadow: none !important;
-  border-radius: 9999px !important;
-  transition: all 0.2s ease !important;
+  border-radius: 0.625rem !important;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -184,53 +186,6 @@ html {
   background: #F1F5F9 !important;
   color: #1E293B !important;
   border-color: #CBD5E1 !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Vibrant Minimalist Colored Cards like Jiron top deck cards */
-
-/* KPI 1 - Solid Purple/Lavender */
-.glass-card-primary {
-  position: relative;
-  background: #9066F5 !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 10px 25px -4px rgba(144, 102, 245, 0.3) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* KPI 2 - Solid Cobalt Blue */
-.glass-card-secondary {
-  position: relative;
-  background: #3B82F6 !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 10px 25px -4px rgba(59, 130, 246, 0.3) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* KPI 3 - Solid Amber/Yellow */
-.glass-card-amber {
-  position: relative;
-  background: #F59E0B !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 10px 25px -4px rgba(245, 158, 11, 0.3) !important;
-}
-
-/* KPI 4 - Solid Rose/Pink */
-.glass-card-rose {
-  position: relative;
-  background: #F43F5E !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 10px 25px -4px rgba(244, 63, 94, 0.3) !important;
 }
 
 /* Minimalist Pure White Sidebar (Jiron style) */

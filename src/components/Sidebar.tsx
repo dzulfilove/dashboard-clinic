@@ -173,7 +173,7 @@ export default React.memo(function Sidebar() {
             <Logo size={36} />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="font-extrabold text-sm text-slate-900 font-display leading-tight">Klinik Puri Medika</span>
+            <span className="font-semibold text-sm text-slate-900 font-display leading-tight">Klinik Puri Medika</span>
           </div>
         </div>
         <button 
@@ -224,7 +224,7 @@ export default React.memo(function Sidebar() {
                     <Logo size={34} />
                   </div>
                   <div className="flex flex-col justify-center whitespace-nowrap overflow-hidden">
-                    <span className="font-extrabold text-base text-slate-900 tracking-tight leading-none">Klinik Puri Medika<span className="text-indigo-600">.</span></span>
+                    <span className="font-semibold text-base text-slate-900 tracking-tight leading-none">Klinik Puri Medika<span className="text-teal-600">.</span></span>
                   </div>
                 </div>
               )}
@@ -315,7 +315,7 @@ export default React.memo(function Sidebar() {
                                     {subItem.name}
                                   </span>
                                 </div>
-                                <span className="text-[10px] leading-none bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Segera</span>
+                                <span className="text-[10px] leading-none bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-medium">Segera</span>
                               </div>
                             );
                           }
@@ -359,7 +359,7 @@ export default React.memo(function Sidebar() {
                 </div>
                 <div className={`flex flex-col truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                   <span className="text-xs font-bold text-slate-800 truncate">{user.nama}</span>
-                  <span className="text-[10px] font-mono uppercase bg-teal-50 text-teal-600 px-2 py-0.5 rounded-full self-start mt-0.5 tracking-wider font-extrabold">
+                  <span className="text-[10px] font-mono bg-teal-50 text-teal-600 px-2 py-0.5 rounded self-start mt-0.5 font-medium">
                     {user.role}
                   </span>
                 </div>

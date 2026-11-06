@@ -17,6 +17,7 @@ import { motion } from 'motion/react';
 import api from '../services/api.js';
 import { DbStatus, ForecastResult, LabData, ObatMaster, User as UserType } from '../types.js';
 import AnalyticLoader from '../components/AnalyticLoader.js';
+import { MONTHS_ID } from '../utils/dateFormat.js';
 
 export default React.memo(function Dashboard() {
   const { user } = useAuthStore();
@@ -136,16 +137,14 @@ export default React.memo(function Dashboard() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* Welcome Banner */}
-      <div 
-        id="welcome-banner" 
-        className="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-800"
-      >
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Selamat Datang, {user?.nama}!
-          </h1>
-        </div>
+      {/* Page title */}
+      <div id="welcome-banner" className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold text-slate-900 tracking-tight">
+          Dashboard Terpadu
+        </h1>
+        <p className="text-xs text-slate-500 font-mono tabular-nums">
+          {MONTHS_ID[currentMonth - 1]} {currentYear}
+        </p>
       </div>
 
       {(loading || isVisualizing) ? (
@@ -159,114 +158,86 @@ export default React.memo(function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.05 }}
-              whileHover={{ y: -2 }}
-              className="glass-card-primary p-5 flex flex-col justify-between"
+              className="glass-card p-5 flex flex-col justify-between gap-5"
             >
               <div>
-                <div className="flex items-center gap-3 text-white mb-5">
-                  <FlaskConical className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg tracking-tight">Laboratorium</h3>
+                <div className="flex items-center gap-2.5 text-slate-500 mb-4">
+                  <FlaskConical className="h-4.5 w-4.5" />
+                  <h3 className="text-xs font-medium">Laboratorium</h3>
                 </div>
-                
-                <div className="text-white/90 text-sm mb-3">
-                  <span className="font-bold text-xl mr-2">{loading ? '...' : totalLabExaminations}</span> 
-                  <span className="text-xs opacity-80">(Bulan ini)</span>
-                </div>
-                
-                <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
-                  <div className="bg-white h-2.5 rounded-full" style={{ width: '75%' }}></div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold text-slate-900 tabular-nums">{loading ? '...' : totalLabExaminations}</span>
+                  <span className="text-xs text-slate-400">pemeriksaan bulan ini</span>
                 </div>
               </div>
-
-              <button className="glass-pill-action w-full py-2.5 px-4 rounded-full text-white hover:bg-white/20 text-xs font-bold transition-colors">
-                Lihat Rekapitulasi
+              <button className="glass-pill-action py-2 px-3.5 text-xs font-medium self-start">
+                Lihat rekapitulasi
               </button>
             </motion.div>
 
             {/* KPI 2 - Medications Catalog */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.10 }}
-              whileHover={{ y: -2 }}
-              className="glass-card-secondary p-5 flex flex-col justify-between"
+              className="glass-card p-5 flex flex-col justify-between gap-5"
             >
               <div>
-                <div className="flex items-center gap-3 text-white mb-5">
-                  <Pill className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg tracking-tight">Katalog Obat</h3>
+                <div className="flex items-center gap-2.5 text-slate-500 mb-4">
+                  <Pill className="h-4.5 w-4.5" />
+                  <h3 className="text-xs font-medium">Katalog Obat</h3>
                 </div>
-                
-                <div className="text-white/90 text-sm mb-3">
-                  <span className="font-bold text-xl mr-2">{loading ? '...' : medicines.length}</span> 
-                  <span className="text-xs opacity-80">(Item aktif)</span>
-                </div>
-                
-                <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
-                  <div className="bg-white h-2.5 rounded-full" style={{ width: '85%' }}></div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold text-slate-900 tabular-nums">{loading ? '...' : medicines.length}</span>
+                  <span className="text-xs text-slate-400">item aktif</span>
                 </div>
               </div>
-
-              <button className="glass-pill-action w-full py-2.5 px-4 rounded-full text-white hover:bg-white/20 text-xs font-bold transition-colors">
-                Kelola Obat
+              <button className="glass-pill-action py-2 px-3.5 text-xs font-medium self-start">
+                Kelola obat
               </button>
             </motion.div>
 
-            {/* KPI 3 - Low Stock Pharmacy alerts */}
-            <motion.div 
+            {/* KPI 3 - Low Stock Pharmacy alerts (the one that matters) */}
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
-              whileHover={{ y: -2 }}
-              className="glass-card-amber p-5 flex flex-col justify-between text-white"
+              className="glass-card p-5 flex flex-col justify-between gap-5"
             >
               <div>
-                <div className="flex items-center gap-3 text-white mb-5">
-                  <AlertTriangle className={`h-5 w-5 ${criticalItems.length > 0 ? 'animate-pulse text-amber-250' : ''}`} />
-                  <h3 className="font-semibold text-lg tracking-tight">Stok Kritis</h3>
+                <div className={`flex items-center gap-2.5 mb-4 ${criticalItems.length > 0 ? 'text-amber-600' : 'text-slate-500'}`}>
+                  <AlertTriangle className="h-4.5 w-4.5" />
+                  <h3 className="text-xs font-medium">Stok Kritis</h3>
                 </div>
-                
-                <div className="text-white/90 text-sm mb-3">
-                  <span className="font-bold text-xl mr-2">{loading ? '...' : criticalItems.length}</span> 
-                  <span className="text-xs opacity-80">(Di bawah ROP)</span>
-                </div>
-                
-                <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
-                  <div className={`h-2.5 rounded-full ${criticalItems.length > 0 ? 'bg-amber-100' : 'bg-white'}`} style={{ width: criticalItems.length > 0 ? '100%' : '10%' }}></div>
+                <div className="flex items-baseline gap-2">
+                  <span className={`text-2xl font-semibold tabular-nums ${criticalItems.length > 0 ? 'text-amber-600' : 'text-slate-900'}`}>{loading ? '...' : criticalItems.length}</span>
+                  <span className="text-xs text-slate-400">di bawah ROP</span>
                 </div>
               </div>
-
-              <button className="glass-pill-action w-full py-2.5 px-4 rounded-full text-white hover:bg-white/20 text-xs font-bold transition-colors">
-                {criticalItems.length > 0 ? 'Lihat Peringatan' : 'Stok Aman'}
+              <button className="glass-pill-action py-2 px-3.5 text-xs font-medium self-start">
+                {criticalItems.length > 0 ? 'Lihat peringatan' : 'Stok aman'}
               </button>
             </motion.div>
 
             {/* KPI 4 - Staff / Accounts */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1], delay: 0.20 }}
-              whileHover={{ y: -2 }}
-              className="glass-card-rose p-5 flex flex-col justify-between"
+              className="glass-card p-5 flex flex-col justify-between gap-5"
             >
               <div>
-                <div className="flex items-center gap-3 text-white mb-5">
-                  <User className="h-5 w-5" />
-                  <h3 className="font-semibold text-lg tracking-tight">Akses Petugas</h3>
+                <div className="flex items-center gap-2.5 text-slate-500 mb-4">
+                  <User className="h-4.5 w-4.5" />
+                  <h3 className="text-xs font-medium">Akses Petugas</h3>
                 </div>
-                
-                <div className="text-white/90 text-sm mb-3">
-                  <span className="font-bold text-xl mr-2">{loading ? '...' : (user?.role === 'admin' ? userAccounts.length : 'Aktif')}</span> 
-                  <span className="text-xs opacity-80">(Akun terdaftar)</span>
-                </div>
-                
-                <div className="w-full bg-white/20 rounded-full h-2.5 mb-6">
-                  <div className="bg-white h-2.5 rounded-full" style={{ width: '40%' }}></div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold text-slate-900 tabular-nums">{loading ? '...' : (user?.role === 'admin' ? userAccounts.length : 'Aktif')}</span>
+                  <span className="text-xs text-slate-400">akun terdaftar</span>
                 </div>
               </div>
-
-              <button className="glass-pill-action w-full py-2.5 px-4 rounded-full text-white hover:bg-white/20 text-xs font-bold transition-colors">
-                Kelola Akses
+              <button className="glass-pill-action py-2 px-3.5 text-xs font-medium self-start">
+                Kelola akses
               </button>
             </motion.div>
           </div>
@@ -284,11 +255,11 @@ export default React.memo(function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="h-4.5 w-4.5 text-amber-500" />
-                  <h2 className="text-sm font-bold text-slate-900 font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
+                  <h2 className="text-sm font-semibold text-slate-900 font-display">Peringatan Rekomendasi Reorder Farmasi</h2>
                 </div>
                 {criticalItems.length > 0 && (
-                  <span className="bg-amber-50 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full border border-amber-200 font-mono animate-pulse">
-                    Butuh Order Darurat
+                  <span className="bg-amber-50 text-amber-700 text-xs font-medium px-2.5 py-1 rounded-md border border-amber-200">
+                    Butuh order darurat
                   </span>
                 )}
               </div>
@@ -298,31 +269,31 @@ export default React.memo(function Dashboard() {
               ) : criticalItems.length === 0 ? (
                 <div className="glass-inset-state p-6 text-center text-slate-600">
                   <CheckCircle className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
-                  <p className="font-bold text-xs text-slate-800">Semua stok obat aman!</p>
-                  <p className="text-xs text-slate-500 mt-1 font-normal animate-pulse">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
+                  <p className="font-semibold text-xs text-slate-800">Semua stok obat aman</p>
+                  <p className="text-xs text-slate-500 mt-1 font-normal">Tidak ada obat dengan tingkat stok yang berada di bawah tingkat kecukupan minimum.</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                   {criticalItems.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-2xl text-xs">
                       <div>
-                        <span className="text-xs font-mono font-bold text-slate-700 bg-slate-200/60 px-2 py-0.5 rounded border border-slate-300">
+                        <span className="text-xs font-mono font-semibold text-slate-700 bg-slate-200/60 px-2 py-0.5 rounded border border-slate-300">
                           {item.kode_obat}
                         </span>
-                        <h4 className="font-bold text-slate-800 mt-1.5 text-xs">{item.nama_obat}</h4>
+                        <h4 className="font-semibold text-slate-800 mt-1.5 text-xs">{item.nama_obat}</h4>
                         <div className="flex items-center space-x-3 text-xs text-slate-500 mt-1 font-normal">
-                          <span>Proyeksi Kebutuhan (3 bln): <span className="font-bold text-slate-700">{item.proyeksi_kebutuhan}</span></span>
+                          <span>Proyeksi Kebutuhan (3 bln): <span className="font-semibold text-slate-700">{item.proyeksi_kebutuhan}</span></span>
                           <span>•</span>
-                          <span>Lead Time: <span className="font-bold text-slate-700">{item.lead_time_hari} Hari</span></span>
+                          <span>Lead Time: <span className="font-semibold text-slate-700">{item.lead_time_hari} Hari</span></span>
                         </div>
                       </div>
 
                       <div className="text-right">
                         <p className="text-xs text-slate-500 font-normal">Stok Saat Ini / Reorder Point</p>
-                        <p className="text-sm font-bold text-amber-600 mt-0.5 font-mono">
+                        <p className="text-sm font-semibold text-amber-600 mt-0.5 font-mono">
                           {item.current_stock} <span className="text-xs font-normal text-slate-400">/ {item.reorder_qty}</span>
                         </p>
-                        <span className="text-xs inline-block bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-100 mt-1 font-bold">
+                        <span className="text-xs inline-block bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-100 mt-1 font-semibold">
                           Defisit: {item.reorder_qty - item.current_stock}
                         </span>
                       </div>
@@ -334,7 +305,7 @@ export default React.memo(function Dashboard() {
               <div className="mt-4 border-t border-slate-100 pt-4 flex justify-end">
                 <Link 
                   to="/farmasi/forecast" 
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center space-x-1"
+                  className="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center space-x-1"
                 >
                   <span>Lihat Detail Peramalan</span>
                   <ArrowRight className="h-3.5 w-3.5" />
@@ -356,10 +327,10 @@ export default React.memo(function Dashboard() {
                   {(user?.role === 'admin' || user?.role === 'lab') && (
                     <Link 
                       to="/lab/input" 
-                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-colors"
                     >
                       <div>
-                        <h4 className="font-bold text-slate-800 text-xs">Input Laboratorium</h4>
+                        <h4 className="font-semibold text-slate-800 text-xs">Input Laboratorium</h4>
                         <p className="text-xs text-slate-500 mt-1 font-medium">Submit jumlah pemeriksaan bulanan klinis</p>
                       </div>
                       <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -370,10 +341,10 @@ export default React.memo(function Dashboard() {
                   {(user?.role === 'admin' || user?.role === 'farmasi') && (
                     <Link 
                       to="/farmasi/input" 
-                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-colors"
                     >
                       <div>
-                        <h4 className="font-bold text-slate-800 text-xs">Konsumsi Obat</h4>
+                        <h4 className="font-semibold text-slate-800 text-xs">Konsumsi Obat</h4>
                         <p className="text-xs text-slate-500 mt-1 font-medium">Input log penerimaan & pemakaian obat</p>
                       </div>
                       <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -384,10 +355,10 @@ export default React.memo(function Dashboard() {
                   {(user?.role === 'admin' || user?.role === 'farmasi') && (
                     <Link 
                       to="/farmasi/abc" 
-                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-colors"
                     >
                       <div>
-                        <h4 className="font-bold text-slate-800 text-xs">Analisis ABC (Spend)</h4>
+                        <h4 className="font-semibold text-slate-800 text-xs">Analisis ABC (Spend)</h4>
                         <p className="text-xs text-slate-500 mt-1 font-medium">Klasifikasi nilai kontribusi biaya obat</p>
                       </div>
                       <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
@@ -398,10 +369,10 @@ export default React.memo(function Dashboard() {
                   {user?.role === 'admin' && (
                     <Link 
                       to="/admin/users" 
-                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-all"
+                      className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-left group transition-colors"
                     >
                       <div>
-                        <h4 className="font-bold text-slate-800 text-xs">Kelola Petugas</h4>
+                        <h4 className="font-semibold text-slate-800 text-xs">Kelola Petugas</h4>
                         <p className="text-xs text-slate-500 mt-1 font-medium">Tambah akun & ubah hak akses role</p>
                       </div>
                       <ArrowRight className="h-4.5 w-4.5 text-slate-400 group-hover:translate-x-1 transition-transform" />
