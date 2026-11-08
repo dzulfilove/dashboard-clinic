@@ -8,7 +8,8 @@ import {
   PieChart as ChartIcon, 
   Search, 
   Calendar, 
-  ChevronRight, 
+  ChevronRight,
+  ChevronLeft,
   Clock, 
   Activity, 
   Sparkles, 
@@ -160,6 +161,8 @@ export default React.memo(function DemografiKunjungan() {
   const [loyalLoading, setLoyalLoading] = useState(false);
   const [tagihanList, setTagihanList] = useState<any[]>([]);
   const [tagihanListLoading, setTagihanListLoading] = useState(false);
+  const [tagihanPage, setTagihanPage] = useState(1);
+  const TAGIHAN_PER_PAGE = 10;
   
   // Selection states
   const [selectedAllTime, setSelectedAllTime] = useState<string[]>([]);
@@ -230,6 +233,7 @@ export default React.memo(function DemografiKunjungan() {
     try {
       const res = await api.get('/tagihan-pasien');
       setTagihanList(res.data || []);
+      setTagihanPage(1);
     } catch (err) {
       console.error('Failed to fetch tagihan list:', err);
     } finally {
@@ -1134,7 +1138,7 @@ export default React.memo(function DemografiKunjungan() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
-                        {tagihanList.map((t, idx) => (
+                        {tagihanList.slice((tagihanPage - 1) * TAGIHAN_PER_PAGE, tagihanPage * TAGIHAN_PER_PAGE).map((t, idx) => (
                           <tr key={`${t.no_registrasi}-${idx}`} className="hover:bg-slate-50/50 transition-colors">
                             <td className="py-3 text-xs font-mono font-medium text-slate-500">{t.no_registrasi}</td>
                             <td className="py-3 text-xs">
@@ -1150,6 +1154,30 @@ export default React.memo(function DemografiKunjungan() {
                     </table>
                   )}
                 </div>
+
+                {tagihanList.length > TAGIHAN_PER_PAGE && (
+                  <div className="flex items-center justify-between border-t border-slate-100/70 pt-4">
+                    <button
+                      onClick={() => setTagihanPage(prev => Math.max(prev - 1, 1))}
+                      disabled={tagihanPage === 1}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer transition-colors"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span>Sebelumnya</span>
+                    </button>
+                    <span className="text-xs font-medium text-slate-500">
+                      Halaman {tagihanPage} dari {Math.ceil(tagihanList.length / TAGIHAN_PER_PAGE)}
+                    </span>
+                    <button
+                      onClick={() => setTagihanPage(prev => Math.min(prev + 1, Math.ceil(tagihanList.length / TAGIHAN_PER_PAGE)))}
+                      disabled={tagihanPage >= Math.ceil(tagihanList.length / TAGIHAN_PER_PAGE)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer transition-colors"
+                    >
+                      <span>Selanjutnya</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
               </motion.div>
             </motion.div>
           )}
