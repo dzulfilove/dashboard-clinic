@@ -2967,6 +2967,41 @@ app.post('/api/tagihan-pasien/import', authenticateToken, roleGuard(['admin', 'p
   }
 });
 
+// GET /api/tagihan-pasien -> daftar tagihan per registrasi
+app.get('/api/tagihan-pasien', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
+  try {
+    const isVirtual = db.getDiagnosticStatus().isVirtual;
+    if (isVirtual) {
+      const vdb = readVirtualDb();
+      const patients = vdb.pasien || [];
+      const list = (vdb.tagihan_pasien || []).map((t: any) => {
+        const p = patients.find((pas: any) => String(pas.no_rm) === String(t.pasien_no_rm));
+        return {
+          no_registrasi: t.no_registrasi,
+          pasien_no_rm: t.pasien_no_rm,
+          nama_pasien: p ? p.nama : t.nama_pasien,
+          unit: t.unit,
+          penanggung: t.penanggung,
+          dokter: t.dokter,
+          tagihan: Number(t.tagihan || 0)
+        };
+      }).sort((a: any, b: any) => b.tagihan - a.tagihan);
+      res.json(list);
+    } else {
+      const list = await db.query(`
+        SELECT t.no_registrasi, t.pasien_no_rm, IFNULL(p.nama, t.nama_pasien) as nama_pasien,
+          t.unit, t.penanggung, t.dokter, IFNULL(t.tagihan, 0) as tagihan
+        FROM tagihan_pasien t
+        LEFT JOIN pasien p ON p.no_rm = t.pasien_no_rm
+        ORDER BY t.tagihan DESC
+      `);
+      res.json(list);
+    }
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // --- NEW PASIEN LOYAL ENDPOINTS ---
 
 // GET /api/pelayanan/demografi/loyal -> daftar pasien loyal (join snapshot + status)
@@ -2977,19 +3012,28 @@ app.get('/api/pelayanan/demografi/loyal', authenticateToken, roleGuard(['admin',
       const vdb = readVirtualDb();
       const plList = (vdb.pasien_loyal || []).filter((pl: any) => pl.status === 'aktif' || !pl.status);
       const patients = vdb.pasien || [];
+      // Total tagihan per pasien (jumlah tagihan semua registrasi)
+      const tagSum = new Map<string, number>();
+      for (const t of (vdb.tagihan_pasien || [])) {
+        const rm = String(t.pasien_no_rm ?? '');
+        if (!rm) continue;
+        tagSum.set(rm, (tagSum.get(rm) || 0) + Number(t.tagihan || 0));
+      }
       // Join with patients for latest names and numbers
       const list = plList.map((pl: any) => {
         const p = patients.find((pas: any) => String(pas.no_rm) === String(pl.pasien_no_rm));
         return {
           ...pl,
           pasien_nama: p ? p.nama : pl.pasien_nama,
-          no_telp: p ? p.no_telp : pl.no_telp
+          no_telp: p ? p.no_telp : pl.no_telp,
+          total_tagihan: tagSum.get(String(pl.pasien_no_rm)) || 0
         };
       });
       res.json(list);
     } else {
       const list = await db.query(`
-        SELECT pl.*, IFNULL(p.nama, pl.pasien_nama) as pasien_nama, IFNULL(p.no_telp, pl.no_telp) as no_telp
+        SELECT pl.*, IFNULL(p.nama, pl.pasien_nama) as pasien_nama, IFNULL(p.no_telp, pl.no_telp) as no_telp,
+          IFNULL((SELECT SUM(t.tagihan) FROM tagihan_pasien t WHERE t.pasien_no_rm = pl.pasien_no_rm), 0) as total_tagihan
         FROM pasien_loyal pl
         LEFT JOIN pasien p ON pl.pasien_no_rm = p.no_rm
         WHERE pl.status = 'aktif'

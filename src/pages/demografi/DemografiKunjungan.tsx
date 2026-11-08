@@ -158,6 +158,8 @@ export default React.memo(function DemografiKunjungan() {
   // --- NEW PASIEN LOYAL STATES & HANDLERS ---
   const [loyalPatients, setLoyalPatients] = useState<any[]>([]);
   const [loyalLoading, setLoyalLoading] = useState(false);
+  const [tagihanList, setTagihanList] = useState<any[]>([]);
+  const [tagihanListLoading, setTagihanListLoading] = useState(false);
   
   // Selection states
   const [selectedAllTime, setSelectedAllTime] = useState<string[]>([]);
@@ -203,6 +205,7 @@ export default React.memo(function DemografiKunjungan() {
       });
       closeImportTagihan();
       if (selectedPatient) fetchPatientHistory(selectedPatient);
+      if (activeTab === 'loyal') { fetchLoyalPatients(); fetchTagihanList(); }
     } catch (err: any) {
       Swal.fire('Gagal', err.response?.data?.message || 'Gagal menyimpan data tagihan.', 'error');
     } finally {
@@ -222,9 +225,22 @@ export default React.memo(function DemografiKunjungan() {
     }
   };
 
+  const fetchTagihanList = async () => {
+    setTagihanListLoading(true);
+    try {
+      const res = await api.get('/tagihan-pasien');
+      setTagihanList(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch tagihan list:', err);
+    } finally {
+      setTagihanListLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'loyal') {
       fetchLoyalPatients();
+      fetchTagihanList();
       // Clear selections
       setSelectedAllTime([]);
       setSelectedPeriod([]);
@@ -988,6 +1004,7 @@ export default React.memo(function DemografiKunjungan() {
                           <th className="py-2.5">Snapshot Kunjungan</th>
                           <th className="py-2.5">Tanggal Terdaftar</th>
                           <th className="py-2.5">Alasan/Catatan</th>
+                          <th className="py-2.5 text-right">Nominal Tagihan</th>
                           <th className="py-2.5 text-center">Aksi</th>
                         </tr>
                       </thead>
@@ -1037,6 +1054,9 @@ export default React.memo(function DemografiKunjungan() {
                             <td className="py-3 text-xs text-slate-500 max-w-[180px] truncate" title={p.catatan}>
                               {p.catatan || '-'}
                             </td>
+                            <td className="py-3 text-right text-xs font-mono font-semibold tabular-nums text-teal-700">
+                              {Number(p.total_tagihan) > 0 ? formatRupiah(p.total_tagihan) : '-'}
+                            </td>
                             <td className="py-3 text-center">
                               <div className="flex items-center justify-center space-x-1">
                                 <button
@@ -1062,6 +1082,68 @@ export default React.memo(function DemografiKunjungan() {
                                 </button>
                               </div>
                             </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Data Tagihan Pasien */}
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="glass-card p-6 space-y-5"
+              >
+                <div className="flex items-center justify-between border-b border-slate-100/70 pb-4 gap-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="h-10 w-10 rounded-xl bg-teal-50 flex items-center justify-center border border-teal-100 text-teal-600 shadow-xs">
+                      <Wallet className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-slate-850 font-display">Data Tagihan Pasien</h2>
+                      <p className="text-xs text-slate-400">Nominal tagihan per registrasi hasil import, diurutkan dari terbesar.</p>
+                    </div>
+                  </div>
+                  {tagihanList.length > 0 && (
+                    <span className="text-xs font-mono tabular-nums text-teal-700">
+                      Total {formatRupiah(tagihanList.reduce((a, t) => a + Number(t.tagihan || 0), 0))}
+                    </span>
+                  )}
+                </div>
+
+                <div className="overflow-x-auto">
+                  {tagihanListLoading ? (
+                    <div className="py-12 text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div>
+                      <span className="text-xs text-slate-400 mt-2 block">Memuat data tagihan...</span>
+                    </div>
+                  ) : tagihanList.length === 0 ? (
+                    <div className="py-12 text-center text-slate-400 text-xs">Belum ada data tagihan. Gunakan tombol Import Tagihan di atas.</div>
+                  ) : (
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="text-xs font-semibold text-slate-400 border-b border-slate-100/70">
+                          <th className="py-2.5">No. Registrasi</th>
+                          <th className="py-2.5">Pasien</th>
+                          <th className="py-2.5">Unit</th>
+                          <th className="py-2.5">Penanggung</th>
+                          <th className="py-2.5 text-right">Nominal Tagihan</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {tagihanList.map((t, idx) => (
+                          <tr key={`${t.no_registrasi}-${idx}`} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="py-3 text-xs font-mono font-medium text-slate-500">{t.no_registrasi}</td>
+                            <td className="py-3 text-xs">
+                              <span className="font-semibold text-slate-850 block">{t.nama_pasien || '-'}</span>
+                              {t.pasien_no_rm && <span className="text-slate-400 font-mono">RM: {t.pasien_no_rm}</span>}
+                            </td>
+                            <td className="py-3 text-xs text-slate-500">{t.unit || '-'}</td>
+                            <td className="py-3 text-xs text-slate-500">{t.penanggung || '-'}</td>
+                            <td className="py-3 text-right text-xs font-mono font-semibold tabular-nums text-teal-700">{formatRupiah(t.tagihan)}</td>
                           </tr>
                         ))}
                       </tbody>
