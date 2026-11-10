@@ -201,10 +201,13 @@ export default React.memo(function Sidebar() {
     <>
       {/* Mobile Top Bar */}
       <header className="md:hidden flex items-center justify-between px-5 py-3.5 bg-[#213145] text-white shadow-md z-40 border-b border-[#CCDCEF]/15">
-        <div className="flex items-center space-x-3">
-          <div className="font-display font-extrabold text-[17px] leading-[18px] text-white tracking-tight">
-            Puri<br />Medika<span className="text-[#FF8574]">.</span>
+        <div className="flex items-center space-x-2.5">
+          <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center shadow-xs">
+            <Logo size={22} />
           </div>
+          <span className="font-display font-extrabold text-[15px] text-white tracking-tight">
+            Klinik Puri Medika<span className="text-[#FF8574]">.</span>
+          </span>
         </div>
         <button 
           onClick={() => setMobileOpen(!mobileOpen)} 
@@ -363,9 +366,11 @@ export default React.memo(function Sidebar() {
             {/* Top Brand Area */}
             <div className="w-full">
               {!isHovered ? (
-                // Collapsed Stacked Wordmark (matching screenshot)
-                <div className="si-rail-logo text-center select-none pt-1">
-                  Puri<br />Medika<span>.</span>
+                // Collapsed: Logo only (clean white tile)
+                <div className="flex items-center justify-center w-full mb-6 pt-1 select-none">
+                  <div className="w-11 h-11 rounded-[14px] bg-white p-1.5 flex items-center justify-center shadow-sm border border-white/80 transition-transform duration-200 hover:scale-105">
+                    <Logo size={28} />
+                  </div>
                 </div>
               ) : (
                 // Expanded Full Wordmark

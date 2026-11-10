@@ -492,8 +492,8 @@ export default React.memo(function DemografiKunjungan() {
   const [patientHistory, setPatientHistory] = useState<VisitHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  // Recharts color constants
-  const COLORS = ['#0d9488', '#0ea5e9', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6', '#10b981'];
+  // Recharts color constants (Slate & Ice v2.0)
+  const COLORS = ['#213145', '#7CA3CC', '#FF8574', '#475569', '#3B82F6', '#94A3B8', '#F97316'];
 
   const fetchData = async () => {
     setLoading(true);
@@ -567,47 +567,51 @@ export default React.memo(function DemografiKunjungan() {
     <div className="space-y-6">
       {/* Upper Module Heading */}
       <div 
-        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
+        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-[#E5EEFF] gap-4"
       >
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-teal-600" />
-            <span>Demografi Kunjungan & Pasien</span>
+          <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase">
+            ANALISIS REKAM MEDIS &amp; KUNJUNGAN
+          </span>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] tracking-tight font-display mt-0.5 flex items-center gap-2">
+            <BarChart2 className="h-5 w-5 text-[#213145]" />
+            <span>Demografi Kunjungan &amp; Pasien</span>
           </h1>
-          <p className="text-slate-500 text-xs mt-1">
+          <p className="text-[#516070] text-xs mt-1 font-normal">
             {activeTab === 'loyal' && 'Daftar pasien dengan intensitas kunjungan klinik tertinggi (All-Time & Periodik).'}
             {activeTab === 'wilayah' && 'Analisis persebaran domisili pasien berdasarkan Kabupaten/Kota, Kecamatan, dan Kelurahan.'}
             {activeTab === 'pasien' && 'Analisis statistik profil gender dan kelompok usia pasien terdaftar.'}
           </p>
         </div>
 
-        {/* Custom Tab selectors */}
+        {/* Custom Tab selectors & Action Button */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {activeTab === 'loyal' && (
             <button
               onClick={() => setShowImportTagihan(true)}
-              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold tracking-wide bg-teal-600 text-white hover:bg-teal-700 transition-colors cursor-pointer"
+              className="si-btn si-btn--primary text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+              style={{ background: '#213145', color: '#ffffff' }}
             >
-              <Upload className="h-3.5 w-3.5" />
-              Import Tagihan
+              <Upload className="h-3.5 w-3.5 text-[#CCDCEF]" />
+              <span>Import Tagihan</span>
             </button>
           )}
-          <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl self-start md:self-center">
+          <div className="si-segment p-1 bg-[#EFF4FF] rounded-2xl flex items-center gap-1 self-start md:self-center border border-[#CCDCEF]/30">
             <button
               onClick={() => setActiveTab('loyal')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'loyal' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'loyal' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
             >
               Pasien Loyal
             </button>
             <button
               onClick={() => setActiveTab('wilayah')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'wilayah' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'wilayah' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
             >
               Demografi Wilayah
             </button>
             <button
               onClick={() => setActiveTab('pasien')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'pasien' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'pasien' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
             >
               Demografi Pasien
             </button>
@@ -618,8 +622,8 @@ export default React.memo(function DemografiKunjungan() {
       {loading || isVisualizing ? (
         <AnalyticLoader message="Menganalisis data demografi & memvisualisasikan data..." />
       ) : error ? (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl flex items-center space-x-3">
-          <X className="h-5 w-5 text-rose-600 flex-shrink-0" />
+        <div className="bg-[#FF8574]/15 border border-[#FF8574]/40 text-[#222526] p-4 rounded-xl flex items-center space-x-3">
+          <X className="h-5 w-5 text-[#D94E3B] flex-shrink-0" />
           <span className="text-sm font-medium">{error}</span>
         </div>
       ) : (
@@ -634,18 +638,20 @@ export default React.memo(function DemografiKunjungan() {
               className="space-y-6"
             >
               {/* Filter & Period Controls */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.08 }}
-                  className="lg:col-span-2 glass-card p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                  transition={{ duration: 0.3, delay: 0.05 }}
+                  className="lg:col-span-2 si-card bg-white p-5 rounded-2xl shadow-[0_6px_24px_rgba(33,49,69,0.06)] border border-[#E5EEFF] flex flex-col md:flex-row md:items-center justify-between gap-4"
                 >
-                  <div className="flex items-center space-x-3 text-slate-850">
-                    <Filter className="h-4.5 w-4.5 text-teal-600" />
+                  <div className="flex items-center space-x-3 text-[#0B1C30]">
+                    <div className="w-10 h-10 rounded-xl bg-[#E5EEFF] text-[#213145] flex items-center justify-center shrink-0">
+                      <Filter className="h-5 w-5 text-[#213145]" />
+                    </div>
                     <div>
-                      <h3 className="text-sm font-bold font-display">Filter Periode Kunjungan</h3>
-                      <p className="text-xs text-slate-400">Pilih rentang tanggal untuk menganalisis loyalitas kunjungan.</p>
+                      <h3 className="text-sm font-bold font-display text-[#0B1C30]">Filter Periode Kunjungan</h3>
+                      <p className="text-xs text-[#516070]">Pilih rentang tanggal untuk menganalisis loyalitas kunjungan.</p>
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -653,30 +659,32 @@ export default React.memo(function DemografiKunjungan() {
                       type="date"
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-white font-medium"
+                      className="px-3 py-1.5 text-xs rounded-xl border border-transparent hover:border-[#D3E4FE] focus:border-[#213145] focus:outline-none focus:ring-2 focus:ring-[#CCDCEF] text-[#0B1C30] bg-[#EFF4FF] font-medium transition-all"
                     />
-                    <span className="text-xs text-slate-400 font-medium">s/d</span>
+                    <span className="text-xs text-[#74777C] font-medium">s/d</span>
                     <input
                       type="date"
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="px-3 py-1.5 text-xs rounded-xl border border-slate-100 focus:ring-1 focus:ring-teal-550 outline-none text-slate-800 bg-white font-medium"
+                      className="px-3 py-1.5 text-xs rounded-xl border border-transparent hover:border-[#D3E4FE] focus:border-[#213145] focus:outline-none focus:ring-2 focus:ring-[#CCDCEF] text-[#0B1C30] bg-[#EFF4FF] font-medium transition-all"
                     />
                   </div>
                 </motion.div>
 
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.16 }}
-                  className="glass-card p-5 flex items-center space-x-4"
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  className="si-card bg-white p-5 rounded-2xl shadow-[0_6px_24px_rgba(33,49,69,0.06)] border border-[#E5EEFF] flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-amber-50 text-amber-500">
-                    <Star className="h-5 w-5 fill-amber-400" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#FFE9E5] text-[#FF8574] flex items-center justify-center shrink-0">
+                    <Star className="h-6 w-6 fill-[#FF8574]" />
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-slate-400 font-bold">Pasien Loyal Terdaftar</h4>
-                    <span className="text-xl font-extrabold font-display text-slate-850">
+                    <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase block">
+                      PASIEN LOYAL TERDAFTAR
+                    </span>
+                    <span className="si-metric text-2xl font-extrabold font-display text-[#0B1C30] block mt-0.5 tabular-nums">
                       {loyalPatients.length} Pasien
                     </span>
                   </div>
@@ -686,32 +694,32 @@ export default React.memo(function DemografiKunjungan() {
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* 1. All-Time Top 20 */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.24 }}
-                  className="glass-card p-6 space-y-4 flex flex-col justify-between"
+                  transition={{ duration: 0.3, delay: 0.15 }}
+                  className="si-card bg-white p-6 rounded-2xl shadow-[0_6px_24px_rgba(33,49,69,0.06)] border border-[#E5EEFF] space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
+                    <div className="flex items-center justify-between border-b border-[#E5EEFF] pb-3">
                       <div className="flex items-center space-x-2.5">
-                        <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                        <div className="w-8 h-8 rounded-lg bg-[#E5EEFF] text-[#213145] flex items-center justify-center shrink-0">
                           <Users className="h-4 w-4" />
                         </div>
                         <div>
-                          <h2 className="text-sm font-bold text-slate-850 font-display">Top 20 Pasien Terloyal (All-Time)</h2>
-                          <p className="text-xs text-slate-400">Urutan pasien dengan total kunjungan kumulatif terbanyak.</p>
+                          <h2 className="text-sm font-bold text-[#0B1C30] font-display">Top 20 Pasien Terloyal (All-Time)</h2>
+                          <p className="text-xs text-[#516070]">Urutan pasien dengan total kunjungan kumulatif terbanyak.</p>
                         </div>
                       </div>
                       
                       {/* Compact Search */}
                       <div className="relative w-44">
-                        <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-slate-400" />
+                        <Search className="absolute left-2.5 top-2 h-3.5 w-3.5 text-[#74777C]" />
                         <input
                           type="text"
                           placeholder="Cari pasien..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-8 pr-3 py-1 text-xs w-full rounded-lg border border-slate-100 outline-none focus:ring-1 focus:ring-teal-550 bg-slate-50 text-slate-800"
+                          className="pl-8 pr-3 py-1 text-xs w-full rounded-lg border border-transparent hover:border-[#D3E4FE] focus:border-[#213145] outline-none focus:ring-2 focus:ring-[#CCDCEF] bg-[#EFF4FF] text-[#0B1C30] transition-all"
                         />
                       </div>
                     </div>
@@ -720,13 +728,13 @@ export default React.memo(function DemografiKunjungan() {
                       {filteredPatientsAllTime.length === 0 ? (
                         <div className="py-12 text-center text-slate-400 text-xs">Tidak ada data pasien loyal ditemukan.</div>
                       ) : (
-                        <table className="w-full text-left border-collapse">
+                        <table className="si-table w-full text-left">
                           <thead>
-                            <tr className="text-xs font-bold text-slate-400 border-b border-slate-100 uppercase tracking-wider">
-                              <th className="py-2.5 pl-2 w-10">
+                            <tr>
+                              <th className="py-2.5 pl-2 w-10 text-center">
                                 <input
                                   type="checkbox"
-                                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-550 h-3.5 w-3.5 cursor-pointer"
+                                  className="rounded border-[#CCDCEF] text-[#213145] focus:ring-[#213145] h-3.5 w-3.5 cursor-pointer"
                                   checked={filteredPatientsAllTime.length > 0 && filteredPatientsAllTime.filter(p => !p.is_loyal).every(p => selectedAllTime.includes(p.no_rm))}
                                   onChange={(e) => {
                                     if (e.target.checked) {
@@ -745,16 +753,16 @@ export default React.memo(function DemografiKunjungan() {
                               <th className="py-2.5 text-center">Aksi</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-50">
+                          <tbody className="divide-y divide-[#E5EEFF]">
                             {filteredPatientsAllTime.map((p, index) => (
-                              <tr key={p.no_rm} className={`hover:bg-slate-50/50 transition-colors ${p.is_loyal ? 'bg-amber-50/20' : ''}`}>
+                              <tr key={p.no_rm} className={`hover:bg-[#F8F9FF] transition-colors ${p.is_loyal ? 'bg-[#CCDCEF]/15' : ''}`}>
                                 <td className="py-2 pl-2 text-center">
                                   {p.is_loyal ? (
-                                    <Star className="h-4 w-4 text-amber-500 fill-amber-400 mx-auto" />
+                                    <Star className="h-4 w-4 text-[#213145] fill-[#213145] mx-auto" />
                                   ) : (
                                     <input
                                       type="checkbox"
-                                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-550 h-3.5 w-3.5 cursor-pointer"
+                                      className="rounded border-[#CCDCEF] text-[#213145] focus:ring-[#213145] h-3.5 w-3.5 cursor-pointer"
                                       checked={selectedAllTime.includes(p.no_rm)}
                                       onChange={(e) => {
                                         if (e.target.checked) {
@@ -768,25 +776,25 @@ export default React.memo(function DemografiKunjungan() {
                                 </td>
                                 <td className="py-2">
                                   <div className="flex items-center space-x-2">
-                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-[#213145] text-white' : 'bg-[#CCDCEF]/50 text-[#213145]'}`}>
                                       {index + 1}
                                     </span>
                                     <div>
-                                      <div className="font-semibold text-slate-850 text-xs truncate max-w-[140px]">{p.nama}</div>
-                                      <span className="text-xs text-slate-400 block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
+                                      <div className="font-semibold text-[#213145] text-xs truncate max-w-[140px]">{p.nama}</div>
+                                      <span className="text-xs text-[#667085] block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-2 text-xs font-mono font-medium text-slate-500">{p.no_rm}</td>
-                                <td className="py-2 text-right text-xs font-bold text-slate-850">{p.total_visits}x</td>
-                                <td className="py-2 text-right text-xs font-semibold text-teal-700 whitespace-nowrap">
+                                <td className="py-2 text-xs font-mono font-medium text-[#667085]">{p.no_rm}</td>
+                                <td className="py-2 text-right text-xs font-bold text-[#213145]">{p.total_visits}x</td>
+                                <td className="py-2 text-right text-xs font-semibold text-[#213145] font-mono whitespace-nowrap">
                                   {formatRupiah(p.total_tagihan || 0)}
                                 </td>
                                 <td className="py-2 text-center">
                                   <div className="flex items-center justify-center space-x-1">
                                     <button
                                       onClick={() => fetchPatientHistory(p)}
-                                      className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors inline-flex items-center cursor-pointer"
+                                      className="p-1 rounded-md text-[#667085] hover:text-[#213145] hover:bg-[#CCDCEF]/40 transition-colors inline-flex items-center cursor-pointer"
                                       title="Lihat Riwayat Pelayanan"
                                     >
                                       <ChevronRight className="h-4 w-4" />
@@ -794,7 +802,7 @@ export default React.memo(function DemografiKunjungan() {
                                     {p.is_loyal && (
                                       <button
                                         onClick={() => handleRemoveLoyal(p.no_rm)}
-                                        className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors inline-flex items-center cursor-pointer"
+                                        className="p-1 rounded-md text-[#667085] hover:text-[#222526] hover:bg-[#FF8574]/20 transition-colors inline-flex items-center cursor-pointer"
                                         title="Cabut Status Loyal"
                                       >
                                         <UserX className="h-4 w-4" />
@@ -828,20 +836,20 @@ export default React.memo(function DemografiKunjungan() {
 
                 {/* 2. Selected Period Top 20 */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.32 }}
-                  className="glass-card p-6 space-y-4 flex flex-col justify-between"
+                  transition={{ duration: 0.3, delay: 0.2 }}
+                  className="si-card bg-white p-6 rounded-2xl shadow-[0_6px_24px_rgba(33,49,69,0.06)] border border-[#E5EEFF] space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100/70 pb-3">
+                    <div className="flex items-center justify-between border-b border-[#E5EEFF] pb-3">
                       <div className="flex items-center space-x-2.5">
-                        <div className="p-1.5 bg-teal-50 text-teal-600 rounded-lg">
+                        <div className="w-8 h-8 rounded-lg bg-[#E5EEFF] text-[#213145] flex items-center justify-center shrink-0">
                           <Calendar className="h-4 w-4" />
                         </div>
                         <div>
-                          <h2 className="text-sm font-bold text-slate-850 font-display">Top Pasien Periode Terpilih</h2>
-                          <p className="text-xs text-slate-400">Total kunjungan dalam rentang tanggal terfilter.</p>
+                          <h2 className="text-sm font-bold text-[#0B1C30] font-display">Top Pasien Periode Terpilih</h2>
+                          <p className="text-xs text-[#516070]">Total kunjungan dalam rentang tanggal terfilter.</p>
                         </div>
                       </div>
                     </div>
@@ -850,13 +858,13 @@ export default React.memo(function DemografiKunjungan() {
                       {filteredPatientsPeriod.length === 0 ? (
                         <div className="py-12 text-center text-slate-400 text-xs">Tidak ada data kunjungan pada periode terpilih.</div>
                       ) : (
-                        <table className="w-full text-left border-collapse">
+                        <table className="si-table w-full text-left">
                           <thead>
-                            <tr className="text-xs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
+                            <tr>
                               <th className="py-2.5 pl-2 w-10 text-center">
                                 <input
                                   type="checkbox"
-                                  className="rounded border-slate-300 text-teal-600 focus:ring-teal-550 h-3.5 w-3.5 cursor-pointer"
+                                  className="rounded border-[#CCDCEF] text-[#213145] focus:ring-[#213145] h-3.5 w-3.5 cursor-pointer"
                                   checked={filteredPatientsPeriod.length > 0 && filteredPatientsPeriod.filter(p => !p.is_loyal).every(p => selectedPeriod.includes(p.no_rm))}
                                   onChange={(e) => {
                                     if (e.target.checked) {
@@ -875,16 +883,16 @@ export default React.memo(function DemografiKunjungan() {
                               <th className="py-2.5 text-center">Aksi</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-50">
+                          <tbody className="divide-y divide-[#E5EEFF]">
                             {filteredPatientsPeriod.map((p, index) => (
-                              <tr key={p.no_rm} className={`hover:bg-slate-50/50 transition-colors ${p.is_loyal ? 'bg-amber-50/20' : ''}`}>
+                              <tr key={p.no_rm} className={`hover:bg-[#F8F9FF] transition-colors ${p.is_loyal ? 'bg-[#CCDCEF]/15' : ''}`}>
                                 <td className="py-2 pl-2 text-center">
                                   {p.is_loyal ? (
-                                    <Star className="h-4 w-4 text-amber-500 fill-amber-400 mx-auto" />
+                                    <Star className="h-4 w-4 text-[#213145] fill-[#213145] mx-auto" />
                                   ) : (
                                     <input
                                       type="checkbox"
-                                      className="rounded border-slate-300 text-teal-600 focus:ring-teal-550 h-3.5 w-3.5 cursor-pointer"
+                                      className="rounded border-[#CCDCEF] text-[#213145] focus:ring-[#213145] h-3.5 w-3.5 cursor-pointer"
                                       checked={selectedPeriod.includes(p.no_rm)}
                                       onChange={(e) => {
                                         if (e.target.checked) {
@@ -898,25 +906,25 @@ export default React.memo(function DemografiKunjungan() {
                                 </td>
                                 <td className="py-2">
                                   <div className="flex items-center space-x-2">
-                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                    <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${index < 3 ? 'bg-[#213145] text-white' : 'bg-[#CCDCEF]/50 text-[#213145]'}`}>
                                       {index + 1}
                                     </span>
                                     <div>
-                                      <div className="font-semibold text-slate-850 text-xs truncate max-w-[140px]">{p.nama}</div>
-                                      <span className="text-xs text-slate-400 block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
+                                      <div className="font-semibold text-[#213145] text-xs truncate max-w-[140px]">{p.nama}</div>
+                                      <span className="text-xs text-[#667085] block truncate max-w-[120px]">{p.kelurahan}, {p.kecamatan}</span>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="py-2 text-xs font-mono font-medium text-slate-500">{p.no_rm}</td>
-                                <td className="py-2 text-right text-xs font-bold text-slate-850">{p.total_visits}x</td>
-                                <td className="py-2 text-right text-xs font-semibold text-teal-700 whitespace-nowrap">
+                                <td className="py-2 text-xs font-mono font-medium text-[#667085]">{p.no_rm}</td>
+                                <td className="py-2 text-right text-xs font-bold text-[#213145]">{p.total_visits}x</td>
+                                <td className="py-2 text-right text-xs font-semibold text-[#213145] font-mono whitespace-nowrap">
                                   {formatRupiah(p.total_tagihan || 0)}
                                 </td>
                                 <td className="py-2 text-center">
                                   <div className="flex items-center justify-center space-x-1">
                                     <button
                                       onClick={() => fetchPatientHistory(p)}
-                                      className="p-1 rounded-md text-slate-400 hover:text-teal-600 hover:bg-teal-550/10 transition-colors inline-flex items-center cursor-pointer"
+                                      className="p-1 rounded-md text-[#667085] hover:text-[#213145] hover:bg-[#CCDCEF]/40 transition-colors inline-flex items-center cursor-pointer"
                                       title="Lihat Riwayat Pelayanan"
                                     >
                                       <ChevronRight className="h-4 w-4" />
@@ -924,7 +932,7 @@ export default React.memo(function DemografiKunjungan() {
                                     {p.is_loyal && (
                                       <button
                                         onClick={() => handleRemoveLoyal(p.no_rm)}
-                                        className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors inline-flex items-center cursor-pointer"
+                                        className="p-1 rounded-md text-[#667085] hover:text-[#222526] hover:bg-[#FF8574]/20 transition-colors inline-flex items-center cursor-pointer"
                                         title="Cabut Status Loyal"
                                       >
                                         <UserX className="h-4 w-4" />
@@ -941,13 +949,13 @@ export default React.memo(function DemografiKunjungan() {
                   </div>
 
                   {selectedPeriod.length > 0 && (
-                    <div className="mt-4 p-3 bg-teal-50/75 border border-teal-100 rounded-xl flex items-center justify-between">
-                      <span className="text-xs font-semibold text-teal-850">
+                    <div className="mt-4 p-3.5 bg-[#CCDCEF]/30 border border-[#CCDCEF] rounded-xl flex items-center justify-between">
+                      <span className="text-xs font-semibold text-[#213145]">
                         {selectedPeriod.length} Pasien Terpilih
                       </span>
                       <button
                         onClick={() => handleSetLoyalBulk('period')}
-                        className="px-3 py-1.5 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+                        className="px-3.5 py-1.5 text-xs font-semibold text-white bg-[#213145] hover:bg-[#122030] rounded-xl transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
                       >
                         <UserPlus className="h-3.5 w-3.5" />
                         Tetapkan Loyal
@@ -962,23 +970,23 @@ export default React.memo(function DemografiKunjungan() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
-                className="glass-card p-6 space-y-4"
+                className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-6 space-y-4"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100/70 pb-4 gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-[#E5EEFF] pb-4 gap-4">
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-100 text-amber-500 shadow-xs">
-                      <Star className="h-5 w-5 fill-amber-400" />
+                    <div className="h-10 w-10 rounded-xl bg-[#CCDCEF]/60 flex items-center justify-center border border-[#CCDCEF] text-[#213145] shadow-xs">
+                      <Star className="h-5 w-5 fill-[#213145]" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-bold text-slate-850 font-display">Daftar Pasien Loyal Terdaftar</h2>
-                      <p className="text-xs text-slate-400">Kelola komunikasi broadcast WhatsApp dan riwayat follow-up pasien loyal terdaftar.</p>
+                      <h2 className="text-sm font-bold text-[#213145] font-display">Daftar Pasien Loyal Terdaftar</h2>
+                      <p className="text-xs text-[#667085]">Kelola komunikasi broadcast WhatsApp dan riwayat follow-up pasien loyal terdaftar.</p>
                     </div>
                   </div>
 
                   {selectedRegisteredLoyal.length > 0 && (
                     <button
                       onClick={() => openWaModal(null, true)}
-                      className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm self-start sm:self-auto"
+                      className="px-4 py-2 text-xs font-semibold text-white bg-[#213145] hover:bg-[#122030] rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm self-start sm:self-auto"
                     >
                       <Send className="h-4 w-4" />
                       Kirim Broadcast WA ({selectedRegisteredLoyal.length})
@@ -989,19 +997,19 @@ export default React.memo(function DemografiKunjungan() {
                 <div className="overflow-x-auto">
                   {loyalLoading ? (
                     <div className="py-12 text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div>
-                      <span className="text-xs text-slate-400 mt-2 block">Memuat daftar pasien loyal...</span>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213145] mx-auto"></div>
+                      <span className="text-xs text-[#667085] mt-2 block">Memuat daftar pasien loyal...</span>
                     </div>
                   ) : loyalPatients.length === 0 ? (
-                    <div className="py-12 text-center text-slate-400 text-xs">Belum ada pasien loyal yang terdaftar secara aktif.</div>
+                    <div className="py-12 text-center text-[#667085] text-xs">Belum ada pasien loyal yang terdaftar secara aktif.</div>
                   ) : (
-                    <table className="w-full text-left border-collapse">
+                    <table className="si-table w-full text-left">
                       <thead>
-                        <tr className="text-xs font-bold text-slate-400 border-b border-slate-100/70 uppercase tracking-wider">
+                        <tr>
                           <th className="py-2.5 pl-2 w-10 text-center">
                             <input
                               type="checkbox"
-                              className="rounded border-slate-300 text-teal-600 focus:ring-teal-550 h-3.5 w-3.5 cursor-pointer"
+                              className="rounded border-[#CCDCEF] text-[#213145] focus:ring-[#213145] h-3.5 w-3.5 cursor-pointer"
                               checked={loyalPatients.length > 0 && loyalPatients.every(p => selectedRegisteredLoyal.includes(p.pasien_no_rm))}
                               onChange={(e) => {
                                 if (e.target.checked) {
@@ -1021,13 +1029,13 @@ export default React.memo(function DemografiKunjungan() {
                           <th className="py-2.5 text-center">Aksi</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-50">
+                      <tbody className="divide-y divide-[#E5EEFF]">
                         {loyalPatients.map((p) => (
-                          <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                          <tr key={p.id} className="hover:bg-[#F8F9FF] transition-colors">
                             <td className="py-3 text-center">
                               <input
                                 type="checkbox"
-                                className="rounded border-slate-300 text-teal-600 focus:ring-teal-550 h-3.5 w-3.5 cursor-pointer"
+                                className="rounded border-[#CCDCEF] text-[#213145] focus:ring-[#213145] h-3.5 w-3.5 cursor-pointer"
                                 checked={selectedRegisteredLoyal.includes(p.pasien_no_rm)}
                                 onChange={(e) => {
                                   if (e.target.checked) {
@@ -1040,55 +1048,55 @@ export default React.memo(function DemografiKunjungan() {
                             </td>
                             <td className="py-3">
                               <div>
-                                <span className="font-semibold text-slate-850 text-xs block">{p.pasien_nama}</span>
-                                <span className="px-1.5 py-0.5 rounded text-xs font-mono font-medium bg-slate-100 text-slate-500 border border-slate-200 inline-block mt-0.5">
+                                <span className="font-semibold text-[#213145] text-xs block">{p.pasien_nama}</span>
+                                <span className="px-1.5 py-0.5 rounded text-xs font-mono font-medium bg-[#CCDCEF]/30 text-[#213145] border border-[#CCDCEF] inline-block mt-0.5">
                                   RM: {p.pasien_no_rm}
                                 </span>
                               </div>
                             </td>
                             <td className="py-3">
                               <div className="flex items-center space-x-1.5">
-                                <span className="text-xs font-mono font-medium text-slate-700">{p.no_telp || '-'}</span>
+                                <span className="text-xs font-mono font-medium text-[#222526]">{p.no_telp || '-'}</span>
                                 <button
                                   onClick={() => handleUpdatePhone(p.pasien_no_rm, p.no_telp)}
-                                  className="p-1 rounded text-slate-400 hover:text-teal-600 hover:bg-teal-550/10 transition-colors cursor-pointer"
+                                  className="p-1 rounded text-[#667085] hover:text-[#213145] hover:bg-[#CCDCEF]/40 transition-colors cursor-pointer"
                                   title="Edit Nomor Telepon"
                                 >
                                   <Edit2 className="h-3 w-3" />
                                 </button>
                               </div>
                             </td>
-                            <td className="py-3 text-xs font-semibold text-slate-850">
+                            <td className="py-3 text-xs font-semibold text-[#213145]">
                               {p.total_kunjungan_snapshot || p.total_visits_snapshot || p.total_visits || 0} Kunjungan
                             </td>
-                            <td className="py-3 text-xs font-medium text-slate-500">
+                            <td className="py-3 text-xs font-medium text-[#667085]">
                               {new Date(p.tanggal_ditetapkan || p.created_at || Date.now()).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
                             </td>
-                            <td className="py-3 text-xs text-slate-500 max-w-[180px] truncate" title={p.catatan}>
+                            <td className="py-3 text-xs text-[#667085] max-w-[180px] truncate" title={p.catatan}>
                               {p.catatan || '-'}
                             </td>
-                            <td className="py-3 text-right text-xs font-mono font-semibold tabular-nums text-teal-700">
+                            <td className="py-3 text-right text-xs font-mono font-semibold tabular-nums text-[#213145]">
                               {Number(p.total_tagihan) > 0 ? formatRupiah(p.total_tagihan) : '-'}
                             </td>
                             <td className="py-3 text-center">
                               <div className="flex items-center justify-center space-x-1">
                                 <button
                                   onClick={() => openWaModal(p, false)}
-                                  className="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors inline-flex items-center cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-[#CCDCEF]/50 text-[#213145] hover:bg-[#CCDCEF] transition-colors inline-flex items-center cursor-pointer"
                                   title="Kirim WhatsApp"
                                 >
                                   <Send className="h-3.5 w-3.5" />
                                 </button>
                                 <button
                                   onClick={() => fetchWaHistory(p)}
-                                  className="p-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors inline-flex items-center cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-[#F8F9FF] text-[#667085] hover:bg-[#E5EEFF] transition-colors inline-flex items-center cursor-pointer"
                                   title="Riwayat Pesan"
                                 >
                                   <History className="h-3.5 w-3.5" />
                                 </button>
                                 <button
                                   onClick={() => handleRemoveLoyal(p.pasien_no_rm)}
-                                  className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors inline-flex items-center cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-[#FF8574]/20 text-[#222526] hover:bg-[#FF8574]/40 transition-colors inline-flex items-center cursor-pointer"
                                   title="Cabut Status Loyal"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -1108,20 +1116,20 @@ export default React.memo(function DemografiKunjungan() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="glass-card p-6 space-y-5"
+                className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-6 space-y-5"
               >
-                <div className="flex items-center justify-between border-b border-slate-100/70 pb-4 gap-4">
+                <div className="flex items-center justify-between border-b border-[#E5EEFF] pb-4 gap-4">
                   <div className="flex items-center space-x-3">
-                    <div className="h-10 w-10 rounded-xl bg-teal-50 flex items-center justify-center border border-teal-100 text-teal-600 shadow-xs">
+                    <div className="h-10 w-10 rounded-xl bg-[#CCDCEF]/60 flex items-center justify-center border border-[#CCDCEF] text-[#213145] shadow-xs">
                       <Wallet className="h-5 w-5" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-slate-850 font-display">Data Tagihan Pasien</h2>
-                      <p className="text-xs text-slate-400">Nominal tagihan per registrasi hasil import, diurutkan dari terbesar.</p>
+                      <h2 className="text-sm font-bold text-[#213145] font-display">Data Tagihan Pasien</h2>
+                      <p className="text-xs text-[#667085]">Nominal tagihan per registrasi hasil import, diurutkan dari terbesar.</p>
                     </div>
                   </div>
                   {tagihanList.length > 0 && (
-                    <span className="text-xs font-mono tabular-nums text-teal-700">
+                    <span className="text-xs font-mono tabular-nums font-bold text-[#213145] px-2.5 py-1 rounded-lg bg-[#CCDCEF]/40 border border-[#CCDCEF]">
                       Total {formatRupiah(tagihanList.reduce((a, t) => a + Number(t.tagihan || 0), 0))}
                     </span>
                   )}
@@ -1130,15 +1138,15 @@ export default React.memo(function DemografiKunjungan() {
                 <div className="overflow-x-auto">
                   {tagihanListLoading ? (
                     <div className="py-12 text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto"></div>
-                      <span className="text-xs text-slate-400 mt-2 block">Memuat data tagihan...</span>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213145] mx-auto"></div>
+                      <span className="text-xs text-[#667085] mt-2 block">Memuat data tagihan...</span>
                     </div>
                   ) : tagihanList.length === 0 ? (
-                    <div className="py-12 text-center text-slate-400 text-xs">Belum ada data tagihan. Gunakan tombol Import Tagihan di atas.</div>
+                    <div className="py-12 text-center text-[#667085] text-xs">Belum ada data tagihan. Gunakan tombol Import Tagihan di atas.</div>
                   ) : (
-                    <table className="w-full text-left border-collapse">
+                    <table className="si-table w-full text-left">
                       <thead>
-                        <tr className="text-xs font-semibold text-slate-400 border-b border-slate-100/70">
+                        <tr>
                           <th className="py-2.5">No. Registrasi</th>
                           <th className="py-2.5">Pasien</th>
                           <th className="py-2.5">Unit</th>
@@ -1146,17 +1154,17 @@ export default React.memo(function DemografiKunjungan() {
                           <th className="py-2.5 text-right">Nominal Tagihan</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-50">
+                      <tbody className="divide-y divide-[#E5EEFF]">
                         {tagihanList.slice((tagihanPage - 1) * TAGIHAN_PER_PAGE, tagihanPage * TAGIHAN_PER_PAGE).map((t, idx) => (
-                          <tr key={`${t.no_registrasi}-${idx}`} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="py-3 text-xs font-mono font-medium text-slate-500">{t.no_registrasi}</td>
+                          <tr key={`${t.no_registrasi}-${idx}`} className="hover:bg-[#F8F9FF] transition-colors">
+                            <td className="py-3 text-xs font-mono font-medium text-[#667085]">{t.no_registrasi}</td>
                             <td className="py-3 text-xs">
-                              <span className="font-semibold text-slate-850 block">{t.nama_pasien || '-'}</span>
-                              {t.pasien_no_rm && <span className="text-slate-400 font-mono">RM: {t.pasien_no_rm}</span>}
+                              <span className="font-semibold text-[#213145] block">{t.nama_pasien || '-'}</span>
+                              {t.pasien_no_rm && <span className="text-[#667085] font-mono">RM: {t.pasien_no_rm}</span>}
                             </td>
-                            <td className="py-3 text-xs text-slate-500">{t.unit || '-'}</td>
-                            <td className="py-3 text-xs text-slate-500">{t.penanggung || '-'}</td>
-                            <td className="py-3 text-right text-xs font-mono font-semibold tabular-nums text-teal-700">{formatRupiah(t.tagihan)}</td>
+                            <td className="py-3 text-xs text-[#667085]">{t.unit || '-'}</td>
+                            <td className="py-3 text-xs text-[#667085]">{t.penanggung || '-'}</td>
+                            <td className="py-3 text-right text-xs font-mono font-semibold tabular-nums text-[#213145]">{formatRupiah(t.tagihan)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1165,22 +1173,22 @@ export default React.memo(function DemografiKunjungan() {
                 </div>
 
                 {tagihanList.length > TAGIHAN_PER_PAGE && (
-                  <div className="flex items-center justify-between border-t border-slate-100/70 pt-4">
+                  <div className="flex items-center justify-between border-t border-[#E5EEFF] pt-4">
                     <button
                       onClick={() => setTagihanPage(prev => Math.max(prev - 1, 1))}
                       disabled={tagihanPage === 1}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#222526] bg-white border border-[#CCDCEF] rounded-lg disabled:opacity-40 hover:bg-[#F8F9FF] cursor-pointer transition-colors"
                     >
                       <ChevronLeft className="h-3.5 w-3.5" />
                       <span>Sebelumnya</span>
                     </button>
-                    <span className="text-xs font-medium text-slate-500">
+                    <span className="text-xs font-medium text-[#667085]">
                       Halaman {tagihanPage} dari {Math.ceil(tagihanList.length / TAGIHAN_PER_PAGE)}
                     </span>
                     <button
                       onClick={() => setTagihanPage(prev => Math.min(prev + 1, Math.ceil(tagihanList.length / TAGIHAN_PER_PAGE)))}
                       disabled={tagihanPage >= Math.ceil(tagihanList.length / TAGIHAN_PER_PAGE)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg disabled:opacity-40 hover:bg-slate-50 cursor-pointer transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#222526] bg-white border border-[#CCDCEF] rounded-lg disabled:opacity-40 hover:bg-[#F8F9FF] cursor-pointer transition-colors"
                     >
                       <span>Selanjutnya</span>
                       <ChevronRight className="h-3.5 w-3.5" />
@@ -1205,51 +1213,51 @@ export default React.memo(function DemografiKunjungan() {
                 <motion.div 
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
+                  whileHover={{ y: -2 }}
                   transition={{ duration: 0.3, delay: 0.08 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
+                  className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-white/20 text-white">
-                    <MapPin className="h-5 w-5" />
+                  <div className="h-12 w-12 rounded-xl bg-[#CCDCEF]/60 border border-[#CCDCEF] text-[#213145] flex items-center justify-center">
+                    <MapPin className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-white/80 font-bold">Total Wilayah Kota</h4>
-                    <span className="text-xl font-extrabold font-display text-white">
-                      {byKota.filter(c => c.kota !== 'Tidak Diketahui').length} Kota/Kab
+                    <h4 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Total Wilayah Kota</h4>
+                    <span className="text-2xl font-bold font-display text-[#213145]">
+                      {byKota.filter(c => c.kota !== 'Tidak Diketahui').length} <span className="text-xs font-semibold text-[#667085]">Kota/Kab</span>
                     </span>
                   </div>
                 </motion.div>
                 <motion.div 
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
+                  whileHover={{ y: -2 }}
                   transition={{ duration: 0.3, delay: 0.16 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
+                  className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-white/20 text-white">
-                    <MapPin className="h-5 w-5" />
+                  <div className="h-12 w-12 rounded-xl bg-[#CCDCEF]/60 border border-[#CCDCEF] text-[#213145] flex items-center justify-center">
+                    <MapPin className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-white/80 font-bold">Total Kecamatan</h4>
-                    <span className="text-xl font-extrabold font-display text-white">
-                      {byKecamatan.filter(k => k.kecamatan !== 'Tidak Diketahui').length} Kecamatan
+                    <h4 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Total Kecamatan</h4>
+                    <span className="text-2xl font-bold font-display text-[#213145]">
+                      {byKecamatan.filter(k => k.kecamatan !== 'Tidak Diketahui').length} <span className="text-xs font-semibold text-[#667085]">Kecamatan</span>
                     </span>
                   </div>
                 </motion.div>
                 <motion.div 
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01 }}
+                  whileHover={{ y: -2 }}
                   transition={{ duration: 0.3, delay: 0.24 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl p-5 rounded-2xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center space-x-4 relative overflow-hidden group"
+                  className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4"
                 >
-                  <div className="p-3 rounded-xl bg-white/20 text-white">
-                    <MapPin className="h-5 w-5" />
+                  <div className="h-12 w-12 rounded-xl bg-[#FF8574]/20 border border-[#FF8574]/40 text-[#222526] flex items-center justify-center">
+                    <MapPin className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider text-white/80 font-bold">Total Kelurahan</h4>
-                    <span className="text-xl font-extrabold font-display text-white">
-                      {byKelurahan.filter(k => k.kelurahan !== 'Tidak Diketahui').length} Kelurahan
+                    <h4 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Total Kelurahan</h4>
+                    <span className="text-2xl font-bold font-display text-[#213145]">
+                      {byKelurahan.filter(k => k.kelurahan !== 'Tidak Diketahui').length} <span className="text-xs font-semibold text-[#667085]">Kelurahan</span>
                     </span>
                   </div>
                 </motion.div>
@@ -1261,12 +1269,12 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.32 }}
-                  className="lg:col-span-2 glass-card p-6 space-y-4"
+                  className="lg:col-span-2 bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-6 space-y-4"
                 >
-                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                  <div className="border-b border-[#E5EEFF] pb-3 flex items-center justify-between">
                     <div>
-                      <h2 className="text-sm font-bold text-slate-850 font-display">Grafik Pasien & Kunjungan Berdasarkan Kota/Kabupaten</h2>
-                      <p className="text-xs text-slate-400">Membandingkan jumlah pasien terdaftar (Bar) dengan total kunjungan (Line).</p>
+                      <h2 className="text-sm font-bold text-[#213145] font-display">Grafik Pasien & Kunjungan Berdasarkan Kota/Kabupaten</h2>
+                      <p className="text-xs text-[#667085]">Membandingkan jumlah pasien terdaftar (Bar) dengan total kunjungan (Line).</p>
                     </div>
                   </div>
 
@@ -1276,13 +1284,13 @@ export default React.memo(function DemografiKunjungan() {
                         data={byKota.filter(c => c.kota !== 'Tidak Diketahui')}
                         margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="kota" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5EEFF" />
+                        <XAxis dataKey="kota" stroke="#667085" fontSize={12} tickLine={false} />
+                        <YAxis stroke="#667085" fontSize={12} tickLine={false} axisLine={false} />
                         <Tooltip />
                         <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={28} />
-                        <Bar dataKey="jumlah_kunjungan" name="Total Kunjungan" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={28} />
+                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#213145" radius={[4, 4, 0, 0]} barSize={28} />
+                        <Bar dataKey="jumlah_kunjungan" name="Total Kunjungan" fill="#7CA3CC" radius={[4, 4, 0, 0]} barSize={28} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -1293,27 +1301,27 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 }}
-                  className="glass-card p-6 space-y-4"
+                  className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-6 space-y-4"
                 >
-                  <div className="border-b border-slate-100 pb-3">
-                    <h3 className="text-sm font-bold text-slate-850 font-display">Data Populasi Wilayah (Kota)</h3>
-                    <p className="text-xs text-slate-400">Detail rincian pasien per domisili kabupaten/kota.</p>
+                  <div className="border-b border-[#E5EEFF] pb-3">
+                    <h3 className="text-sm font-bold text-[#213145] font-display">Data Populasi Wilayah (Kota)</h3>
+                    <p className="text-xs text-[#667085]">Detail rincian pasien per domisili kabupaten/kota.</p>
                   </div>
                   <div className="overflow-y-auto max-h-72">
-                    <table className="w-full text-left text-xs border-collapse">
+                    <table className="si-table w-full text-left">
                       <thead>
-                        <tr className="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                        <tr>
                           <th className="py-2">Kabupaten / Kota</th>
                           <th className="py-2 text-right">Pasien</th>
                           <th className="py-2 text-right">Kunjungan</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-55">
+                      <tbody className="divide-y divide-[#E5EEFF]">
                         {byKota.map((item, index) => (
-                          <tr key={index} className={`hover:bg-slate-50/40 ${item.kota !== 'Tidak Diketahui' ? 'cursor-pointer' : ''}`} onClick={() => item.kota && handleGroupClick('kota', item.kota)}>
-                            <td className="py-2 font-medium text-slate-700 hover:text-teal-600 transition-colors">{item.kota}</td>
-                            <td className="py-2 text-right text-slate-600 font-bold">{item.jumlah_pasien}</td>
-                            <td className="py-2 text-right text-slate-600 font-bold">{item.jumlah_kunjungan}</td>
+                          <tr key={index} className={`hover:bg-[#F8F9FF] ${item.kota !== 'Tidak Diketahui' ? 'cursor-pointer' : ''}`} onClick={() => item.kota && handleGroupClick('kota', item.kota)}>
+                            <td className="py-2 font-medium text-[#213145] hover:text-[#FF8574] transition-colors">{item.kota}</td>
+                            <td className="py-2 text-right text-[#222526] font-bold">{item.jumlah_pasien}</td>
+                            <td className="py-2 text-right text-[#222526] font-bold">{item.jumlah_kunjungan}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1328,12 +1336,12 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.48 }}
-                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                  className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-6 space-y-4"
                 >
-                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                  <div className="border-b border-[#E5EEFF] pb-3 flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kecamatan</h3>
-                      <p className="text-xs text-slate-400 font-medium text-slate-500">Kecamatan teraktif berdasarkan jumlah pasien.</p>
+                      <h3 className="text-sm font-bold text-[#213145] font-display">Sebaran Pasien di Tingkat Kecamatan</h3>
+                      <p className="text-xs text-[#667085]">Kecamatan teraktif berdasarkan jumlah pasien.</p>
                     </div>
                   </div>
                   <div className="h-64">
@@ -1343,11 +1351,11 @@ export default React.memo(function DemografiKunjungan() {
                         data={byKecamatan.filter(k => k.kecamatan !== 'Tidak Diketahui').slice(0, 7)}
                         margin={{ top: 10, right: 10, left: 30, bottom: 5 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                        <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                        <YAxis type="category" dataKey="kecamatan" stroke="#94a3b8" fontSize={12} tickLine={false} width={80} />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5EEFF" />
+                        <XAxis type="number" stroke="#667085" fontSize={12} tickLine={false} />
+                        <YAxis type="category" dataKey="kecamatan" stroke="#667085" fontSize={12} tickLine={false} width={80} />
                         <Tooltip />
-                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#0ea5e9" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kecamatan && handleGroupClick('kecamatan', data.kecamatan)} cursor="pointer" />
+                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#213145" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kecamatan && handleGroupClick('kecamatan', data.kecamatan)} cursor="pointer" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -1357,12 +1365,12 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.56 }}
-                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                  className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-6 space-y-4"
                 >
-                  <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                  <div className="border-b border-[#E5EEFF] pb-3 flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-bold text-slate-850 font-display">Sebaran Pasien di Tingkat Kelurahan</h3>
-                      <p className="text-xs text-slate-400 font-medium text-slate-500">Kelurahan teraktif berdasarkan jumlah pasien.</p>
+                      <h3 className="text-sm font-bold text-[#213145] font-display">Sebaran Pasien di Tingkat Kelurahan</h3>
+                      <p className="text-xs text-[#667085]">Kelurahan teraktif berdasarkan jumlah pasien.</p>
                     </div>
                   </div>
                   <div className="h-64">
@@ -1372,11 +1380,11 @@ export default React.memo(function DemografiKunjungan() {
                         data={byKelurahan.filter(k => k.kelurahan !== 'Tidak Diketahui').slice(0, 7)}
                         margin={{ top: 10, right: 10, left: 30, bottom: 5 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
-                        <XAxis type="number" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                        <YAxis type="category" dataKey="kelurahan" stroke="#94a3b8" fontSize={12} tickLine={false} width={80} />
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5EEFF" />
+                        <XAxis type="number" stroke="#667085" fontSize={12} tickLine={false} />
+                        <YAxis type="category" dataKey="kelurahan" stroke="#667085" fontSize={12} tickLine={false} width={80} />
                         <Tooltip />
-                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#8b5cf6" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kelurahan && handleGroupClick('kelurahan', data.kelurahan)} cursor="pointer" />
+                        <Bar dataKey="jumlah_pasien" name="Jumlah Pasien" fill="#7CA3CC" radius={[0, 4, 4, 0]} barSize={16} onClick={(data: any) => data?.kelurahan && handleGroupClick('kelurahan', data.kelurahan)} cursor="pointer" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -1400,11 +1408,11 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.08 }}
-                  className="bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4 flex flex-col justify-between"
+                  className="bg-white p-6 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] space-y-4 flex flex-col justify-between"
                 >
-                  <div className="border-b border-slate-100 pb-3">
-                    <h3 className="text-sm font-bold text-slate-850 font-display">Proporsi Gender Pasien</h3>
-                    <p className="text-xs text-slate-400">Pembagian jumlah pasien terdaftar berdasarkan jenis kelamin.</p>
+                  <div className="border-b border-[#E5EEFF] pb-3">
+                    <h3 className="text-sm font-bold text-[#213145] font-display">Proporsi Gender Pasien</h3>
+                    <p className="text-xs text-[#667085]">Pembagian jumlah pasien terdaftar berdasarkan jenis kelamin.</p>
                   </div>
 
                   <div className="h-64 flex items-center justify-center relative">
@@ -1433,12 +1441,12 @@ export default React.memo(function DemografiKunjungan() {
                   </div>
 
                   {/* Summary of gender numeric data */}
-                  <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                  <div className="grid grid-cols-2 gap-4 border-t border-[#E5EEFF] pt-4">
                     {byGender.map((item, index) => (
                       <div key={index} className="text-center">
-                        <span className="text-xs text-slate-400 font-bold block">{item.jenis_kelamin}</span>
-                        <span className="text-base font-extrabold text-slate-850">
-                          {item.jumlah} <span className="text-xs text-slate-400 font-normal">({totalPatients > 0 ? ((item.jumlah / totalPatients) * 100).toFixed(1) : 0}%)</span>
+                        <span className="text-xs text-[#667085] font-bold block">{item.jenis_kelamin}</span>
+                        <span className="text-base font-extrabold text-[#213145]">
+                          {item.jumlah} <span className="text-xs text-[#667085] font-normal">({totalPatients > 0 ? ((item.jumlah / totalPatients) * 100).toFixed(1) : 0}%)</span>
                         </span>
                       </div>
                     ))}
@@ -1450,11 +1458,11 @@ export default React.memo(function DemografiKunjungan() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.16 }}
-                  className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100/80 shadow-sm space-y-4"
+                  className="lg:col-span-2 bg-white p-6 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] space-y-4"
                 >
-                  <div className="border-b border-slate-100 pb-3">
-                    <h3 className="text-sm font-bold text-slate-850 font-display">Distribusi Berdasarkan Kelompok Usia</h3>
-                    <p className="text-xs text-slate-400">Pengelompokan usia klinis pasien terdaftar di database.</p>
+                  <div className="border-b border-[#E5EEFF] pb-3">
+                    <h3 className="text-sm font-bold text-[#213145] font-display">Distribusi Berdasarkan Kelompok Usia</h3>
+                    <p className="text-xs text-[#667085]">Pengelompokan usia klinis pasien terdaftar di database.</p>
                   </div>
 
                   <div className="h-80 w-full text-xs">
@@ -1463,11 +1471,11 @@ export default React.memo(function DemografiKunjungan() {
                         data={byAgeGroup}
                         margin={{ top: 20, right: 10, left: 10, bottom: 5 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                        <XAxis dataKey="kelompok_usia" stroke="#94a3b8" fontSize={12} tickLine={false} />
-                        <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5EEFF" />
+                        <XAxis dataKey="kelompok_usia" stroke="#667085" fontSize={12} tickLine={false} />
+                        <YAxis stroke="#667085" fontSize={12} tickLine={false} axisLine={false} />
                         <Tooltip />
-                        <Bar dataKey="jumlah" name="Jumlah Pasien" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={34} onClick={(data: any) => data?.kelompok_usia && handleGroupClick('usia', data.kelompok_usia)} cursor="pointer">
+                        <Bar dataKey="jumlah" name="Jumlah Pasien" fill="#213145" radius={[4, 4, 0, 0]} barSize={34} onClick={(data: any) => data?.kelompok_usia && handleGroupClick('usia', data.kelompok_usia)} cursor="pointer">
                           {byAgeGroup.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
@@ -1483,20 +1491,20 @@ export default React.memo(function DemografiKunjungan() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.24 }}
-                className="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
+                className="bg-[#213145] text-white rounded-2xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_8px_24px_rgba(11,28,48,0.12)]"
               >
                 <div className="space-y-1 relative z-10">
-                  <h3 className="text-sm font-bold text-teal-900 flex items-center gap-2">
-                    <Sparkles className="h-4.5 w-4.5 text-teal-600 animate-pulse" />
+                  <h3 className="text-sm font-bold text-[#CCDCEF] flex items-center gap-2">
+                    <Sparkles className="h-4.5 w-4.5 text-[#FF8574] animate-pulse" />
                     Insight Demografi Pasien
                   </h3>
-                  <p className="text-xs text-slate-600 max-w-xl">
-                    Berdasarkan visualisasi sebaran pasien, kelompok umur <span className="text-teal-700 font-semibold">{[...byAgeGroup].sort((a,b) => b.jumlah - a.jumlah)[0]?.kelompok_usia || 'Tidak Diketahui'}</span> merupakan populasi pasien tertinggi di Klinik Puri Medika. Dominasi gender adalah <span className="text-teal-700 font-semibold">{[...byGender].sort((a,b) => b.jumlah - a.jumlah)[0]?.jenis_kelamin || 'Tidak Diketahui'}</span>.
+                  <p className="text-xs text-white/80 max-w-xl leading-relaxed">
+                    Berdasarkan visualisasi sebaran pasien, kelompok umur <span className="text-[#CCDCEF] font-semibold">{[...byAgeGroup].sort((a,b) => b.jumlah - a.jumlah)[0]?.kelompok_usia || 'Tidak Diketahui'}</span> merupakan populasi pasien tertinggi di Klinik Puri Medika. Dominasi gender adalah <span className="text-[#CCDCEF] font-semibold">{[...byGender].sort((a,b) => b.jumlah - a.jumlah)[0]?.jenis_kelamin || 'Tidak Diketahui'}</span>.
                   </p>
                 </div>
-                <div className="bg-white border border-teal-100 rounded-xl px-5 py-3 relative z-10 text-center flex-shrink-0 min-w-[160px] shadow-xs">
-                  <span className="text-xs text-slate-400 block uppercase font-bold tracking-wider">Total Pasien Terdaftar</span>
-                  <span className="text-2xl font-black text-teal-600">{totalPatients} Jiwa</span>
+                <div className="bg-white/10 backdrop-blur-xs border border-white/15 rounded-xl px-5 py-3 relative z-10 text-center flex-shrink-0 min-w-[160px] shadow-xs">
+                  <span className="text-xs text-[#CCDCEF] block uppercase font-bold tracking-wider">Total Pasien Terdaftar</span>
+                  <span className="text-2xl font-black text-white">{totalPatients} <span className="text-xs font-normal text-[#CCDCEF]">Jiwa</span></span>
                 </div>
               </motion.div>
             </motion.div>
@@ -1511,32 +1519,32 @@ export default React.memo(function DemografiKunjungan() {
             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6" style={{ pointerEvents: 'auto' }}>
               <motion.div 
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm"
+                className="fixed inset-0 bg-[#0B1C30]/42 backdrop-blur-xs"
                 onClick={() => setSelectedGroup(null)}
               />
               <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col max-h-[85vh]"
+              className="relative w-full max-w-2xl bg-white rounded-2xl shadow-[0_24px_64px_rgba(11,28,48,0.20)] border border-[#E5EEFF] overflow-hidden flex flex-col max-h-[85vh]"
             >
-              <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="px-6 py-5 border-b border-[#E5EEFF] flex items-center justify-between bg-[#F8F9FF]">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-teal-100 text-teal-700 rounded-xl">
+                  <div className="p-2 bg-[#CCDCEF]/60 text-[#213145] rounded-xl border border-[#CCDCEF]">
                     <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold font-display text-slate-800">
+                    <h3 className="text-base font-bold font-display text-[#213145]">
                       Data Pasien
                     </h3>
-                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mt-0.5">
+                    <p className="text-xs font-medium text-[#667085] uppercase tracking-wider mt-0.5">
                       {selectedGroup.type === 'kota' ? 'Kota/Kabupaten' : selectedGroup.type === 'kecamatan' ? 'Kecamatan' : selectedGroup.type === 'kelurahan' ? 'Kelurahan' : selectedGroup.type === 'gender' ? 'Jenis Kelamin' : 'Kelompok Usia'}: {selectedGroup.name}
                     </p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedGroup(null)}
-                  className="p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-600 rounded-xl transition-colors cursor-pointer"
+                  className="p-2 text-[#667085] hover:bg-[#E5EEFF] hover:text-[#213145] rounded-xl transition-colors cursor-pointer"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -1545,36 +1553,36 @@ export default React.memo(function DemografiKunjungan() {
               <div className="p-6 overflow-y-auto flex-1 bg-white">
                 {groupLoading ? (
                   <div className="flex flex-col items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-teal-600 mb-4"></div>
-                    <p className="text-sm text-slate-500">Memuat data pasien...</p>
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#213145] mb-4"></div>
+                    <p className="text-xs text-[#667085]">Memuat data pasien...</p>
                   </div>
                 ) : groupPatients.length === 0 ? (
-                  <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
-                    <Users className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                    <p className="text-slate-500 font-medium">Tidak ada pasien ditemukan di kelompok ini.</p>
+                  <div className="text-center py-12 bg-[#F8F9FF] rounded-2xl border border-[#E5EEFF] border-dashed">
+                    <Users className="h-10 w-10 text-[#667085] mx-auto mb-3" />
+                    <p className="text-[#667085] font-medium text-xs">Tidak ada pasien ditemukan di kelompok ini.</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-slate-200">
-                    <table className="w-full text-left text-sm border-collapse">
+                  <div className="overflow-x-auto rounded-xl border border-[#E5EEFF]">
+                    <table className="si-table w-full text-left">
                       <thead>
-                        <tr className="bg-slate-50/80 border-b border-slate-200">
-                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">No. RM</th>
-                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Nama Pasien</th>
-                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">L/P</th>
-                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Usia</th>
-                          <th className="py-3 px-4 font-bold text-slate-600 text-xs uppercase tracking-wider">Alamat Lengkap</th>
+                        <tr>
+                          <th className="py-2.5 px-4">No. RM</th>
+                          <th className="py-2.5 px-4">Nama Pasien</th>
+                          <th className="py-2.5 px-4">L/P</th>
+                          <th className="py-2.5 px-4">Usia</th>
+                          <th className="py-2.5 px-4">Alamat Lengkap</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-[#E5EEFF]">
                         {groupPatients.map((p, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="py-3 px-4 text-slate-500 font-mono text-xs">{p.no_rm}</td>
-                            <td className="py-3 px-4 font-bold text-slate-800">{p.nama}</td>
-                            <td className="py-3 px-4 text-slate-600">{p.jenis_kelamin}</td>
-                            <td className="py-3 px-4 text-slate-600 text-xs">
+                          <tr key={idx} className="hover:bg-[#F8F9FF] transition-colors">
+                            <td className="py-3 px-4 text-[#667085] font-mono text-xs">{p.no_rm}</td>
+                            <td className="py-3 px-4 font-bold text-[#213145]">{p.nama}</td>
+                            <td className="py-3 px-4 text-[#222526]">{p.jenis_kelamin}</td>
+                            <td className="py-3 px-4 text-[#667085] text-xs">
                               {p.tanggal_lahir ? Math.floor((new Date().getTime() - new Date(p.tanggal_lahir).getTime()) / (1000 * 60 * 60 * 24 * 365.25)) + ' thn' : '-'}
                             </td>
-                            <td className="py-3 px-4 text-slate-600 text-xs truncate max-w-[200px]" title={p.alamat || '-'}>{p.alamat || '-'}</td>
+                            <td className="py-3 px-4 text-[#667085] text-xs truncate max-w-[200px]" title={p.alamat || '-'}>{p.alamat || '-'}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1600,7 +1608,7 @@ export default React.memo(function DemografiKunjungan() {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedPatient(null)}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[9999] pointer-events-auto"
+              className="fixed inset-0 bg-[#0B1C30]/42 backdrop-blur-xs z-[9999] pointer-events-auto"
             />
             
             {/* Drawer Container */}
@@ -1609,22 +1617,22 @@ export default React.memo(function DemografiKunjungan() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-[10000] border-l border-slate-200 flex flex-col pointer-events-auto"
+              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-[#222526] shadow-2xl z-[10000] border-l border-[#E5EEFF] flex flex-col pointer-events-auto"
             >
               {/* Drawer Header */}
-              <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div className="p-6 border-b border-[#E5EEFF] bg-[#F8F9FF] flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 rounded-full bg-teal-50 border border-teal-150 flex items-center justify-center font-bold text-teal-600">
+                  <div className="h-10 w-10 rounded-full bg-[#CCDCEF]/60 border border-[#CCDCEF] flex items-center justify-center font-bold text-[#213145]">
                     <User className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 font-display uppercase tracking-wider">Profil & Riwayat Pasien</h3>
-                    <span className="text-xs text-teal-600 font-mono">No. RM: {selectedPatient.no_rm}</span>
+                    <h3 className="text-xs font-bold text-[#213145] font-display uppercase tracking-wider">Profil & Riwayat Pasien</h3>
+                    <span className="text-xs text-[#213145] font-mono font-medium">No. RM: {selectedPatient.no_rm}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedPatient(null)}
-                  className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 cursor-pointer"
+                  className="p-1.5 rounded-lg bg-white border border-[#CCDCEF] text-[#667085] hover:text-[#213145] hover:bg-[#F8F9FF] cursor-pointer"
                   style={{ minHeight: '36px', minWidth: '36px' }}
                 >
                   <X className="h-5 w-5" />
@@ -1632,28 +1640,28 @@ export default React.memo(function DemografiKunjungan() {
               </div>
 
               {/* Patient Basic Profile details */}
-              <div className="p-6 bg-slate-50/50 border-b border-slate-200 space-y-4">
-                <h4 className="text-xs uppercase tracking-wider text-teal-650 font-bold">Informasi Demografis</h4>
-                <div className="grid grid-cols-2 gap-4 text-xs font-medium text-slate-550">
+              <div className="p-6 bg-[#F8F9FF]/50 border-b border-[#E5EEFF] space-y-4">
+                <h4 className="text-xs uppercase tracking-wider text-[#213145] font-bold">Informasi Demografis</h4>
+                <div className="grid grid-cols-2 gap-4 text-xs font-medium text-[#667085]">
                   <div>
-                    <span className="text-slate-450 block">Nama Pasien</span>
-                    <span className="text-slate-800 text-xs font-semibold">{selectedPatient.nama}</span>
+                    <span className="text-[#667085] block">Nama Pasien</span>
+                    <span className="text-[#213145] text-xs font-semibold">{selectedPatient.nama}</span>
                   </div>
                   <div>
-                    <span className="text-slate-450 block">Jenis Kelamin</span>
-                    <span className="text-slate-800 text-xs font-semibold">{selectedPatient.jenis_kelamin === 'L' ? 'Laki-laki' : selectedPatient.jenis_kelamin === 'P' ? 'Perempuan' : selectedPatient.jenis_kelamin}</span>
+                    <span className="text-[#667085] block">Jenis Kelamin</span>
+                    <span className="text-[#213145] text-xs font-semibold">{selectedPatient.jenis_kelamin === 'L' ? 'Laki-laki' : selectedPatient.jenis_kelamin === 'P' ? 'Perempuan' : selectedPatient.jenis_kelamin}</span>
                   </div>
                   <div>
-                    <span className="text-slate-450 block">Kelompok Usia (Lahir)</span>
-                    <span className="text-slate-800 text-xs font-semibold">{calculateAge(selectedPatient.tanggal_lahir)}</span>
+                    <span className="text-[#667085] block">Kelompok Usia (Lahir)</span>
+                    <span className="text-[#213145] text-xs font-semibold">{calculateAge(selectedPatient.tanggal_lahir)}</span>
                   </div>
                   <div>
-                    <span className="text-slate-450 block">Wilayah Domisili</span>
-                    <span className="text-slate-800 text-xs font-semibold">{selectedPatient.kota}</span>
+                    <span className="text-[#667085] block">Wilayah Domisili</span>
+                    <span className="text-[#213145] text-xs font-semibold">{selectedPatient.kota}</span>
                   </div>
                   <div className="col-span-2">
-                    <span className="text-slate-450 block">Alamat Lengkap</span>
-                    <span className="text-slate-800 text-xs font-semibold">{selectedPatient.alamat}</span>
+                    <span className="text-[#667085] block">Alamat Lengkap</span>
+                    <span className="text-[#213145] text-xs font-semibold">{selectedPatient.alamat}</span>
                   </div>
                 </div>
               </div>
@@ -1661,66 +1669,66 @@ export default React.memo(function DemografiKunjungan() {
               {/* History Timeline of Visits */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs uppercase tracking-wider text-teal-650 font-bold">Daftar Kunjungan All-Time</h4>
-                  <span className="px-2 py-0.5 rounded text-xs font-bold bg-teal-550 text-teal-750 border border-teal-150">
+                  <h4 className="text-xs uppercase tracking-wider text-[#213145] font-bold">Daftar Kunjungan All-Time</h4>
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#CCDCEF]/50 text-[#213145] border border-[#CCDCEF]">
                     {selectedPatient.total_visits} Kali
                   </span>
                 </div>
                 {patientHistory.some(h => h.tagihan != null) && (
-                  <div className="flex items-center justify-between text-xs font-semibold bg-teal-50 border border-teal-150 rounded-lg px-3 py-2">
-                    <span className="text-teal-700 flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5" />Total Tagihan</span>
-                    <span className="text-teal-800">{formatRupiah(patientHistory.reduce((a, h) => a + Number(h.tagihan || 0), 0))}</span>
+                  <div className="flex items-center justify-between text-xs font-semibold bg-[#CCDCEF]/30 border border-[#CCDCEF] rounded-xl px-4 py-2.5">
+                    <span className="text-[#213145] flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5" />Total Tagihan</span>
+                    <span className="text-[#213145] font-mono font-bold">{formatRupiah(patientHistory.reduce((a, h) => a + Number(h.tagihan || 0), 0))}</span>
                   </div>
                 )}
 
                 {historyLoading ? (
                   <div className="flex flex-col items-center justify-center py-10 bg-white">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
-                    <span className="text-xs text-slate-400 mt-2">Memuat riwayat...</span>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213145]"></div>
+                    <span className="text-xs text-[#667085] mt-2">Memuat riwayat...</span>
                   </div>
                 ) : patientHistory.length === 0 ? (
-                  <div className="py-12 text-center text-xs text-slate-550 font-medium">Belum ada catatan riwayat kunjungan pelayanan.</div>
+                  <div className="py-12 text-center text-xs text-[#667085] font-medium">Belum ada catatan riwayat kunjungan pelayanan.</div>
                 ) : (
-                  <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                  <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E5EEFF]">
                     {patientHistory.map((item, idx) => (
                       <div key={idx} className="relative pl-7 group">
                         {/* Timeline node */}
-                        <div className="absolute left-1.5 top-1.5 h-3 w-3 rounded-full bg-white border-2 border-teal-500 group-hover:bg-teal-500 transition-colors" />
+                        <div className="absolute left-1.5 top-1.5 h-3 w-3 rounded-full bg-white border-2 border-[#213145] group-hover:bg-[#213145] transition-colors" />
                         
-                        <div className="bg-slate-50 hover:bg-slate-100/70 transition-colors p-4 rounded-xl border border-slate-200/85 space-y-2">
+                        <div className="bg-[#F8F9FF] hover:bg-white hover:shadow-sm transition-all p-4 rounded-xl border border-[#E5EEFF] space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-mono font-medium text-slate-550 flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-slate-400" />
+                            <span className="text-xs font-mono font-medium text-[#667085] flex items-center gap-1">
+                              <Clock className="h-3 w-3 text-[#667085]" />
                               {formatTanggalIndo(item.tanggal_pelayanan)}
                             </span>
                             <span className={`text-xs font-medium px-2 py-0.5 rounded border ${
-                              item.tipe === 'Rawat Jalan' ? 'bg-teal-50 text-teal-700 border-teal-150' :
-                              item.tipe === 'IGD' ? 'bg-amber-50 text-amber-700 border-amber-150' :
-                              'bg-indigo-50 text-indigo-700 border-indigo-150'
+                              item.tipe === 'Rawat Jalan' ? 'bg-[#CCDCEF]/40 text-[#213145] border-[#CCDCEF]' :
+                              item.tipe === 'IGD' ? 'bg-[#FF8574]/20 text-[#222526] border-[#FF8574]/40' :
+                              'bg-[#213145] text-white border-[#213145]'
                             }`}>
                               {item.tipe}
                             </span>
                           </div>
 
                           <div className="text-xs font-medium">
-                            <span className="text-slate-400 block">DPJP / Dokter Pelaksana</span>
-                            <span className="text-slate-700 font-semibold">{item.dpjp}</span>
+                            <span className="text-[#667085] block">DPJP / Dokter Pelaksana</span>
+                            <span className="text-[#213145] font-semibold">{item.dpjp}</span>
                           </div>
 
-                          <div className="text-xs font-medium bg-white p-2 rounded-lg border border-slate-200/70">
-                            <span className="text-slate-400 block">Diagnosa ICD-10</span>
-                            <span className="text-slate-600 font-mono font-medium">{item.icd}</span>
+                          <div className="text-xs font-medium bg-white p-2.5 rounded-lg border border-[#E5EEFF]">
+                            <span className="text-[#667085] block">Diagnosa ICD-10</span>
+                            <span className="text-[#213145] font-mono font-medium">{item.icd}</span>
                           </div>
 
                           {item.tagihan != null && (
-                            <div className="text-xs font-medium bg-white p-2 rounded-lg border border-teal-150">
+                            <div className="text-xs font-medium bg-white p-2.5 rounded-lg border border-[#CCDCEF]">
                               <div className="flex items-center justify-between">
-                                <span className="text-slate-400">Tagihan</span>
-                                <span className="text-teal-700 font-bold">{formatRupiah(item.tagihan)}</span>
+                                <span className="text-[#667085]">Tagihan</span>
+                                <span className="text-[#213145] font-bold font-mono">{formatRupiah(item.tagihan)}</span>
                               </div>
                               <details className="mt-1">
-                                <summary className="cursor-pointer text-slate-400">Rincian</summary>
-                                <div className="mt-1 space-y-0.5 text-slate-600">
+                                <summary className="cursor-pointer text-[#667085]">Rincian</summary>
+                                <div className="mt-1 space-y-0.5 text-[#222526]">
                                   {([['tarif_pendaftaran', 'Pendaftaran'], ['kartu_pasien', 'Kartu Pasien'], ['konsultasi', 'Konsultasi'], ['tindakan', 'Tindakan'], ['penunjang', 'Penunjang'], ['farmasi', 'Farmasi'], ['bhp', 'BHP'], ['lain_lain', 'Lain-lain'], ['potongan', 'Potongan']] as const)
                                     .filter(([k]) => Number(item[k]) > 0)
                                     .map(([k, label]) => (
@@ -1756,7 +1764,7 @@ export default React.memo(function DemografiKunjungan() {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={closeImportTagihan}
-              className="fixed inset-0 bg-slate-900 z-[100]"
+              className="fixed inset-0 bg-[#0B1C30]/42 backdrop-blur-xs z-[100]"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
@@ -1764,13 +1772,13 @@ export default React.memo(function DemografiKunjungan() {
               exit={{ opacity: 0, scale: 0.97 }}
               className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none"
             >
-              <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col pointer-events-auto">
-                <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div className="bg-white rounded-2xl shadow-[0_24px_64px_rgba(11,28,48,0.20)] border border-[#E5EEFF] w-full max-w-4xl max-h-[90vh] flex flex-col pointer-events-auto">
+                <div className="flex items-center justify-between p-5 border-b border-[#E5EEFF] bg-[#F8F9FF]/60 rounded-t-2xl">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">Import Tagihan per Registrasi</h3>
-                    <p className="text-xs text-slate-400">Tempel data (tab-separated) dari sistem billing. Registrasi yang sama akan ditimpa.</p>
+                    <h3 className="text-sm font-bold text-[#213145]">Import Tagihan per Registrasi</h3>
+                    <p className="text-xs text-[#667085]">Tempel data (tab-separated) dari sistem billing. Registrasi yang sama akan ditimpa.</p>
                   </div>
-                  <button onClick={closeImportTagihan} className="p-1.5 rounded-lg hover:bg-slate-100 cursor-pointer"><X className="h-4 w-4" /></button>
+                  <button onClick={closeImportTagihan} className="p-1.5 rounded-lg hover:bg-white text-[#667085] hover:text-[#213145] border border-transparent hover:border-[#CCDCEF] cursor-pointer"><X className="h-4 w-4" /></button>
                 </div>
 
                 <div className="p-5 space-y-4 overflow-y-auto">
@@ -1779,36 +1787,36 @@ export default React.memo(function DemografiKunjungan() {
                       value={tagihanText}
                       onChange={(e) => setTagihanText(e.target.value)}
                       placeholder="Tempel data di sini, termasuk baris header (NO, NO REGISTRASI, PASIEN, ...)"
-                      className="w-full h-64 p-3 text-xs font-mono rounded-xl border border-slate-200 focus:ring-1 focus:ring-teal-500 outline-none"
+                      className="w-full h-64 p-3 text-xs font-mono rounded-xl border border-[#CCDCEF] focus:border-[#213145] focus:ring-2 focus:ring-[#CCDCEF]/50 outline-none text-[#222526] bg-white"
                     />
                   ) : (
                     <>
-                      <div className="flex flex-wrap gap-3 text-xs font-semibold">
-                        <span className="px-2 py-1 rounded bg-teal-50 text-teal-700">{tagihanPreview.filter(r => !r.error).length} baris valid</span>
-                        <span className="px-2 py-1 rounded bg-rose-50 text-rose-700">{tagihanPreview.filter(r => r.error).length} baris error (dilewati)</span>
-                        <span className="px-2 py-1 rounded bg-slate-100 text-slate-700">
+                      <div className="flex flex-wrap gap-2.5 text-xs font-semibold">
+                        <span className="px-2.5 py-1 rounded-lg bg-[#CCDCEF]/60 text-[#213145] border border-[#CCDCEF]">{tagihanPreview.filter(r => !r.error).length} baris valid</span>
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FF8574] text-[#222526] font-semibold">{tagihanPreview.filter(r => r.error).length} baris error (dilewati)</span>
+                        <span className="px-2.5 py-1 rounded-lg bg-[#213145] text-white">
                           Total {formatRupiah(tagihanPreview.filter(r => !r.error).reduce((a, r) => a + r.tagihan, 0))}
                         </span>
                       </div>
-                      <div className="overflow-x-auto border border-slate-100 rounded-xl">
-                        <table className="w-full text-xs">
-                          <thead className="bg-slate-50 text-slate-500 text-left">
+                      <div className="overflow-x-auto border border-[#E5EEFF] rounded-xl">
+                        <table className="si-table w-full text-xs">
+                          <thead>
                             <tr>
-                              <th className="p-2">No. Registrasi</th>
-                              <th className="p-2">Pasien</th>
-                              <th className="p-2">Unit</th>
-                              <th className="p-2 text-right">Tagihan</th>
-                              <th className="p-2">Status</th>
+                              <th className="p-2.5">No. Registrasi</th>
+                              <th className="p-2.5">Pasien</th>
+                              <th className="p-2.5">Unit</th>
+                              <th className="p-2.5 text-right">Tagihan</th>
+                              <th className="p-2.5">Status</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody className="divide-y divide-[#E5EEFF]">
                             {tagihanPreview.map((r, i) => (
-                              <tr key={i} className={`border-t border-slate-100 ${r.error ? 'bg-rose-50/60' : ''}`}>
-                                <td className="p-2 font-mono">{r.no_registrasi || '-'}</td>
-                                <td className="p-2">{r.nama_pasien}</td>
-                                <td className="p-2">{r.unit}</td>
-                                <td className="p-2 text-right font-semibold">{r.error ? '-' : formatRupiah(r.tagihan)}</td>
-                                <td className={`p-2 ${r.error ? 'text-rose-600' : 'text-teal-600'}`}>{r.error || 'OK'}</td>
+                              <tr key={i} className={`hover:bg-[#F8F9FF] ${r.error ? 'bg-[#FF8574]/15' : ''}`}>
+                                <td className="p-2.5 font-mono text-[#667085]">{r.no_registrasi || '-'}</td>
+                                <td className="p-2.5 font-medium text-[#213145]">{r.nama_pasien}</td>
+                                <td className="p-2.5 text-[#667085]">{r.unit}</td>
+                                <td className="p-2.5 text-right font-semibold font-mono text-[#213145]">{r.error ? '-' : formatRupiah(r.tagihan)}</td>
+                                <td className={`p-2.5 font-semibold ${r.error ? 'text-[#D94E3B]' : 'text-[#213145]'}`}>{r.error || 'OK'}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1818,22 +1826,22 @@ export default React.memo(function DemografiKunjungan() {
                   )}
                 </div>
 
-                <div className="flex justify-end gap-2 p-5 border-t border-slate-100">
+                <div className="flex justify-end gap-2.5 p-5 border-t border-[#E5EEFF] bg-[#F8F9FF]/40 rounded-b-2xl">
                   {tagihanPreview === null ? (
                     <button
                       disabled={!tagihanText.trim()}
                       onClick={() => setTagihanPreview(parseTagihanText(tagihanText))}
-                      className="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 cursor-pointer"
+                      className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#213145] text-white hover:bg-[#122030] disabled:opacity-50 cursor-pointer shadow-xs"
                     >
                       Preview
                     </button>
                   ) : (
                     <>
-                      <button onClick={() => setTagihanPreview(null)} className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">Kembali</button>
+                      <button onClick={() => setTagihanPreview(null)} className="px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-[#CCDCEF] text-[#222526] hover:bg-[#F8F9FF] cursor-pointer">Kembali</button>
                       <button
                         disabled={tagihanSaving || tagihanPreview.every(r => r.error)}
                         onClick={handleSaveTagihan}
-                        className="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 cursor-pointer"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#213145] text-white hover:bg-[#122030] disabled:opacity-50 cursor-pointer shadow-xs"
                       >
                         {tagihanSaving ? 'Menyimpan...' : 'Simpan'}
                       </button>
@@ -1859,7 +1867,7 @@ export default React.memo(function DemografiKunjungan() {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowWaModal({ isOpen: false, patient: null, isBroadcast: false })}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[19999] pointer-events-auto"
+              className="fixed inset-0 bg-[#0B1C30]/42 backdrop-blur-xs z-[19999] pointer-events-auto"
             />
             
             {/* Modal Body */}
@@ -1867,18 +1875,18 @@ export default React.memo(function DemografiKunjungan() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed inset-0 m-auto max-w-lg h-fit bg-white rounded-2xl shadow-2xl z-[20000] border border-slate-200 flex flex-col p-6 space-y-4 pointer-events-auto"
+              className="fixed inset-0 m-auto max-w-lg h-fit bg-white rounded-2xl shadow-[0_24px_64px_rgba(11,28,48,0.20)] z-[20000] border border-[#E5EEFF] flex flex-col p-6 space-y-4 pointer-events-auto"
             >
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center space-x-2 text-slate-850">
-                  <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+              <div className="flex items-center justify-between border-b border-[#E5EEFF] pb-3">
+                <div className="flex items-center space-x-2.5 text-[#213145]">
+                  <div className="p-2 bg-[#CCDCEF]/60 text-[#213145] rounded-xl border border-[#CCDCEF]">
                     <Send className="h-4 w-4" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider font-display">
+                    <h3 className="text-xs font-bold uppercase tracking-wider font-display text-[#213145]">
                       {showWaModal.isBroadcast ? 'Broadcast WhatsApp Pasien Loyal' : 'Kirim WhatsApp Pasien'}
                     </h3>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[#667085]">
                       {showWaModal.isBroadcast 
                         ? `Akan dikirim ke ${selectedRegisteredLoyal.length} pasien secara berurutan.`
                         : `Kirim ke: ${showWaModal.patient?.pasien_nama} (${showWaModal.patient?.no_telp || '-'})`
@@ -1888,7 +1896,7 @@ export default React.memo(function DemografiKunjungan() {
                 </div>
                 <button
                   onClick={() => setShowWaModal({ isOpen: false, patient: null, isBroadcast: false })}
-                  className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                  className="p-1 rounded-lg hover:bg-[#F8F9FF] text-[#667085] hover:text-[#213145] transition-colors cursor-pointer"
                   style={{ minHeight: '36px', minWidth: '36px' }}
                 >
                   <X className="h-5 w-5" />
@@ -1896,17 +1904,17 @@ export default React.memo(function DemografiKunjungan() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs uppercase tracking-wider text-slate-450 font-bold block">Pesan WhatsApp</label>
+                <label className="text-xs uppercase tracking-wider text-[#667085] font-bold block">Pesan WhatsApp</label>
                 <textarea
                   value={waMessage}
                   onChange={(e) => setWaMessage(e.target.value)}
                   rows={6}
-                  className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:ring-1 focus:ring-emerald-550 focus:border-emerald-550 outline-none bg-slate-50 text-slate-800 font-medium font-sans"
+                  className="w-full text-xs p-3 rounded-xl border border-[#CCDCEF] focus:border-[#213145] focus:ring-2 focus:ring-[#CCDCEF]/50 outline-none bg-white text-[#222526] font-medium font-sans"
                   placeholder="Tulis pesan Anda di sini..."
                 />
                 {showWaModal.isBroadcast && (
-                  <p className="text-xs text-slate-400">
-                    <span className="font-semibold text-teal-600">Info:</span> Gunakan tag <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-teal-700">[Nama]</code> untuk menyisipkan nama masing-masing pasien secara dinamis saat broadcast.
+                  <p className="text-xs text-[#667085]">
+                    <span className="font-semibold text-[#213145]">Info:</span> Gunakan tag <code className="bg-[#CCDCEF]/30 px-1 py-0.5 rounded font-mono text-[#213145] border border-[#CCDCEF]">[Nama]</code> untuk menyisipkan nama masing-masing pasien secara dinamis saat broadcast.
                   </p>
                 )}
               </div>
@@ -1915,7 +1923,7 @@ export default React.memo(function DemografiKunjungan() {
                 <button
                   type="button"
                   onClick={() => setShowWaModal({ isOpen: false, patient: null, isBroadcast: false })}
-                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-[#222526] bg-white border border-[#CCDCEF] hover:bg-[#F8F9FF] rounded-xl transition-all cursor-pointer"
                 >
                   Batal
                 </button>
@@ -1923,7 +1931,7 @@ export default React.memo(function DemografiKunjungan() {
                   type="button"
                   disabled={waSending}
                   onClick={handleSendWa}
-                  className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl transition-all cursor-pointer flex items-center gap-1 shadow-sm"
+                  className="px-4 py-2 text-xs font-semibold text-white bg-[#213145] hover:bg-[#122030] disabled:bg-[#CCDCEF] disabled:cursor-not-allowed rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
                 >
                   {waSending ? (
                     <>
@@ -1956,7 +1964,7 @@ export default React.memo(function DemografiKunjungan() {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowHistoryModal({ isOpen: false, patient: null })}
-              className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[19999] pointer-events-auto"
+              className="fixed inset-0 bg-[#0B1C30]/42 backdrop-blur-xs z-[19999] pointer-events-auto"
             />
             
             {/* Drawer Container */}
@@ -1965,22 +1973,22 @@ export default React.memo(function DemografiKunjungan() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-slate-800 shadow-2xl z-[20000] border-l border-slate-200 flex flex-col pointer-events-auto"
+              className="fixed right-0 top-0 bottom-0 w-full md:max-w-md bg-white text-[#222526] shadow-2xl z-[20000] border-l border-[#E5EEFF] flex flex-col pointer-events-auto"
             >
               {/* Header */}
-              <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div className="p-6 border-b border-[#E5EEFF] bg-[#F8F9FF] flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600">
+                  <div className="h-10 w-10 rounded-full bg-[#CCDCEF]/60 border border-[#CCDCEF] flex items-center justify-center font-bold text-[#213145]">
                     <History className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-slate-900 font-display uppercase tracking-wider">Riwayat WhatsApp Pasien</h3>
-                    <span className="text-xs text-indigo-600 font-mono">Pasien: {showHistoryModal.patient?.pasien_nama || showHistoryModal.patient?.nama}</span>
+                    <h3 className="text-xs font-bold text-[#213145] font-display uppercase tracking-wider">Riwayat WhatsApp Pasien</h3>
+                    <span className="text-xs text-[#213145] font-mono font-medium">Pasien: {showHistoryModal.patient?.pasien_nama || showHistoryModal.patient?.nama}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowHistoryModal({ isOpen: false, patient: null })}
-                  className="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 cursor-pointer"
+                  className="p-1.5 rounded-lg bg-white border border-[#CCDCEF] text-[#667085] hover:text-[#213145] hover:bg-[#F8F9FF] cursor-pointer"
                   style={{ minHeight: '36px', minWidth: '36px' }}
                 >
                   <X className="h-5 w-5" />
@@ -1991,39 +1999,39 @@ export default React.memo(function DemografiKunjungan() {
               <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white">
                 {waHistoryLoading ? (
                   <div className="flex flex-col items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-                    <span className="text-xs text-slate-400 mt-2 block">Memuat riwayat pesan...</span>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#213145]"></div>
+                    <span className="text-xs text-[#667085] mt-2 block">Memuat riwayat pesan...</span>
                   </div>
                 ) : waHistory.length === 0 ? (
-                  <div className="py-12 text-center text-xs text-slate-400 font-medium">Belum ada riwayat pesan WhatsApp yang terekam untuk pasien ini.</div>
+                  <div className="py-12 text-center text-xs text-[#667085] font-medium">Belum ada riwayat pesan WhatsApp yang terekam untuk pasien ini.</div>
                 ) : (
-                  <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+                  <div className="space-y-4 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#E5EEFF]">
                     {waHistory.map((item, idx) => (
                       <div key={idx} className="relative pl-7 group">
                         {/* Timeline node */}
-                        <div className={`absolute left-1.5 top-1.5 h-3 w-3 rounded-full bg-white border-2 ${item.status === 'success' ? 'border-emerald-500' : 'border-rose-500'}`} />
+                        <div className={`absolute left-1.5 top-1.5 h-3 w-3 rounded-full bg-white border-2 ${item.status === 'success' ? 'border-[#213145]' : 'border-[#FF8574]'}`} />
                         
-                        <div className="bg-slate-50 hover:bg-slate-100/70 transition-colors p-4 rounded-xl border border-slate-200/85 space-y-2">
+                        <div className="bg-[#F8F9FF] hover:bg-white hover:shadow-xs transition-all p-4 rounded-xl border border-[#E5EEFF] space-y-2">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-mono font-medium text-slate-550 flex items-center gap-1">
-                              <Clock className="h-3 w-3 text-slate-400" />
+                            <span className="text-xs font-mono font-medium text-[#667085] flex items-center gap-1">
+                              <Clock className="h-3 w-3 text-[#667085]" />
                               {new Date(item.sent_at).toLocaleString('id-ID')}
                             </span>
                             <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
                               item.status === 'success' 
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-150' 
-                                : 'bg-rose-50 text-rose-700 border-rose-150'
+                                ? 'bg-[#CCDCEF]/60 text-[#213145] border-[#CCDCEF]' 
+                                : 'bg-[#FF8574] text-[#222526] border-[#FF8574]'
                             }`}>
                               {item.status === 'success' ? 'Terkirim' : 'Gagal'}
                             </span>
                           </div>
 
-                          <div className="text-xs font-medium text-slate-700 whitespace-pre-wrap bg-white p-3 rounded-lg border border-slate-200/75">
+                          <div className="text-xs font-medium text-[#222526] whitespace-pre-wrap bg-white p-3 rounded-lg border border-[#E5EEFF]">
                             {item.message}
                           </div>
 
-                          <div className="text-xs text-slate-400 font-medium text-right">
-                            Dikirim oleh: <span className="font-semibold text-slate-600">{item.sender_username || 'System'}</span>
+                          <div className="text-xs text-[#667085] font-medium text-right">
+                            Dikirim oleh: <span className="font-semibold text-[#213145]">{item.sender_username || 'System'}</span>
                           </div>
                         </div>
                       </div>

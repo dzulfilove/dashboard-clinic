@@ -4,22 +4,20 @@ import { useAuthStore } from '../../store/authStore.js';
 import { 
   TrendingUp, 
   Calendar, 
-  RefreshCw, 
   AlertTriangle, 
-  CheckCircle,
-  TrendingDown,
-  ChevronRight,
-  Info,
-  Search,
+  CheckCircle, 
+  Info, 
+  Search, 
   ArrowUpDown,
-  Filter
+  Package,
+  Layers
 } from 'lucide-react';
 import api from '../../services/api.js';
 import { ForecastResult } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
 
 export default React.memo(function Forecasting() {
-  const { user } = useAuthStore();
+  useAuthStore();
   const [loading, setLoading] = useState(true);
   const [isVisualizing, setIsVisualizing] = useState(true);
   const [forecasts, setForecasts] = useState<ForecastResult[]>([]);
@@ -27,8 +25,8 @@ export default React.memo(function Forecasting() {
 
   // Month-Year defaults for projected target period
   const d = new Date();
-  const [projMonth, setProjMonth] = useState(d.getMonth() + 1); // Defaults to current month
-  const [projYear, setProjYear] = useState(2026); // Default seed year
+  const [projMonth, setProjMonth] = useState(d.getMonth() + 1);
+  const [projYear, setProjYear] = useState(2026);
 
   // Filters & Sorting state
   const [search, setSearch] = useState('');
@@ -61,7 +59,7 @@ export default React.memo(function Forecasting() {
       setForecasts(res.data);
     } catch (err: any) {
       console.error(err);
-      setFeedback('Gagal mendaftar data peramalan: ' + (err.response?.data?.message || err.message));
+      setFeedback('Gagal memuat data peramalan: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -75,60 +73,52 @@ export default React.memo(function Forecasting() {
     setIsVisualizing(true);
     const timer = setTimeout(() => {
       setIsVisualizing(false);
-    }, 500);
+    }, 350);
     return () => clearTimeout(timer);
   }, [projMonth, projYear, statusFilter, kelasFilter, sortBy]);
 
-  // Calculations for total statistics
-  const criticalItemsCount = forecasts.filter(f => f.status_stok === 'Kritis (Perlu Order)').length;
-
-  // Prior month helpers (M-1, M-2, M-3)
-  const getPrevMonthLabel = (offset: number) => {
-    let b = projMonth - offset;
-    let t = projYear;
-    if (b <= 0) {
-      b += 12;
-      t--;
-    }
-    return `${months.find(m => m.value === b)?.name.substring(0, 3)} ${t}`;
-  };
+  // Calculations
+  const criticalItemsCount = forecasts.filter(f => (f.qty_order ?? 0) > 0).length;
 
   return (
-    <div className="space-y-6">
-      {/* Upper header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 font-sans pb-10 text-[#0B1C30]">
+      {/* 1. Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-[#E5EEFF] gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-teal-600" />
-            <span>Sistem Peramalan Logistik Farmasi (Forecasting)</span>
+          <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase">
+            LOGISTIK FARMASI &amp; APOTEK
+          </span>
+          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] tracking-tight font-display mt-0.5 flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-[#213145]" />
+            <span>Peramalan Kebutuhan Obat (Forecasting)</span>
           </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Proyeksi kebutuhan obat berbasis algoritma <strong>Moving Average (3 Bulan)</strong> dan penentuan Tingkat Reorder Point (ROP).
+          <p className="text-xs text-[#516070] mt-1 font-normal">
+            Proyeksi kebutuhan obat berbasis algoritma <strong>Moving Average (3 Bulan)</strong> dan penentuan Safety Stock &amp; Reorder Point (ROP).
           </p>
         </div>
 
-        {/* Proyektif period selector */}
-        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-100/80 rounded-2xl shadow-sm">
-          <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
-          <span className="text-xs font-semibold text-slate-500">Proyeksi Target:</span>
+        {/* Period Selector (Slate & Ice soft button pill) */}
+        <div className="flex items-center space-x-2 bg-white px-3.5 py-2 border border-[#E5EEFF] rounded-2xl shadow-sm self-start md:self-auto">
+          <Calendar className="h-4 w-4 text-[#213145] flex-shrink-0" />
+          <span className="text-xs font-semibold text-[#516070]">Target:</span>
           <SearchableSelect 
             id="proj-month-select"
             value={projMonth} 
             onChange={(e) => setProjMonth(Number(e.target.value))}
-            className="text-sm font-semibold bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
-            style={{ minHeight: '44px' }}
+            className="text-xs font-bold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+            style={{ minHeight: '36px' }}
           >
             {months.map(m => (
               <option key={m.value} value={m.value}>{m.name}</option>
             ))}
           </SearchableSelect>
-          <span className="text-slate-300">|</span>
+          <span className="text-[#CCDCEF]">|</span>
           <SearchableSelect 
             id="proj-year-select"
             value={projYear} 
             onChange={(e) => setProjYear(Number(e.target.value))}
-            className="text-sm font-semibold bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
-            style={{ minHeight: '44px' }}
+            className="text-xs font-bold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+            style={{ minHeight: '36px' }}
           >
             {years.map(y => (
               <option key={y} value={y}>{y}</option>
@@ -138,121 +128,134 @@ export default React.memo(function Forecasting() {
       </div>
 
       {feedback && (
-        <div id="forecast-error-alert" className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl flex items-center space-x-2 text-sm font-semibold">
-          <AlertTriangle className="h-5 w-5 text-rose-600" />
+        <div className="p-4 bg-[#FEF2F2] border border-[#EF4444]/30 text-[#B91C1C] rounded-xl flex items-center space-x-2 text-xs font-semibold">
+          <AlertTriangle className="h-4.5 w-4.5 text-[#EF4444]" />
           <span>{feedback}</span>
         </div>
       )}
 
-      {/* Forecasting Explanation Banner */}
-      <div className="bg-slate-50/50 border border-slate-100 rounded-2xl p-4.5 flex gap-3 text-xs leading-relaxed text-slate-500 shadow-sm anim-fade-up">
-        <Info className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
-        <div>
-          <span className="font-bold text-slate-800 block mb-1">Rumus Perhitungan Peramalan Logistik & Kebutuhan Order:</span>
-          <p className="mt-0.5">
-            1. <strong>Rata-rata Pemakaian</strong> dihitung dari pemakaian 3 bulan sebelumnya: <strong className="text-slate-700 font-mono">Pemakaian 3 Bulan ÷ 3</strong>.
+      {/* 2. Calculation Formula Callout (.si-alert--info) */}
+      <div className="bg-[#EFF4FF] border border-[#CCDCEF] rounded-2xl p-4 flex gap-3 text-xs leading-relaxed text-[#516070]">
+        <Info className="h-4.5 w-4.5 text-[#213145] flex-shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <span className="font-bold text-[#0B1C30] block">Rumus Perhitungan Peramalan Logistik &amp; Kebutuhan Order:</span>
+          <p>
+            1. <strong>Rata-rata Pemakaian:</strong> Pemakaian 3 bulan terakhir dibagi 3 (<code className="font-mono text-[#213145] font-semibold">Pemakaian ÷ 3</code>).
           </p>
-          <p className="mt-1">
-            2. <strong>Safety Stock (Stok Pengaman)</strong> dihitung untuk mencegah kekosongan obat: <strong className="text-slate-700 font-mono">Rata-rata Pemakaian × 2</strong>.
+          <p>
+            2. <strong>Safety Stock (Stok Pengaman):</strong> Dihitung untuk mencegah kekosongan (<code className="font-mono text-[#213145] font-semibold">Rata-rata × 2</code>).
           </p>
-          <p className="mt-1">
-            3. <strong>Forecast Bulan 1-3</strong> diasumsikan bernilai konstan: <strong className="text-slate-700 font-mono">Rata-rata Pemakaian</strong>.
+          <p>
+            3. <strong>Total Kebutuhan:</strong> Proyeksi kebutuhan periode depan (<code className="font-mono text-[#213145] font-semibold">Forecast Bulan 1 + 2 + 3</code>).
           </p>
-          <p className="mt-1">
-            4. <strong>Total Kebutuhan</strong> diproyeksikan untuk periode ke depan: <strong className="text-slate-700 font-mono">Forecast Bulan 1 + Forecast Bulan 2 + Forecast Bulan 3</strong>.
-          </p>
-          <p className="mt-1">
-            5. <strong>Qty Order (Rencana Order)</strong> adalah kuantiti obat yang perlu dipesan kembali: <strong className="text-teal-700 font-mono">Total Kebutuhan + Safety Stock − Stok Akhir</strong>.
+          <p>
+            4. <strong>Qty Order (Rencana Order):</strong> Kuantitas yang harus dipesan (<code className="font-mono text-[#213145] font-semibold">Total Kebutuhan + Safety Stock − Stok Akhir</code>).
           </p>
         </div>
       </div>
 
       {loading || isVisualizing ? (
-        <AnalyticLoader message="Mengkalkulasi moving average & menganalisis safety stocks..." />
+        <AnalyticLoader message="Mengkalkulasi moving average & menganalisis safety stock..." />
       ) : (
-        <div className="space-y-4">
-          
-          {/* Quick Stats overview panel */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div 
-               className={`p-5 rounded-3xl border flex items-center space-x-4 bg-gradient-to-br backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] anim-fade-up anim-delay-1 ${criticalItemsCount > 0 ? 'from-rose-800/80 to-rose-700/80 border-rose-400/40 ring-2 ring-rose-500/20' : 'from-emerald-800/80 to-teal-700/80 border-white/20'} transition-transform duration-200 hover:-translate-y-1`}
-            >
-              <div className={`p-4 rounded-2xl ${criticalItemsCount > 0 ? 'bg-rose-500/20 text-rose-200' : 'bg-emerald-500/20 text-emerald-200'}`}>
-                <AlertTriangle className="h-6 w-6" />
+        <div className="space-y-5">
+          {/* 3. Quick KPI Cards (.si-card) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Card 1: Critical Order Alerts */}
+            <div className="si-card bg-white rounded-2xl p-5 shadow-[0_6px_24px_rgba(33,49,69,0.06)] flex items-center justify-between border border-[#E5EEFF]">
+              <div className="flex items-center space-x-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${criticalItemsCount > 0 ? 'bg-[#FFE9E5] text-[#A13E32]' : 'bg-[#ECFDF5] text-[#047857]'}`}>
+                  <AlertTriangle className={`h-6 w-6 ${criticalItemsCount > 0 ? 'text-[#FF8574]' : 'text-[#10B981]'}`} />
+                </div>
+                <div>
+                  <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase block">
+                    STATUS REORDER OBAT
+                  </span>
+                  <div className="flex items-baseline gap-2 mt-0.5">
+                    <span className={`si-metric text-2xl font-extrabold font-display tabular-nums ${criticalItemsCount > 0 ? 'text-[#A13E32]' : 'text-[#0B1C30]'}`}>
+                      {criticalItemsCount} Item
+                    </span>
+                    <span className="text-xs text-[#516070] font-medium">perlu pemesanan kembali (Qty Order &gt; 0)</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <span className="text-xs font-bold uppercase tracking-widest text-white/60 block">Kekurangan Stok Terdeteksi</span>
-                <span className={`text-sm font-semibold font-display block mt-1 ${criticalItemsCount > 0 ? 'text-white' : 'text-white/90'}`}>
-                  {criticalItemsCount} item obat perlu pemesanan kembali (Qty Order &gt; 0)
-                </span>
-              </div>
+              <span className={`si-tag ${criticalItemsCount > 0 ? 'si-tag--coral' : 'si-tag--success'}`}>
+                {criticalItemsCount > 0 ? 'Perlu Order' : 'Stok Terjaga'}
+              </span>
             </div>
 
-            <div 
-              className="p-5 bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-3xl flex items-center space-x-4 anim-fade-up anim-delay-2 transition-transform duration-200 hover:-translate-y-1"
-            >
-              <div className="p-4 bg-teal-500/20 text-teal-200 rounded-2xl">
-                <CheckCircle className="h-6 w-6" />
+            {/* Card 2: Total Items */}
+            <div className="si-card bg-white rounded-2xl p-5 shadow-[0_6px_24px_rgba(33,49,69,0.06)] flex items-center justify-between border border-[#E5EEFF]">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#E5EEFF] text-[#213145] flex items-center justify-center shrink-0">
+                  <Package className="h-6 w-6 text-[#213145]" />
+                </div>
+                <div>
+                  <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase block">
+                    TOTAL KATALOG AKTIF
+                  </span>
+                  <div className="flex items-baseline gap-2 mt-0.5">
+                    <span className="si-metric text-2xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                      {forecasts.length} Item
+                    </span>
+                    <span className="text-xs text-[#516070] font-medium">terdata dalam simulasi logistik</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <span className="text-xs font-bold uppercase tracking-widest text-white/60 block">Total Obat Diproyeksikan</span>
-                <span className="text-sm font-semibold font-display text-white block mt-1">
-                  {forecasts.length} item aktif
-                </span>
-              </div>
+              <span className="si-tag si-tag--navy">
+                Aktif
+              </span>
             </div>
           </div>
 
-          {/* Filters & Sorting Control Panel */}
-          <div className="glass-card p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 anim-fade-up anim-delay-3">
-            
+          {/* 4. Filter & Search Panel (.si-card) */}
+          <div className="si-card bg-white rounded-2xl p-4.5 shadow-[0_6px_24px_rgba(33,49,69,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#E5EEFF]">
             {/* Search Input */}
             <div className="relative flex-1 max-w-sm">
               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-slate-400" />
+                <Search className="h-4 w-4 text-[#74777C]" />
               </span>
               <input
                 type="text"
-                placeholder="Cari nama atau kode obat..."
+                placeholder="Cari kode atau nama obat..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full bg-slate-50 border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300"
+                className="pl-10 pr-4 py-2 w-full bg-[#EFF4FF] hover:bg-[#E5EEFF] focus:bg-white border border-transparent hover:border-[#D3E4FE] focus:border-[#213145] rounded-xl text-xs font-semibold text-[#0B1C30] placeholder-[#74777C] focus:outline-none focus:ring-3 focus:ring-[#CCDCEF] transition-all"
                 style={{ minHeight: '40px' }}
               />
             </div>
 
-            {/* Right side controls */}
-            <div className="flex flex-wrap items-center gap-3">
-              
-              {/* Status Filter */}
-              <div className="flex items-center space-x-1.5 bg-slate-50 p-1 rounded-xl border border-slate-100">
+            {/* Right Controls */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Segmented Status Filter */}
+              <div className="si-segment p-1 bg-[#EFF4FF] rounded-xl flex items-center gap-1">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-white text-slate-850 shadow-sm scale-[1.02]' : 'text-slate-500 hover:text-slate-800'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'all' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
                 >
                   Semua
                 </button>
                 <button
                   onClick={() => setStatusFilter('need_order')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'need_order' ? 'bg-rose-500 text-white shadow-sm scale-[1.02]' : 'text-slate-500 hover:text-rose-600'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'need_order' ? 'bg-[#FF8574] text-[#222526] shadow-xs' : 'text-[#516070] hover:text-[#FF8574]'}`}
                 >
                   Perlu Order
                 </button>
                 <button
                   onClick={() => setStatusFilter('safe')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'safe' ? 'bg-emerald-600 text-white shadow-sm scale-[1.02]' : 'text-slate-500 hover:text-emerald-600'}`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${statusFilter === 'safe' ? 'bg-[#10B981] text-white shadow-xs' : 'text-[#516070] hover:text-[#10B981]'}`}
                 >
                   Aman
                 </button>
               </div>
 
               {/* Class Filter */}
-              <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors shadow-xs">
-                <span className="text-xs font-bold text-slate-500">Kelas:</span>
+              <div className="flex items-center space-x-1.5 bg-[#EFF4FF] px-3 py-2 rounded-xl text-xs">
+                <Layers className="h-3.5 w-3.5 text-[#516070]" />
+                <span className="font-semibold text-[#516070]">Kelas:</span>
                 <select 
                   value={kelasFilter}
                   onChange={(e) => setKelasFilter(e.target.value as any)}
-                  className="bg-transparent border-none text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
+                  className="bg-transparent border-none text-xs font-bold text-[#0B1C30] focus:outline-none cursor-pointer"
                 >
                   <option value="ALL">Semua</option>
                   <option value="A">Kelas A</option>
@@ -262,12 +265,12 @@ export default React.memo(function Forecasting() {
               </div>
 
               {/* Sort Dropdown */}
-              <div className="flex items-center space-x-2 bg-slate-50 px-3 py-2 border border-slate-100 rounded-2xl hover:bg-slate-100/50 transition-colors shadow-xs">
-                <ArrowUpDown className="h-4 w-4 text-slate-500" />
+              <div className="flex items-center space-x-1.5 bg-[#EFF4FF] px-3 py-2 rounded-xl text-xs">
+                <ArrowUpDown className="h-3.5 w-3.5 text-[#516070]" />
                 <SearchableSelect
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-transparent border-none text-xs font-bold text-slate-700 focus:outline-none cursor-pointer"
+                  className="bg-transparent border-none text-xs font-bold text-[#0B1C30] focus:outline-none cursor-pointer"
                   style={{ minHeight: '24px' }}
                 >
                   <option value="nama_asc">Nama Obat (A-Z)</option>
@@ -278,29 +281,28 @@ export default React.memo(function Forecasting() {
                   <option value="pemakaian_desc">Pemakaian 3 Bln (Terbanyak)</option>
                 </SearchableSelect>
               </div>
-
             </div>
           </div>
 
-          {/* Forecasting data table */}
-          <div className="glass-card overflow-hidden anim-fade-up anim-delay-3">
+          {/* 5. Data Table (.si-table) */}
+          <div className="si-card bg-white rounded-2xl overflow-hidden shadow-[0_6px_24px_rgba(33,49,69,0.06)] border border-[#E5EEFF] p-0">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-100/70 text-left">
-                <thead className="bg-slate-50/50">
+              <table className="si-table">
+                <thead>
                   <tr>
-                    <th scope="col" className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Kode & Nama Obat</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Kelas ABC</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Pemakaian 3 Bln</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Rata-rata</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Safety Stock</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Forecast Bln 1-3</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Total Kebutuhan</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Stok Akhir</th>
-                    <th scope="col" className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-500 bg-teal-50/30">Qty Order</th>
-                    <th scope="col" className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
+                    <th>KODE &amp; NAMA OBAT</th>
+                    <th className="text-center">KELAS ABC</th>
+                    <th className="text-center">PEMAKAIAN 3 BLN</th>
+                    <th className="text-center">RATA-RATA</th>
+                    <th className="text-center">SAFETY STOCK</th>
+                    <th className="text-center">FORECAST 1-3</th>
+                    <th className="text-center">TOTAL KEBUTUHAN</th>
+                    <th className="text-center">STOK AKHIR</th>
+                    <th className="text-center bg-[#CCDCEF]/30 text-[#213145]">QTY ORDER</th>
+                    <th className="text-right">STATUS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100/70 text-slate-600 text-xs font-normal">
+                <tbody className="divide-y divide-[#E5EEFF] text-xs">
                   {forecasts
                     .filter((f) => {
                       const matchesSearch = 
@@ -315,111 +317,92 @@ export default React.memo(function Forecasting() {
                       return matchesSearch && matchesStatus && matchesKelas;
                     })
                     .sort((a, b) => {
-                      if (sortBy === 'nama_asc') {
-                        return a.nama_obat.localeCompare(b.nama_obat);
-                      }
-                      if (sortBy === 'nama_desc') {
-                        return b.nama_obat.localeCompare(a.nama_obat);
-                      }
-                      if (sortBy === 'qty_order_desc') {
-                        return (b.qty_order ?? 0) - (a.qty_order ?? 0);
-                      }
-                      if (sortBy === 'stok_akhir_asc') {
-                        const stockA = a.stok_akhir ?? a.current_stock ?? 0;
-                        const stockB = b.stok_akhir ?? b.current_stock ?? 0;
-                        return stockA - stockB;
-                      }
-                      if (sortBy === 'stok_akhir_desc') {
-                        const stockA = a.stok_akhir ?? a.current_stock ?? 0;
-                        const stockB = b.stok_akhir ?? b.current_stock ?? 0;
-                        return stockB - stockA;
-                      }
-                      if (sortBy === 'pemakaian_desc') {
-                        return (b.pemakaian_3_bulan ?? 0) - (a.pemakaian_3_bulan ?? 0);
-                      }
+                      if (sortBy === 'nama_asc') return a.nama_obat.localeCompare(b.nama_obat);
+                      if (sortBy === 'nama_desc') return b.nama_obat.localeCompare(a.nama_obat);
+                      if (sortBy === 'qty_order_desc') return (b.qty_order ?? 0) - (a.qty_order ?? 0);
+                      if (sortBy === 'stok_akhir_asc') return (a.stok_akhir ?? a.current_stock ?? 0) - (b.stok_akhir ?? b.current_stock ?? 0);
+                      if (sortBy === 'stok_akhir_desc') return (b.stok_akhir ?? b.current_stock ?? 0) - (a.stok_akhir ?? a.current_stock ?? 0);
+                      if (sortBy === 'pemakaian_desc') return (b.pemakaian_3_bulan ?? 0) - (a.pemakaian_3_bulan ?? 0);
                       return 0;
                     })
-                    .map((f, index) => (
-                      <tr key={f.id} className="hover:bg-slate-50/70 transition-colors anim-fade-up" style={{ animationDelay: `${0.3 + (index * 0.05)}s` }}>
-                        <td className="px-6 py-3.5">
-                          <div className="text-xs">
-                            <span className="font-mono text-xs font-bold text-teal-600 bg-teal-50 border border-teal-100 px-1.5 py-0.5 rounded">
+                    .map((f) => {
+                      const isNeedOrder = (f.qty_order ?? 0) > 0;
+                      return (
+                        <tr key={f.id} className="hover:bg-[#F8F9FF] transition-colors">
+                          <td className="font-medium">
+                            <span className="font-mono font-bold text-[11px] text-[#213145] bg-[#CCDCEF]/60 px-1.5 py-0.5 rounded">
                               {f.kode_obat}
                             </span>
-                            <h4 className="font-bold text-slate-900 mt-1 text-xs">{f.nama_obat}</h4>
-                          </div>
-                        </td>
+                            <h4 className="font-bold text-[#0B1C30] mt-1 text-xs font-display">{f.nama_obat}</h4>
+                          </td>
 
-                        {/* Kelas ABC */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap">
-                          {f.kelas_abc ? (
-                            <span className={`inline-flex items-center justify-center font-semibold text-xs h-6 px-2.5 rounded-lg ${
-                              f.kelas_abc === 'A' 
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-150' 
-                                : f.kelas_abc === 'B' 
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-150' 
-                                  : 'bg-slate-50 text-slate-500 border border-slate-200/80'
-                            }`}>
-                              Kelas {f.kelas_abc}
+                          {/* Kelas ABC */}
+                          <td className="text-center">
+                            {f.kelas_abc ? (
+                              <span className={`inline-flex items-center justify-center font-bold text-[11px] h-5.5 px-2 rounded-md ${
+                                f.kelas_abc === 'A' 
+                                  ? 'bg-[#FFE9E5] text-[#A13E32]' 
+                                  : f.kelas_abc === 'B' 
+                                    ? 'bg-[#FFFBEB] text-[#92400E]' 
+                                    : 'bg-[#EFF4FF] text-[#516070]'
+                              }`}>
+                                Kelas {f.kelas_abc}
+                              </span>
+                            ) : (
+                              <span className="text-[#74777C]">-</span>
+                            )}
+                          </td>
+
+                          {/* Pemakaian 3 Bln */}
+                          <td className="text-center font-mono text-xs text-[#0B1C30]">
+                            {f.pemakaian_3_bulan ?? 0} <span className="text-[11px] text-[#74777C]">unit</span>
+                          </td>
+
+                          {/* Rata-rata */}
+                          <td className="text-center font-mono text-xs text-[#0B1C30] bg-[#EFF4FF]/40">
+                            {f.rata_rata ?? 0}
+                          </td>
+
+                          {/* Safety stock */}
+                          <td className="text-center font-mono text-xs text-[#516070]">
+                            {f.safety_stock ?? 0}
+                          </td>
+
+                          {/* Forecast Bulan 1-3 */}
+                          <td className="text-center font-mono text-xs text-[#516070]">
+                            <span className="inline-flex items-center space-x-1.5 bg-[#EFF4FF] px-2 py-0.5 rounded text-[11px]">
+                              <span className="font-bold text-[#0B1C30]">{f.forecast_bulan_1 ?? 0}</span>
+                              <span className="text-[#CCDCEF]">|</span>
+                              <span className="font-bold text-[#0B1C30]">{f.forecast_bulan_2 ?? 0}</span>
+                              <span className="text-[#CCDCEF]">|</span>
+                              <span className="font-bold text-[#0B1C30]">{f.forecast_bulan_3 ?? 0}</span>
                             </span>
-                          ) : (
-                            <span className="text-slate-300 font-bold">-</span>
-                          )}
-                        </td>
+                          </td>
 
-                        {/* Pemakaian 3 Bln */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700">
-                          {f.pemakaian_3_bulan ?? 0} <span className="text-xs font-normal text-slate-400">unit</span>
-                        </td>
+                          {/* Total Kebutuhan */}
+                          <td className="text-center font-mono font-bold text-xs text-[#0B1C30]">
+                            {f.total_kebutuhan ?? 0}
+                          </td>
 
-                        {/* Rata-rata */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-700 bg-slate-50/30 font-medium">
-                          {f.rata_rata ?? 0} <span className="text-xs font-normal text-slate-400">unit</span>
-                        </td>
+                          {/* Stok Akhir */}
+                          <td className="text-center font-mono font-medium text-xs text-[#516070]">
+                            {f.stok_akhir ?? f.current_stock ?? 0}
+                          </td>
 
-                        {/* Safety stock */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600 font-medium">
-                          {f.safety_stock ?? 0} <span className="text-xs font-normal text-slate-300">unit</span>
-                        </td>
+                          {/* Qty Order */}
+                          <td className="text-center font-mono font-bold text-xs bg-[#CCDCEF]/25 text-[#213145]">
+                            {f.qty_order ?? 0}
+                          </td>
 
-                        {/* Forecast Bulan 1-3 */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono text-xs text-slate-600">
-                          <span className="inline-flex items-center space-x-1.5 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 text-xs">
-                            <span className="font-bold text-slate-850">{f.forecast_bulan_1 ?? 0}</span>
-                            <span className="text-slate-300">|</span>
-                            <span className="font-bold text-slate-850">{f.forecast_bulan_2 ?? 0}</span>
-                            <span className="text-slate-300">|</span>
-                            <span className="font-bold text-slate-850">{f.forecast_bulan_3 ?? 0}</span>
-                          </span>
-                        </td>
-
-                        {/* Total Kebutuhan */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-xs text-slate-900 bg-slate-55/20">
-                          {f.total_kebutuhan ?? 0} <span className="text-xs font-normal text-slate-400">unit</span>
-                        </td>
-
-                        {/* Stok Akhir */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-medium text-xs text-purple-700 bg-purple-50/10">
-                          {f.stok_akhir ?? f.current_stock ?? 0} <span className="text-xs font-normal text-purple-400">unit</span>
-                        </td>
-
-                        {/* Qty Order */}
-                        <td className="px-4 py-3.5 text-center whitespace-nowrap font-mono font-bold text-xs text-teal-800 bg-teal-50/60 border-x border-teal-100">
-                          {f.qty_order ?? 0} <span className="text-xs font-normal text-teal-400">unit</span>
-                        </td>
-
-                        {/* Status */}
-                        <td className="px-6 py-3.5 text-right whitespace-nowrap">
-                          <span className={`inline-flex items-center space-x-1 text-xs font-medium px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                            (f.qty_order ?? 0) > 0
-                              ? 'bg-rose-100 text-rose-800 animate-pulse border border-rose-150'
-                              : 'bg-emerald-100 text-emerald-800 border border-emerald-150'
-                          }`}>
-                            {(f.qty_order ?? 0) > 0 ? 'Perlu Order' : 'Aman'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                          {/* Status */}
+                          <td className="text-right">
+                            <span className={`si-tag ${isNeedOrder ? 'si-tag--coral' : 'si-tag--success'}`}>
+                              {isNeedOrder ? 'Perlu Order' : 'Aman'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
