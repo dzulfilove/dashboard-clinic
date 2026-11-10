@@ -704,3 +704,53 @@ html {
   will-change: width;
 }
 
+/* =========================================================
+   GLOBAL SLATE & ICE v2.0 MAPPINGS FOR ALL REMAINING PAGES
+   ========================================================= */
+.bg-teal-600, .bg-emerald-600, .bg-indigo-600, .bg-teal-700, .bg-emerald-700 {
+  background-color: var(--si-navy) !important;
+}
+.bg-teal-600:hover, .bg-emerald-600:hover, .bg-indigo-600:hover, .bg-teal-700:hover, .bg-emerald-700:hover {
+  background-color: var(--si-navy-hover) !important;
+}
+.text-teal-600, .text-emerald-600, .text-indigo-600, .text-teal-700, .text-emerald-700 {
+  color: var(--si-navy) !important;
+}
+.border-teal-100, .border-emerald-100, .border-teal-150, .border-emerald-150, .border-teal-200, .border-emerald-200, .border-slate-100, .border-slate-200 {
+  border-color: var(--si-line) !important;
+}
+.bg-teal-50, .bg-emerald-50, .bg-indigo-50 {
+  background-color: var(--si-sunken) !important;
+}
+
+/* Universal Slate & Ice v2.0 Force Override for Legacy Gradient Cards */
+[class*="from-emerald-800"],
+[class*="from-teal-800"],
+[class*="from-emerald-"],
+[class*="from-teal-"] {
+  background: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid var(--si-line) !important;
+  border-radius: var(--si-radius-lg) !important;
+  box-shadow: var(--si-shadow-card) !important;
+  color: var(--si-navy) !important;
+}
+
+[class*="from-emerald-"] h3,
+[class*="from-emerald-"] p,
+[class*="from-emerald-"] span,
+[class*="from-teal-"] h3,
+[class*="from-teal-"] p,
+[class*="from-teal-"] span {
+  color: var(--si-navy) !important;
+}
+
+[class*="from-emerald-"] .text-white\/80,
+[class*="from-emerald-"] .text-white,
+[class*="from-teal-"] .text-white\/80,
+[class*="from-teal-"] .text-white {
+  color: var(--si-ink-muted) !important;
+}
+
+
+
