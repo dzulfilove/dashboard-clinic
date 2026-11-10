@@ -9,8 +9,6 @@ import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
 import { prefetchRoutes } from './routePrefetch.js';
 
-import InteractiveGuide from './components/InteractiveGuide.js';
-
 // Pages (Lazy Loaded)
 const Login = lazy(() => import('./pages/Login.js'));
 const Dashboard = lazy(() => import('./pages/Dashboard.js'));
@@ -71,12 +69,9 @@ function AppContent() {
           path="/*"
           element={
             <ProtectedRoute>
-              <div className="relative min-h-screen bg-[#F3F6FF] flex flex-col md:flex-row font-sans overflow-hidden">
+              <div className="relative min-h-screen bg-[#F8F9FF] flex flex-col md:flex-row font-sans overflow-hidden">
                 {/* Sidebar Navigation */}
                 <Sidebar />
-
-                {/* Interactive Guide Widget */}
-                <InteractiveGuide />
 
                 {/* Core Main Viewport Stage */}
                 <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">

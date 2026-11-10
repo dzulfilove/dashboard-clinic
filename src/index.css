@@ -1,28 +1,106 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Nunito", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
   --text-xs: 0.75rem;
   --text-xxs: 0.75rem;
-  --color-brand-darkest: #1E293B;
-  --color-brand-dark: #475569;
-  --color-brand-primary: #0F969C;
-  --color-brand-secondary: #3B82F6;
-  --color-brand-muted: #64748B;
-  --color-brand-slate: #94A3B8;
-  --color-green-50: #EAF8F9;
-  --color-green-100: #D0F3F5;
-  --color-green-150: #B2ECED;
-  --color-green-200: #A2E5E8;
-  --color-green-300: #71D5D9;
-  --color-green-500: #0F969C;
-  --color-green-600: #0F969C;
-  --color-green-700: #0C7E83;
-  --color-green-800: #0A666A;
-  --color-green-850: #085256;
+
+  /* Slate & Ice theme colors */
+  --color-brand-primary: #ccdcef;
+  --color-brand-secondary: #222526;
+  --color-brand-support: #ff8574;
+  --color-brand-coral: #ff8574;
+  --color-brand-navy: #213145;
+  --color-brand-slate: #516070;
+  --color-brand-ice: #ccdcef;
+  --color-brand-charcoal: #222526;
+  --color-surface-base: #f8f9ff;
+  --color-surface-card: #ffffff;
+}
+
+/* =========================================================
+   SLATE & ICE — TOKENS (Design System v2.0)
+   ========================================================= */
+:root {
+  /* Brand */
+  --si-navy: #213145;
+  --si-navy-hover: #2c3f57;
+  --si-navy-active: #18253a;
+  --si-charcoal: #222526;
+  --si-slate: #516070;
+  --si-ice: #ccdcef;
+  --si-ice-hover: #bed2e9;
+  --si-ice-soft: #e5eeff;
+  --si-ice-faint: #eff4ff;
+  --si-ice-on-navy: #b8c8db;
+  --si-coral: #ff8574;
+  --si-coral-hover: #f06b58;
+  --si-coral-soft: #ffe9e5;
+  --si-coral-ink: #a13e32;
+
+  /* Status */
+  --si-success: #10b981;
+  --si-success-soft: #ecfdf5;
+  --si-success-ink: #047857;
+  --si-warning: #f59e0b;
+  --si-warning-soft: #fffbeb;
+  --si-warning-ink: #92400e;
+  --si-danger: #ef4444;
+  --si-danger-soft: #fef2f2;
+  --si-danger-ink: #b91c1c;
+
+  /* Surfaces & ink */
+  --si-canvas: #dce6f5;
+  --si-surface: #f8f9ff;
+  --si-card: #ffffff;
+  --si-sunken: #eff4ff;
+  --si-line: #e5eeff;
+  --si-line-strong: #d3e4fe;
+  --si-ink: #0b1c30;
+  --si-ink-muted: #44474c;
+  --si-ink-subtle: #74777c;
+
+  /* Type */
+  --si-font-display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --si-font-sans: "Inter", system-ui, sans-serif;
+  --si-font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Spacing (4px grid) */
+  --si-space-1: 4px;
+  --si-space-2: 8px;
+  --si-space-3: 12px;
+  --si-space-4: 16px;
+  --si-space-5: 20px;
+  --si-space-6: 24px;
+  --si-space-8: 32px;
+  --si-space-10: 40px;
+  --si-space-12: 48px;
+  --si-space-16: 64px;
+
+  /* Radius */
+  --si-radius-xs: 6px;
+  --si-radius-sm: 10px;
+  --si-radius-md: 14px;
+  --si-radius-lg: 20px;
+  --si-radius-xl: 28px;
+  --si-radius-full: 9999px;
+
+  /* Elevation */
+  --si-shadow-xs: 0 1px 2px rgba(11, 28, 48, 0.05);
+  --si-shadow-card: 0 6px 24px rgba(33, 49, 69, 0.06);
+  --si-shadow-raised: 0 12px 32px rgba(33, 49, 69, 0.12);
+  --si-shadow-modal: 0 24px 64px rgba(11, 28, 48, 0.20);
+  --si-shadow-navy: 0 8px 20px rgba(33, 49, 69, 0.28);
+
+  /* Motion */
+  --si-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --si-dur-fast: 120ms;
+  --si-dur: 200ms;
+  --si-dur-slow: 320ms;
 }
 
 @utility text-xs {
@@ -36,12 +114,40 @@
 }
 
 html, body {
-  background-color: #F3F6FF;
-  color: #475569;
+  background-color: var(--si-surface);
+  color: var(--si-ink);
+  font-family: var(--si-font-sans);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
 }
 
 body, button, input, select, textarea {
-  font-family: var(--font-sans);
+  font-family: var(--si-font-sans);
+}
+
+.font-display {
+  font-family: var(--si-font-display);
+}
+
+.font-mono {
+  font-family: var(--si-font-mono);
+}
+
+/* Material Symbols Rounded helper */
+.ms {
+  font-family: "Material Symbols Rounded";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  display: inline-block;
+  white-space: nowrap;
+  -webkit-font-feature-settings: "liga";
+  font-feature-settings: "liga";
+  font-variation-settings: 'FILL' 1, 'wght' 500;
+  overflow: hidden;
+  width: 1em;
+  flex: none;
 }
 
 /* Force minimum font size of 12px (0.75rem) globally */
@@ -49,14 +155,12 @@ th, td, label, span, p, div, a, button, input, select, textarea {
   min-font-size: 12px;
 }
 
-/* Ensure no font size falls below 12px */
 .text-xs,
 .text-xxs,
 [class*="text-["] {
   font-size: max(12px, 0.75rem);
 }
 
-/* Specific sub-12px utility overrides */
 [class*="text-[5px]"],
 [class*="text-[6px]"],
 [class*="text-[7px]"],
@@ -67,7 +171,6 @@ th, td, label, span, p, div, a, button, input, select, textarea {
   font-size: 12px !important;
 }
 
-/* Recharts & SVG text minimum 12px */
 .recharts-text,
 .recharts-cartesian-axis-tick-value,
 .recharts-legend-item-text,
@@ -76,10 +179,10 @@ svg text {
   font-size: 12px !important;
 }
 
-/* Custom Scrollbar Styling - Clean Minimal */
+/* Custom Scrollbar - Slate & Ice */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -87,227 +190,392 @@ svg text {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(15, 150, 156, 0.15);
+  background-color: rgba(33, 49, 69, 0.15);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(15, 150, 156, 0.3);
+  background-color: rgba(33, 49, 69, 0.3);
 }
 
-/* Force vertical scrollbar on the root element */
 html {
   overflow-y: scroll;
 }
 
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--si-ice) !important;
+}
 
-/* ----------------------------------------------------------------
- * HIGH FIDELITY MINIMALIST DESIGN SYSTEM (Inspired by Jiron SaaS)
- * ---------------------------------------------------------------- */
+/* =========================================================
+   SLATE & ICE COMPONENT SYSTEM
+   ========================================================= */
 
-/* 1. Base Minimalist White Card */
-.glass-card,
-.dashboard-refraction-card,
-.login-refraction-card {
+/* Buttons */
+.si-btn {
+  height: 40px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--si-radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--si-dur), box-shadow var(--si-dur), transform var(--si-dur-fast);
+}
+
+.si-btn:active {
+  transform: translateY(1px);
+}
+
+.si-btn--primary {
+  background: var(--si-navy);
+  color: #ffffff;
+}
+
+.si-btn--primary:hover {
+  background: var(--si-navy-hover);
+  box-shadow: var(--si-shadow-navy);
+}
+
+.si-btn--primary:active {
+  background: var(--si-navy-active);
+}
+
+.si-btn--secondary {
+  background: var(--si-ice);
+  color: var(--si-navy);
+}
+
+.si-btn--secondary:hover {
+  background: var(--si-ice-hover);
+}
+
+.si-btn--accent {
+  background: var(--si-coral);
+  color: var(--si-charcoal);
+  font-weight: 700;
+}
+
+.si-btn--accent:hover {
+  background: var(--si-coral-hover);
+}
+
+.si-btn--soft {
+  background: var(--si-ice-soft);
+  color: var(--si-navy);
+}
+
+.si-btn--soft:hover {
+  background: var(--si-ice);
+}
+
+.si-btn--outline {
+  background: var(--si-card);
+  color: var(--si-ink);
+  box-shadow: inset 0 0 0 1px var(--si-line-strong);
+}
+
+.si-btn--outline:hover {
+  background: var(--si-ice-faint);
+}
+
+.si-btn--ghost {
+  background: transparent;
+  color: var(--si-navy);
+}
+
+.si-btn--ghost:hover {
+  background: var(--si-ice-faint);
+}
+
+.si-btn--danger {
+  background: var(--si-danger-ink);
+  color: #ffffff;
+}
+
+.si-btn--sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.si-btn--lg {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 15px;
+}
+
+.si-icon-btn {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--si-radius-sm);
+  background: var(--si-card);
+  box-shadow: var(--si-shadow-xs);
+  color: var(--si-navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   position: relative;
-  background: #ffffff !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 
-    0 10px 25px -4px rgba(13, 148, 136, 0.03),
-    0 4px 12px -2px rgba(0, 0, 0, 0.01) !important;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  transition: background var(--si-dur);
 }
 
-/* Clean subtle hover lift */
+.si-icon-btn:hover {
+  background: var(--si-ice-faint);
+}
+
+/* Cards & Inset Surfaces */
+.si-card,
+.glass-card {
+  background: var(--si-card) !important;
+  border-radius: var(--si-radius-lg) !important;
+  box-shadow: var(--si-shadow-card) !important;
+  border: none !important;
+  transition: box-shadow var(--si-dur), transform var(--si-dur) var(--si-ease);
+}
+
+.si-card.interactive:hover,
 .glass-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 
-    0 20px 35px -8px rgba(13, 148, 136, 0.06),
-    0 8px 16px -4px rgba(0, 0, 0, 0.02) !important;
-  border-color: #CBD5E1 !important;
+  box-shadow: var(--si-shadow-raised) !important;
+  transform: translateY(-2px);
 }
 
-/* Disable specular highlight overlays since we are clean minimalist now */
 .glass-card::before,
-.login-refraction-card::before,
-.dashboard-refraction-card::before,
 .glass-card::after,
-.login-refraction-card::after,
-.dashboard-refraction-card::after {
+.login-refraction-card::before,
+.login-refraction-card::after {
   display: none !important;
 }
 
-.glass-card > *,
-.login-refraction-card > *,
-.dashboard-refraction-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-/* Clean Minimalist Table Wrapper */
-.glass-table-wrapper,
-.glass-table-refraction {
-  position: relative;
-  background: #ffffff !important;
-  border: 1px solid #E2E8F0 !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.02) !important;
-  overflow: hidden;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Minimalist Inset State background */
-.glass-inset-state {
-  background: #F8FAFC !important;
-  border: 1px solid #E2E8F0 !important;
+.glass-inset-state,
+.si-sunken-box {
+  background: var(--si-sunken) !important;
+  border: 1px solid var(--si-line) !important;
+  border-radius: var(--si-radius-md) !important;
   box-shadow: none !important;
-  border-radius: 1rem !important;
 }
 
-/* Minimalist quiet action button */
 .glass-pill-action {
-  background: #F8FAFC !important;
-  border: 1px solid #E2E8F0 !important;
-  color: #475569 !important;
-  box-shadow: none !important;
-  border-radius: 0.625rem !important;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  background: var(--si-ice-soft) !important;
+  color: var(--si-navy) !important;
+  border: 1px solid var(--si-line-strong) !important;
+  border-radius: var(--si-radius-sm) !important;
+  font-weight: 600 !important;
+  transition: background-color var(--si-dur), color var(--si-dur);
 }
 
 .glass-pill-action:hover {
-  background: #F1F5F9 !important;
-  color: #1E293B !important;
-  border-color: #CBD5E1 !important;
+  background: var(--si-ice) !important;
+  color: var(--si-navy) !important;
 }
 
-/* Minimalist Pure White Sidebar (Jiron style) */
+/* Banner Hero */
+.si-banner {
+  background: var(--si-navy);
+  color: #ffffff;
+  border-radius: var(--si-radius-xl);
+  padding: 28px 32px;
+  min-height: 180px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.si-banner h3,
+.si-banner h1 {
+  font-family: var(--si-font-display);
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
+.si-banner p {
+  color: var(--si-ice-on-navy);
+}
+
+/* Typography styles */
+.overline {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--si-ink-muted);
+}
+
+.caption {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--si-ink-muted);
+}
+
+.si-metric {
+  margin: 0;
+  font-family: var(--si-font-display);
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--si-ink);
+}
+
+.si-unit {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--si-ink-muted);
+}
+
+/* Tags */
+.si-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--si-radius-xs);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.si-tag--navy {
+  background: var(--si-navy);
+  color: #ffffff;
+}
+
+.si-tag--ice {
+  background: var(--si-ice-soft);
+  color: var(--si-navy);
+}
+
+.si-tag--coral {
+  background: var(--si-coral-soft);
+  color: var(--si-coral-ink);
+}
+
+.si-tag--success {
+  background: var(--si-success-soft);
+  color: var(--si-success-ink);
+}
+
+.si-tag--warning {
+  background: var(--si-warning-soft);
+  color: var(--si-warning-ink);
+}
+
+.si-tag--danger {
+  background: var(--si-danger-soft);
+  color: var(--si-danger-ink);
+}
+
+.si-tag--neutral {
+  background: var(--si-sunken);
+  color: var(--si-ink-muted);
+}
+
+/* Progress bar */
+.si-bar .top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.si-track {
+  height: 6px;
+  background: var(--si-ice-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.si-track.lg {
+  height: 10px;
+}
+
+.si-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--si-navy);
+  transition: width 0.6s var(--si-ease);
+}
+
+/* Table */
+.si-table,
+.glass-table-wrapper table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+}
+
+.si-table th,
+.glass-table-wrapper th {
+  text-align: left;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--si-ink-muted);
+  font-weight: 600;
+  background: var(--si-sunken);
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+.si-table td,
+.glass-table-wrapper td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--si-line);
+}
+
+.si-table tbody tr:hover,
+.glass-table-wrapper tbody tr:hover {
+  background: var(--si-surface);
+}
+
+/* Alert */
+.si-alert {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: var(--si-radius-md);
+  background: var(--si-card);
+  box-shadow: var(--si-shadow-card);
+}
+
+.si-alert .ic {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--si-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.si-alert--info .ic { background: var(--si-ice-soft); color: var(--si-navy); }
+.si-alert--success .ic { background: var(--si-success-soft); color: var(--si-success-ink); }
+.si-alert--warning .ic { background: var(--si-warning-soft); color: var(--si-warning-ink); }
+.si-alert--danger .ic { background: var(--si-danger-soft); color: var(--si-danger-ink); }
+
+/* Sidebar styling */
 .glass-sidebar {
-  background: #ffffff !important;
-  border-right: 1px solid #E2E8F0 !important;
-  box-shadow: 10px 0 30px -10px rgba(13, 148, 136, 0.04) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Animations */
-@keyframes fade-in-bottom {
-  0% {
-    transform: translateY(15px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.anim-fade-up {
-  animation: fade-in-bottom 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.anim-delay-1 { animation-delay: 0.05s; }
-.anim-delay-2 { animation-delay: 0.1s; }
-.anim-delay-3 { animation-delay: 0.15s; }
-.anim-delay-4 { animation-delay: 0.2s; }
-
-/* Reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .anim-fade-up {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Clean Minimal Loader Spinner */
-.three-body {
- --uib-size: 30px;
- --uib-speed: 0.8s;
- --uib-color: #0F969C;
- position: relative;
- display: inline-block;
- height: var(--uib-size);
- width: var(--uib-size);
- animation: spin78236 calc(var(--uib-speed) * 2.5) infinite linear;
-}
-
-.three-body__dot {
- position: absolute;
- height: 100%;
- width: 30%;
-}
-
-.three-body__dot:after {
- content: '';
- position: absolute;
- height: 0%;
- width: 100%;
- padding-bottom: 100%;
- background-color: var(--uib-color);
- border-radius: 50%;
-}
-
-.three-body__dot:nth-child(1) {
- bottom: 5%;
- left: 0;
- transform: rotate(60deg);
- transform-origin: 50% 85%;
-}
-
-.three-body__dot:nth-child(1)::after {
- bottom: 0;
- left: 0;
- animation: wobble1 var(--uib-speed) infinite ease-in-out;
- animation-delay: calc(var(--uib-speed) * -0.3);
-}
-
-.three-body__dot:nth-child(2) {
- bottom: 5%;
- right: 0;
- transform: rotate(-60deg);
- transform-origin: 50% 85%;
-}
-
-.three-body__dot:nth-child(2)::after {
- bottom: 0;
- left: 0;
- animation: wobble1 var(--uib-speed) infinite
-    calc(var(--uib-speed) * -0.15) ease-in-out;
-}
-
-.three-body__dot:nth-child(3) {
- bottom: -5%;
- left: 0;
- transform: translateX(116.666%);
-}
-
-.three-body__dot:nth-child(3)::after {
- top: 0;
- left: 0;
- animation: wobble2 var(--uib-speed) infinite ease-in-out;
-}
-
-@keyframes spin78236 {
- 0% { transform: rotate(0deg); }
- 100% { transform: rotate(360deg); }
-}
-
-@keyframes wobble1 {
- 0%, 100% { transform: translateY(0%) scale(1); opacity: 1; }
- 50% { transform: translateY(-66%) scale(0.65); opacity: 0.8; }
-}
-
-@keyframes wobble2 {
- 0%, 100% { transform: translateY(0%) scale(1); opacity: 1; }
- 50% { transform: translateY(66%) scale(0.65); opacity: 0.8; }
+  background: var(--si-navy) !important;
+  color: var(--si-ice-on-navy) !important;
+  border-right: 1px solid rgba(204, 220, 239, 0.1) !important;
+  box-shadow: 8px 0 24px rgba(11, 28, 48, 0.15) !important;
 }
 
 .will-change-width {

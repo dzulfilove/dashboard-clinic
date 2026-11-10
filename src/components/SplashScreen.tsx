@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import logoImg from '../../assets/logo.png';
 import logoSvg from '../../assets/logo.svg';
-import { CheckCircle2, ShieldCheck, Sparkles, Activity, Heart, Stethoscope, Plus } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react';
 
 interface SplashScreenProps {
   mode: 'initial' | 'login';
@@ -78,7 +78,7 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
     }
   }, [mode, onComplete]);
 
-  const userName = user?.nama_lengkap || user?.nama || user?.email?.split('@')[0] || 'Pengguna';
+  const userName = user?.nama_lengkap || user?.nama || user?.email?.split('@')[0] || 'Petugas';
   const roleTitle = user?.role
     ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
     : 'Petugas Klinik';
@@ -87,55 +87,32 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
     <motion.div
       initial={{ opacity: mode === 'initial' ? 1 : 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-br from-[#0f5144] via-[#0d3d34] to-[#07241e] text-white overflow-hidden select-none font-sans"
+      exit={{ opacity: 0, scale: 0.98 }}
+      transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#213145] text-white overflow-hidden select-none font-sans"
     >
-      {/* --- Top-Left Organic Curved Blob (Reference Style) --- */}
-      <div className="absolute -top-24 -left-24 w-80 h-80 bg-teal-300/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-white/10 to-transparent rounded-br-[160px] pointer-events-none backdrop-blur-3xl border-b border-r border-white/10" />
+      {/* Background Ambient Glow */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#CCDCEF]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#FF8574]/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* --- Bottom-Right Ambient Blob --- */}
-      <div className="absolute -bottom-28 -right-28 w-96 h-96 bg-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
-
-      {/* --- Floating Translucent Medical/Clinic Icons (Reference Style) --- */}
-      <Activity className="absolute top-[18%] left-[12%] w-7 h-7 text-teal-200/20 -rotate-12 animate-none pointer-events-none" />
-      <Heart className="absolute top-[28%] right-[14%] w-8 h-8 text-emerald-200/20 rotate-12 animate-none pointer-events-none" />
-      <Plus className="absolute bottom-[28%] left-[16%] w-6 h-6 text-teal-100/20 rotate-45 pointer-events-none" />
-      <Stethoscope className="absolute bottom-[18%] right-[15%] w-8 h-8 text-teal-200/20 -rotate-12 pointer-events-none" />
-
-      {/* --- Subtle Radial Mesh --- */}
-      <div 
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.9) 1px, transparent 0)`,
-          backgroundSize: '32px 32px'
-        }}
-      />
-
-      {/* --- Main Content Area with Staggered Fade-Up --- */}
+      {/* Main Content Area */}
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-md w-full">
         
-        {/* Logo Container with Fade-Up Animation */}
+        {/* Logo Container */}
         <motion.div
-          initial={{ opacity: 0.8, y: 15 }}
+          initial={{ opacity: 0.8, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
           className="relative mb-6 flex flex-col items-center"
         >
-          {/* Subtle Ambient Logo Glow */}
-          <div className="absolute -inset-4 rounded-full bg-teal-300/20 blur-2xl" />
-
           {/* Logo White Square Container Box */}
-          <div className="relative bg-white w-28 h-28 sm:w-32 sm:h-32 p-3 sm:p-4 rounded-2xl sm:rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-white/90 flex items-center justify-center">
+          <div className="relative bg-white w-24 h-24 sm:w-28 sm:h-28 p-3 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/80 flex items-center justify-center">
             <img 
               src={logoSvg || logoImg} 
               alt="Logo Klinik Puri Medika" 
-              width={128}
-              height={128}
-              // @ts-ignore
-              fetchPriority="high"
-              className="w-full h-full object-contain drop-shadow-md"
+              width={112}
+              height={112}
+              className="w-full h-full object-contain"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = logoImg;
@@ -145,29 +122,29 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
 
           {mode === 'login' && (
             <motion.div
-              initial={{ scale: 0, y: 10 }}
-              animate={{ scale: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.3, ease: 'easeOut' }}
-              className="absolute -bottom-2 -right-2 bg-emerald-400 text-slate-900 p-2 rounded-full shadow-lg border-2 border-emerald-900"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.15, duration: 0.25, ease: 'easeOut' }}
+              className="absolute -bottom-2 -right-2 bg-[#10B981] text-white p-1.5 rounded-full shadow-lg border-2 border-[#213145]"
             >
-              <CheckCircle2 className="w-5 h-5 font-bold" />
+              <CheckCircle2 className="w-4 h-4 font-bold" />
             </motion.div>
           )}
         </motion.div>
 
-        {/* Title & Description with Fade-Up Animation */}
+        {/* Title & Description */}
         {mode === 'initial' ? (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.2, 0.7, 0.2, 1] }}
             className="space-y-1.5 mb-8"
           >
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center justify-center gap-1 drop-shadow-md font-display">
-              Klinik Puri Medika<span className="text-teal-300">.</span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-1 font-display">
+              Klinik Puri Medika<span className="text-[#FF8574]">.</span>
             </h1>
-            <p className="text-xs font-bold uppercase tracking-widest text-teal-200/80">
-              Sistem Informasi Klinik & Pelayanan
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#B8C8DB]">
+              Sistem Informasi Klinik &amp; Pelayanan
             </p>
           </motion.div>
         ) : (
@@ -177,42 +154,42 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="space-y-2 mb-8"
           >
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-teal-300/15 border border-teal-300/30 text-teal-200 text-xs font-bold tracking-wider uppercase mb-1 backdrop-blur-md">
-              <Sparkles className="w-3.5 h-3.5" /> Autentikasi Berhasil
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#CCDCEF]/15 border border-[#CCDCEF]/25 text-[#CCDCEF] text-xs font-bold tracking-wider uppercase mb-1">
+              <Sparkles className="w-3.5 h-3.5 text-[#FF8574]" /> Autentikasi Berhasil
             </div>
-            <h2 className="text-2xl font-black text-white drop-shadow-md">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white font-display">
               Selamat Datang Kembali!
             </h2>
-            <div className="pt-2">
-              <p className="text-lg font-bold text-teal-200">{userName}</p>
-              <p className="text-xs font-medium text-emerald-100/80 mt-0.5 flex items-center justify-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-teal-300" /> Mode Akses: <span className="text-white font-bold">{roleTitle}</span>
+            <div className="pt-1">
+              <p className="text-base font-bold text-[#CCDCEF] font-display">{userName}</p>
+              <p className="text-xs font-medium text-[#B8C8DB] mt-0.5 flex items-center justify-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" /> Mode Akses: <span className="text-white font-mono font-semibold">{roleTitle}</span>
               </p>
             </div>
           </motion.div>
         )}
 
-        {/* Progress Bar & Status with Fade-Up Animation */}
+        {/* Progress Bar & Status */}
         <motion.div
-          initial={{ opacity: 0, y: 25 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full space-y-3"
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
+          className="w-full space-y-2.5"
         >
-          <div className="w-full bg-black/25 rounded-full h-2.5 p-0.5 overflow-hidden border border-white/10 shadow-inner relative backdrop-blur-sm">
+          <div className="w-full bg-white/10 rounded-full h-2 p-0.5 overflow-hidden border border-white/10 relative">
             <motion.div
-              className="bg-gradient-to-r from-teal-300 via-emerald-300 to-teal-100 h-full rounded-full shadow-md"
+              className="bg-[#CCDCEF] h-full rounded-full shadow-sm"
               initial={{ width: '0%' }}
               animate={{ width: `${progress}%` }}
               transition={{ ease: 'easeOut' }}
             />
           </div>
 
-          <div className="flex items-center justify-between text-xs text-teal-100/80 font-medium px-1">
+          <div className="flex items-center justify-between text-xs text-[#B8C8DB] font-medium px-1">
             <span className="truncate">
               {mode === 'initial' ? statusText : 'Mengarahkan ke Dashboard...'}
             </span>
-            <span className="font-mono text-teal-200 font-bold">{progress}%</span>
+            <span className="font-mono text-[#CCDCEF] font-bold">{progress}%</span>
           </div>
         </motion.div>
 
@@ -222,12 +199,11 @@ export default function SplashScreen({ mode, user, onComplete }: SplashScreenPro
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.6 }}
-        className="absolute bottom-6 text-center text-xs text-teal-200/60 font-medium tracking-wider uppercase"
+        transition={{ delay: 0.35, duration: 0.5 }}
+        className="absolute bottom-6 text-center text-[11px] text-[#B8C8DB]/70 font-medium tracking-wider uppercase"
       >
-        Klinik Health Services • Version 2.0
+        Klinik Puri Medika • Slate &amp; Ice v2.0
       </motion.div>
     </motion.div>
   );
 }
-

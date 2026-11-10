@@ -56,6 +56,7 @@ interface Patient {
   kecamatan: string;
   kelurahan: string;
   total_visits: number;
+  total_tagihan?: number;
   is_loyal?: boolean;
   no_telp?: string;
 }
@@ -740,6 +741,7 @@ export default React.memo(function DemografiKunjungan() {
                               <th className="py-2.5">Pasien</th>
                               <th className="py-2.5">No. RM</th>
                               <th className="py-2.5 text-right">Kunjungan</th>
+                              <th className="py-2.5 text-right">Total Tagihan</th>
                               <th className="py-2.5 text-center">Aksi</th>
                             </tr>
                           </thead>
@@ -776,7 +778,10 @@ export default React.memo(function DemografiKunjungan() {
                                   </div>
                                 </td>
                                 <td className="py-2 text-xs font-mono font-medium text-slate-500">{p.no_rm}</td>
-                                <td className="py-2 text-right text-xs font-bold text-slate-850 pr-2">{p.total_visits}x</td>
+                                <td className="py-2 text-right text-xs font-bold text-slate-850">{p.total_visits}x</td>
+                                <td className="py-2 text-right text-xs font-semibold text-teal-700 whitespace-nowrap">
+                                  {formatRupiah(p.total_tagihan || 0)}
+                                </td>
                                 <td className="py-2 text-center">
                                   <div className="flex items-center justify-center space-x-1">
                                     <button
@@ -866,6 +871,7 @@ export default React.memo(function DemografiKunjungan() {
                               <th className="py-2.5">Pasien</th>
                               <th className="py-2.5">No. RM</th>
                               <th className="py-2.5 text-right">Kunjungan</th>
+                              <th className="py-2.5 text-right">Total Tagihan</th>
                               <th className="py-2.5 text-center">Aksi</th>
                             </tr>
                           </thead>
@@ -902,7 +908,10 @@ export default React.memo(function DemografiKunjungan() {
                                   </div>
                                 </td>
                                 <td className="py-2 text-xs font-mono font-medium text-slate-500">{p.no_rm}</td>
-                                <td className="py-2 text-right text-xs font-bold text-slate-850 pr-2">{p.total_visits}x</td>
+                                <td className="py-2 text-right text-xs font-bold text-slate-850">{p.total_visits}x</td>
+                                <td className="py-2 text-right text-xs font-semibold text-teal-700 whitespace-nowrap">
+                                  {formatRupiah(p.total_tagihan || 0)}
+                                </td>
                                 <td className="py-2 text-center">
                                   <div className="flex items-center justify-center space-x-1">
                                     <button

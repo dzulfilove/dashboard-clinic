@@ -20,11 +20,9 @@ import {
   FileCheck,
   Package,
   Layers,
-  AlertTriangle,
   Bed,
   Stethoscope,
-  Syringe,
-  MessageSquare
+  Syringe
 } from 'lucide-react';
 import api from '../services/api.js';
 import { DbStatus } from '../types.js';
@@ -105,7 +103,7 @@ export default React.memo(function Sidebar() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
-  const [dbStatus, setDbStatus] = useState<DbStatus | null>(null);
+  const [, setDbStatus] = useState<DbStatus | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -148,7 +146,7 @@ export default React.memo(function Sidebar() {
     if (activeSection) {
       setOpenSection(activeSection.title);
     }
-  }, [location.pathname]);
+  }, [location.pathname, filteredMenu]);
 
   const handleLogout = () => {
     logout();
@@ -166,23 +164,27 @@ export default React.memo(function Sidebar() {
 
   return (
     <>
-      {/* Mobile Header with White Minimal Look */}
-      <header id="mobile-header" className="md:hidden flex items-center justify-between px-6 py-3 bg-white border-b border-slate-100 text-slate-800 shadow-sm z-40">
+      {/* Mobile Header with Slate & Ice Navy */}
+      <header id="mobile-header" className="md:hidden flex items-center justify-between px-5 py-3.5 bg-[#213145] text-white shadow-md z-40 border-b border-[#CCDCEF]/15">
         <div className="flex items-center space-x-3">
-          <div className="bg-slate-50 p-1.5 rounded-xl flex items-center justify-center shadow-xs border border-slate-100">
-            <Logo size={36} />
+          <div className="bg-[#CCDCEF]/15 p-1.5 rounded-xl flex items-center justify-center border border-[#CCDCEF]/20">
+            <Logo size={32} />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="font-semibold text-sm text-slate-900 font-display leading-tight">Klinik Puri Medika</span>
+            <span className="font-bold text-sm tracking-tight text-white font-display leading-tight">
+              Klinik Puri Medika<span className="text-[#FF8574]">.</span>
+            </span>
+            <span className="text-[11px] text-[#B8C8DB] font-medium leading-tight">Sistem Informasi &amp; Pelayanan</span>
           </div>
         </div>
         <button 
           id="mobile-menu-toggle"
           onClick={() => setMobileOpen(!mobileOpen)} 
-          className="p-2 rounded-lg bg-slate-50 border border-slate-200 hover:bg-slate-100 focus:outline-none transition-all"
-          style={{ minHeight: '44px', minWidth: '44px' }}
+          className="p-2 rounded-xl bg-white/10 hover:bg-white/15 text-white transition-all cursor-pointer"
+          style={{ minHeight: '40px', minWidth: '40px' }}
+          aria-label="Toggle menu navigasi"
         >
-          {mobileOpen ? <X className="h-6 w-6 text-slate-800" /> : <Menu className="h-6 w-6 text-slate-800" />}
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </header>
 
@@ -195,16 +197,16 @@ export default React.memo(function Sidebar() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             style={{ willChange: 'opacity' }}
-            className="md:hidden fixed inset-0 bg-black/30 backdrop-blur-xs z-30 pointer-events-auto" 
+            className="md:hidden fixed inset-0 bg-[#0B1C30]/60 backdrop-blur-xs z-30 pointer-events-auto" 
             onClick={() => setMobileOpen(false)} 
           />
         )}
       </AnimatePresence>
 
-      {/* Sidebar Container */}
+      {/* Sidebar Container - Slate & Ice Structure (Navy Rail / Expanded) */}
       <aside 
         id="side-navigation"
-        className={`fixed md:sticky top-0 left-0 h-screen glass-sidebar text-slate-700 flex flex-col justify-between z-45 transition-[width] duration-200 ease-out will-change-width
+        className={`fixed md:sticky top-0 left-0 h-screen bg-[#213145] text-[#B8C8DB] flex flex-col justify-between z-45 transition-[width] duration-200 ease-out will-change-width border-r border-[#CCDCEF]/15 shadow-2xl
           ${collapsed ? 'w-20' : 'w-72'} 
           ${mobileOpen ? 'translate-x-0 w-72' : '-translate-x-full md:translate-x-0'}
         `}
@@ -212,19 +214,24 @@ export default React.memo(function Sidebar() {
       >
         {/* Upper Brand Section */}
         <div>
-          <div className="flex items-center justify-between px-6 py-5 bg-white border-b border-slate-100">
+          <div className="flex items-center justify-between px-5 py-5 border-b border-[#CCDCEF]/12">
             <div className="flex items-center space-x-3 overflow-hidden">
               {collapsed ? (
-                <div className="h-11 w-11 flex-shrink-0 bg-slate-50 p-1.5 rounded-xl flex items-center justify-center shadow-xs border border-slate-100">
+                <div className="h-11 w-11 flex-shrink-0 bg-white/10 p-1.5 rounded-xl flex items-center justify-center border border-white/15 shadow-sm">
                   <Logo size={32} />
                 </div>
               ) : (
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="h-11 w-11 flex-shrink-0 bg-slate-50 p-1.5 rounded-xl flex items-center justify-center shadow-xs border border-slate-100">
-                    <Logo size={34} />
+                  <div className="h-11 w-11 flex-shrink-0 bg-white/10 p-1.5 rounded-xl flex items-center justify-center border border-white/15 shadow-sm">
+                    <Logo size={32} />
                   </div>
                   <div className="flex flex-col justify-center whitespace-nowrap overflow-hidden">
-                    <span className="font-semibold text-base text-slate-900 tracking-tight leading-none">Klinik Puri Medika<span className="text-teal-600">.</span></span>
+                    <span className="font-extrabold text-base text-white tracking-tight leading-none font-display">
+                      Klinik Puri Medika<span className="text-[#FF8574]">.</span>
+                    </span>
+                    <span className="text-[11px] text-[#B8C8DB] mt-1 font-medium tracking-normal">
+                      Sistem Informasi &amp; Pelayanan
+                    </span>
                   </div>
                 </div>
               )}
@@ -234,18 +241,19 @@ export default React.memo(function Sidebar() {
             <button 
               id="sidebar-collapse-btn"
               onClick={() => setCollapsed(!collapsed)} 
-              className="hidden md:flex items-center justify-center p-1.5 rounded-md bg-slate-50 border border-slate-200 text-slate-500 hover:text-teal-600 hover:bg-teal-50 transition-all cursor-pointer"
+              className="hidden md:flex items-center justify-center p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-[#B8C8DB] hover:text-white transition-all cursor-pointer border border-white/10"
               style={{ minHeight: '32px', minWidth: '32px' }}
+              aria-label={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
             >
               <ChevronRight className={`h-4 w-4 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`} />
             </button>
           </div>
 
           {/* Navigational Links */}
-          <nav className="px-4 py-3 space-y-2 overflow-y-auto max-h-[calc(100vh-160px)] scrollbar-none">
+          <nav className="px-3.5 py-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-165px)] scrollbar-none">
             {filteredMenu.map((item, idx) => {
               if (!item.isGroup) {
-                // Direct Link (e.g., Dashboard)
+                // Direct Link (e.g., Dashboard, Design System Guide)
                 const IconComponent = item.icon || Home;
                 const isActive = location.pathname === item.path;
                 return (
@@ -254,16 +262,20 @@ export default React.memo(function Sidebar() {
                     to={item.path || '/'}
                     onClick={() => setMobileOpen(false)}
                     className={`
-                      relative flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
+                      relative flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 overflow-hidden
                       ${isActive 
-                        ? 'bg-teal-50 border-teal-100 text-teal-600 font-bold shadow-xs' 
-                        : 'border-transparent text-slate-600 hover:bg-slate-50 hover:text-teal-600'}
-                      ${collapsed ? 'justify-center font-normal' : ''}
+                        ? 'bg-[#CCDCEF]/18 text-white font-bold shadow-xs' 
+                        : 'text-[#B8C8DB] hover:bg-white/8 hover:text-white'}
+                      ${collapsed ? 'justify-center font-normal px-2' : ''}
                     `}
-                    style={{ minHeight: '44px' }}
+                    style={{ minHeight: '42px' }}
                   >
-                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-teal-700 scale-105 relative z-10' : 'text-slate-400'}`} />
-                    <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
+                    {/* Active Coral indicator bar */}
+                    {isActive && (
+                      <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#FF8574] rounded-r-full" />
+                    )}
+                    <IconComponent className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isActive ? 'text-white' : 'text-[#B8C8DB]'}`} />
+                    <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                       {item.title}
                     </span>
                   </NavLink>
@@ -280,45 +292,29 @@ export default React.memo(function Sidebar() {
                   {/* Parent Section Menu Button */}
                   <button
                     onClick={() => toggleSection(item.title)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-[colors] duration-150 cursor-pointer group
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer group
                       ${isChildActive 
-                        ? 'bg-teal-50/40 text-teal-600 font-bold border border-teal-50' 
-                        : 'border border-transparent text-slate-600 hover:bg-slate-50 hover:text-teal-600'}
-                      ${collapsed ? 'justify-center font-normal' : ''}
+                        ? 'bg-[#CCDCEF]/12 text-white font-bold' 
+                        : 'text-[#B8C8DB] hover:bg-white/8 hover:text-white'}
+                      ${collapsed ? 'justify-center font-normal px-2' : ''}
                     `}
-                    style={{ minHeight: '44px' }}
+                    style={{ minHeight: '42px' }}
+                    aria-expanded={isOpen}
                   >
                     <div className="flex items-center space-x-3 overflow-hidden">
-                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-teal-600' : 'text-slate-400 group-hover:text-teal-600'}`} />
+                      <SectionIcon className={`h-4.5 w-4.5 flex-shrink-0 transition-colors duration-200 ${isChildActive ? 'text-[#FF8574]' : 'text-[#B8C8DB] group-hover:text-white'}`} />
                       <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
                         {item.title}
                       </span>
                     </div>
-                    <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-colors duration-200 ${isOpen ? 'rotate-180 text-teal-500' : 'group-hover:text-slate-600'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
+                    <ChevronDown className={`h-3.5 w-3.5 text-[#B8C8DB] transition-transform duration-200 ${isOpen ? 'rotate-180 text-white' : 'group-hover:text-white'} ${collapsed ? 'opacity-0 w-0 pointer-events-none' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`} />
                   </button>
 
                   <div className="overflow-hidden">
                     {isOpen && !collapsed && (
-                      <div className="pl-4 space-y-1 ml-5">
+                      <div className="pl-3 space-y-1 ml-4 border-l border-[#CCDCEF]/15">
                         {item.items && item.items.map((subItem: any, subIdx: number) => {
                           const SubIcon = subItem.icon;
-                          if (subItem.disabled) {
-                            return (
-                              <div
-                                key={subIdx}
-                                className="relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-slate-400 cursor-not-allowed mt-1 bg-slate-50"
-                                style={{ minHeight: '38px' }}
-                              >
-                                <div className="flex items-center space-x-3">
-                                  <SubIcon className="h-4 w-4 flex-shrink-0 text-slate-350" />
-                                  <span className={`truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
-                                    {subItem.name}
-                                  </span>
-                                </div>
-                                <span className="text-[10px] leading-none bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-medium">Segera</span>
-                              </div>
-                            );
-                          }
                           const isSubActive = location.pathname === subItem.path;
                           return (
                             <NavLink
@@ -326,15 +322,18 @@ export default React.memo(function Sidebar() {
                               to={subItem.path}
                               onClick={() => setMobileOpen(false)}
                               className={`
-                                relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-[colors,opacity] duration-150 mt-1 border overflow-hidden
+                                relative flex items-center space-x-3 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 overflow-hidden
                                 ${isSubActive 
-                                  ? 'bg-teal-50 border-teal-100 text-teal-600 font-bold shadow-xs' 
-                                  : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-teal-600'}
+                                  ? 'bg-[#CCDCEF]/20 text-white font-bold shadow-xs' 
+                                  : 'text-[#B8C8DB]/85 hover:bg-white/8 hover:text-white'}
                               `}
-                              style={{ minHeight: '38px' }}
+                              style={{ minHeight: '36px' }}
                             >
-                              <SubIcon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-teal-600 relative z-10' : 'text-slate-400'}`} />
-                              <span className={`truncate relative z-10 ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
+                              {isSubActive && (
+                                <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#FF8574] rounded-r-full" />
+                              )}
+                              <SubIcon className={`h-3.5 w-3.5 flex-shrink-0 transition-colors duration-200 ${isSubActive ? 'text-white' : 'text-[#B8C8DB]/70'}`} />
+                              <span className="truncate">
                                 {subItem.name}
                               </span>
                             </NavLink>
@@ -349,17 +348,17 @@ export default React.memo(function Sidebar() {
           </nav>
         </div>
 
-         {/* Lower User/Logout Section */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100">
+        {/* Lower User/Logout Section */}
+        <div className="p-3.5 bg-[#18253A] border-t border-[#CCDCEF]/12">
           <div className="flex items-center justify-between gap-2">
             {user && (
               <div className="flex items-center space-x-3 overflow-hidden">
-                <div className="h-9 w-9 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold uppercase flex-shrink-0 text-xs">
+                <div className="h-9 w-9 rounded-full bg-[#CCDCEF] text-[#213145] flex items-center justify-center font-bold uppercase flex-shrink-0 text-xs shadow-xs">
                   {user.nama.substring(0, 2)}
                 </div>
                 <div className={`flex flex-col truncate ${collapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100 w-auto'} transition-[opacity,width] duration-150`}>
-                  <span className="text-xs font-bold text-slate-800 truncate">{user.nama}</span>
-                  <span className="text-[10px] font-mono bg-teal-50 text-teal-600 px-2 py-0.5 rounded self-start mt-0.5 font-medium">
+                  <span className="text-xs font-bold text-white truncate font-display">{user.nama}</span>
+                  <span className="text-[10px] font-mono bg-[#CCDCEF]/15 text-[#CCDCEF] px-2 py-0.5 rounded self-start mt-0.5 font-medium border border-[#CCDCEF]/20">
                     {user.role}
                   </span>
                 </div>
@@ -369,13 +368,14 @@ export default React.memo(function Sidebar() {
             <button
               id="sidebar-logout-btn"
               onClick={handleLogout}
-              className={`p-2 rounded-xl bg-slate-200/80 hover:bg-rose-500/10 hover:text-rose-500 text-slate-500 transition-[colors] duration-150 flex items-center justify-center cursor-pointer
+              className={`p-2 rounded-xl bg-white/10 hover:bg-[#FF8574]/20 hover:text-[#FF8574] text-[#B8C8DB] transition-colors duration-150 flex items-center justify-center cursor-pointer border border-white/10
                 ${collapsed ? 'w-full' : ''}
               `}
               title="Keluar dari Sistem"
-              style={{ minHeight: '40px', minWidth: '40px' }}
+              style={{ minHeight: '38px', minWidth: '38px' }}
+              aria-label="Keluar dari Sistem"
             >
-              <LogOut className="h-4.5 w-4.5 flex-shrink-0" />
+              <LogOut className="h-4 w-4 flex-shrink-0" />
             </button>
           </div>
         </div>

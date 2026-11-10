@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slate & Ice — Design System v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0" rel="stylesheet">
+<style>
+/* =========================================================
+   SLATE & ICE — TOKENS (copy this block into your project)
+   ========================================================= */
+:root{
+  /* Brand */
+  --si-navy:#213145; --si-navy-hover:#2c3f57; --si-navy-active:#18253a;
+  --si-charcoal:#222526; --si-slate:#516070;
+  --si-ice:#ccdcef; --si-ice-hover:#bed2e9; --si-ice-soft:#e5eeff; --si-ice-faint:#eff4ff; --si-ice-on-navy:#b8c8db;
+  --si-coral:#ff8574; --si-coral-hover:#f06b58; --si-coral-soft:#ffe9e5; --si-coral-ink:#a13e32;
+  /* Status */
+  --si-success:#10b981; --si-success-soft:#ecfdf5; --si-success-ink:#047857;
+  --si-warning:#f59e0b; --si-warning-soft:#fffbeb; --si-warning-ink:#92400e;
+  --si-danger:#ef4444;  --si-danger-soft:#fef2f2;  --si-danger-ink:#b91c1c;
+  /* Surfaces & ink */
+  --si-canvas:#dce6f5; --si-surface:#f8f9ff; --si-card:#ffffff; --si-sunken:#eff4ff;
+  --si-line:#e5eeff; --si-line-strong:#d3e4fe;
+  --si-ink:#0b1c30; --si-ink-muted:#44474c; --si-ink-subtle:#74777c;
+  /* Type */
+  --si-font-display:"Plus Jakarta Sans","Inter",system-ui,sans-serif;
+  --si-font-sans:"Inter",system-ui,sans-serif;
+  --si-font-mono:"JetBrains Mono",ui-monospace,monospace;
+  /* Spacing (4px grid) */
+  --si-space-1:4px; --si-space-2:8px; --si-space-3:12px; --si-space-4:16px; --si-space-5:20px;
+  --si-space-6:24px; --si-space-8:32px; --si-space-10:40px; --si-space-12:48px; --si-space-16:64px;
+  /* Radius */
+  --si-radius-xs:6px; --si-radius-sm:10px; --si-radius-md:14px; --si-radius-lg:20px; --si-radius-xl:28px; --si-radius-full:9999px;
+  /* Elevation */
+  --si-shadow-xs:0 1px 2px rgba(11,28,48,.05);
+  --si-shadow-card:0 6px 24px rgba(33,49,69,.06);
+  --si-shadow-raised:0 12px 32px rgba(33,49,69,.12);
+  --si-shadow-modal:0 24px 64px rgba(11,28,48,.20);
+  --si-shadow-navy:0 8px 20px rgba(33,49,69,.28);
+  /* Motion */
+  --si-ease:cubic-bezier(.2,.7,.2,1); --si-dur-fast:120ms; --si-dur:200ms; --si-dur-slow:320ms;
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{margin:0;font-family:var(--si-font-sans);color:var(--si-ink);background:var(--si-surface);-webkit-font-smoothing:antialiased;font-size:15px;line-height:22px}
+button,input,select,textarea{font-family:inherit}
+a{color:var(--si-navy)}
+.ms{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:20px;line-height:1;display:inline-block;white-space:nowrap;-webkit-font-feature-settings:"liga";font-feature-settings:"liga";font-variation-settings:'FILL' 1,'wght' 500;overflow:hidden;width:1em;flex:none}
+code,.mono{font-family:var(--si-font-mono);font-size:12.5px}
+:focus-visible{outline:none;box-shadow:0 0 0 3px var(--si-ice)!important}
+
+/* ---------- documentation shell ---------- */
+.topbar{position:sticky;top:0;z-index:50;height:64px;background:rgba(248,249,255,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--si-line);display:flex;align-items:center;gap:16px;padding:0 24px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--si-ink)}
+.brand-mark{width:34px;height:34px;border-radius:var(--si-radius-sm);background:var(--si-navy);display:flex;align-items:center;justify-content:center;color:#fff}
+.brand-mark .ms{font-size:19px}
+.brand b{font-family:var(--si-font-display);font-size:17px;font-weight:700;letter-spacing:-.01em}
+.brand small{font-size:13px;color:var(--si-ink-muted);font-weight:500}
+.ver{font-family:var(--si-font-mono);font-size:12px;padding:3px 8px;border-radius:var(--si-radius-xs);background:var(--si-ice-soft);color:var(--si-navy);font-weight:600}
+.topbar .grow{flex:1}
+.top-search{position:relative;width:320px}
+.top-search input{width:100%;height:40px;border:1px solid transparent;border-radius:var(--si-radius-sm);background:var(--si-card);box-shadow:var(--si-shadow-xs);padding:0 40px 0 14px;font-size:14px;color:var(--si-ink)}
+.top-search input:focus{border-color:var(--si-navy)}
+.top-search .ms{position:absolute;right:12px;top:10px;color:var(--si-slate)}
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr);max-width:1440px;margin:0 auto}
+.toc{position:sticky;top:64px;height:calc(100vh - 64px);overflow:auto;padding:28px 16px 40px 24px}
+.toc h6{margin:20px 0 8px 12px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--si-ink-subtle);font-weight:600}
+.toc h6:first-child{margin-top:0}
+.toc a{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--si-radius-sm);text-decoration:none;color:var(--si-ink-muted);font-size:14px;font-weight:500;transition:background var(--si-dur),color var(--si-dur)}
+.toc a .ms{font-size:18px;color:var(--si-ink-subtle)}
+.toc a:hover{background:var(--si-ice-faint);color:var(--si-ink)}
+.toc a.active{background:var(--si-navy);color:#fff}
+.toc a.active .ms{color:var(--si-ice)}
+.content{padding:32px 40px 96px;min-width:0}
+.doc-section{margin-bottom:72px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:8px}
+.sec-num{font-family:var(--si-font-mono);font-size:13px;font-weight:600;color:var(--si-coral-ink)}
+.sec-head h2{margin:0;font-family:var(--si-font-display);font-size:28px;line-height:36px;font-weight:700;letter-spacing:-.015em}
+.sec-lead{margin:0 0 28px;max-width:760px;color:var(--si-ink-muted);font-size:15px;line-height:24px}
+.sub{margin:36px 0 14px;font-family:var(--si-font-display);font-size:18px;line-height:26px;font-weight:700}
+.sub:first-of-type{margin-top:0}
+.grid{display:grid;gap:24px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.specimen{background:var(--si-card);border-radius:var(--si-radius-lg);box-shadow:var(--si-shadow-card);padding:24px;min-width:0}
+.specimen.flush{padding:0;overflow:hidden}
+.spec-label{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 16px}
+.spec-label span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--si-ink-muted)}
+.spec-label code{color:var(--si-ink-subtle)}
+.note{font-size:13px;line-height:20px;color:var(--si-ink-muted);margin:12px 0 0}
+.dodont{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.dodont div{border-radius:var(--si-radius-md);padding:14px 16px;font-size:13.5px;line-height:20px}
+.dodont .do{background:var(--si-success-soft);color:var(--si-success-ink)}
+.dodont .dont{background:var(--si-danger-soft);color:var(--si-danger-ink)}
+.dodont b{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.dodont .ms{font-size:18px}
+
+/* Hero of doc */
+.doc-hero{background:var(--si-navy);border-radius:var(--si-radius-xl);color:#fff;padding:40px;position:relative;overflow:hidden;margin-bottom:56px;min-height:260px;display:flex;flex-direction:column;justify-content:flex-end}
+.doc-hero .eyebrow{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;height:32px;padding:0 12px;border-radius:var(--si-radius-sm);background:rgba(204,220,239,.16);font-size:13px;font-weight:600;margin-bottom:auto}
+.doc-hero h1{margin:32px 0 8px;font-family:var(--si-font-display);font-size:48px;line-height:52px;font-weight:800;letter-spacing:-.03em;max-width:560px}
+.doc-hero p{margin:0;max-width:520px;color:var(--si-ice-on-navy);font-size:16px;line-height:24px}
+.doc-hero svg{position:absolute;right:0;top:0;height:100%;width:50%}
+.principles{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.principle .ms{width:40px;height:40px;border-radius:var(--si-radius-sm);background:var(--si-ice-soft);color:var(--si-navy);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.principle h4{margin:0 0 6px;font-family:var(--si-font-display);font-size:16px;font-weight:700}
+.principle p{margin:0;font-size:14px;line-height:21px;color:var(--si-ink-muted)}
+
+/* Colour swatches */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:16px}
+.swatch{background:var(--si-card);border-radius:var(--si-radius-md);box-shadow:var(--si-shadow-card);padding:8px;border:0;text-align:left;cursor:pointer;transition:transform var(--si-dur) var(--si-ease),box-shadow var(--si-dur)}
+.swatch:hover{transform:translateY(-2px);box-shadow:var(--si-shadow-raised)}
+.chip{height:72px;border-radius:10px;display:flex;align-items:flex-end;justify-content:flex-end;padding:8px;font-family:var(--si-font-mono);font-size:11px;font-weight:600}
+.swatch .meta{padding:10px 6px 4px}
+.swatch b{display:block;font-size:13.5px;font-weight:600}
+.swatch code{display:block;color:var(--si-ink-muted);margin-top:2px;font-size:12px}
+.swatch .use{display:block;font-size:12px;line-height:17px;color:var(--si-ink-subtle);margin-top:6px}
+.ramp{display:flex;border-radius:var(--si-radius-md);overflow:hidden;box-shadow:var(--si-shadow-card)}
+.ramp div{flex:1;height:64px;display:flex;align-items:flex-end;padding:8px;font-family:var(--si-font-mono);font-size:11px;font-weight:600}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+.tbl th{text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--si-ink-muted);font-weight:600;background:var(--si-sunken);padding:12px 16px}
+.tbl th:first-child{border-radius:var(--si-radius-sm) 0 0 var(--si-radius-sm)}
+.tbl th:last-child{border-radius:0 var(--si-radius-sm) var(--si-radius-sm) 0}
+.tbl td{padding:14px 16px;border-bottom:1px solid var(--si-line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.pair{display:inline-flex;align-items:center;justify-content:center;width:64px;height:32px;border-radius:8px;font-weight:700;font-size:14px}
+.pass{color:var(--si-success-ink);font-weight:600}
+.fail{color:var(--si-danger-ink);font-weight:600}
+
+/* Type specimen */
+.type-row{display:grid;grid-template-columns:180px minmax(0,1fr) 200px;gap:24px;align-items:center;padding:18px 0;border-bottom:1px dashed var(--si-line-strong)}
+.type-row:last-child{border-bottom:0}
+.type-row .tname b{display:block;font-size:14px}
+.type-row .tname code{color:var(--si-ink-subtle)}
+.type-row .tspec{font-family:var(--si-font-mono);font-size:12px;color:var(--si-ink-muted);text-align:right}
+.type-row .tsample{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Spacing / radius / shadow */
+.space-row{display:grid;grid-template-columns:110px 60px 1fr;gap:16px;align-items:center;padding:8px 0;font-size:13px}
+.space-row code{color:var(--si-ink-muted)}
+.space-bar{height:16px;border-radius:4px;background:linear-gradient(90deg,var(--si-navy),var(--si-slate))}
+.radius-box{height:88px;background:var(--si-ice-soft);border:2px solid var(--si-navy);margin-bottom:12px}
+.shadow-box{height:96px;border-radius:var(--si-radius-lg);background:var(--si-card);margin-bottom:14px}
+.token-cap b{display:block;font-size:14px}
+.token-cap code{color:var(--si-ink-muted);font-size:12px}
+.token-cap p{margin:4px 0 0;font-size:12.5px;line-height:18px;color:var(--si-ink-subtle)}
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px}
+.icon-cell{background:var(--si-card);border-radius:var(--si-radius-md);box-shadow:var(--si-shadow-card);padding:18px 8px 12px;text-align:center;font-size:11.5px;color:var(--si-ink-muted)}
+.icon-cell .ms{font-size:26px;width:26px;color:var(--si-navy);display:block;margin:0 auto 10px}
+
+/* Code block */
+.code{background:var(--si-navy);color:#dbe6f6;border-radius:var(--si-radius-lg);padding:20px 24px;font-family:var(--si-font-mono);font-size:12.5px;line-height:20px;overflow:auto;position:relative;max-height:420px;white-space:pre}
+.code .k{color:var(--si-ice)} .code .v{color:#ffb4a9} .code .c{color:#7d8ea6}
+.copy-btn{position:absolute;top:14px;right:14px}
+
+/* =========================================================
+   COMPONENTS (si-*)
+   ========================================================= */
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;gap:16px}
+.between{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.overline{margin:0;font-size:13px;line-height:18px;letter-spacing:.06em;font-weight:600;text-transform:uppercase;color:var(--si-ink-muted)}
+.caption{margin:0;font-size:12px;line-height:16px;font-weight:500;color:var(--si-ink-muted)}
+.muted{color:var(--si-ink-muted)}
+
+/* Button */
+.si-btn{height:40px;padding:0 20px;border:0;border-radius:var(--si-radius-sm);display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;line-height:20px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background var(--si-dur),box-shadow var(--si-dur),transform var(--si-dur-fast)}
+.si-btn:active{transform:translateY(1px)}
+.si-btn .ms{font-size:18px}
+.si-btn--primary{background:var(--si-navy);color:#fff}
+.si-btn--primary:hover{background:var(--si-navy-hover);box-shadow:var(--si-shadow-navy)}
+.si-btn--primary:active{background:var(--si-navy-active)}
+.si-btn--secondary{background:var(--si-ice);color:var(--si-navy)}
+.si-btn--secondary:hover{background:var(--si-ice-hover)}
+.si-btn--accent{background:var(--si-coral);color:var(--si-charcoal)}
+.si-btn--accent:hover{background:var(--si-coral-hover)}
+.si-btn--soft{background:var(--si-ice-soft);color:var(--si-navy)}
+.si-btn--soft:hover{background:var(--si-ice)}
+.si-btn--outline{background:var(--si-card);color:var(--si-ink);box-shadow:inset 0 0 0 1px var(--si-line-strong)}
+.si-btn--outline:hover{background:var(--si-ice-faint)}
+.si-btn--ghost{background:transparent;color:var(--si-navy)}
+.si-btn--ghost:hover{background:var(--si-ice-faint)}
+.si-btn--danger{background:var(--si-danger-ink);color:#fff}
+.si-btn--danger:hover{background:#991b1b}
+.si-btn--dashed{width:100%;height:48px;background:transparent;color:var(--si-navy);border:1.5px dashed var(--si-ice)}
+.si-btn--dashed:hover{background:var(--si-ice-faint)}
+.si-btn:disabled{background:var(--si-sunken);color:var(--si-ink-subtle);box-shadow:none;cursor:not-allowed;transform:none}
+.si-btn--sm{height:32px;padding:0 12px;font-size:13px}
+.si-btn--lg{height:48px;padding:0 24px;font-size:15px}
+.si-icon-btn{width:44px;height:44px;border:0;border-radius:var(--si-radius-sm);background:var(--si-card);box-shadow:var(--si-shadow-xs);color:var(--si-navy);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background var(--si-dur)}
+.si-icon-btn:hover{background:var(--si-ice-faint)}
+.si-icon-btn .dot{position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--si-coral);box-shadow:0 0 0 2px var(--si-card)}
+.si-spinner{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Fields */
+.si-field{display:flex;flex-direction:column;gap:8px}
+.si-label{font-size:14px;line-height:20px;font-weight:600;display:flex;justify-content:space-between}
+.si-label em{font-style:normal;font-weight:500;color:var(--si-ink-subtle);font-size:12px}
+.si-help{margin:0;font-size:12px;line-height:16px;font-weight:500;color:var(--si-ink-muted)}
+.si-input{width:100%;height:44px;padding:0 16px;border:1px solid transparent;border-radius:var(--si-radius-sm);background:var(--si-sunken);color:var(--si-ink);font-size:14px;transition:border-color var(--si-dur),box-shadow var(--si-dur),background var(--si-dur)}
+.si-input::placeholder{color:var(--si-ink-subtle)}
+.si-input:hover{border-color:var(--si-line-strong)}
+.si-input:focus{outline:none;background:var(--si-card);border-color:var(--si-navy);box-shadow:0 0 0 3px var(--si-ice-soft)!important}
+.si-input:disabled{opacity:.6;cursor:not-allowed}
+.si-input.is-error{background:var(--si-danger-soft);border-color:var(--si-danger)}
+.si-field.is-error .si-help{color:var(--si-danger-ink)}
+.si-field.is-success .si-help{color:var(--si-success-ink)}
+.si-input.is-success{border-color:var(--si-success)}
+textarea.si-input{height:auto;padding:12px 16px;line-height:20px;resize:vertical;min-height:96px}
+.si-input-wrap{position:relative}
+.si-input-wrap .ms{position:absolute;top:12px;color:var(--si-slate);pointer-events:none}
+.si-input-wrap .lead{left:14px}.si-input-wrap .trail{right:14px}
+.si-input-wrap .si-input.has-lead{padding-left:44px}
+.si-input-wrap .si-input.has-trail{padding-right:44px}
+.si-input--search{background:var(--si-card);box-shadow:var(--si-shadow-xs);height:48px}
+select.si-input{appearance:none;cursor:pointer;padding-right:44px}
+.si-check{display:flex;gap:12px;align-items:flex-start;cursor:pointer;user-select:none}
+.si-check input{position:absolute;opacity:0;pointer-events:none}
+.si-box{width:20px;height:20px;flex:none;margin-top:1px;border:1.5px solid var(--si-ink-subtle);border-radius:6px;background:var(--si-card);display:flex;align-items:center;justify-content:center;color:#fff;transition:all var(--si-dur)}
+.si-box .ms{font-size:16px;opacity:0;transition:opacity var(--si-dur-fast)}
+.si-check input:checked + .si-box{background:var(--si-navy);border-color:var(--si-navy)}
+.si-check input:checked + .si-box .ms{opacity:1}
+.si-check input:focus-visible + .si-box{box-shadow:0 0 0 3px var(--si-ice)}
+.si-check input:disabled + .si-box{background:var(--si-sunken);border-color:var(--si-line-strong)}
+.si-check.is-radio .si-box{border-radius:50%}
+.si-check.is-radio input:checked + .si-box{background:var(--si-card);border:6px solid var(--si-navy)}
+.si-check .t{font-size:15px;font-weight:500;line-height:22px;margin:0}
+.si-switch{position:relative;width:44px;height:24px;flex:none;cursor:pointer}
+.si-switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.si-switch span{position:absolute;inset:0;border-radius:999px;background:var(--si-line-strong);transition:background var(--si-dur);pointer-events:none}
+.si-switch span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(11,28,48,.25);transition:left var(--si-dur) var(--si-ease)}
+.si-switch input:checked + span{background:var(--si-navy)}
+.si-switch input:checked + span::after{left:23px}
+.si-switch input:focus-visible + span{box-shadow:0 0 0 3px var(--si-ice)}
+.si-range{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--si-navy) var(--p,60%),var(--si-ice-soft) var(--p,60%));outline:none;cursor:pointer}
+.si-range::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid var(--si-coral);box-shadow:var(--si-shadow-raised)}
+.si-range::-moz-range-thumb{width:12px;height:12px;border-radius:50%;background:#fff;border:4px solid var(--si-coral);box-shadow:var(--si-shadow-raised)}
+.si-segment{display:inline-flex;gap:4px;padding:4px;background:var(--si-sunken);border-radius:var(--si-radius-sm)}
+.si-segment button{height:36px;padding:0 16px;border:0;border-radius:8px;background:transparent;color:var(--si-ink-muted);font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all var(--si-dur)}
+.si-segment button:hover{color:var(--si-ink)}
+.si-segment button.on{background:var(--si-card);color:var(--si-navy);box-shadow:var(--si-shadow-xs)}
+
+/* Navigation */
+.si-tabs{display:flex;gap:24px;border-bottom:1px solid var(--si-line)}
+.si-tabs button{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:0 0 12px;font-size:14px;font-weight:600;color:var(--si-ink-muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.si-tabs button .ms{font-size:18px}
+.si-tabs button:hover{color:var(--si-ink)}
+.si-tabs button.on{color:var(--si-navy);border-bottom-color:var(--si-coral)}
+.si-tabs .badge{font-size:11px;padding:0 6px;height:18px;line-height:18px;border-radius:999px;background:var(--si-ice-soft);color:var(--si-navy)}
+.si-crumbs{display:flex;align-items:center;gap:6px;font-size:14px;flex-wrap:wrap}
+.si-crumbs a{color:var(--si-ink-muted);text-decoration:none;font-weight:500}
+.si-crumbs a:hover{color:var(--si-navy)}
+.si-crumbs .ms{font-size:18px;color:var(--si-ink-subtle)}
+.si-crumbs b{font-weight:600}
+.si-pages{display:flex;gap:4px;align-items:center}
+.si-pages button{min-width:36px;height:36px;border:0;border-radius:var(--si-radius-sm);background:transparent;color:var(--si-ink-muted);font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.si-pages button:hover{background:var(--si-ice-faint);color:var(--si-navy)}
+.si-pages button.on{background:var(--si-navy);color:#fff;box-shadow:var(--si-shadow-navy)}
+.si-menu{width:260px;background:var(--si-card);border-radius:var(--si-radius-md);box-shadow:var(--si-shadow-raised);padding:8px}
+.si-menu a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--si-radius-sm);text-decoration:none;color:var(--si-ink);font-size:14px;font-weight:500}
+.si-menu a .ms{color:var(--si-ink-muted)}
+.si-menu a kbd{margin-left:auto;font-family:var(--si-font-mono);font-size:11px;color:var(--si-ink-subtle)}
+.si-menu a:hover{background:var(--si-ice-faint)}
+.si-menu a:hover .ms{color:var(--si-navy)}
+.si-menu hr{border:0;height:1px;background:var(--si-line);margin:4px 0}
+.si-menu a.danger,.si-menu a.danger .ms{color:var(--si-danger-ink)}
+.si-menu a.danger:hover{background:var(--si-danger-soft)}
+.si-sidebar{width:88px;background:var(--si-navy);border-radius:var(--si-radius-xl);padding:24px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.si-sidebar .logo{color:#fff;font-family:var(--si-font-display);font-weight:800;font-size:18px;line-height:18px;text-align:center;margin-bottom:28px}
+.si-sidebar .logo span{color:var(--si-coral)}
+.si-nav{width:48px;height:48px;border:0;border-radius:var(--si-radius-md);background:transparent;color:var(--si-ice-on-navy);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.si-nav:hover{background:rgba(255,255,255,.08);color:#fff}
+.si-nav.on{background:rgba(204,220,239,.18);color:#fff}
+.si-nav .count{position:absolute;top:6px;right:5px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:var(--si-coral);color:var(--si-charcoal);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* Containers */
+.si-card{background:var(--si-card);border-radius:var(--si-radius-lg);box-shadow:var(--si-shadow-card);padding:24px;display:flex;flex-direction:column;gap:16px}
+.si-card h3{margin:0;font-family:var(--si-font-display);font-size:18px;line-height:26px;font-weight:700}
+.si-card p{margin:0;font-size:14px;line-height:21px;color:var(--si-ink-muted)}
+.si-card.interactive{cursor:pointer;transition:box-shadow var(--si-dur),transform var(--si-dur) var(--si-ease)}
+.si-card.interactive:hover{box-shadow:var(--si-shadow-raised);transform:translateY(-2px)}
+.si-more{border:0;background:transparent;color:var(--si-ink-subtle);width:32px;height:32px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.si-more:hover{background:var(--si-ice-faint);color:var(--si-navy)}
+.si-panel{background:var(--si-card);border-radius:var(--si-radius-lg);box-shadow:var(--si-shadow-card)}
+.si-panel-head{background:var(--si-navy);color:#fff;border-radius:var(--si-radius-lg);padding:18px 24px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1}
+.si-panel-head h4{margin:0;font-size:13.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.si-on-navy{height:36px;min-width:36px;padding:0 12px;border:0;border-radius:var(--si-radius-sm);background:rgba(204,220,239,.16);color:#fff;font-size:14px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:4px;cursor:pointer}
+.si-on-navy:hover{background:rgba(204,220,239,.26)}
+.si-on-navy.icon{padding:0}
+.si-on-navy .ms{font-size:18px}
+.si-banner{background:var(--si-navy);color:#fff;border-radius:var(--si-radius-xl);padding:28px 32px;min-height:200px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.si-banner h3{margin:0;font-family:var(--si-font-display);font-size:28px;line-height:36px;font-weight:700;letter-spacing:-.015em}
+.si-banner p{margin:4px 0 0;color:var(--si-ice-on-navy);font-size:15px}
+.si-banner svg{position:absolute;right:0;top:0;height:100%;width:48%}
+.si-avatar{width:40px;height:40px;border-radius:50%;flex:none;display:inline-flex;align-items:center;justify-content:center;background:var(--si-ice-soft);color:var(--si-navy);font-weight:700;font-size:14px;position:relative}
+.si-avatar--sm{width:32px;height:32px;font-size:12px}
+.si-avatar--lg{width:56px;height:56px;font-size:18px}
+.si-avatar--xl{width:92px;height:92px;font-size:28px;font-family:var(--si-font-display);background:linear-gradient(180deg,var(--si-ice),var(--si-ice-soft));box-shadow:0 0 0 4px var(--si-card),0 0 0 6px var(--si-ice-soft)}
+.si-avatar .status{position:absolute;right:0;bottom:0;width:10px;height:10px;border-radius:50%;background:var(--si-success);box-shadow:0 0 0 2px var(--si-card)}
+.si-avatar-stack{display:flex}
+.si-avatar-stack .si-avatar{box-shadow:0 0 0 2px var(--si-card)}
+.si-avatar-stack .si-avatar+.si-avatar{margin-left:-10px}
+.si-facts{display:grid;grid-template-columns:repeat(3,1fr)}
+.si-facts>div{text-align:center;padding:0 8px}
+.si-facts>div+div{border-left:1px solid var(--si-line)}
+.si-facts span{font-size:12px;color:var(--si-ink-muted);font-weight:500}
+.si-facts b{display:block;margin-top:4px;font-family:var(--si-font-display);font-size:16px;font-weight:700}
+.si-acc{background:var(--si-card);border-radius:var(--si-radius-md);box-shadow:var(--si-shadow-card);overflow:hidden}
+.si-acc+.si-acc{margin-top:12px}
+.si-acc summary{list-style:none;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;font-weight:600;font-size:15px}
+.si-acc summary::-webkit-details-marker{display:none}
+.si-acc summary .ms{color:var(--si-ink-muted);transition:transform var(--si-dur)}
+.si-acc[open] summary .ms{transform:rotate(180deg)}
+.si-acc .body{padding:0 20px 18px;color:var(--si-ink-muted);font-size:14px;line-height:21px}
+.si-empty{text-align:center;padding:32px 24px}
+.si-empty .ic{width:64px;height:64px;border-radius:var(--si-radius-lg);background:var(--si-ice-soft);color:var(--si-navy);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.si-empty .ic .ms{font-size:30px;width:30px}
+.si-empty h4{margin:0 0 4px;font-family:var(--si-font-display);font-size:17px}
+.si-empty p{margin:0 auto 16px;max-width:280px;color:var(--si-ink-muted);font-size:14px}
+
+/* Data display */
+.si-tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:var(--si-radius-xs);font-size:12px;font-weight:600;white-space:nowrap}
+.si-tag i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.si-tag--navy{background:var(--si-navy);color:#fff}
+.si-tag--ice{background:var(--si-ice-soft);color:var(--si-navy)}
+.si-tag--coral{background:var(--si-coral-soft);color:var(--si-coral-ink)}
+.si-tag--success{background:var(--si-success-soft);color:var(--si-success-ink)}
+.si-tag--warning{background:var(--si-warning-soft);color:var(--si-warning-ink)}
+.si-tag--danger{background:var(--si-danger-soft);color:var(--si-danger-ink)}
+.si-tag--neutral{background:var(--si-sunken);color:var(--si-ink-muted)}
+.si-tag--pill{border-radius:999px;padding:0 10px}
+.si-stat{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center}
+.si-stat svg{width:96px;height:76px;display:block}
+.si-metric{margin:0;font-family:var(--si-font-display);font-size:26px;line-height:32px;font-weight:700;letter-spacing:-.01em;color:var(--si-ink)}
+.si-unit{margin:0 0 8px;font-size:14px;color:var(--si-ink-muted)}
+.si-kpi{display:flex;flex-direction:column;gap:6px}
+.si-kpi .top{display:flex;align-items:center;gap:10px}
+.si-kpi .top .ms{width:36px;height:36px;border-radius:var(--si-radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px}
+.si-ring{position:relative;width:156px;height:156px;flex:none}
+.si-ring svg{transform:rotate(-90deg);display:block;width:156px;height:156px}
+.si-ring .lbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.si-ring .lbl b{font-family:var(--si-font-display);font-size:38px;line-height:42px;font-weight:700}
+.si-ring .lbl b small{font-size:16px;margin-left:2px}
+.si-ring .lbl span{font-size:11px;letter-spacing:.08em;font-weight:600;color:var(--si-ink-muted);text-transform:uppercase}
+.si-breakdown{flex:1;min-width:120px;background:var(--si-sunken);border-radius:var(--si-radius-md);padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.si-breakdown .si-metric{font-size:22px;line-height:26px}
+.si-breakdown p{margin:2px 0 0;font-size:13px;color:var(--si-ink-muted)}
+.si-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--si-ink-muted);font-weight:500}
+.si-legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.si-bar .top{display:flex;justify-content:space-between;font-size:14px;font-weight:500;margin-bottom:8px}
+.si-bar .top b{font-family:var(--si-font-mono);font-size:13px;font-weight:600}
+.si-track{height:6px;background:var(--si-ice-soft);border-radius:999px;overflow:hidden}
+.si-track.lg{height:10px}
+.si-fill{height:100%;border-radius:999px;background:var(--si-navy);transition:width .6s var(--si-ease)}
+.si-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:var(--si-ice-faint);border-radius:0 0 var(--si-radius-lg) var(--si-radius-lg);padding:24px 12px 12px;margin-top:-12px}
+.si-day{border:0;background:transparent;border-radius:var(--si-radius-md);padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;color:var(--si-ink-muted);font-size:13px;font-weight:500;transition:background var(--si-dur)}
+.si-day b{font-family:var(--si-font-display);font-size:18px;color:var(--si-ink)}
+.si-day:hover{background:rgba(255,255,255,.85)}
+.si-day.on{background:var(--si-navy);color:var(--si-ice-on-navy);box-shadow:var(--si-shadow-navy)}
+.si-day.on b{color:#fff}
+.si-agenda{list-style:none;margin:0;padding:0}
+.si-agenda li{display:grid;grid-template-columns:62px 10px 1fr;gap:12px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--si-line-strong);font-size:14.5px;line-height:20px}
+.si-agenda li:last-child{border-bottom:0}
+.si-agenda time{font-family:var(--si-font-mono);font-size:12px;color:var(--si-ink-subtle)}
+.si-agenda i{width:8px;height:8px;border-radius:50%}
+.si-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}
+.si-table th{text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--si-ink-muted);font-weight:600;background:var(--si-sunken);padding:12px 16px;white-space:nowrap}
+.si-table th:first-child{border-radius:var(--si-radius-sm) 0 0 var(--si-radius-sm)}
+.si-table th:last-child{border-radius:0 var(--si-radius-sm) var(--si-radius-sm) 0}
+.si-table td{padding:14px 16px;border-bottom:1px solid var(--si-line);white-space:nowrap}
+.si-table tbody tr{transition:background var(--si-dur)}
+.si-table tbody tr:hover{background:var(--si-surface)}
+.si-table tr:last-child td{border-bottom:0}
+.si-table .num{font-family:var(--si-font-mono);font-size:13px}
+.si-person{display:flex;align-items:center;gap:12px}
+.si-person b{display:block;font-weight:600}
+.si-person span{font-size:12.5px;color:var(--si-ink-muted)}
+.si-list-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--si-line)}
+.si-list-item:last-child{border-bottom:0}
+.si-list-item .grow{flex:1;min-width:0}
+.si-list-item b{display:block;font-weight:600;font-size:14.5px}
+.si-list-item span{font-size:13px;color:var(--si-ink-muted)}
+.si-timeline{list-style:none;margin:0;padding:0;position:relative}
+.si-timeline li{position:relative;padding:0 0 20px 28px}
+.si-timeline li::before{content:"";position:absolute;left:5px;top:16px;bottom:0;width:2px;background:var(--si-line)}
+.si-timeline li:last-child::before{display:none}
+.si-timeline li i{position:absolute;left:0;top:4px;width:12px;height:12px;border-radius:50%;background:var(--si-card);border:3px solid var(--si-navy)}
+.si-timeline b{display:block;font-size:14.5px}
+.si-timeline span{font-size:13px;color:var(--si-ink-muted)}
+
+/* Feedback */
+.si-alert{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:var(--si-radius-md);background:var(--si-card);box-shadow:var(--si-shadow-card)}
+.si-alert .ic{width:36px;height:36px;border-radius:var(--si-radius-sm);display:flex;align-items:center;justify-content:center;flex:none}
+.si-alert h5{margin:0 0 2px;font-size:15px;line-height:22px;font-weight:600}
+.si-alert p{margin:0;font-size:14px;line-height:20px;color:var(--si-ink-muted)}
+.si-alert .x{margin-left:auto}
+.si-alert--info .ic{background:var(--si-ice-soft);color:var(--si-navy)}
+.si-alert--success .ic{background:var(--si-success-soft);color:var(--si-success-ink)}
+.si-alert--warning .ic{background:var(--si-warning-soft);color:var(--si-warning-ink)}
+.si-alert--danger .ic{background:var(--si-danger-soft);color:var(--si-danger-ink)}
+.si-banner-inline{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--si-radius-md);background:var(--si-ice-soft);color:var(--si-navy);font-size:14px;font-weight:500}
+.si-banner-inline .si-btn{margin-left:auto}
+.si-modal-backdrop{position:fixed;inset:0;background:rgba(11,28,48,.42);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+.si-modal-backdrop.open{display:flex;animation:fade var(--si-dur) var(--si-ease)}
+.si-modal{background:var(--si-card);border-radius:var(--si-radius-lg);box-shadow:var(--si-shadow-modal);padding:24px;display:flex;flex-direction:column;gap:16px;width:100%;max-width:440px;animation:pop var(--si-dur-slow) var(--si-ease)}
+.si-modal h3{margin:0;font-family:var(--si-font-display);font-size:20px;line-height:28px;font-weight:700}
+.si-modal p{margin:0;font-size:14px;line-height:21px;color:var(--si-ink-muted)}
+.si-callout{background:var(--si-sunken);border-radius:var(--si-radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.si-actions{display:flex;justify-content:flex-end;gap:12px}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}}
+.si-toast{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--si-navy);color:#fff;border-radius:var(--si-radius-md);box-shadow:var(--si-shadow-modal);font-size:14px;font-weight:500;max-width:420px}
+.si-toast .ms{color:#6ee7b7}
+.si-toast button{margin-left:auto;background:none;border:0;color:var(--si-coral);font-weight:700;font-size:14px;cursor:pointer}
+.toast-host{position:fixed;bottom:24px;right:24px;z-index:120;display:flex;flex-direction:column;gap:10px}
+.toast-host .si-toast{animation:pop var(--si-dur-slow) var(--si-ease)}
+.si-tooltip{position:relative;display:inline-flex}
+.si-tooltip .tip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--si-charcoal);color:#fff;font-size:12px;font-weight:500;padding:6px 10px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--si-dur)}
+.si-tooltip .tip::after{content:"";position:absolute;top:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--si-charcoal)}
+.si-tooltip:hover .tip,.si-tooltip:focus-within .tip{opacity:1}
+.si-skel{display:flex;flex-direction:column;gap:12px}
+.si-skel div{border-radius:var(--si-radius-sm);background:linear-gradient(90deg,var(--si-sunken) 0%,#f8fbff 50%,var(--si-sunken) 100%);background-size:200% 100%;animation:shim 1.4s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+
+/* Pattern preview */
+.mini-app{background:var(--si-canvas);border-radius:var(--si-radius-xl);padding:20px}
+.mini-shell{background:var(--si-surface);border-radius:24px;padding:16px;display:grid;grid-template-columns:64px 1fr 220px;gap:16px}
+.mini-shell .rail{background:var(--si-navy);border-radius:20px;min-height:340px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 0}
+.mini-shell .rail span{width:32px;height:32px;border-radius:10px;background:rgba(204,220,239,.18)}
+.mini-shell .rail span:first-child{background:#fff;opacity:.9;width:28px;height:28px;margin-bottom:14px}
+.mini-shell .blk{background:var(--si-card);border-radius:14px;box-shadow:var(--si-shadow-card)}
+.anno{font-family:var(--si-font-mono);font-size:10.5px;color:var(--si-ink-subtle);padding:8px 10px}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+@media (max-width:1180px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.principles{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.toc{display:none}.content{padding:24px 16px 80px}.g2,.g3,.g4{grid-template-columns:1fr}.top-search{display:none}.type-row{grid-template-columns:1fr}.type-row .tspec{text-align:left}.doc-hero h1{font-size:36px;line-height:40px}.doc-hero svg{opacity:.3}.mini-shell{grid-template-columns:48px 1fr}.mini-shell .side{display:none}.dodont{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#overview"><span class="brand-mark"><span class="ms">layers</span></span><b>Slate &amp; Ice</b><small>Design System</small></a>
+  <span class="ver">v2.0</span>
+  <div class="grow"></div>
+  <label class="top-search"><input id="filter" type="search" placeholder="Jump to section…" aria-label="Jump to section"><span class="ms">search</span></label>
+  <button class="si-icon-btn" aria-label="Notifications" data-toast="No new notifications"><span class="ms">notifications</span><span class="dot"></span></button>
+</header>
+
+<div class="layout">
+<nav class="toc" id="toc" aria-label="Contents">
+  <h6>Start</h6>
+  <a href="#overview"><span class="ms">home</span>Overview</a>
+  <h6>Foundations</h6>
+  <a href="#color"><span class="ms">palette</span>Color</a>
+  <a href="#typography"><span class="ms">text_fields</span>Typography</a>
+  <a href="#spacing"><span class="ms">space_bar</span>Spacing &amp; layout</a>
+  <a href="#radius"><span class="ms">rounded_corner</span>Radius &amp; elevation</a>
+  <a href="#iconography"><span class="ms">interests</span>Iconography</a>
+  <a href="#motion"><span class="ms">animation</span>Motion</a>
+  <h6>Components</h6>
+  <a href="#buttons"><span class="ms">smart_button</span>Buttons</a>
+  <a href="#forms"><span class="ms">edit_note</span>Form controls</a>
+  <a href="#navigation"><span class="ms">menu_open</span>Navigation</a>
+  <a href="#containers"><span class="ms">dashboard</span>Containers</a>
+  <a href="#data"><span class="ms">bar_chart</span>Data display</a>
+  <a href="#feedback"><span class="ms">notifications_active</span>Feedback</a>
+  <h6>Guidelines</h6>
+  <a href="#patterns"><span class="ms">view_quilt</span>Layout patterns</a>
+  <a href="#content"><span class="ms">edit</span>Content &amp; voice</a>
+  <a href="#accessibility"><span class="ms">accessibility_new</span>Accessibility</a>
+  <a href="#tokens"><span class="ms">data_object</span>Tokens (CSS)</a>
+</nav>
+
+<main class="content">
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="doc-section">
+  <div class="doc-hero">
+    <span class="eyebrow"><span class="ms" style="font-size:16px;color:var(--si-ice)">auto_awesome</span>Version 2.0 · Clean dashboard edition</span>
+    <h1>Slate &amp; Ice Design System</h1>
+    <p>A calm, professional UI language for data-heavy dashboards. Deep navy structure, ice-blue surfaces and a single warm coral accent — on soft, rounded cards.</p>
+    <svg viewBox="0 0 520 300" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+      <circle cx="380" cy="170" r="150" fill="#2c3f57"/>
+      <circle cx="380" cy="170" r="96" fill="#33475f"/>
+      <rect x="282" y="70" width="188" height="120" rx="20" fill="#ffffff"/>
+      <circle cx="330" cy="130" r="30" fill="none" stroke="#e5eeff" stroke-width="10"/>
+      <circle cx="330" cy="130" r="30" fill="none" stroke="#213145" stroke-width="10" stroke-linecap="round" stroke-dasharray="90 189" transform="rotate(-90 330 130)"/>
+      <circle cx="330" cy="130" r="30" fill="none" stroke="#ff8574" stroke-width="10" stroke-linecap="round" stroke-dasharray="48 189" stroke-dashoffset="-100" transform="rotate(-90 330 130)"/>
+      <rect x="378" y="104" width="72" height="9" rx="4.5" fill="#e5eeff"/>
+      <rect x="378" y="124" width="52" height="9" rx="4.5" fill="#e5eeff"/>
+      <rect x="378" y="144" width="38" height="9" rx="4.5" fill="#ff8574"/>
+      <rect x="282" y="206" width="188" height="48" rx="16" fill="#ccdcef"/>
+      <rect x="352" y="214" width="26" height="32" rx="9" fill="#213145"/>
+      <circle cx="306" cy="230" r="3.5" fill="#516070"/><circle cx="326" cy="230" r="3.5" fill="#516070"/><circle cx="400" cy="230" r="3.5" fill="#516070"/><circle cx="420" cy="230" r="3.5" fill="#516070"/><circle cx="440" cy="230" r="3.5" fill="#516070"/>
+      <g transform="translate(206 58) rotate(-30)"><rect width="44" height="16" rx="8" fill="#ff8574"/><rect x="22" width="22" height="16" rx="8" fill="#ccdcef"/><rect x="22" width="9" height="16" fill="#ccdcef"/></g>
+      <circle cx="486" cy="56" r="13" fill="#10b981"/><rect x="480" y="54.3" width="12" height="3.4" rx="1.7" fill="#fff"/><rect x="484.3" y="50" width="3.4" height="12" rx="1.7" fill="#fff"/>
+    </svg>
+  </div>
+
+  <div class="principles">
+    <div class="specimen principle"><span class="ms">layers</span><h4>Navy builds structure</h4><p>Navy is the one structural colour: sidebar, hero, panel headers, primary action, selected state.</p></div>
+    <div class="specimen principle"><span class="ms">ac_unit</span><h4>Ice keeps it light</h4><p>Ice-blue tints carry selection, soft buttons and inset blocks. Content lives on white cards.</p></div>
+    <div class="specimen principle"><span class="ms">bolt</span><h4>Coral is rare</h4><p>One warm accent for the active tab, a key metric, a CTA or a chart series — never decoration.</p></div>
+    <div class="specimen principle"><span class="ms">crop_square</span><h4>Soft, round, airy</h4><p>Radii grow with size, shadows barely show, and 24px of air separates every card.</p></div>
+  </div>
+</section>
+
+<!-- ============ COLOR ============ -->
+<section id="color" class="doc-section">
+  <div class="sec-head"><span class="sec-num">01 //</span><h2>Color</h2></div>
+  <p class="sec-lead">The original Slate &amp; Ice palette — charcoal, navy slate, ice blue and warm coral — organised into roles. Click any swatch to copy its hex.</p>
+
+  <h3 class="sub">Brand</h3>
+  <div class="swatches" data-swatches="brand"></div>
+  <h3 class="sub">Surfaces &amp; ink</h3>
+  <div class="swatches" data-swatches="neutral"></div>
+  <h3 class="sub">Status</h3>
+  <div class="swatches" data-swatches="status"></div>
+
+  <h3 class="sub">Ramps</h3>
+  <div class="col" style="gap:14px">
+    <div class="ramp"><div style="background:#18253a;color:#fff">navy-active</div><div style="background:#213145;color:#fff">navy</div><div style="background:#2c3f57;color:#fff">navy-hover</div><div style="background:#516070;color:#fff">slate</div><div style="background:#b8c8db;color:#213145">ice-on-navy</div><div style="background:#ccdcef;color:#213145">ice</div><div style="background:#e5eeff;color:#213145">ice-soft</div><div style="background:#eff4ff;color:#213145">ice-faint</div><div style="background:#f8f9ff;color:#213145">surface</div></div>
+    <div class="ramp"><div style="background:#a13e32;color:#fff">coral-ink</div><div style="background:#f06b58;color:#222526">coral-hover</div><div style="background:#ff8574;color:#222526">coral</div><div style="background:#ffb4a9;color:#222526">coral-300</div><div style="background:#ffe9e5;color:#a13e32">coral-soft</div></div>
+  </div>
+
+  <h3 class="sub">Usage ratio</h3>
+  <div class="specimen">
+    <div style="display:flex;height:40px;border-radius:10px;overflow:hidden">
+      <div style="flex:60;background:#f8f9ff;border:1px solid var(--si-line)"></div><div style="flex:22;background:#fff;border:1px solid var(--si-line)"></div><div style="flex:10;background:#213145"></div><div style="flex:5;background:#ccdcef"></div><div style="flex:3;background:#ff8574"></div>
+    </div>
+    <div class="si-legend" style="margin-top:12px"><span><i style="background:#f8f9ff;box-shadow:inset 0 0 0 1px #d3e4fe"></i>Surface 60%</span><span><i style="background:#fff;box-shadow:inset 0 0 0 1px #d3e4fe"></i>Card 22%</span><span><i style="background:#213145"></i>Navy 10%</span><span><i style="background:#ccdcef"></i>Ice 5%</span><span><i style="background:#ff8574"></i>Coral ≤3%</span></div>
+    <div class="dodont">
+      <div class="do"><b><span class="ms">check_circle</span>Do</b>Use coral for one thing per view: the active tab underline, a single CTA, or one chart series.</div>
+      <div class="dont"><b><span class="ms">cancel</span>Don't</b>Put white text on coral (2.4:1). Text on coral is always charcoal (6.5:1).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TYPOGRAPHY ============ -->
+<section id="typography" class="doc-section">
+  <div class="sec-head"><span class="sec-num">02 //</span><h2>Typography</h2></div>
+  <p class="sec-lead"><b>Plus Jakarta Sans</b> for display, headings and metrics; <b>Inter</b> for body and UI; <b>JetBrains Mono</b> sparingly for times, IDs and percentages in tables.</p>
+  <div class="grid g3" style="margin-bottom:24px">
+    <div class="specimen"><p class="spec-label"><span>Display</span><code>--si-font-display</code></p><div style="font-family:var(--si-font-display);font-size:56px;line-height:60px;font-weight:800;letter-spacing:-.03em">Aa</div><p class="note">Plus Jakarta Sans · 600 / 700 / 800</p></div>
+    <div class="specimen"><p class="spec-label"><span>Body</span><code>--si-font-sans</code></p><div style="font-size:56px;line-height:60px;font-weight:600">Aa</div><p class="note">Inter · 400 / 500 / 600 / 700</p></div>
+    <div class="specimen"><p class="spec-label"><span>Data</span><code>--si-font-mono</code></p><div style="font-family:var(--si-font-mono);font-size:48px;line-height:60px;font-weight:600">09</div><p class="note">JetBrains Mono · 500 / 600</p></div>
+  </div>
+  <div class="specimen" id="type-scale"></div>
+</section>
+
+<!-- ============ SPACING ============ -->
+<section id="spacing" class="doc-section">
+  <div class="sec-head"><span class="sec-num">03 //</span><h2>Spacing &amp; layout</h2></div>
+  <p class="sec-lead">A 4px grid. Cards use 24px padding and 24px gaps; elements inside a card sit 16px apart.</p>
+  <div class="grid g2">
+    <div class="specimen" id="space-scale"></div>
+    <div class="specimen">
+      <p class="spec-label"><span>Grid</span><code>desktop ≥ 1240px</code></p>
+      <div style="display:grid;grid-template-columns:44px 1fr 120px;gap:12px;height:200px">
+        <div style="background:var(--si-navy);border-radius:14px"></div>
+        <div style="display:grid;grid-template-rows:auto 1fr 1fr;gap:12px"><div style="height:22px;background:var(--si-card);border-radius:8px;box-shadow:var(--si-shadow-card)"></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div class="mini b" style="background:var(--si-ice-soft);border-radius:10px"></div><div style="background:var(--si-ice-soft);border-radius:10px"></div><div style="background:var(--si-ice-soft);border-radius:10px"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="background:var(--si-ice-soft);border-radius:10px"></div><div style="background:var(--si-ice-soft);border-radius:10px"></div></div></div>
+        <div style="display:grid;grid-template-rows:1fr 1.4fr;gap:12px"><div style="background:var(--si-ice);border-radius:10px"></div><div style="background:var(--si-ice);border-radius:10px"></div></div>
+      </div>
+      <table class="tbl" style="margin-top:20px">
+        <thead><tr><th>Breakpoint</th><th>Columns</th><th>Padding</th></tr></thead>
+        <tbody><tr><td>≥ 1240px</td><td>Rail 88 · Main fluid · Side 400</td><td>24</td></tr><tr><td>720 – 1239px</td><td>Rail · Main (side panels wrap)</td><td>24</td></tr><tr><td>&lt; 720px</td><td>Single column, rail becomes top bar</td><td>16</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RADIUS & ELEVATION ============ -->
+<section id="radius" class="doc-section">
+  <div class="sec-head"><span class="sec-num">04 //</span><h2>Radius &amp; elevation</h2></div>
+  <p class="sec-lead">Radii step up with the size of the element. Shadows are faint and navy-tinted; depth comes mostly from white cards on an ice surface.</p>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));margin-bottom:32px" id="radius-scale"></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));background:var(--si-sunken);padding:24px;border-radius:var(--si-radius-lg)" id="shadow-scale"></div>
+</section>
+
+<!-- ============ ICONOGRAPHY ============ -->
+<section id="iconography" class="doc-section">
+  <div class="sec-head"><span class="sec-num">05 //</span><h2>Iconography</h2></div>
+  <p class="sec-lead">Material Symbols <b>Rounded</b>, filled, weight 500. 20px default · 18px in buttons and chips · 16px inline. Navy for actions on white, ice-on-navy on dark surfaces.</p>
+  <div class="icon-grid" id="icons"></div>
+</section>
+
+<!-- ============ MOTION ============ -->
+<section id="motion" class="doc-section">
+  <div class="sec-head"><span class="sec-num">06 //</span><h2>Motion</h2></div>
+  <p class="sec-lead">Quick and quiet. One easing curve, three durations. Everything respects <code>prefers-reduced-motion</code>.</p>
+  <div class="grid g3">
+    <div class="specimen"><p class="spec-label"><span>Fast</span><code>120ms</code></p><p class="muted" style="margin:0;font-size:14px">Press states, checkmarks, icon swaps.</p></div>
+    <div class="specimen"><p class="spec-label"><span>Base</span><code>200ms</code></p><p class="muted" style="margin:0;font-size:14px">Hovers, toggles, colour changes, card lift.</p></div>
+    <div class="specimen"><p class="spec-label"><span>Slow</span><code>320ms</code></p><p class="muted" style="margin:0;font-size:14px">Modals, toasts, progress fills. Ease <code>cubic-bezier(.2,.7,.2,1)</code>.</p></div>
+  </div>
+</section>
+
+<!-- ============ BUTTONS ============ -->
+<section id="buttons" class="doc-section">
+  <div class="sec-head"><span class="sec-num">07 //</span><h2>Buttons</h2></div>
+  <p class="sec-lead">40px default height, 10px radius, sentence-case verbs. One primary per view.</p>
+  <div class="grid g2">
+    <div class="specimen"><p class="spec-label"><span>Variants</span><code>.si-btn--*</code></p>
+      <div class="row">
+        <button class="si-btn si-btn--primary">Save changes</button>
+        <button class="si-btn si-btn--secondary">Secondary</button>
+        <button class="si-btn si-btn--accent">Deploy build</button>
+        <button class="si-btn si-btn--soft">Today <span class="ms">expand_more</span></button>
+        <button class="si-btn si-btn--outline">Export</button>
+        <button class="si-btn si-btn--ghost">View all</button>
+        <button class="si-btn si-btn--danger">Delete</button>
+      </div>
+    </div>
+    <div class="specimen"><p class="spec-label"><span>Sizes &amp; states</span><code>--sm · default · --lg</code></p>
+      <div class="row">
+        <button class="si-btn si-btn--primary si-btn--sm">Small</button>
+        <button class="si-btn si-btn--primary">Default</button>
+        <button class="si-btn si-btn--primary si-btn--lg">Large</button>
+        <button class="si-btn si-btn--primary" disabled>Disabled</button>
+        <button class="si-btn si-btn--primary" id="loadBtn"><span class="ms">cloud_upload</span>Upload</button>
+      </div>
+    </div>
+    <div class="specimen"><p class="spec-label"><span>Icon buttons</span><code>.si-icon-btn</code></p>
+      <div class="row">
+        <button class="si-icon-btn" aria-label="Notifications"><span class="ms">notifications</span><span class="dot"></span></button>
+        <button class="si-icon-btn" aria-label="Settings"><span class="ms">settings</span></button>
+        <button class="si-icon-btn" aria-label="Search"><span class="ms">search</span></button>
+        <span class="si-tooltip"><button class="si-icon-btn" aria-label="Help"><span class="ms">help</span></button><span class="tip">Tooltip on hover</span></span>
+      </div>
+    </div>
+    <div class="specimen"><p class="spec-label"><span>Add / placeholder</span><code>.si-btn--dashed</code></p>
+      <button class="si-btn si-btn--dashed" data-toast="Plan added to Monday">Add plan <span class="ms">add</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORMS ============ -->
+<section id="forms" class="doc-section">
+  <div class="sec-head"><span class="sec-num">08 //</span><h2>Form controls</h2></div>
+  <p class="sec-lead">Filled inputs on an ice tint; focus turns them white with a navy border and an ice halo.</p>
+  <div class="grid g3">
+    <div class="specimen col"><p class="spec-label" style="margin:0"><span>Text input</span><code>.si-input</code></p>
+      <div class="si-input-wrap"><input class="si-input si-input--search has-trail" placeholder="Search for events, patients etc."><span class="ms trail">search</span></div>
+      <div class="si-field"><label class="si-label" for="f1">Full name <em>Required</em></label><input id="f1" class="si-input" placeholder="e.g. Alisha Nicholls"></div>
+      <div class="si-field is-success"><label class="si-label" for="f2">Email</label><div class="si-input-wrap"><input id="f2" class="si-input is-success has-lead" value="alisha@medcare.de"><span class="ms lead">mail</span></div><p class="si-help">Verified</p></div>
+      <div class="si-field is-error"><label class="si-label" for="f3">Phone</label><input id="f3" class="si-input is-error" value="+49 20 41"><p class="si-help">Enter a complete phone number.</p></div>
+    </div>
+    <div class="specimen col"><p class="spec-label" style="margin:0"><span>Select · textarea · range</span></p>
+      <div class="si-field"><label class="si-label" for="f4">Specialty</label><div class="si-input-wrap"><select id="f4" class="si-input"><option>Dermatology</option><option>Cardiology</option><option>Neurology</option></select><span class="ms trail">expand_more</span></div></div>
+      <div class="si-field"><label class="si-label" for="f5">Notes <em id="cc">72 / 500</em></label><textarea id="f5" class="si-input" maxlength="500">Mild irritation on the left forearm. Follow up in two weeks.</textarea></div>
+      <div class="si-field"><label class="si-label">Daily capacity <span class="si-tag si-tag--ice" id="rangeVal">18 patients</span></label><input type="range" class="si-range" min="5" max="30" value="18" id="range" aria-label="Daily capacity"><div class="between"><span class="caption">5</span><span class="caption">30</span></div></div>
+    </div>
+    <div class="specimen col"><p class="spec-label" style="margin:0"><span>Selection</span></p>
+      <p class="overline">Reminders</p>
+      <label class="si-check"><input type="checkbox" checked><span class="si-box"><span class="ms">check</span></span><span><p class="t">Email reminders</p><p class="caption">24 hours before the visit.</p></span></label>
+      <label class="si-check"><input type="checkbox"><span class="si-box"><span class="ms">check</span></span><span><p class="t">SMS reminders</p><p class="caption">Standard rates may apply.</p></span></label>
+      <p class="overline" style="margin-top:4px">Visit type</p>
+      <label class="si-check is-radio"><input type="radio" name="v" checked><span class="si-box"></span><span><p class="t">In-person</p></span></label>
+      <label class="si-check is-radio"><input type="radio" name="v"><span class="si-box"></span><span><p class="t">Online consultation</p></span></label>
+      <div class="between" style="margin-top:4px"><span><p class="t" style="margin:0;font-weight:500">Available online</p><p class="caption">Patients can book video calls.</p></span><label class="si-switch"><input type="checkbox" checked aria-label="Available online"><span></span></label></div>
+      <div class="si-segment" role="tablist"><button class="on">Day</button><button>Week</button><button>Month</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NAVIGATION ============ -->
+<section id="navigation" class="doc-section">
+  <div class="sec-head"><span class="sec-num">09 //</span><h2>Navigation</h2></div>
+  <p class="sec-lead">A navy icon rail for the app, underline tabs with a coral indicator for views, and quiet breadcrumbs and pagination.</p>
+  <div class="grid" style="grid-template-columns:auto 1fr;gap:24px">
+    <div class="specimen" style="padding:16px"><nav class="si-sidebar" style="height:440px" aria-label="Sidebar demo">
+      <div class="logo">Med<br>care<span>.</span></div>
+      <button class="si-nav on" aria-label="Home"><span class="ms">home</span></button>
+      <button class="si-nav" aria-label="Analytics"><span class="ms">monitoring</span></button>
+      <button class="si-nav" aria-label="Messages"><span class="ms">send</span><span class="count">5</span></button>
+      <button class="si-nav" aria-label="Calendar"><span class="ms">calendar_month</span></button>
+      <button class="si-nav" aria-label="Apps"><span class="ms">grid_view</span></button>
+      <span style="flex:1"></span>
+      <button class="si-nav" aria-label="Log out"><span class="ms">logout</span></button>
+    </nav></div>
+    <div class="col" style="gap:24px">
+      <div class="specimen"><p class="spec-label"><span>Tabs</span><code>.si-tabs</code></p>
+        <div class="si-tabs" role="tablist"><button class="on"><span class="ms">monitor_heart</span>Overview</button><button><span class="ms">event</span>Appointments <span class="badge">12</span></button><button><span class="ms">science</span>Lab results</button><button><span class="ms">receipt_long</span>Billing</button></div>
+      </div>
+      <div class="grid g2">
+        <div class="specimen"><p class="spec-label"><span>Breadcrumbs</span></p>
+          <nav class="si-crumbs"><a href="#">Patients</a><span class="ms">chevron_right</span><a href="#">Dermatology</a><span class="ms">chevron_right</span><b>Mrs. Lee</b></nav>
+        </div>
+        <div class="specimen"><p class="spec-label"><span>Pagination</span></p>
+          <div class="si-pages"><button aria-label="Previous"><span class="ms">chevron_left</span></button><button>1</button><button class="on">2</button><button>3</button><span class="caption">…</span><button>12</button><button aria-label="Next"><span class="ms">chevron_right</span></button></div>
+        </div>
+      </div>
+      <div class="specimen"><p class="spec-label"><span>Menu / popover</span><code>shadow-raised</code></p>
+        <div class="si-menu">
+          <a href="#"><span class="ms">edit</span>Edit event<kbd>E</kbd></a>
+          <a href="#"><span class="ms">schedule</span>Reschedule<kbd>R</kbd></a>
+          <a href="#"><span class="ms">content_copy</span>Duplicate<kbd>⌘D</kbd></a>
+          <hr><a href="#" class="danger"><span class="ms">delete</span>Cancel event</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTAINERS ============ -->
+<section id="containers" class="doc-section">
+  <div class="sec-head"><span class="sec-num">10 //</span><h2>Containers</h2></div>
+  <p class="sec-lead">White cards (20px radius) hold everything. Panels add a navy header band; the banner is the one large navy hero per page.</p>
+  <div class="si-banner" style="margin-bottom:24px">
+    <span class="si-on-navy" style="align-self:flex-start;cursor:default"><span class="ms" style="color:var(--si-ice)">calendar_today</span>Apr 13, 2021 · 2:12 pm</span>
+    <div><h3>Good Day, Dr. Nicholls!</h3><p>Have a nice Monday!</p></div>
+    <svg viewBox="0 0 420 220" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><circle cx="300" cy="150" r="120" fill="#2c3f57"/><circle cx="300" cy="150" r="78" fill="#33475f"/><g transform="translate(250 64) rotate(-6)"><rect width="104" height="132" rx="14" fill="#ccdcef"/><rect x="30" y="-8" width="44" height="18" rx="6" fill="#516070"/><rect x="16" y="30" width="72" height="8" rx="4" fill="#fff"/><rect x="16" y="48" width="52" height="8" rx="4" fill="#fff" opacity=".8"/><rect x="16" y="78" width="72" height="34" rx="8" fill="#fff"/><path d="M24 98 l10 -8 l10 6 l12 -12 l12 8 l8 -4" fill="none" stroke="#ff8574" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(150 46) rotate(-35)"><rect width="46" height="18" rx="9" fill="#ff8574"/><rect x="23" width="23" height="18" rx="9" fill="#fff"/><rect x="23" width="10" height="18" fill="#fff"/></g><circle cx="386" cy="44" r="14" fill="#10b981"/><rect x="380" y="42.25" width="12" height="3.5" rx="1.75" fill="#fff"/><rect x="384.25" y="38" width="3.5" height="12" rx="1.75" fill="#fff"/></svg>
+  </div>
+  <div class="grid g3">
+    <div class="si-card"><div class="between"><p class="overline">Basic card</p><button class="si-more" aria-label="More"><span class="ms">more_horiz</span></button></div><h3>Weekly summary</h3><p>You completed 14 of 22 planned consultations this week.</p><div class="row"><button class="si-btn si-btn--soft si-btn--sm">Details</button></div></div>
+    <div class="si-card interactive"><div class="row" style="gap:14px"><span class="si-avatar si-avatar--lg" style="border-radius:16px">DW</span><div><h3>Dr. Williams</h3><p>Chief physician · Cardiology</p></div></div><div class="between"><div class="si-avatar-stack"><span class="si-avatar si-avatar--sm">JW</span><span class="si-avatar si-avatar--sm" style="background:var(--si-coral-soft);color:var(--si-coral-ink)">MM</span><span class="si-avatar si-avatar--sm" style="background:var(--si-success-soft);color:var(--si-success-ink)">KL</span><span class="si-avatar si-avatar--sm" style="background:var(--si-navy);color:#fff">+4</span></div><span class="si-tag si-tag--success"><i></i>Available</span></div></div>
+    <div class="si-card"><div class="si-empty"><div class="ic"><span class="ms">event_available</span></div><h4>No events today</h4><p>Your schedule is clear. Add a plan to get started.</p><button class="si-btn si-btn--primary si-btn--sm"><span class="ms">add</span>New event</button></div></div>
+  </div>
+  <div class="grid g2" style="margin-top:24px">
+    <div class="si-panel">
+      <div class="si-panel-head"><h4>My profile</h4><button class="si-on-navy icon" aria-label="Edit"><span class="ms">edit</span></button></div>
+      <div style="padding:24px;display:flex;flex-direction:column;gap:24px">
+        <div class="row" style="gap:20px;flex-wrap:nowrap"><span class="si-avatar si-avatar--xl">AN</span><div><h3 style="margin:0;font-family:var(--si-font-display);font-size:21px;font-weight:700">Dr. Alisha Nicholls</h3><p class="overline" style="margin:4px 0 8px">Dermatologist</p><span class="row muted" style="gap:4px;font-size:14px"><span class="ms" style="font-size:18px;color:var(--si-coral)">location_on</span>Bottrop, Germany</span></div></div>
+        <div class="si-facts"><div><span>Date of birth</span><b>17.07.86</b></div><div><span>Blood</span><b>A(II) Rh+</b></div><div><span>Working hours</span><b>9pm – 5am</b></div></div>
+      </div>
+    </div>
+    <div>
+      <details class="si-acc" open><summary>How are lab results shared?<span class="ms">expand_more</span></summary><div class="body">Results appear in the patient portal as soon as the lab signs them off, and the patient gets an email.</div></details>
+      <details class="si-acc"><summary>Can I change my working hours?<span class="ms">expand_more</span></summary><div class="body">Yes — open My profile, choose Edit, and update Working hours. Changes apply from the next week.</div></details>
+      <details class="si-acc"><summary>Who sees my calendar?<span class="ms">expand_more</span></summary><div class="body">Only you and your department's scheduling team.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DATA DISPLAY ============ -->
+<section id="data" class="doc-section">
+  <div class="sec-head"><span class="sec-num">11 //</span><h2>Data display</h2></div>
+  <p class="sec-lead">Numbers lead. Charts use navy, coral and slate — always with a label or legend beside them.</p>
+
+  <h3 class="sub">Stat cards</h3>
+  <div class="grid g3">
+    <div class="si-card"><div class="between"><p class="overline">Offline work</p><button class="si-more" aria-label="More"><span class="ms">more_horiz</span></button></div>
+      <div class="si-stat"><svg viewBox="0 0 96 76" aria-hidden="true"><rect width="96" height="76" rx="12" fill="#ffe9e5"/><path d="M6 46 C 22 30, 32 12, 46 22 S 70 64, 82 60" fill="none" stroke="#ff8574" stroke-width="2.5" stroke-linecap="round"/><circle cx="82" cy="60" r="4" fill="#ff8574"/></svg><div><p class="si-metric">27</p><p class="si-unit">hospital patients</p><span class="si-tag si-tag--danger">−6% vs average</span></div></div></div>
+    <div class="si-card"><div class="between"><p class="overline">Online work</p><button class="si-more" aria-label="More"><span class="ms">more_horiz</span></button></div>
+      <div class="si-stat"><svg viewBox="0 0 96 76" aria-hidden="true"><rect width="96" height="76" rx="12" fill="#ecfdf5"/><path d="M6 64 C 32 68, 62 58, 84 18" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/><circle cx="84" cy="18" r="4" fill="#10b981"/></svg><div><p class="si-metric">9</p><p class="si-unit">online consultations</p><span class="si-tag si-tag--success">+12% vs average</span></div></div></div>
+    <div class="si-card"><div class="between"><p class="overline">Laboratory work</p><button class="si-more" aria-label="More"><span class="ms">more_horiz</span></button></div>
+      <div class="si-stat"><svg viewBox="0 0 96 76" aria-hidden="true"><rect width="96" height="76" rx="12" fill="#e5eeff"/><path d="M6 40 H 84" fill="none" stroke="#213145" stroke-width="2.5" stroke-linecap="round"/><circle cx="84" cy="40" r="4" fill="#213145"/></svg><div><p class="si-metric">19</p><p class="si-unit">laboratory analyses</p><span class="si-tag si-tag--ice">±0% vs average</span></div></div></div>
+  </div>
+
+  <div class="grid g4" style="margin-top:24px">
+    <div class="si-card si-kpi"><div class="top"><span class="ms" style="background:var(--si-ice-soft);color:var(--si-navy)">group</span><p class="overline">Patients</p></div><p class="si-metric">1,284</p><span class="caption"><b style="color:var(--si-success-ink)">+8.2%</b> this month</span></div>
+    <div class="si-card si-kpi"><div class="top"><span class="ms" style="background:var(--si-coral-soft);color:var(--si-coral-ink)">event</span><p class="overline">Visits</p></div><p class="si-metric">342</p><span class="caption"><b style="color:var(--si-danger-ink)">−2.1%</b> this month</span></div>
+    <div class="si-card si-kpi"><div class="top"><span class="ms" style="background:var(--si-success-soft);color:var(--si-success-ink)">verified</span><p class="overline">Satisfaction</p></div><p class="si-metric">4.8</p><span class="caption">from 512 reviews</span></div>
+    <div class="si-card si-kpi"><div class="top"><span class="ms" style="background:var(--si-sunken);color:var(--si-slate)">schedule</span><p class="overline">Avg. wait</p></div><p class="si-metric">12m</p><span class="caption"><b style="color:var(--si-success-ink)">−3m</b> vs last week</span></div>
+  </div>
+
+  <h3 class="sub">Charts</h3>
+  <div class="grid g2">
+    <div class="si-card"><div class="between"><p class="overline">My scheduled events</p><button class="si-btn si-btn--soft si-btn--sm">Today <span class="ms">expand_more</span></button></div>
+      <div class="row" style="gap:20px;align-items:center">
+        <div class="si-ring" role="img" aria-label="95% busyness"><svg viewBox="0 0 176 176"><circle cx="88" cy="88" r="72" fill="none" stroke="#e5eeff" stroke-width="14"/><circle class="seg" cx="88" cy="88" r="72" fill="none" stroke="#213145" stroke-width="14" stroke-linecap="round" data-len=".48" data-off="0"/><circle class="seg" cx="88" cy="88" r="72" fill="none" stroke="#ff8574" stroke-width="14" stroke-linecap="round" data-len=".28" data-off=".52"/><circle class="seg" cx="88" cy="88" r="72" fill="none" stroke="#516070" stroke-width="14" stroke-linecap="round" data-len=".11" data-off=".84"/></svg><div class="lbl"><b>95<small>%</small></b><span>Busyness</span></div></div>
+        <div class="si-breakdown"><div><p class="si-metric">25</p><p>Consultations</p></div><div><p class="si-metric">10</p><p>Laboratory analyses</p></div><div><p class="si-metric">3</p><p>Meetings</p></div></div>
+      </div>
+      <div class="si-legend"><span><i style="background:#213145"></i>Consultations</span><span><i style="background:#ff8574"></i>Lab analyses</span><span><i style="background:#516070"></i>Meetings</span></div>
+    </div>
+    <div class="si-card"><div class="between"><p class="overline">My plans done</p><button class="si-btn si-btn--soft si-btn--sm">Today <span class="ms">expand_more</span></button></div>
+      <div class="col" style="gap:20px">
+        <div class="si-bar"><div class="top"><span>Consultations</span><b>64%</b></div><div class="si-track"><div class="si-fill" style="width:64%"></div></div></div>
+        <div class="si-bar"><div class="top"><span>Analyses</span><b>50%</b></div><div class="si-track"><div class="si-fill" style="width:50%;background:#ff8574"></div></div></div>
+        <div class="si-bar"><div class="top"><span>Meetings</span><b>33%</b></div><div class="si-track"><div class="si-fill" style="width:33%;background:#516070"></div></div></div>
+      </div>
+      <button class="si-btn si-btn--dashed" data-toast="Plan added to Monday">Add plan <span class="ms">add</span></button>
+    </div>
+  </div>
+
+  <h3 class="sub">Calendar &amp; lists</h3>
+  <div class="grid g3">
+    <div class="si-panel">
+      <div class="si-panel-head"><h4>My calendar</h4><button class="si-on-navy">April <span class="ms">expand_more</span></button></div>
+      <div class="si-days" id="days"></div>
+      <div style="padding:18px 24px 20px"><div class="between"><p class="overline" id="agendaDate">April, 13</p><button class="si-more" aria-label="More"><span class="ms">more_horiz</span></button></div><ul class="si-agenda" id="agenda"></ul></div>
+    </div>
+    <div class="si-card"><div class="between"><p class="overline">Next patients</p><button class="si-btn si-btn--ghost si-btn--sm">See all</button></div>
+      <div>
+        <div class="si-list-item"><span class="si-avatar">JW<span class="status"></span></span><div class="grow"><b>James White</b><span>Consultation · 2:30 pm</span></div><span class="si-tag si-tag--success">Confirmed</span></div>
+        <div class="si-list-item"><span class="si-avatar" style="background:var(--si-coral-soft);color:var(--si-coral-ink)">MM</span><div class="grow"><b>Mary Maisy</b><span>Lab analysis · 3:00 pm</span></div><span class="si-tag si-tag--warning">Pending</span></div>
+        <div class="si-list-item"><span class="si-avatar" style="background:var(--si-success-soft);color:var(--si-success-ink)">KL</span><div class="grid-0 grow"><b>Karen Lee</b><span>Examination · 3:50 pm</span></div><span class="si-tag si-tag--ice">New</span></div>
+      </div>
+    </div>
+    <div class="si-card"><p class="overline">Activity</p>
+      <ul class="si-timeline">
+        <li><i></i><b>Biopsy results uploaded</b><span>Lab · 10 min ago</span></li>
+        <li><i style="border-color:var(--si-coral)"></i><b>Mrs. Maisy rescheduled</b><span>Front desk · 1 h ago</span></li>
+        <li><i style="border-color:var(--si-success)"></i><b>Prescription approved</b><span>Pharmacy · 3 h ago</span></li>
+        <li><i style="border-color:var(--si-slate)"></i><b>Weekly report generated</b><span>System · Yesterday</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub">Table</h3>
+  <div class="specimen" style="overflow-x:auto">
+    <table class="si-table">
+      <thead><tr><th>Patient</th><th>ID</th><th>Visit</th><th>Time</th><th>Progress</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><div class="si-person"><span class="si-avatar">JW</span><div><b>James White</b><span>42 · Male</span></div></div></td><td class="num">#PT-0941</td><td>Consultation</td><td class="num">2:30 pm</td><td style="width:140px"><div class="si-track"><div class="si-fill" style="width:80%"></div></div></td><td><span class="si-tag si-tag--success"><i></i>Confirmed</span></td><td style="text-align:right"><button class="si-btn si-btn--ghost si-btn--sm">View</button></td></tr>
+        <tr><td><div class="si-person"><span class="si-avatar" style="background:var(--si-coral-soft);color:var(--si-coral-ink)">MM</span><div><b>Mary Maisy</b><span>35 · Female</span></div></div></td><td class="num">#PT-0942</td><td>Lab analysis</td><td class="num">3:00 pm</td><td><div class="si-track"><div class="si-fill" style="width:45%;background:#ff8574"></div></div></td><td><span class="si-tag si-tag--warning"><i></i>Pending</span></td><td style="text-align:right"><button class="si-btn si-btn--ghost si-btn--sm">View</button></td></tr>
+        <tr><td><div class="si-person"><span class="si-avatar" style="background:var(--si-success-soft);color:var(--si-success-ink)">KL</span><div><b>Karen Lee</b><span>58 · Female</span></div></div></td><td class="num">#PT-0943</td><td>Examination</td><td class="num">3:50 pm</td><td><div class="si-track"><div class="si-fill" style="width:20%;background:#516070"></div></div></td><td><span class="si-tag si-tag--danger"><i></i>Cancelled</span></td><td style="text-align:right"><button class="si-btn si-btn--ghost si-btn--sm">View</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">Tags &amp; avatars</h3>
+  <div class="specimen col">
+    <div class="row"><span class="si-tag si-tag--navy">LEAD</span><span class="si-tag si-tag--ice">Dermatology</span><span class="si-tag si-tag--coral">Priority</span><span class="si-tag si-tag--success"><i></i>Online</span><span class="si-tag si-tag--warning"><i></i>Pending</span><span class="si-tag si-tag--danger"><i></i>Offline</span><span class="si-tag si-tag--neutral">Draft</span><span class="si-tag si-tag--ice si-tag--pill">Pill tag</span></div>
+    <div class="row" style="gap:16px"><span class="si-avatar si-avatar--sm">SM</span><span class="si-avatar">MD</span><span class="si-avatar si-avatar--lg">LG</span><span class="si-avatar si-avatar--xl">XL</span><span class="si-avatar si-avatar--lg">ON<span class="status"></span></span></div>
+  </div>
+</section>
+
+<!-- ============ FEEDBACK ============ -->
+<section id="feedback" class="doc-section">
+  <div class="sec-head"><span class="sec-num">12 //</span><h2>Feedback</h2></div>
+  <p class="sec-lead">Calm by default — colour lives in a small icon tile, not across the whole alert.</p>
+  <div class="grid g2">
+    <div class="col" style="gap:12px">
+      <div class="si-alert si-alert--info"><span class="ic"><span class="ms">info</span></span><div><h5>New lab system on Monday</h5><p>Uploads move to the new portal from April 19.</p></div></div>
+      <div class="si-alert si-alert--success"><span class="ic"><span class="ms">check_circle</span></span><div><h5>Appointment confirmed</h5><p>Mr. White will get a reminder tomorrow at 9:00.</p></div><button class="si-more x" aria-label="Dismiss"><span class="ms">close</span></button></div>
+      <div class="si-alert si-alert--warning"><span class="ic"><span class="ms">schedule</span></span><div><h5>Running 15 minutes late</h5><p>Your 3:00 pm consultation has been notified.</p></div></div>
+      <div class="si-alert si-alert--danger"><span class="ic"><span class="ms">error</span></span><div><h5>Lab upload failed</h5><p>The file is larger than 20 MB. Try compressing it.</p></div></div>
+      <div class="si-banner-inline"><span class="ms">campaign</span>You have 3 unsigned reports.<button class="si-btn si-btn--primary si-btn--sm">Review</button></div>
+    </div>
+    <div class="col">
+      <div class="specimen"><p class="spec-label"><span>Modal &amp; toast</span><code>try it</code></p>
+        <div class="row"><button class="si-btn si-btn--primary" id="openModal">Open modal</button><button class="si-btn si-btn--outline" data-toast="Changes saved">Show toast</button></div>
+      </div>
+      <div class="si-toast"><span class="ms">check_circle</span>Plan added to Monday<button>Undo</button></div>
+      <div class="specimen"><p class="spec-label"><span>Progress</span></p>
+        <div class="si-bar"><div class="top"><span>Syncing records</span><b id="pv">0%</b></div><div class="si-track lg"><div class="si-fill" id="pf" style="width:0;background:var(--si-coral)"></div></div></div>
+      </div>
+      <div class="specimen"><p class="spec-label"><span>Skeleton</span></p>
+        <div class="si-skel"><div style="height:14px;width:35%"></div><div style="height:32px;width:22%"></div><div style="height:12px;width:88%"></div><div style="height:12px;width:64%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PATTERNS ============ -->
+<section id="patterns" class="doc-section">
+  <div class="sec-head"><span class="sec-num">13 //</span><h2>Layout patterns</h2></div>
+  <p class="sec-lead">The dashboard shell: navy rail · main column (top bar, hero, KPI row, two chart cards) · side column of panels.</p>
+  <div class="mini-app">
+    <div class="mini-shell">
+      <div class="rail"><span></span><span></span><span></span><span></span><span></span></div>
+      <div style="display:grid;grid-template-rows:36px 110px 90px 1fr;gap:12px">
+        <div style="display:flex;gap:10px"><div class="blk" style="flex:1;max-width:60%"></div><div style="flex:1"></div><div class="blk" style="width:36px"></div><div class="blk" style="width:36px"></div></div>
+        <div style="background:var(--si-navy);border-radius:18px;display:flex;align-items:flex-end;padding:14px"><span class="anno" style="color:var(--si-ice-on-navy);padding:0">Banner · radius-xl</span></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px"><div class="blk"><div class="anno">StatCard</div></div><div class="blk"><div class="anno">StatCard</div></div><div class="blk"><div class="anno">StatCard</div></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="blk"><div class="anno">ProgressRing</div></div><div class="blk"><div class="anno">ProgressBar</div></div></div>
+      </div>
+      <div class="side" style="display:grid;grid-template-rows:150px 1fr;gap:12px">
+        <div class="blk" style="overflow:hidden"><div style="height:36px;background:var(--si-navy);border-radius:14px"></div><div class="anno">ProfileCard</div></div>
+        <div class="blk" style="overflow:hidden"><div style="height:36px;background:var(--si-navy);border-radius:14px"></div><div style="height:40px;background:var(--si-ice-faint);margin-top:-8px"></div><div class="anno">DayPicker + Agenda</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTENT ============ -->
+<section id="content" class="doc-section">
+  <div class="sec-head"><span class="sec-num">14 //</span><h2>Content &amp; voice</h2></div>
+  <p class="sec-lead">Warm, precise, professional.</p>
+  <div class="grid g2">
+    <div class="specimen"><table class="tbl"><thead><tr><th>Element</th><th>Rule</th><th>Example</th></tr></thead><tbody>
+      <tr><td>Section label</td><td>UPPERCASE overline, 2–3 words</td><td><span class="overline">My calendar</span></td></tr>
+      <tr><td>Button</td><td>Sentence case, verb first</td><td>Add plan</td></tr>
+      <tr><td>Metric</td><td>Number first, unit below</td><td><b>27</b> hospital patients</td></tr>
+      <tr><td>Delta</td><td>Sign + comparison</td><td>+12% vs average</td></tr>
+      <tr><td>Time / date</td><td>12-hour, lowercase · short date</td><td>2:30 pm · Apr 13, 2021</td></tr>
+    </tbody></table></div>
+    <div class="col">
+      <div class="dodont" style="margin:0"><div class="do"><b><span class="ms">check_circle</span>Do</b>"Lab upload failed — the file is larger than 20 MB."</div><div class="dont"><b><span class="ms">cancel</span>Don't</b>"Oops! Something went wrong 😕"</div></div>
+      <div class="dodont" style="margin:0"><div class="do"><b><span class="ms">check_circle</span>Do</b>"Reschedule consultation?" + "Reschedule" / "Keep"</div><div class="dont"><b><span class="ms">cancel</span>Don't</b>"Are you sure?" + "OK" / "Cancel"</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACCESSIBILITY ============ -->
+<section id="accessibility" class="doc-section">
+  <div class="sec-head"><span class="sec-num">15 //</span><h2>Accessibility</h2></div>
+  <p class="sec-lead">Every text pair meets WCAG AA (4.5:1). Focus is a 3px ice ring on every control. Accent colours in charts always have a text label.</p>
+  <div class="specimen" style="overflow-x:auto"><table class="tbl" id="contrast"><thead><tr><th>Sample</th><th>Foreground</th><th>Background</th><th>Ratio</th><th>Result</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<!-- ============ TOKENS ============ -->
+<section id="tokens" class="doc-section">
+  <div class="sec-head"><span class="sec-num">16 //</span><h2>Tokens (CSS)</h2></div>
+  <p class="sec-lead">Paste these custom properties into your stylesheet. Component classes in this file use the <code>.si-</code> prefix.</p>
+  <div class="code" id="tokenCode"><button class="si-btn si-btn--secondary si-btn--sm copy-btn" id="copyTokens"><span class="ms">content_copy</span>Copy</button></div>
+</section>
+
+</main>
+</div>
+
+<!-- Modal -->
+<div class="si-modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="si-modal">
+    <div class="between"><h3 id="mt">Reschedule consultation?</h3><button class="si-more" data-close aria-label="Close"><span class="ms">close</span></button></div>
+    <p>Mrs. Maisy will be offered the next available slot and notified by email.</p>
+    <div class="si-callout"><div class="between"><span class="muted">Current</span><b>Apr 13 · 3:00 pm</b></div><div class="between"><span class="muted">New</span><b>Apr 14 · 10:30 am</b></div></div>
+    <div class="si-actions"><button class="si-btn si-btn--outline" data-close>Keep</button><button class="si-btn si-btn--primary" data-close data-toast="Consultation rescheduled">Reschedule</button></div>
+  </div>
+</div>
+<div class="toast-host" id="toasts" aria-live="polite"></div>
+
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+/* ---- colour data ---- */
+const SW={
+ brand:[["Navy","#213145","--si-navy","Sidebar, hero, panel heads, primary button, selected day","#fff"],
+  ["Navy hover","#2c3f57","--si-navy-hover","Hover on navy fills","#fff"],
+  ["Charcoal","#222526","--si-charcoal","Text on coral, tooltips","#fff"],
+  ["Slate","#516070","--si-slate","Secondary chart series, icons","#fff"],
+  ["Ice","#ccdcef","--si-ice","Secondary button, focus ring, dashed borders","#213145"],
+  ["Ice soft","#e5eeff","--si-ice-soft","Selected tint, soft buttons, tracks","#213145"],
+  ["Ice faint","#eff4ff","--si-ice-faint","Hover rows, calendar strip","#213145"],
+  ["Coral","#ff8574","--si-coral","The one accent: active tab, CTA, key series","#222526"],
+  ["Coral soft","#ffe9e5","--si-coral-soft","Coral tag and sparkline tile","#a13e32"],
+  ["Coral ink","#a13e32","--si-coral-ink","Text on coral-soft; section numerals","#fff"]],
+ neutral:[["Canvas","#dce6f5","--si-canvas","Backdrop behind the app shell","#213145"],
+  ["Surface","#f8f9ff","--si-surface","Page / content area","#213145"],
+  ["Card","#ffffff","--si-card","Cards, panels, menus, modals","#213145"],
+  ["Sunken","#eff4ff","--si-sunken","Inputs, table header, inset blocks","#213145"],
+  ["Line","#e5eeff","--si-line","Row dividers","#213145"],
+  ["Line strong","#d3e4fe","--si-line-strong","Dashed rules, outline buttons","#213145"],
+  ["Ink","#0b1c30","--si-ink","Primary text and numbers","#fff"],
+  ["Ink muted","#44474c","--si-ink-muted","Secondary text, labels","#fff"],
+  ["Ink subtle","#74777c","--si-ink-subtle","Placeholders, disabled, timestamps","#fff"]],
+ status:[["Success","#10b981","--si-success","Icons, dots, sparklines","#0b1c30"],
+  ["Success soft","#ecfdf5","--si-success-soft","Positive tag / alert tile","#047857"],
+  ["Success ink","#047857","--si-success-ink","Text on success-soft","#fff"],
+  ["Warning","#f59e0b","--si-warning","Icons, dots","#0b1c30"],
+  ["Warning soft","#fffbeb","--si-warning-soft","Pending tag / alert tile","#92400e"],
+  ["Warning ink","#92400e","--si-warning-ink","Text on warning-soft","#fff"],
+  ["Danger","#ef4444","--si-danger","Error border, icons","#0b1c30"],
+  ["Danger soft","#fef2f2","--si-danger-soft","Negative tag, invalid input","#b91c1c"],
+  ["Danger ink","#b91c1c","--si-danger-ink","Text on danger-soft, danger button","#fff"]]
+};
+$$('[data-swatches]').forEach(el=>{
+  el.innerHTML=SW[el.dataset.swatches].map(([n,h,v,u,fg])=>`<button class="swatch" data-copy="${h}" title="Copy ${h}"><div class="chip" style="background:${h};color:${fg};${h==='#ffffff'||h==='#f8f9ff'?'box-shadow:inset 0 0 0 1px #e5eeff':''}">Aa</div><div class="meta"><b>${n}</b><code>${h.toUpperCase()} · ${v}</code><span class="use">${u}</span></div></button>`).join('');
+});
+
+/* ---- type scale ---- */
+const TS=[["Display","display",'var(--si-font-display)',48,56,800,"-.03em","Clean dashboards"],
+ ["Title L","title-lg",'var(--si-font-display)',30,38,700,"-.015em","Good Day, Dr. Nicholls!"],
+ ["Title M","title-md",'var(--si-font-display)',22,30,700,"-.01em","Dr. Alisha Nicholls"],
+ ["Title S","title-sm",'var(--si-font-display)',18,26,700,"0","Weekly summary"],
+ ["Metric","metric",'var(--si-font-display)',26,32,700,"-.01em","1,284"],
+ ["Body L","body-lg",'var(--si-font-sans)',16,24,400,"0","Have a nice Monday!"],
+ ["Body","body",'var(--si-font-sans)',15,22,400,"0","Meeting with chief physician Dr. Williams"],
+ ["Body S","body-sm",'var(--si-font-sans)',14,20,400,"0","You completed 14 of 22 consultations this week."],
+ ["Label","label",'var(--si-font-sans)',14,20,600,"0","Add plan"],
+ ["Overline","overline",'var(--si-font-sans)',13,18,600,".06em","MY SCHEDULED EVENTS"],
+ ["Caption","caption",'var(--si-font-sans)',12,16,500,".01em","+12% vs average"],
+ ["Mono","mono",'var(--si-font-mono)',13,18,500,"0","#PT-0941 · 2:30 pm · 64%"]];
+$('#type-scale').innerHTML=TS.map(([n,t,f,s,l,w,ls,ex])=>`<div class="type-row"><div class="tname"><b>${n}</b><code>${t}</code></div><div class="tsample" style="font-family:${f};font-size:${s}px;line-height:${l}px;font-weight:${w};letter-spacing:${ls};${t==='overline'?'color:var(--si-ink-muted)':''}">${ex}</div><div class="tspec">${s}/${l} · ${w}${ls!=='0'?' · '+ls:''}</div></div>`).join('');
+
+/* ---- spacing ---- */
+const SP=[[1,4,"Icon ↔ label"],[2,8,"Label ↔ field"],[3,12,"Chip / row padding"],[4,16,"Elements in a card"],[5,20,"Compact card padding"],[6,24,"Card padding · grid gap"],[8,32,"Hero padding"],[10,40,"Page padding"],[12,48,"Section separation"],[16,64,"Large section gap"]];
+$('#space-scale').innerHTML='<p class="spec-label"><span>Scale</span><code>--si-space-*</code></p>'+SP.map(([k,v,u])=>`<div class="space-row"><code>space-${k}</code><b>${v}px</b><div style="display:flex;align-items:center;gap:12px"><div class="space-bar" style="width:${v*3}px"></div><span class="caption">${u}</span></div></div>`).join('');
+
+const RD=[["xs",6,"Tags, small chips"],["sm",10,"Buttons, inputs, icon buttons"],["md",14,"Menus, inset blocks, selected day"],["lg",20,"Cards, panels"],["xl",28,"Sidebar, hero, app shell"],["full",9999,"Avatars, dots, toggles, tracks"]];
+$('#radius-scale').innerHTML=RD.map(([k,v,u])=>`<div class="specimen token-cap" style="padding:16px"><div class="radius-box" style="border-radius:${Math.min(v,44)}px"></div><b>radius-${k}</b><code>${v===9999?'9999px':v+'px'}</code><p>${u}</p></div>`).join('');
+const SH=[["xs","Icon buttons, search"],["card","Cards and panels"],["raised","Menus, hovered cards"],["modal","Modals, toasts"],["navy","Primary hover, selected day"]];
+$('#shadow-scale').innerHTML=SH.map(([k,u])=>`<div class="token-cap"><div class="shadow-box" style="box-shadow:var(--si-shadow-${k})"></div><b>shadow-${k}</b><p>${u}</p></div>`).join('');
+
+/* ---- icons ---- */
+const IC=["home","monitoring","calendar_month","event","schedule","notifications","settings","search","person","group","send","mail","call","location_on","edit","delete","add","close","check_circle","error","warning","info","favorite","medical_services","science","stethoscope","vaccines","medication","download","upload","filter_list","more_horiz","expand_more","chevron_right","logout","grid_view"];
+$('#icons').innerHTML=IC.map(i=>`<div class="icon-cell"><span class="ms">${i}</span>${i}</div>`).join('');
+
+/* ---- contrast table ---- */
+function lum(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.substr(i,2),16)/255).map(c=>c<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4)).reduce((a,c,i)=>a+c*[.2126,.7152,.0722][i],0)}
+function ratio(a,b){const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+const CP=[["#0b1c30","#f8f9ff","ink / surface"],["#44474c","#ffffff","ink-muted / card"],["#ffffff","#213145","white / navy"],["#b8c8db","#213145","ice-on-navy / navy"],["#213145","#ccdcef","navy / ice"],["#213145","#e5eeff","navy / ice-soft"],["#222526","#ff8574","charcoal / coral"],["#a13e32","#ffe9e5","coral-ink / coral-soft"],["#047857","#ecfdf5","success-ink / success-soft"],["#92400e","#fffbeb","warning-ink / warning-soft"],["#b91c1c","#fef2f2","danger-ink / danger-soft"],["#ffffff","#b91c1c","white / danger-ink"],["#74777c","#ffffff","ink-subtle / card (placeholder only)"],["#ffffff","#ff8574","white / coral (never)"]];
+$('#contrast tbody').innerHTML=CP.map(([f,b,n])=>{const r=ratio(f,b);const ok=r>=4.5,mid=r>=3;return `<tr><td><span class="pair" style="color:${f};background:${b};${b==='#ffffff'?'box-shadow:inset 0 0 0 1px #e5eeff':''}">Aa</span></td><td><code>${f.toUpperCase()}</code></td><td><code>${b.toUpperCase()}</code><div class="caption">${n}</div></td><td class="mono" style="font-weight:600">${r.toFixed(2)}:1</td><td class="${ok?'pass':'fail'}">${ok?(r>=7?'AAA':'AA'):(mid?'Large/UI only':'Fail')}</td></tr>`}).join('');
+
+/* ---- token code ---- */
+const css=[...document.styleSheets[document.styleSheets.length-1].cssRules].find(r=>r.selectorText===':root');
+let txt=':root{\n';for(const p of css.style){txt+=`  ${p}: ${css.style.getPropertyValue(p).trim()};\n`}txt+='}';
+$('#tokenCode').insertAdjacentHTML('beforeend',txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/(--si-[\w-]+)/g,'<span class="k">$1</span>').replace(/: ([^;]+);/g,': <span class="v">$1</span>;'));
+$('#copyTokens').onclick=()=>copy(txt,'Tokens copied');
+
+/* ---- ring segments ---- */
+$$('.seg').forEach(s=>{const C=2*Math.PI*72;s.setAttribute('stroke-dasharray',(+s.dataset.len*C)+' '+C);s.setAttribute('stroke-dashoffset',-(+s.dataset.off*C))});
+
+/* ---- toasts / copy ---- */
+function toast(msg){const t=document.createElement('div');t.className='si-toast';t.innerHTML=`<span class="ms">check_circle</span>${msg}<button>Dismiss</button>`;t.querySelector('button').onclick=()=>t.remove();$('#toasts').appendChild(t);setTimeout(()=>t.remove(),3200)}
+function copy(text,msg){(navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(()=>toast(msg||('Copied '+text))).catch(()=>toast(msg||('Copied '+text)))}
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-copy]');if(c){copy(c.dataset.copy);return}
+  const t=e.target.closest('[data-toast]');if(t)toast(t.dataset.toast);
+  if(e.target.closest('[data-close]')||e.target.id==='modal')$('#modal').classList.remove('open');
+  const tab=e.target.closest('.si-tabs button,.si-segment button');if(tab){[...tab.parentElement.children].forEach(b=>b.classList.toggle('on',b===tab))}
+  const pg=e.target.closest('.si-pages button');if(pg&&!pg.getAttribute('aria-label')){$$('button',pg.parentElement).forEach(b=>b.classList.toggle('on',b===pg))}
+  const nv=e.target.closest('.si-sidebar .si-nav');if(nv&&nv.getAttribute('aria-label')!=='Log out'){$$('.si-nav',nv.parentElement).forEach(b=>b.classList.toggle('on',b===nv))}
+  if(e.target.closest('.si-menu a')||e.target.closest('.si-crumbs a'))e.preventDefault();
+});
+$('#openModal').onclick=()=>$('#modal').classList.add('open');
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#modal').classList.remove('open')});
+
+/* ---- loading button ---- */
+$('#loadBtn').onclick=function(){const b=this,h=b.innerHTML;b.innerHTML='<span class="si-spinner"></span>Uploading';b.disabled=true;setTimeout(()=>{b.innerHTML=h;b.disabled=false;toast('Upload complete')},1600)};
+
+/* ---- range / textarea ---- */
+const rg=$('#range');function rr(){const p=(rg.value-rg.min)/(rg.max-rg.min)*100;rg.style.setProperty('--p',p+'%');$('#rangeVal').textContent=rg.value+' patients'}rg.oninput=rr;rr();
+const ta=$('#f5');ta.oninput=()=>$('#cc').textContent=ta.value.length+' / 500';ta.oninput();
+
+/* ---- progress demo ---- */
+let pv=0;setInterval(()=>{pv=pv>=100?0:pv+4;$('#pf').style.width=pv+'%';$('#pv').textContent=pv+'%'},280);
+
+/* ---- calendar ---- */
+const COL={meeting:'#ff8574',consult:'#213145',exam:'#10b981',lab:'#516070'};
+const WK=[["Sun",12,[]],["Mon",13,[["2:00 pm","meeting","Meeting with Dr. Williams"],["2:30 pm","consult","Consultation with Mr. White"],["3:00 pm","exam","Consultation with Mrs. Maisy"],["3:50 pm","consult","Examination of Mrs. Lee"]]],["Tue",14,[["9:00 am","lab","Review biopsy results"],["11:30 am","consult","Consultation with Mr. Novak"]]],["Wed",15,[["10:00 am","meeting","Department weekly sync"]]],["Thu",16,[["1:00 pm","exam","Skin screening, Mrs. Hart"]]],["Fri",17,[["9:30 am","lab","Lab quality review"]]],["Sat",18,[]]];
+const days=$('#days');
+WK.forEach((w,i)=>{const b=document.createElement('button');b.className='si-day';b.innerHTML=`${w[0]}<b>${w[1]}</b>`;b.onclick=()=>cal(i);days.appendChild(b)});
+function cal(i){$$('.si-day',days).forEach((b,j)=>b.classList.toggle('on',i===j));$('#agendaDate').textContent='April, '+WK[i][1];$('#agenda').innerHTML=WK[i][2].length?WK[i][2].map(e=>`<li><time>${e[0]}</time><i style="background:${COL[e[1]]}"></i><span>${e[2]}</span></li>`).join(''):'<li style="display:block;text-align:center;color:var(--si-ink-subtle)">No events scheduled</li>'}
+cal(1);
+
+/* ---- TOC scrollspy + filter ---- */
+const links=$$('#toc a'),secs=links.map(a=>$(a.getAttribute('href')));
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}})},{rootMargin:'-30% 0px -65% 0px'});
+secs.forEach(s=>s&&io.observe(s));
+$('#filter').addEventListener('keydown',e=>{if(e.key==='Enter'){const q=e.target.value.toLowerCase().trim();const a=links.find(a=>a.textContent.toLowerCase().includes(q));if(a){location.hash=a.getAttribute('href')}else toast('No section matches "'+e.target.value+'"')}});
+})();
+</script>
+</body>
+</html>

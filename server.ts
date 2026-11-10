@@ -2449,6 +2449,10 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
       // Counters
       const visitCountMap: Record<string, number> = {};
       const visitCountPeriodMap: Record<string, number> = {};
+      const tagihanMap: Record<string, number> = {};
+      const tagihanPeriodMap: Record<string, number> = {};
+
+      const tagihanByReg = new Map<string, number>((vdb.tagihan_pasien || []).map((t: any) => [String(t.no_registrasi), Number(t.tagihan || 0)]));
       
       const sDate = new Date(startDateParam);
       const eDate = new Date(endDateParam);
@@ -2457,15 +2461,20 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
         const rm = String(v.pasien_no_rm);
         visitCountMap[rm] = (visitCountMap[rm] || 0) + 1;
         
+        const nomTagihan = tagihanByReg.get(String(v.no_registrasi)) || 0;
+        tagihanMap[rm] = (tagihanMap[rm] || 0) + nomTagihan;
+
         const vDate = new Date(v.tanggal_pelayanan);
         if (vDate >= sDate && vDate <= eDate) {
           visitCountPeriodMap[rm] = (visitCountPeriodMap[rm] || 0) + 1;
+          tagihanPeriodMap[rm] = (tagihanPeriodMap[rm] || 0) + nomTagihan;
         }
       });
 
       // Top All Time (20)
       const topAllTime = patients.map((p: any) => {
         const total_visits = visitCountMap[String(p.no_rm)] || 0;
+        const total_tagihan = tagihanMap[String(p.no_rm)] || 0;
         const city = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
         const district = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
         const subdistrict = subdistricts.find((s: any) => s.id === p.kelurahan_id)?.nama || 'Tidak Diketahui';
@@ -2478,7 +2487,8 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
           kota: city,
           kecamatan: district,
           kelurahan: subdistrict,
-          total_visits
+          total_visits,
+          total_tagihan
         };
       }).filter(p => p.total_visits > 0)
         .sort((a, b) => b.total_visits - a.total_visits)
@@ -2487,6 +2497,7 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
       // Top Selected Period (20)
       const topPeriod = patients.map((p: any) => {
         const total_visits = visitCountPeriodMap[String(p.no_rm)] || 0;
+        const total_tagihan = tagihanPeriodMap[String(p.no_rm)] || 0;
         const city = cities.find((c: any) => c.id === p.kota_id)?.nama || 'Tidak Diketahui';
         const district = districts.find((d: any) => d.id === p.kecamatan_id)?.nama || 'Tidak Diketahui';
         const subdistrict = subdistricts.find((s: any) => s.id === p.kelurahan_id)?.nama || 'Tidak Diketahui';
@@ -2499,7 +2510,8 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
           kota: city,
           kecamatan: district,
           kelurahan: subdistrict,
-          total_visits
+          total_visits,
+          total_tagihan
         };
       }).filter(p => p.total_visits > 0)
         .sort((a, b) => b.total_visits - a.total_visits)
@@ -2650,7 +2662,8 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
           IFNULL(k.nama, 'Tidak Diketahui') as kota,
           IFNULL(kec.nama, 'Tidak Diketahui') as kecamatan,
           IFNULL(kel.nama, 'Tidak Diketahui') as kelurahan,
-          COUNT(DISTINCT r.no_registrasi) as total_visits
+          COUNT(DISTINCT r.no_registrasi) as total_visits,
+          SUM(IFNULL(t.tagihan, 0)) as total_tagihan
         FROM pasien p
         JOIN (
           SELECT no_registrasi, pasien_no_rm FROM registrasi_rawat_jalan
@@ -2659,6 +2672,7 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
           UNION ALL
           SELECT no_registrasi, pasien_no_rm FROM registrasi_ranap
         ) r ON p.no_rm = r.pasien_no_rm
+        LEFT JOIN tagihan_pasien t ON t.no_registrasi = r.no_registrasi
         LEFT JOIN kota k ON p.kota_id = k.id
         LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id
         LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id
@@ -2677,7 +2691,8 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
           IFNULL(k.nama, 'Tidak Diketahui') as kota,
           IFNULL(kec.nama, 'Tidak Diketahui') as kecamatan,
           IFNULL(kel.nama, 'Tidak Diketahui') as kelurahan,
-          COUNT(DISTINCT r.no_registrasi) as total_visits
+          COUNT(DISTINCT r.no_registrasi) as total_visits,
+          SUM(IFNULL(t.tagihan, 0)) as total_tagihan
         FROM pasien p
         JOIN (
           SELECT no_registrasi, pasien_no_rm, tanggal_pelayanan FROM registrasi_rawat_jalan
@@ -2686,6 +2701,7 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
           UNION ALL
           SELECT no_registrasi, pasien_no_rm, tanggal_pelayanan FROM registrasi_ranap
         ) r ON p.no_rm = r.pasien_no_rm
+        LEFT JOIN tagihan_pasien t ON t.no_registrasi = r.no_registrasi
         LEFT JOIN kota k ON p.kota_id = k.id
         LEFT JOIN kecamatan kec ON p.kecamatan_id = kec.id
         LEFT JOIN kelurahan kel ON p.kelurahan_id = kel.id
