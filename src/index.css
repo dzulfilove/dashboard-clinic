@@ -723,7 +723,35 @@ html {
   background-color: var(--si-sunken) !important;
 }
 
-/* Universal Slate & Ice v2.0 Force Override for Legacy Gradient Cards */
+/* =========================================================
+   UNIVERSAL SLATE & ICE v2.0 BUTTON & CARD OVERRIDES
+   ========================================================= */
+.bg-emerald-600, .bg-emerald-700,
+.bg-green-600, .bg-green-700,
+.bg-teal-600, .bg-teal-700,
+.bg-emerald-500, .bg-green-500, .bg-teal-500 {
+  background-color: var(--si-navy) !important;
+}
+
+.bg-emerald-600:hover, .bg-emerald-700:hover,
+.bg-green-600:hover, .bg-green-700:hover,
+.bg-teal-600:hover, .bg-teal-700:hover,
+.bg-emerald-500:hover, .bg-green-500:hover, .bg-teal-500:hover {
+  background-color: var(--si-navy-hover) !important;
+}
+
+.border-emerald-600, .border-emerald-700,
+.border-green-600, .border-green-700,
+.border-teal-600, .border-teal-700 {
+  border-color: var(--si-navy) !important;
+}
+
+.text-emerald-600, .text-emerald-700,
+.text-green-600, .text-green-700,
+.text-teal-600, .text-teal-700 {
+  color: var(--si-navy) !important;
+}
+
 [class*="from-emerald-800"],
 [class*="from-teal-800"],
 [class*="from-emerald-"],
@@ -745,12 +773,6 @@ html {
   color: var(--si-navy) !important;
 }
 
-[class*="from-emerald-"] .text-white\/80,
-[class*="from-emerald-"] .text-white,
-[class*="from-teal-"] .text-white\/80,
-[class*="from-teal-"] .text-white {
-  color: var(--si-ink-muted) !important;
-}
 
 
 
