@@ -317,28 +317,28 @@ export default React.memo(function DashboardLab() {
   return (
     <div className="space-y-6 font-sans text-xs">
       
-      {/* 1. Header controls (wrapped in a beautiful container with green left accent border) */}
+      {/* 1. Header controls */}
       <div 
-        className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-800 border-l-4 border-l-green-600"
+        className="bg-white p-6 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[#222526]"
       >
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 font-display">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+          <h1 className="text-xl font-extrabold text-[#213145] tracking-tight flex items-center gap-2 font-display">
+            <TrendingUp className="h-5 w-5 text-[#213145]" />
             <span>Dashboard Tren &amp; Analisis Laboratorium</span>
           </h1>
         </div>
 
         {/* Date range period selector card */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto md:justify-end">
-          <div className="flex items-center space-x-1.5 bg-slate-50 px-3 py-1 border border-slate-200 rounded-xl shadow-xxs">
-            <Calendar className="h-4 w-4 text-green-600 flex-shrink-0" />
+          <div className="flex items-center space-x-1.5 bg-[#F8F9FF] px-3 py-1.5 border border-[#CCDCEF] rounded-xl shadow-xxs">
+            <Calendar className="h-4 w-4 text-[#213145] flex-shrink-0" />
             <div className="flex items-center space-x-1">
-              <span className="text-slate-400 font-bold text-xs uppercase">Dari:</span>
+              <span className="text-[#667085] font-bold text-xs uppercase">Dari:</span>
               <SearchableSelect 
                 id="select-start-month-anal"
                 value={startMonth} 
                 onChange={(e) => setStartMonth(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {months.map(m => (
@@ -349,7 +349,7 @@ export default React.memo(function DashboardLab() {
                 id="select-start-year-anal"
                 value={startYear} 
                 onChange={(e) => setStartYear(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {years.map(y => (
@@ -358,15 +358,15 @@ export default React.memo(function DashboardLab() {
               </SearchableSelect>
             </div>
             
-            <span className="text-slate-300">|</span>
+            <span className="text-[#CCDCEF]">|</span>
             
             <div className="flex items-center space-x-1">
-              <span className="text-slate-400 font-bold text-xs uppercase">Selesai:</span>
+              <span className="text-[#667085] font-bold text-xs uppercase">Selesai:</span>
               <SearchableSelect 
                 id="select-end-month-anal"
                 value={endMonth} 
                 onChange={(e) => setEndMonth(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {months.map(m => (
@@ -377,7 +377,7 @@ export default React.memo(function DashboardLab() {
                 id="select-end-year-anal"
                 value={endYear} 
                 onChange={(e) => setEndYear(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
+                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
                 style={{ minHeight: '36px' }}
               >
                 {years.map(y => (
@@ -392,7 +392,7 @@ export default React.memo(function DashboardLab() {
             <button
               id="export-lab-btn"
               onClick={handleExportXlsx}
-              className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 px-4 border border-green-600 rounded-xl shadow-md transition-colors cursor-pointer"
+              className="flex items-center space-x-1 bg-[#213145] hover:bg-[#122030] text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
               style={{ minHeight: '36px' }}
             >
               <Download className="h-3.5 w-3.5 text-white" />
@@ -403,25 +403,25 @@ export default React.memo(function DashboardLab() {
       </div>
 
       {feedback && (
-        <div id="anal-error-alert" className="p-3 bg-rose-50 border border-rose-100 text-rose-800 rounded-2xl flex items-center space-x-2 font-normal shadow-sm">
-          <AlertCircle className="h-4 w-4 text-rose-600 flex-shrink-0" />
+        <div id="anal-error-alert" className="p-3 bg-[#FF8574]/15 border border-[#FF8574]/40 text-[#222526] rounded-2xl flex items-center space-x-2 font-normal shadow-sm">
+          <AlertCircle className="h-4 w-4 text-[#D94E3B] flex-shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
-      {/* 2. Interactive Navigation Sub-Tabs bar - fully styled with background colors and icons */}
+      {/* 2. Interactive Navigation Sub-Tabs bar */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.08 }}
-        className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-50 rounded-xl border border-slate-200/80 mb-4"
+        className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#F8F9FF] rounded-xl border border-[#E5EEFF] mb-4"
       >
         <button
           onClick={() => setSubTab('overview')}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
+          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border ${
             subTab === 'overview'
-              ? 'bg-green-600 text-white shadow-sm border border-green-600'
-              : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
+              ? 'bg-[#213145] text-white shadow-sm border-[#213145]'
+              : 'bg-white border-[#CCDCEF] text-[#213145] hover:bg-[#F8F9FF] shadow-xxs'
           }`}
           style={{ minHeight: '36px' }}
         >
@@ -430,10 +430,10 @@ export default React.memo(function DashboardLab() {
         </button>
         <button
           onClick={() => setSubTab('category')}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
+          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border ${
             subTab === 'category'
-              ? 'bg-green-600 text-white shadow-sm border border-green-600'
-              : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
+              ? 'bg-[#213145] text-white shadow-sm border-[#213145]'
+              : 'bg-white border-[#CCDCEF] text-[#213145] hover:bg-[#F8F9FF] shadow-xxs'
           }`}
           style={{ minHeight: '36px' }}
         >
@@ -443,10 +443,10 @@ export default React.memo(function DashboardLab() {
         <button
           id="tab-progress-toggle"
           onClick={() => setSubTab('progress')}
-          className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
+          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border ${
             subTab === 'progress'
-              ? 'bg-green-600 text-white shadow-sm border border-green-600'
-              : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
+              ? 'bg-[#213145] text-white shadow-sm border-[#213145]'
+              : 'bg-white border-[#CCDCEF] text-[#213145] hover:bg-[#F8F9FF] shadow-xxs'
           }`}
           style={{ minHeight: '36px' }}
         >

@@ -402,14 +402,17 @@ html {
 }
 
 /* Typography styles */
-.overline {
+.overline,
+.si-eyebrow {
   margin: 0;
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 16px;
   letter-spacing: 0.06em;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--si-ink-muted);
+  text-decoration: none !important;
+  text-decoration-line: none !important;
 }
 
 .caption {

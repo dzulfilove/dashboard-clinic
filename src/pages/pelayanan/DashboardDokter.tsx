@@ -127,14 +127,14 @@ export default React.memo(function DashboardDokter() {
     <>
       <div className="space-y-6">
       {/* SECTION 1 — Header */}
-      <div className="glass-card p-6 flex items-center justify-between">
+      <div className="bg-white p-6 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="p-3 bg-teal-50 text-teal-600 rounded-xl">
+          <div className="p-3 bg-[#CCDCEF]/60 text-[#213145] rounded-xl border border-[#CCDCEF]">
             <Stethoscope className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">Dashboard Kinerja Dokter DPJP</h1>
-            <p className="text-sm text-slate-500 font-medium">
+            <h1 className="text-xl font-bold text-[#213145] tracking-tight font-display">Dashboard Kinerja Dokter DPJP</h1>
+            <p className="text-xs text-[#667085] font-medium mt-0.5">
               Analitik kunjungan dan distribusi pelayanan per dokter penanggung jawab {data?.periode ? `(${formatIndonesianDate(data.periode.from)} s/d ${formatIndonesianDate(data.periode.to)})` : ''}
             </p>
           </div>
@@ -142,30 +142,30 @@ export default React.memo(function DashboardDokter() {
       </div>
 
       {/* SECTION 2 — Filter Bar */}
-      <div className="glass-card p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 anim-fade-up">
+      <div className="bg-white p-4 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
+            <Calendar className="h-5 w-5 text-[#213145] flex-shrink-0" />
             <div className="flex items-center space-x-2 w-full">
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="bg-slate-50 border border-slate-100 rounded-xl text-xs px-3 py-2 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="bg-[#F8F9FF] border border-[#CCDCEF] rounded-xl text-xs px-3 py-2 w-full focus:ring-2 focus:ring-[#213145] focus:border-[#213145] text-[#213145]"
               />
-              <span className="text-slate-400 font-medium text-xs">sd</span>
+              <span className="text-[#667085] font-medium text-xs">sd</span>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="bg-slate-50 border border-slate-100 rounded-xl text-xs px-3 py-2 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="bg-[#F8F9FF] border border-[#CCDCEF] rounded-xl text-xs px-3 py-2 w-full focus:ring-2 focus:ring-[#213145] focus:border-[#213145] text-[#213145]"
               />
             </div>
           </div>
           <button 
             onClick={fetchData}
             disabled={loading}
-            className="w-full sm:w-auto bg-teal-600 text-white rounded-xl text-[12px] font-medium px-5 py-2 hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full sm:w-auto bg-[#213145] text-white rounded-xl text-xs font-semibold px-5 py-2 hover:bg-[#122030] transition-colors flex items-center justify-center gap-2 shadow-xs cursor-pointer"
           >
             {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : 'Lihat'}
           </button>
@@ -173,14 +173,14 @@ export default React.memo(function DashboardDokter() {
 
         <div className="relative w-full md:max-w-xs">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search className="h-4 w-4 text-[#667085]" />
           </div>
           <input
             type="text"
             placeholder="Cari dokter..."
             value={searchDokter}
             onChange={(e) => setSearchDokter(e.target.value)}
-            className="bg-slate-50 border border-slate-100 rounded-xl text-xs pl-9 pr-3 py-2 w-full focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+            className="bg-[#F8F9FF] border border-[#CCDCEF] rounded-xl text-xs pl-9 pr-3 py-2 w-full focus:ring-2 focus:ring-[#213145] focus:border-[#213145] text-[#213145]"
           />
         </div>
       </div>
@@ -190,75 +190,63 @@ export default React.memo(function DashboardDokter() {
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01 }}
+          whileHover={{ y: -2 }}
           transition={{ duration: 0.3, delay: 0.08 }}
-          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-              <Users className="h-5 w-5" />
-            </div>
+          className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4">
+          <div className="h-12 w-12 rounded-xl bg-[#CCDCEF]/60 border border-[#CCDCEF] text-[#213145] flex items-center justify-center shrink-0">
+            <Users className="h-6 w-6" />
           </div>
-          <div className="mt-4">
-            <h3 className="text-xs font-medium text-white/80">Total Dokter Aktif</h3>
-            <p className="text-xl font-semibold text-white mt-1">{data?.total_dokter_aktif || 0}</p>
+          <div>
+            <h3 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Total Dokter Aktif</h3>
+            <p className="text-2xl font-bold font-display text-[#213145] mt-0.5">{data?.total_dokter_aktif || 0}</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01 }}
+          whileHover={{ y: -2 }}
           transition={{ duration: 0.3, delay: 0.16 }}
-          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-              <Activity className="h-5 w-5" />
-            </div>
+          className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4">
+          <div className="h-12 w-12 rounded-xl bg-[#CCDCEF]/60 border border-[#CCDCEF] text-[#213145] flex items-center justify-center shrink-0">
+            <Activity className="h-6 w-6" />
           </div>
-          <div className="mt-4">
-            <h3 className="text-xs font-medium text-white/80">Total Kunjungan</h3>
-            <p className="text-xl font-semibold text-white mt-1">{data?.total_kunjungan || 0}</p>
+          <div>
+            <h3 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Total Kunjungan</h3>
+            <p className="text-2xl font-bold font-display text-[#213145] mt-0.5">{data?.total_kunjungan || 0}</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01 }}
+          whileHover={{ y: -2 }}
           transition={{ duration: 0.3, delay: 0.24 }}
-          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-              <TrendingUp className="h-5 w-5" />
-            </div>
+          className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4">
+          <div className="h-12 w-12 rounded-xl bg-[#FF8574]/20 border border-[#FF8574]/40 text-[#222526] flex items-center justify-center shrink-0">
+            <TrendingUp className="h-6 w-6" />
           </div>
-          <div className="mt-4">
-            <h3 className="text-xs font-medium text-white/80">Dokter Tersibuk</h3>
-            <p className="text-xl font-semibold text-white mt-1 truncate" title={tersibuk.nama}>{tersibuk.nama}</p>
-            <p className="text-xs text-amber-200 font-medium mt-1">{tersibuk.jumlah} kunjungan</p>
+          <div>
+            <h3 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Dokter Tersibuk</h3>
+            <p className="text-sm font-bold text-[#213145] mt-0.5 truncate max-w-[160px]" title={tersibuk.nama}>{tersibuk.nama}</p>
+            <p className="text-xs text-[#667085] font-medium">{tersibuk.jumlah} kunjungan</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4, scale: 1.01 }}
+          whileHover={{ y: -2 }}
           transition={{ duration: 0.3, delay: 0.32 }}
-          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group">
-          <div className="flex items-center justify-between">
-            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-              <BarChart2 className="h-5 w-5" />
-            </div>
+          className="bg-white rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] p-5 flex items-center space-x-4">
+          <div className="h-12 w-12 rounded-xl bg-[#CCDCEF]/60 border border-[#CCDCEF] text-[#213145] flex items-center justify-center shrink-0">
+            <BarChart2 className="h-6 w-6" />
           </div>
-          <div className="mt-4">
-            <h3 className="text-xs font-medium text-white/80">Rata-rata per Dokter</h3>
-            <p className="text-xl font-semibold text-white mt-1">{getRataRataKunjungan()}</p>
-            <p className="text-xs text-rose-200 font-medium mt-1">kunjungan / dokter</p>
+          <div>
+            <h3 className="text-xs uppercase tracking-wider text-[#667085] font-bold">Rata-rata per Dokter</h3>
+            <p className="text-2xl font-bold font-display text-[#213145] mt-0.5">{getRataRataKunjungan()}</p>
+            <p className="text-xs text-[#667085] font-medium">kunjungan / dokter</p>
           </div>
-          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
         </motion.div>
       </div>
 
