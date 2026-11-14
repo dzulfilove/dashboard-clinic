@@ -504,7 +504,7 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
 
 /* ==================== 3. LABORATORY ENDPOINTS ==================== */
 
-app.get('/api/lab/parameter', authenticateToken, async (req, res) => {
+app.get('/api/lab/parameter', authenticateToken, roleGuard(['admin', 'analis']), async (req, res) => {
   const all = req.query.all === 'true';
   try {
     const sql = all 
@@ -571,7 +571,7 @@ app.delete('/api/lab/parameter/:id', authenticateToken, roleGuard(['admin', 'lab
 });
 
 // Get daily or monthly aggregated lab volumes or a custom month range
-app.get('/api/lab/data', authenticateToken, async (req, res) => {
+app.get('/api/lab/data', authenticateToken, roleGuard(['admin', 'analis', 'perawat']), async (req, res) => {
   const { tanggal, bulan, tahun, start_bulan, start_tahun, end_bulan, end_tahun } = req.query;
   try {
     if (tanggal) {
@@ -1004,7 +1004,7 @@ app.post('/api/lab/pemeriksaan/import', authenticateToken, roleGuard(['admin','l
 });
 
 // Get all saved patient examination records
-app.get('/api/lab/pemeriksaan', authenticateToken, async (req: any, res) => {
+app.get('/api/lab/pemeriksaan', authenticateToken, roleGuard(['admin', 'analis', 'perawat']), async (req: any, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page, 10) : null;
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 25;
@@ -1304,7 +1304,7 @@ app.get('/api/lab/tren', authenticateToken, async (req, res) => {
 });
 
 // Granular daily parameter trends to track data entry progress per exam type
-app.get('/api/lab/parameter-harian', authenticateToken, async (req, res) => {
+app.get('/api/lab/parameter-harian', authenticateToken, roleGuard(['admin', 'analis']), async (req, res) => {
   const { start_bulan, start_tahun, end_bulan, end_tahun } = req.query;
   try {
     const sB = Number(start_bulan || 1);
@@ -1335,7 +1335,7 @@ app.get('/api/lab/parameter-harian', authenticateToken, async (req, res) => {
 /* ==================== 3.5. OUTPATIENT (RAWAT JALAN) ENDPOINTS ==================== */
 
 // Get all outpatient visits with detailed actions
-app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
+app.get('/api/pelayanan/rawat-jalan', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req, res) => {
   const { startDate, endDate, search, triase, unit, dpjp } = req.query;
   const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
@@ -1410,7 +1410,7 @@ app.get('/api/pelayanan/rawat-jalan', authenticateToken, async (req, res) => {
 });
 
 // Check single registration number duplicate across outpatient, igd, and inpatient
-app.get('/api/pelayanan/check-duplicate', authenticateToken, async (req, res) => {
+app.get('/api/pelayanan/check-duplicate', authenticateToken, roleGuard(['admin', 'perawat']), async (req, res) => {
   const { no_registrasi } = req.query;
   if (!no_registrasi) {
     return res.status(400).json({ message: 'no_registrasi parameter wajib diisi.' });
@@ -1948,7 +1948,7 @@ app.post('/api/dokter/bulk', authenticateToken, roleGuard(['admin', 'perawat']),
 });
 
 // Master Data Pasien
-app.get('/api/pasien', authenticateToken, async (req: any, res) => {
+app.get('/api/pasien', authenticateToken, roleGuard(['admin', 'perawat', 'analis', 'farmasi']), async (req: any, res) => {
   const { q, page, limit } = req.query;
   try {
     let whereClause = '';
@@ -2121,7 +2121,7 @@ app.delete('/api/pasien/:no_rm', authenticateToken, roleGuard(['admin']), async 
 });
 
 // --- API Follow Up Vaksin ---
-app.get('/api/followup-vaksin', authenticateToken, async (req: any, res) => {
+app.get('/api/followup-vaksin', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res) => {
   try {
     const rows = await db.query('SELECT * FROM followup_vaksin ORDER BY tanggal_rencana ASC');
     res.json(rows);
@@ -2801,7 +2801,7 @@ app.get('/api/pelayanan/demografi/overview', authenticateToken, async (req: any,
   }
 });
 
-app.get('/api/pelayanan/demografi/loyal-pasien/:no_rm', authenticateToken, async (req: any, res: any) => {
+app.get('/api/pelayanan/demografi/loyal-pasien/:no_rm', authenticateToken, roleGuard(['admin', 'perawat']), async (req: any, res: any) => {
   try {
     const { no_rm } = req.params;
     const isVirtual = db.getDiagnosticStatus().isVirtual;
@@ -3852,7 +3852,7 @@ app.delete('/api/pelayanan/rawat-jalan/:id', authenticateToken, roleGuard(['admi
 // ==========================================
 
 // Get all IGD visits with detailed actions
-app.get('/api/pelayanan/igd', authenticateToken, async (req, res) => {
+app.get('/api/pelayanan/igd', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req, res) => {
   const { startDate, endDate, search, triase, dpjp } = req.query;
   const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
@@ -4144,7 +4144,7 @@ app.delete('/api/pelayanan/igd/:id', authenticateToken, roleGuard(['admin', 'per
 });
 
 // --- Rawat Inap (Ranap) Endpoints ---
-app.get('/api/pelayanan/ranap', authenticateToken, async (req: any, res) => {
+app.get('/api/pelayanan/ranap', authenticateToken, roleGuard(['admin', 'perawat', 'analis']), async (req: any, res) => {
   const { startDate, endDate, search, triase, dpjp } = req.query;
   const start = startDate ? String(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const end = endDate ? String(endDate) : new Date().toISOString().split('T')[0];
@@ -4881,7 +4881,7 @@ app.get('/api/obat/template-csv', authenticateToken, async (req, res) => {
 });
 
 // Download template CSV (.csv) for lab parameter
-app.get('/api/lab/parameter/template-csv', authenticateToken, async (req, res) => {
+app.get('/api/lab/parameter/template-csv', authenticateToken, roleGuard(['admin', 'analis']), async (req, res) => {
   try {
     const headers = ['Kategori', 'Nama Parameter'];
     const rows = [
