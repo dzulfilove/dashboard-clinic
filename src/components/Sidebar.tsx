@@ -1,47 +1,356 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore.js';
-import { AnimatePresence, motion } from 'motion/react';
-import { 
-  Home, 
-  TrendingUp, 
-  Pill, 
-  Calendar, 
-  LayoutGrid, 
-  Info, 
-  LogOut, 
-  Menu, 
-  X,
-  ChevronDown,
-  FlaskConical,
-  Layers,
-  FileCheck,
-  Bed,
-  Stethoscope,
-  Syringe,
-  Activity,
-  Users,
-  Package,
-  Database
-} from 'lucide-react';
 import Logo from './Logo.js';
 import api from '../services/api.js';
+import { pegas } from '../utils/pegas.js';
 
-interface NavChild {
-  name: string;
+type IconName =
+  | 'home'
+  | 'lab'
+  | 'labInput'
+  | 'labMaster'
+  | 'farmasi'
+  | 'farmasiInput'
+  | 'farmasiAbc'
+  | 'farmasiMaster'
+  | 'pelayanan'
+  | 'igd'
+  | 'rawatInap'
+  | 'dokter'
+  | 'vaksin'
+  | 'master'
+  | 'demografi'
+  | 'diagnosa'
+  | 'admin'
+  | 'designSystem'
+  | 'logs'
+  | 'database'
+  | 'logout';
+
+interface RailMenuItem {
   path: string;
-  icon: any;
+  label: string;
+  icon: IconName;
   roles: string[];
+  badge?: number;
 }
 
-interface NavSection {
-  id: string;
-  title: string;
-  icon: any;
-  path?: string;
-  badge?: number | string;
-  roles: string[];
-  items?: NavChild[];
+function RailIcon({ name, filled }: { name: IconName; filled: boolean }) {
+  const stroke = filled ? 'none' : 'currentColor';
+  const fill = filled ? 'currentColor' : 'none';
+  const sw = 1.85;
+
+  switch (name) {
+    case 'home':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M11.3 2.5a1.1 1.1 0 0 1 1.4 0l8 6.8a1.1 1.1 0 0 1 .3.8V20a1.5 1.5 0 0 1-1.5 1.5h-4.8a.7.7 0 0 1-.7-.7v-5.3a1.5 1.5 0 0 0-1.5-1.5h-1a1.5 1.5 0 0 0-1.5 1.5v5.3a.7.7 0 0 1-.7.7H4.5A1.5 1.5 0 0 1 3 20v-9.9a1.1 1.1 0 0 1 .3-.8l8-6.8Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5" />
+          <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-5.5a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5V21h4a1 1 0 0 0 1-1V9.5" />
+        </svg>
+      );
+
+    case 'lab':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M4 3.5a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2h-1v4.2a3.5 3.5 0 0 1-.9 2.35l-2.6 2.86 3.9 5.5A1.5 1.5 0 0 1 17.18 21.5H6.82a1.5 1.5 0 0 1-1.22-2.09l3.9-5.5-2.6-2.86A3.5 3.5 0 0 1 6 8.7V4.5H5a1 1 0 0 1-1-1Zm5.8 11.45-2.3 3.25h9l-2.3-3.25a1 1 0 0 1 .08-1.26l.28-.31H9.44l.28.31a1 1 0 0 1 .08 1.26Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 3h6" />
+          <path d="M10 3v5.5L5.2 17.8A2 2 0 0 0 7 20.5h10a2 2 0 0 0 1.8-2.7L14 8.5V3" />
+          <path d="M7.5 14.5h9" />
+        </svg>
+      );
+
+    case 'labInput':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M8.5 2.5a1 1 0 0 0 0 2h.5v13.2a3 3 0 1 0 6 0V4.5h.5a1 1 0 1 0 0-2h-7Zm2.5 9.5h2v5.7a1 1 0 1 1-2 0V12Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 3h6" />
+          <path d="M10 3v14a2 2 0 1 0 4 0V3" />
+          <path d="M10 11h4" />
+        </svg>
+      );
+
+    case 'labMaster':
+    case 'master':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 2.4 2.8 7.1a.9.9 0 0 0 0 1.6l9.2 4.7 9.2-4.7a.9.9 0 0 0 0-1.6L12 2.4Z" />
+          <path fill="currentColor" d="m3.5 11.4 8.5 4.3 8.5-4.3a.9.9 0 1 1 .8 1.6l-8.9 4.5a.9.9 0 0 1-.8 0L2.7 13a.9.9 0 1 1 .8-1.6Z" />
+          <path fill="currentColor" d="m3.5 15.6 8.5 4.3 8.5-4.3a.9.9 0 1 1 .8 1.6l-8.9 4.5a.9.9 0 0 1-.8 0l-8.9-4.5a.9.9 0 1 1 .8-1.6Z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m12 3 9 4.5-9 4.5-9-4.5L12 3Z" />
+          <path d="m3 12 9 4.5 9-4.5" />
+          <path d="m3 16.5 9 4.5 9-4.5" />
+        </svg>
+      );
+
+    case 'farmasi':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M10.5 3.6a5.1 5.1 0 0 1 7.2 7.2l-1.9 1.9-7.2-7.2 1.9-1.9Zm-3.3 3.3-3.6 3.6a5.1 5.1 0 0 0 7.2 7.2l3.6-3.6-7.2-7.2Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" />
+          <path d="m8.5 8.5 7 7" />
+        </svg>
+      );
+
+    case 'farmasiInput':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M9 2.5A1.5 1.5 0 0 0 7.5 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.5A1.5 1.5 0 0 0 15 2.5H9Zm0 7.5h6a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2Zm0 4h4a1 1 0 1 1 0 2H9a1 1 0 1 1 0-2Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="8" y="2.5" width="8" height="3.5" rx="1" />
+          <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2" />
+          <path d="M9 11h6" />
+          <path d="M9 15h4" />
+        </svg>
+      );
+
+    case 'farmasiAbc':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="12" width="4.5" height="9" rx="1.4" fill="currentColor" />
+          <rect x="9.75" y="7" width="4.5" height="14" rx="1.4" fill="currentColor" />
+          <rect x="16.5" y="3" width="4.5" height="18" rx="1.4" fill="currentColor" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3.5" y="12" width="4" height="8.5" rx="1" />
+          <rect x="10" y="7.5" width="4" height="13" rx="1" />
+          <rect x="16.5" y="3.5" width="4" height="17" rx="1" />
+        </svg>
+      );
+
+    case 'farmasiMaster':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 2.3 3.5 6.8l8.5 4.6 8.5-4.6L12 2.3Zm-9.2 6v9.1l8.4 4.5v-9.1L2.8 8.3Zm10 13.6 8.4-4.5V8.3l-8.4 4.5v9.1Z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 2.5 3.5 7v10l8.5 4.5 8.5-4.5V7L12 2.5Z" />
+          <path d="M3.5 7 12 11.5 20.5 7" />
+          <path d="M12 11.5v10" />
+        </svg>
+      );
+
+    case 'pelayanan':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M7 2.5a1 1 0 0 1 1 1V5h8V3.5a1 1 0 1 1 2 0V5h1a2.5 2.5 0 0 1 2.5 2.5v12A2.5 2.5 0 0 1 19 22H5a2.5 2.5 0 0 1-2.5-2.5v-12A2.5 2.5 0 0 1 5 5h1V3.5a1 1 0 0 1 1-1Zm4 8.5v2H9a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2h-2v-2a1 1 0 1 0-2 0Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="16" rx="2.5" />
+          <path d="M7.5 3v3.5" />
+          <path d="M16.5 3v3.5" />
+          <path d="M12 10.5v6" />
+          <path d="M9 13.5h6" />
+        </svg>
+      );
+
+    case 'igd':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 21.2c-.3 0-.6-.1-.85-.3C5.35 16.35 2.5 12.95 2.5 8.85A5.35 5.35 0 0 1 12 5.45a5.35 5.35 0 0 1 9.5 3.4c0 4.1-2.85 7.5-8.65 12.05-.25.2-.55.3-.85.3Zm-1.2-11.1-1.3 2.4H6.8a.8.8 0 0 0 0 1.6h3.2c.3 0 .58-.16.72-.43l.83-1.52 1.4 3.25a.8.8 0 0 0 1.46.02l1.04-2.12h1.75a.8.8 0 0 0 0-1.6h-2.25a.8.8 0 0 0-.72.44l-.48.98-1.45-3.36a.8.8 0 0 0-1.5.34Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2.5 12h3.8l2.2-5 3.5 10 2.5-5H21.5" />
+        </svg>
+      );
+
+    case 'rawatInap':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M3 5.5a1 1 0 0 1 1 1v4.5h4.5A2.5 2.5 0 0 1 11 8.5h7.5A3.5 3.5 0 0 1 22 12v6.5a1 1 0 1 1-2 0V16H4v2.5a1 1 0 1 1-2 0v-12a1 1 0 0 1 1-1Zm4.2 1.8a2.1 2.1 0 1 0 0 4.2 2.1 2.1 0 0 0 0-4.2Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2 6v13" />
+          <path d="M2 15h20" />
+          <path d="M22 19v-7a3 3 0 0 0-3-3h-8v6" />
+          <circle cx="6.5" cy="10" r="2" />
+        </svg>
+      );
+
+    case 'dokter':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="7.5" r="4" fill="currentColor" />
+          <path fill="currentColor" d="M4.2 20.5a7.8 7.8 0 0 1 15.6 0 .8.8 0 0 1-.8.8H5a.8.8 0 0 1-.8-.8Z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="7.5" r="3.5" />
+          <path d="M4.5 20.5a7.5 7.5 0 0 1 15 0" />
+        </svg>
+      );
+
+    case 'vaksin':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2.2 4 5.6v5.8c0 5.1 3.4 9.7 8 11 4.6-1.3 8-5.9 8-11V5.6l-8-3.4Zm-.9 6.3h1.8v2.6h2.6v1.8h-2.6v2.6h-1.8v-2.6H8.5v-1.8h2.6V8.5Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 2.5 4.5 5.8v5.5c0 4.8 3.2 9.1 7.5 10.2 4.3-1.1 7.5-5.4 7.5-10.2V5.8L12 2.5Z" />
+          <path d="M12 8.5v7" />
+          <path d="M8.5 12h7" />
+        </svg>
+      );
+
+    case 'demografi':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="3" width="8" height="8" rx="2.2" fill="currentColor" />
+          <rect x="13" y="3" width="8" height="8" rx="2.2" fill="currentColor" />
+          <rect x="3" y="13" width="8" height="8" rx="2.2" fill="currentColor" />
+          <rect x="13" y="13" width="8" height="8" rx="2.2" fill="currentColor" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3.5" y="3.5" width="7" height="7" rx="1.6" />
+          <rect x="13.5" y="3.5" width="7" height="7" rx="1.6" />
+          <rect x="3.5" y="13.5" width="7" height="7" rx="1.6" />
+          <rect x="13.5" y="13.5" width="7" height="7" rx="1.6" />
+        </svg>
+      );
+
+    case 'diagnosa':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M11 2.1A9.9 9.9 0 1 0 21.9 13H11V2.1Zm2 0V11h8.9A9.92 9.92 0 0 0 13 2.1Z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M21 12A9 9 0 1 1 12 3v9h9Z" />
+          <path d="M14.5 3.4A9 9 0 0 1 20.6 9.5H14.5V3.4Z" />
+        </svg>
+      );
+
+    case 'admin':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="9.5" cy="8" r="3.5" fill="currentColor" />
+          <path fill="currentColor" d="M2.5 19.5a6.5 6.5 0 0 1 14 0 .8.8 0 0 1-.8.8H3.3a.8.8 0 0 1-.8-.8Z" />
+          <circle cx="17" cy="9" r="2.5" fill="currentColor" />
+          <path fill="currentColor" d="M17.2 13.5a5 5 0 0 1 4.3 5 .7.7 0 0 1-.7.7h-2.9a8 8 0 0 0-1.4-5.4c.23-.2.47-.3.7-.3Z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="9.5" cy="8" r="3.2" />
+          <path d="M3 19.5a6.5 6.5 0 0 1 13 0" />
+          <circle cx="17" cy="9" r="2.2" />
+          <path d="M18.2 14a4.5 4.5 0 0 1 3.3 4.3" />
+        </svg>
+      );
+
+    case 'designSystem':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2.2a9.8 9.8 0 1 0 0 19.6 9.8 9.8 0 0 0 0-19.6Zm0 4.6a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Zm1.1 10.7h-2.2a.8.8 0 1 1 0-1.6h.3v-3.5h-.3a.8.8 0 1 1 0-1.6h1.1a.8.8 0 0 1 .8.8v4.3h.3a.8.8 0 1 1 0 1.6Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9.2" />
+          <path d="M12 11v5" />
+          <circle cx="12" cy="7.8" r="0.7" fill="currentColor" stroke="none" />
+        </svg>
+      );
+
+    case 'logs':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2.2a9.8 9.8 0 1 0 9.8 9.8A9.8 9.8 0 0 0 12 2.2Zm.9 9.5 3.1 1.9a.9.9 0 1 1-.9 1.5l-3.6-2.2a.9.9 0 0 1-.4-.8V7.2a.9.9 0 1 1 1.8 0v4.5Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9.2" />
+          <path d="M12 7v5l3.5 2" />
+        </svg>
+      );
+
+    case 'database':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <ellipse cx="12" cy="5.5" rx="7.5" ry="3" fill="currentColor" />
+          <path fill="currentColor" d="M4.5 8.5v4c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3v-4c-1.65 1.15-4.38 1.8-7.5 1.8s-5.85-.65-7.5-1.8Z" />
+          <path fill="currentColor" d="M4.5 14.5v4c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3v-4c-1.65 1.15-4.38 1.8-7.5 1.8s-5.85-.65-7.5-1.8Z" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <ellipse cx="12" cy="5.5" rx="7.5" ry="2.8" />
+          <path d="M4.5 5.5v13c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8v-13" />
+          <path d="M4.5 12c0 1.55 3.36 2.8 7.5 2.8s7.5-1.25 7.5-2.8" />
+        </svg>
+      );
+
+    case 'logout':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 21H5.5A2.5 2.5 0 0 1 3 18.5v-13A2.5 2.5 0 0 1 5.5 3H9" />
+          <path d="m16 17 5-5-5-5" />
+          <path d="M21 12H9" />
+        </svg>
+      );
+
+    default:
+      return (
+        <svg viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth={sw} aria-hidden="true">
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+      );
+  }
 }
 
 export default React.memo(function Sidebar() {
@@ -49,487 +358,403 @@ export default React.memo(function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isHovered, setIsHovered] = useState(false);
-  const [openSection, setOpenSection] = useState<string | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [criticalStockCount, setCriticalStockCount] = useState<number>(5);
+  const railRef = useRef<HTMLElement>(null);
+  const penandaRef = useRef<HTMLDivElement>(null);
 
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const prevRef = useRef<{
+    height: number;
+    markerTop: number | null;
+    hrefs: Set<string>;
+    key: string;
+  } | null>(null);
 
-  // Define rail sections matching the screenshot
-  const railSections: NavSection[] = useMemo(() => [
-    {
-      id: 'home',
-      title: 'Dashboard Terpadu',
-      icon: Home,
-      path: '/',
-      roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis']
-    },
-    {
-      id: 'lab',
-      title: 'Laboratorium',
-      icon: TrendingUp,
-      roles: ['admin', 'analis'],
-      items: [
-        { name: 'Input Pemeriksaan', path: '/lab/input', icon: FlaskConical, roles: ['admin', 'analis'] },
-        { name: 'Tren & Analisis Lab', path: '/lab/dashboard', icon: TrendingUp, roles: ['admin', 'analis'] },
-        { name: 'Master Pemeriksaan', path: '/lab/master', icon: Layers, roles: ['admin', 'analis'] }
-      ]
-    },
-    {
-      id: 'farmasi',
-      title: 'Farmasi & Apotek',
-      icon: Pill,
-      badge: criticalStockCount > 0 ? criticalStockCount : undefined,
-      roles: ['admin', 'farmasi'],
-      items: [
-        { name: 'Konsumsi Harian', path: '/farmasi/input', icon: Pill, roles: ['admin', 'farmasi'] },
-        { name: 'Peramalan (Forecast)', path: '/farmasi/forecast', icon: TrendingUp, roles: ['admin', 'farmasi'] },
-        { name: 'Analisis ABC Spend', path: '/farmasi/abc', icon: Layers, roles: ['admin', 'farmasi'] },
-        { name: 'Master Data Obat', path: '/farmasi/master', icon: Package, roles: ['admin', 'farmasi'] }
-      ]
-    },
-    {
-      id: 'pelayanan',
-      title: 'Pelayanan Klinik',
-      icon: Calendar,
-      roles: ['admin', 'perawat'],
-      items: [
-        { name: 'Dashboard Dokter', path: '/pelayanan/dashboard-dokter', icon: Stethoscope, roles: ['admin', 'perawat'] },
-        { name: 'Rawat Jalan', path: '/pelayanan/rawat-jalan', icon: FileCheck, roles: ['admin', 'perawat'] },
-        { name: 'IGD', path: '/pelayanan/igd', icon: Activity, roles: ['admin', 'perawat'] },
-        { name: 'Rawat Inap', path: '/pelayanan/rawat-inap', icon: Bed, roles: ['admin', 'perawat'] },
-        { name: 'Follow Up Vaksin', path: '/pelayanan/followup-vaksin', icon: Syringe, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Tindakan', path: '/pelayanan/master-tindakan', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data ICD-10', path: '/pelayanan/master-icd10', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Dokter', path: '/pelayanan/master-dokter', icon: Layers, roles: ['admin', 'perawat'] },
-        { name: 'Master Data Pasien', path: '/pelayanan/master-pasien', icon: Users, roles: ['admin', 'perawat'] },
-        { name: 'Master Wilayah', path: '/pelayanan/master-wilayah', icon: Layers, roles: ['admin', 'perawat'] }
-      ]
-    },
-    {
-      id: 'demografi',
-      title: 'Demografi Kunjungan',
-      icon: LayoutGrid,
-      roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'],
-      items: [
-        { name: 'Demografi Pasien', path: '/demografi/pasien', icon: Users, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] },
-        { name: 'Demografi Diagnosa', path: '/demografi/diagnosa', icon: Activity, roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'] }
-      ]
-    },
-    {
-      id: 'sistem',
-      title: 'Sistem & Panduan',
-      icon: Info,
-      roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis'],
-      items: [
-        { name: 'Design System Guide', path: '/design-system', icon: Layers, roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis'] },
-        { name: 'Kelola Pengguna', path: '/admin/users', icon: Users, roles: ['admin'] },
-        { name: 'Log Aktivitas', path: '/admin/logs', icon: Activity, roles: ['admin'] },
-        { name: 'Pengaturan Database', path: '/admin/db-settings', icon: Database, roles: ['admin'] }
-      ]
-    }
-  ], [criticalStockCount]);
-
-  // Filter based on user role
-  const filteredSections = useMemo(() => {
-    return railSections.filter(sec => {
-      if (sec.roles && user && !sec.roles.includes(user.role)) {
-        return false;
-      }
-      return true;
-    });
-  }, [railSections, user]);
-
-  // Find active parent section
-  const currentActiveParent = useMemo(() => {
-    return filteredSections.find(sec => {
-      if (sec.path) return location.pathname === sec.path;
-      if (sec.items) return sec.items.some(child => location.pathname === child.path);
-      return false;
-    });
-  }, [filteredSections, location.pathname]);
-
-  // Keep openSection in sync with current route when hovering
   useEffect(() => {
-    if (currentActiveParent && currentActiveParent.items) {
-      setOpenSection(currentActiveParent.id);
-    }
-  }, [currentActiveParent]);
-
-  // Fetch critical items for badge
-  useEffect(() => {
+    let active = true;
     async function fetchCriticalCount() {
       try {
         const res = await api.get('/obat/forecast?bulan=11&tahun=2026');
-        if (Array.isArray(res.data)) {
-          const count = res.data.filter((item: any) => item.status_stok === 'Kritis (Perlu Order)').length;
+        if (active && Array.isArray(res.data)) {
+          const count = res.data.filter(
+            (item: any) => item.status_stok === 'Kritis (Perlu Order)'
+          ).length;
           setCriticalStockCount(count > 0 ? count : 5);
         }
       } catch {
-        setCriticalStockCount(5);
+        if (active) setCriticalStockCount(5);
       }
     }
     fetchCriticalCount();
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const handleLogout = () => {
+  const role = user?.role ?? 'admin';
+
+  const contextId = useMemo(() => {
+    const p = location.pathname;
+    if (p.startsWith('/lab')) return 'lab';
+    if (p.startsWith('/farmasi')) return 'farmasi';
+    if (p.startsWith('/pelayanan/master-')) return 'pelayanan-master';
+    if (p.startsWith('/pelayanan')) return 'pelayanan';
+    if (p.startsWith('/demografi')) return 'demografi';
+    if (p.startsWith('/admin') || p === '/design-system') return 'sistem';
+    return 'home';
+  }, [location.pathname]);
+
+  const baseItems: RailMenuItem[] = useMemo(() => {
+    const all: RailMenuItem[] = [
+      {
+        path: '/',
+        label: 'Dashboard Terpadu',
+        icon: 'home',
+        roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis'],
+      },
+      {
+        path: '/lab/dashboard',
+        label: 'Laboratorium',
+        icon: 'lab',
+        roles: ['admin', 'analis'],
+      },
+      {
+        path: '/farmasi/forecast',
+        label: 'Farmasi & Apotek',
+        icon: 'farmasi',
+        roles: ['admin', 'farmasi'],
+        badge: criticalStockCount > 0 ? criticalStockCount : undefined,
+      },
+      {
+        path: '/pelayanan/rawat-jalan',
+        label: 'Pelayanan Klinik',
+        icon: 'pelayanan',
+        roles: ['admin', 'perawat'],
+      },
+      {
+        path: '/demografi/pasien',
+        label: 'Demografi Kunjungan',
+        icon: 'demografi',
+        roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'],
+      },
+      role === 'admin'
+        ? {
+            path: '/admin/users',
+            label: 'Administrasi Sistem',
+            icon: 'admin',
+            roles: ['admin'],
+          }
+        : {
+            path: '/design-system',
+            label: 'Panduan Sistem',
+            icon: 'designSystem',
+            roles: ['lab', 'farmasi', 'perawat', 'analis'],
+          },
+    ];
+
+    return all.filter((item) => item.roles.includes(role));
+  }, [role, criticalStockCount]);
+
+  const contextItems: RailMenuItem[] = useMemo(() => {
+    let items: RailMenuItem[] = [];
+    if (contextId === 'lab') {
+      items = [
+        { path: '/lab/input', label: 'Input Pemeriksaan Lab', icon: 'labInput', roles: ['admin', 'analis'] },
+        { path: '/lab/master', label: 'Master Pemeriksaan Lab', icon: 'labMaster', roles: ['admin', 'analis'] },
+      ];
+    } else if (contextId === 'farmasi') {
+      items = [
+        { path: '/farmasi/input', label: 'Konsumsi Obat Harian', icon: 'farmasiInput', roles: ['admin', 'farmasi'] },
+        { path: '/farmasi/abc', label: 'Analisis ABC Spend', icon: 'farmasiAbc', roles: ['admin', 'farmasi'] },
+        { path: '/farmasi/master', label: 'Master Data Obat', icon: 'farmasiMaster', roles: ['admin', 'farmasi'] },
+      ];
+    } else if (contextId === 'pelayanan') {
+      items = [
+        { path: '/pelayanan/igd', label: 'IGD (Gawat Darurat)', icon: 'igd', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/rawat-inap', label: 'Rawat Inap', icon: 'rawatInap', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/dashboard-dokter', label: 'Dashboard Dokter', icon: 'dokter', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/followup-vaksin', label: 'Follow Up Vaksin', icon: 'vaksin', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-pasien', label: 'Master Pelayanan', icon: 'master', roles: ['admin', 'perawat'] },
+      ];
+    } else if (contextId === 'pelayanan-master') {
+      items = [
+        { path: '/pelayanan/master-pasien', label: 'Master Data Pasien', icon: 'admin', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-dokter', label: 'Master Data Dokter', icon: 'dokter', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-tindakan', label: 'Master Tindakan', icon: 'master', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-icd10', label: 'Master ICD-10', icon: 'diagnosa', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-wilayah', label: 'Master Wilayah', icon: 'demografi', roles: ['admin', 'perawat'] },
+      ];
+    } else if (contextId === 'demografi') {
+      items = [
+        {
+          path: '/demografi/diagnosa',
+          label: 'Demografi Diagnosa',
+          icon: 'diagnosa',
+          roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'],
+        },
+      ];
+    } else if (contextId === 'sistem' && role === 'admin') {
+      items = [
+        { path: '/design-system', label: 'Design System Guide', icon: 'designSystem', roles: ['admin'] },
+        { path: '/admin/logs', label: 'Log Aktivitas', icon: 'logs', roles: ['admin'] },
+        { path: '/admin/db-settings', label: 'Pengaturan Database', icon: 'database', roles: ['admin'] },
+      ];
+    }
+
+    return items.filter((item) => item.roles.includes(role));
+  }, [contextId, role]);
+
+  const groupCount = contextItems.length > 0 ? 3 : 2;
+  const menuKey = `${groupCount}|${contextId}|${role}|${location.pathname}`;
+
+  const updateMarkerAndAnimate = (isResizeSync = false) => {
+    const rail = railRef.current;
+    const penanda = penandaRef.current;
+    if (!rail || !penanda) return;
+
+    const isDesktop = window.matchMedia('(min-width: 720px)').matches;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const itemEls = Array.from(rail.querySelectorAll<HTMLAnchorElement>('.rail-item'));
+    const currentHrefs = new Set(itemEls.map((el) => el.getAttribute('href') || ''));
+
+    if (!isDesktop) {
+      rail.classList.remove('rail-cair');
+      penanda.style.opacity = '0';
+      prevRef.current = {
+        height: rail.offsetHeight,
+        markerTop: null,
+        hrefs: currentHrefs,
+        key: menuKey,
+      };
+      return;
+    }
+
+    const activeEl = rail.querySelector<HTMLAnchorElement>('.rail-item[aria-current="page"]');
+
+    if (prevRef.current === null) {
+      const baru = rail.offsetHeight;
+      const ke = activeEl ? activeEl.offsetTop : null;
+      if (ke !== null) {
+        penanda.style.transform = `translateY(${ke}px)`;
+        penanda.style.opacity = '1';
+      } else {
+        penanda.style.opacity = '0';
+      }
+      rail.classList.add('rail-cair');
+      prevRef.current = {
+        height: baru,
+        markerTop: ke,
+        hrefs: currentHrefs,
+        key: menuKey,
+      };
+      return;
+    }
+
+    const prev = prevRef.current;
+    if (!isResizeSync && prev.key === menuKey) {
+      return;
+    }
+
+    rail.getAnimations().forEach((anim) => {
+      if (!(anim instanceof CSSAnimation)) anim.cancel();
+    });
+    penanda.getAnimations().forEach((anim) => {
+      if (!(anim instanceof CSSAnimation)) anim.cancel();
+    });
+
+    const baru = rail.offsetHeight;
+    const ke = activeEl ? activeEl.offsetTop : null;
+    rail.classList.add('rail-cair');
+
+    if (isResizeSync || reduceMotion) {
+      if (ke !== null) {
+        penanda.style.transform = `translateY(${ke}px)`;
+        penanda.style.opacity = '1';
+      } else {
+        penanda.style.opacity = '0';
+      }
+      prevRef.current = {
+        height: baru,
+        markerTop: ke,
+        hrefs: currentHrefs,
+        key: menuKey,
+      };
+      return;
+    }
+
+    const lama = prev.height;
+
+    if (baru !== lama) {
+      rail.classList.add('rail-dinamis');
+      rail.animate(
+        [{ height: `${lama}px` }, { height: `${baru}px` }],
+        { duration: 800, easing: pegas() }
+      );
+      const mekar = baru > lama;
+      rail.animate(
+        [
+          { transform: 'scaleX(1)' },
+          { transform: `scaleX(${mekar ? 1.1 : 0.92})`, offset: 0.25 },
+          { transform: `scaleX(${mekar ? 0.96 : 1.04})`, offset: 0.55 },
+          { transform: 'scaleX(1.015)', offset: 0.8 },
+          { transform: 'scaleX(1)' },
+        ],
+        { duration: 750, easing: 'ease-out', composite: 'add' }
+      );
+    }
+
+    const newItems = itemEls.filter((el) => {
+      const href = el.getAttribute('href') || '';
+      return href !== '' && !prev.hrefs.has(href);
+    });
+
+    if (newItems.length > 0) {
+      rail.classList.add('rail-dinamis');
+      newItems.forEach((butirBaru, urutan) => {
+        butirBaru.animate(
+          [
+            { opacity: 0, transform: 'scale(.2)', filter: 'blur(6px)' },
+            { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' },
+          ],
+          {
+            duration: 650,
+            delay: 90 + urutan * 45,
+            easing: pegas(),
+            fill: 'backwards',
+          }
+        );
+      });
+    }
+
+    const dari = prev.markerTop;
+    if (ke === null) {
+      penanda.style.opacity = '0';
+    } else if (dari === null) {
+      penanda.style.transform = `translateY(${ke}px)`;
+      penanda.style.opacity = '1';
+      penanda.animate(
+        [
+          { opacity: 0, transform: `translateY(${ke}px) scale(.2)` },
+          { opacity: 1, transform: `translateY(${ke}px) scale(1)` },
+        ],
+        { duration: 600, easing: pegas() }
+      );
+    } else if (dari !== ke) {
+      const jarak = ke - dari;
+      const regang = 1 + Math.min(Math.abs(jarak) / 48, 3) * 0.45;
+      const tengah = dari + jarak * 0.55;
+      penanda.style.transform = `translateY(${ke}px)`;
+      penanda.style.opacity = '1';
+      penanda.animate(
+        [
+          { transform: `translateY(${dari}px) scaleY(1)` },
+          {
+            transform: `translateY(${tengah}px) scaleY(${regang}) scaleX(.82)`,
+            offset: 0.45,
+          },
+          {
+            transform: `translateY(${ke}px) scaleY(.86) scaleX(1.08)`,
+            offset: 0.75,
+          },
+          { transform: `translateY(${ke}px) scaleY(1)` },
+        ],
+        { duration: 650, easing: 'cubic-bezier(.3, .7, .2, 1)' }
+      );
+    } else {
+      penanda.style.transform = `translateY(${ke}px)`;
+      penanda.style.opacity = '1';
+    }
+
+    prevRef.current = {
+      height: baru,
+      markerTop: ke,
+      hrefs: currentHrefs,
+      key: menuKey,
+    };
+  };
+
+  useLayoutEffect(() => {
+    updateMarkerAndAnimate(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuKey]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 720px)');
+    const handleChange = () => updateMarkerAndAnimate(true);
+    mq.addEventListener('change', handleChange);
+    return () => mq.removeEventListener('change', handleChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuKey]);
+
+  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
     logout();
     navigate('/login');
   };
 
-  const handleSectionClick = (section: NavSection) => {
-    if (section.path) {
-      navigate(section.path);
-      return;
-    }
-    // Toggle accordion directly inside sidebar
-    setOpenSection(prev => (prev === section.id ? null : section.id));
-  };
-
-  const isSectionActive = (section: NavSection) => {
-    if (section.path) {
-      return location.pathname === section.path;
-    }
-    if (section.items) {
-      return section.items.some(child => location.pathname === child.path);
-    }
-    return false;
-  };
-
   return (
-    <>
-      {/* Mobile Top Bar */}
-      <header className="md:hidden flex items-center justify-between px-5 py-3.5 bg-[#213145] text-white shadow-md z-40 border-b border-[#CCDCEF]/15">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center shadow-xs">
-            <Logo size={22} />
-          </div>
-          <span className="font-display font-extrabold text-[15px] text-white tracking-tight">
-            Klinik Puri Medika<span className="text-[#FF8574]">.</span>
-          </span>
-        </div>
-        <button 
-          onClick={() => setMobileOpen(!mobileOpen)} 
-          className="p-2 rounded-xl bg-white/10 hover:bg-white/15 text-white transition-all cursor-pointer"
-          style={{ minHeight: '40px', minWidth: '40px' }}
-          aria-label="Toggle menu navigasi"
-        >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5 text-white" />}
-        </button>
-      </header>
+    <aside id="side-navigation" className="rail-kolom">
+      <nav ref={railRef} className="rail" aria-label="Menu utama">
+        <div ref={penandaRef} className="rail-penanda" aria-hidden="true" />
 
-      {/* Mobile Drawer Overlay */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 bg-[#0B1C30]/60 backdrop-blur-xs z-45 flex"
-            onClick={() => setMobileOpen(false)}
-          >
-            <motion.div 
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ duration: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
-              onClick={(e) => e.stopPropagation()}
-              className="p-3 w-[290px] h-full"
+        <div className="rail-brand" title="Klinik Puri Medika">
+          <Logo size={24} />
+        </div>
+
+        <div className="rail-gap" aria-hidden="true" />
+
+        {baseItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className="rail-item"
+              aria-label={item.label}
+              data-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <div className="bg-[#213145] rounded-[32px] p-5 h-full flex flex-col justify-between shadow-2xl border border-[#CCDCEF]/15 overflow-y-auto">
-                <div>
-                  <div className="flex items-center space-x-3 mb-6 px-1">
-                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 border border-white/10">
-                      <Logo size={28} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-display font-extrabold text-base text-white tracking-tight leading-tight">
-                        Klinik Puri Medika<span className="text-[#FF8574]">.</span>
-                      </span>
-                      <span className="text-[11px] text-[#B8C8DB] font-medium leading-tight mt-0.5">
-                        Sistem Informasi Klinik
-                      </span>
-                    </div>
-                  </div>
-
-                  <nav className="space-y-1.5">
-                    {filteredSections.map(section => {
-                      const Icon = section.icon;
-                      const active = isSectionActive(section);
-                      const isOpen = openSection === section.id;
-
-                      return (
-                        <div key={section.id} className="space-y-1">
-                          <button
-                            onClick={() => handleSectionClick(section)}
-                            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer
-                              ${active 
-                                ? 'bg-[#CCDCEF]/18 text-white font-bold shadow-xs' 
-                                : 'text-[#B8C8DB] hover:bg-white/8 hover:text-white'}
-                            `}
-                          >
-                            <div className="flex items-center space-x-3 overflow-hidden">
-                              <Icon className={`h-4.5 w-4.5 flex-shrink-0 ${active ? 'text-white' : 'text-[#B8C8DB]'}`} />
-                              <span className="truncate">{section.title}</span>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              {section.badge !== undefined && (
-                                <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF8574] text-[#222526] font-extrabold text-[10px] flex items-center justify-center">
-                                  {section.badge}
-                                </span>
-                              )}
-                              {section.items && (
-                                <ChevronDown className={`h-3.5 w-3.5 text-[#B8C8DB] transition-transform duration-200 ${isOpen ? 'rotate-180 text-white' : ''}`} />
-                              )}
-                            </div>
-                          </button>
-
-                          {/* Accordion Submenu on Mobile */}
-                          {isOpen && section.items && (
-                            <div className="pl-3 ml-4.5 border-l border-[#CCDCEF]/20 space-y-1 my-1">
-                              {section.items.map((subItem, sIdx) => {
-                                const SubIcon = subItem.icon;
-                                const isSubActive = location.pathname === subItem.path;
-                                return (
-                                  <NavLink
-                                    key={sIdx}
-                                    to={subItem.path}
-                                    onClick={() => setMobileOpen(false)}
-                                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all
-                                      ${isSubActive 
-                                        ? 'bg-[#CCDCEF]/20 text-white font-bold' 
-                                        : 'text-[#B8C8DB]/85 hover:text-white hover:bg-white/8'}
-                                    `}
-                                  >
-                                    <SubIcon className={`h-3.5 w-3.5 ${isSubActive ? 'text-white' : 'text-[#B8C8DB]/70'}`} />
-                                    <span className="truncate">{subItem.name}</span>
-                                  </NavLink>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </nav>
-                </div>
-
-                <div className="pt-4 border-t border-[#CCDCEF]/15 flex items-center justify-between">
-                  {user && (
-                    <div className="flex items-center space-x-2.5">
-                      <div className="h-8 w-8 rounded-full bg-[#CCDCEF] text-[#213145] flex items-center justify-center font-bold text-xs uppercase">
-                        {user.nama.substring(0, 2)}
-                      </div>
-                      <div className="flex flex-col truncate">
-                        <span className="text-xs font-bold text-white truncate">{user.nama}</span>
-                        <span className="text-[10px] text-[#B8C8DB] capitalize">{user.role}</span>
-                      </div>
-                    </div>
-                  )}
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 rounded-xl bg-white/10 hover:bg-[#FF8574]/20 text-[#B8C8DB] hover:text-[#FF8574] transition-colors"
-                  >
-                    <LogOut className="h-4.5 w-4.5" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Desktop Dynamic Hover-Expand Capsule Rail */}
-      <aside 
-        id="side-navigation"
-        ref={sidebarRef}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-        }}
-        className="hidden md:flex flex-col items-center justify-center p-3 sticky top-0 h-screen z-45"
-      >
-        {/* Outer White Housing (smooth width expansion) */}
-        <div 
-          className={`si-rail-outer relative transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.2,1)] overflow-hidden
-            ${isHovered ? 'w-[280px] p-2' : 'w-[92px] p-1.5'}
-          `}
-        >
-          {/* Inner Navy Capsule Rail (smooth width expansion) */}
-          <div 
-            className={`si-rail-inner transition-all duration-300 ease-[cubic-bezier(0.2,0.7,0.2,1)] flex flex-col justify-between overflow-x-hidden
-              ${isHovered ? 'w-[264px] rounded-[30px] py-5 px-3' : 'w-[78px] rounded-[36px] py-6 px-1.5'}
-            `}
-          >
-            {/* Top Brand Area */}
-            <div className="w-full">
-              {!isHovered ? (
-                // Collapsed: Logo only (clean white tile)
-                <div className="flex items-center justify-center w-full mb-6 pt-1 select-none">
-                  <div className="w-11 h-11 rounded-[14px] bg-white p-1.5 flex items-center justify-center shadow-sm border border-white/80 transition-transform duration-200 hover:scale-105">
-                    <Logo size={28} />
-                  </div>
-                </div>
-              ) : (
-                // Expanded Full Wordmark
-                <div className="flex items-center space-x-3 px-2 mb-5 w-full select-none animate-in fade-in duration-200">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white shrink-0 border border-white/10 shadow-xs">
-                    <Logo size={28} />
-                  </div>
-                  <div className="flex flex-col whitespace-nowrap overflow-hidden">
-                    <span className="font-display font-extrabold text-[15px] text-white tracking-tight leading-tight">
-                      Klinik Puri Medika<span className="text-[#FF8574]">.</span>
-                    </span>
-                    <span className="text-[11px] text-[#B8C8DB] font-medium leading-tight mt-0.5">
-                      Sistem Informasi Klinik
-                    </span>
-                  </div>
-                </div>
+              <RailIcon name={item.icon} filled={isActive} />
+              {item.badge !== undefined && (
+                <span className="rail-badge">{item.badge}</span>
               )}
+            </Link>
+          );
+        })}
 
-              {/* Navigation Stack */}
-              <nav className="space-y-1.5 w-full overflow-y-auto max-h-[calc(100vh-210px)] scrollbar-none">
-                {filteredSections.map((section) => {
-                  const IconComponent = section.icon;
-                  const active = isSectionActive(section);
-                  const isOpen = openSection === section.id && isHovered;
-
-                  return (
-                    <div key={section.id} className="w-full">
-                      {/* Main Button */}
-                      <button
-                        onClick={() => handleSectionClick(section)}
-                        className={`transition-all duration-200 cursor-pointer relative group flex items-center
-                          ${!isHovered 
-                            ? 'w-12 h-12 mx-auto rounded-[16px] justify-center' 
-                            : 'w-full px-3 py-2.5 rounded-[14px] justify-between'}
-                          ${active 
-                            ? 'bg-[#CCDCEF]/18 text-white font-bold shadow-xs' 
-                            : 'text-[#B8C8DB] hover:bg-white/8 hover:text-white'}
-                        `}
-                        title={!isHovered ? section.title : undefined}
-                      >
-                        <div className="flex items-center space-x-3 overflow-hidden">
-                          <div className="relative shrink-0">
-                            <IconComponent className={`h-5 w-5 ${active ? 'text-white' : 'text-[#B8C8DB]'}`} />
-                            {/* Coral Badge on Collapsed Rail */}
-                            {!isHovered && section.badge !== undefined && (
-                              <span className="si-rail-badge">
-                                {section.badge}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Text Label on Expanded */}
-                          {isHovered && (
-                            <span className="text-xs font-semibold whitespace-nowrap truncate text-left animate-in fade-in duration-150">
-                              {section.title}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Right Section Elements on Expanded */}
-                        {isHovered && (
-                          <div className="flex items-center space-x-2 shrink-0 animate-in fade-in duration-150">
-                            {section.badge !== undefined && (
-                              <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#FF8574] text-[#222526] font-extrabold text-[10px] flex items-center justify-center">
-                                {section.badge}
-                              </span>
-                            )}
-                            {section.items && (
-                              <ChevronDown className={`h-3.5 w-3.5 text-[#B8C8DB] transition-transform duration-200 ${isOpen ? 'rotate-180 text-white' : ''}`} />
-                            )}
-                          </div>
-                        )}
-                      </button>
-
-                      {/* IN-SIDEBAR SUBMENU ACCORDION (NOT A FLOATING COMPONENT) */}
-                      <AnimatePresence>
-                        {isOpen && section.items && isHovered && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.2, ease: [0.2, 0.7, 0.2, 1] }}
-                            className="overflow-hidden pl-3 ml-4.5 border-l border-[#CCDCEF]/20 space-y-1 my-1"
-                          >
-                            {section.items
-                              .filter(child => !user || child.roles.includes(user.role))
-                              .map((subItem, subIdx) => {
-                                const SubIcon = subItem.icon;
-                                const isSubActive = location.pathname === subItem.path;
-
-                                return (
-                                  <NavLink
-                                    key={subIdx}
-                                    to={subItem.path}
-                                    className={`
-                                      flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all
-                                      ${isSubActive 
-                                        ? 'bg-[#CCDCEF]/20 text-white font-bold shadow-2xs' 
-                                        : 'text-[#B8C8DB]/85 hover:text-white hover:bg-white/8'}
-                                    `}
-                                  >
-                                    <SubIcon className={`h-3.5 w-3.5 shrink-0 ${isSubActive ? 'text-white' : 'text-[#B8C8DB]/70'}`} />
-                                    <span className="truncate">{subItem.name}</span>
-                                  </NavLink>
-                                );
-                              })}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* Bottom Section: Profile & Logout */}
-            <div className="w-full pt-3 mt-auto border-t border-[#CCDCEF]/12">
-              {!isHovered ? (
-                // Collapsed Logout Icon Button (matching screenshot)
-                <button
-                  onClick={handleLogout}
-                  className="w-12 h-12 mx-auto rounded-[16px] flex items-center justify-center text-[#B8C8DB] hover:text-[#FF8574] hover:bg-[#FF8574]/15 transition-all cursor-pointer"
-                  title="Keluar dari Sistem"
-                  aria-label="Keluar dari Sistem"
+        {contextItems.length > 0 && (
+          <>
+            <div className="rail-gap" aria-hidden="true" />
+            {contextItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="rail-item"
+                  aria-label={item.label}
+                  data-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
                 >
-                  <LogOut className="h-5 w-5" />
-                </button>
-              ) : (
-                // Expanded Profile Row + Logout
-                <div className="flex items-center justify-between px-2 animate-in fade-in duration-200">
-                  {user && (
-                    <div className="flex items-center space-x-2.5 overflow-hidden">
-                      <div className="h-8 w-8 rounded-full bg-[#CCDCEF] text-[#213145] flex items-center justify-center font-bold text-xs uppercase shrink-0">
-                        {user.nama.substring(0, 2)}
-                      </div>
-                      <div className="flex flex-col truncate">
-                        <span className="text-xs font-bold text-white truncate font-display">{user.nama}</span>
-                        <span className="text-[10px] font-mono text-[#CCDCEF] bg-[#CCDCEF]/15 px-1.5 py-0.2 rounded self-start mt-0.5">
-                          {user.role}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                  <RailIcon name={item.icon} filled={isActive} />
+                </Link>
+              );
+            })}
+          </>
+        )}
 
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 rounded-xl bg-white/10 hover:bg-[#FF8574]/20 hover:text-[#FF8574] text-[#B8C8DB] transition-all cursor-pointer"
-                    title="Keluar dari Sistem"
-                    aria-label="Keluar dari Sistem"
-                  >
-                    <LogOut className="h-4.5 w-4.5" />
-                  </button>
-                </div>
-              )}
-            </div>
+        <div className="rail-gap" aria-hidden="true" />
 
-          </div>
-        </div>
-      </aside>
-    </>
+        <a
+          href="#/login"
+          onClick={handleLogout}
+          className="rail-item rail-item--logout"
+          aria-label="Keluar dari Sistem"
+          data-label="Keluar dari Sistem"
+        >
+          <RailIcon name="logout" filled={false} />
+        </a>
+      </nav>
+    </aside>
   );
 });

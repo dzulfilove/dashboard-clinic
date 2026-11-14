@@ -69,12 +69,12 @@ function AppContent() {
           path="/*"
           element={
             <ProtectedRoute>
-              <div className="relative min-h-screen bg-[#F8F9FF] flex flex-col md:flex-row font-sans overflow-hidden">
+              <div className="app-shell">
                 {/* Sidebar Navigation */}
                 <Sidebar />
 
                 {/* Core Main Viewport Stage */}
-                <main id="main-viewport" className="relative z-10 flex-1 px-4 py-8 md:p-8 overflow-y-scroll max-h-screen">
+                <main id="main-viewport" className="relative z-10 flex-1 min-w-0 px-4 py-6 md:p-8 overflow-y-auto max-h-screen">
                   <div className="max-w-7xl mx-auto h-full">
                     <Suspense fallback={<Loader />}>
                       <Routes location={location} key={location.pathname}>
