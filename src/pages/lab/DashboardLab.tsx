@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import {
   TrendingUp,
   Download,
@@ -400,148 +401,131 @@ export default React.memo(function DashboardLab() {
 
   return (
     <div className="space-y-6 font-sans text-[#222526] pb-10">
-      {/* 1. Header & Period Controls */}
-      <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 shadow-[0_6px_24px_rgba(33,49,69,0.06)] space-y-5">
-        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] tracking-tight font-display">
-              Tren &amp; Analisis Laboratorium
-            </h1>
-            <p className="text-xs text-[#516070] font-medium">
-              Periode {startPeriodLabel} – {endPeriodLabel} ·{' '}
-              <span className="tabular-nums font-semibold text-[#213145]">
-                {totalExams.toLocaleString('id-ID')} pengujian
-              </span>{' '}
-              · {uniqueCategories.length} kategori aktif
-            </p>
-          </div>
+      <PageHeader
+        title="Tren & Analisis Laboratorium"
+        subtitle={`Periode ${startPeriodLabel} – ${endPeriodLabel} · ${totalExams.toLocaleString('id-ID')} pengujian · ${uniqueCategories.length} kategori aktif`}
+      />
 
-          {/* Date range period selector & export action */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex flex-wrap items-center gap-2 bg-[#EFF4FF] px-3 py-1.5 border border-[#D3E4FE] rounded-xl">
-              <Calendar className="h-4 w-4 text-[#213145] flex-none" />
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-semibold text-[#516070]">Dari</span>
-                <SearchableSelect
-                  id="select-start-month-anal"
-                  value={startMonth}
-                  onChange={(e) => setStartMonth(Number(e.target.value))}
-                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
-                  style={{ minHeight: '34px' }}
-                >
-                  {months.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.name}
-                    </option>
-                  ))}
-                </SearchableSelect>
-                <SearchableSelect
-                  id="select-start-year-anal"
-                  value={startYear}
-                  onChange={(e) => setStartYear(Number(e.target.value))}
-                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
-                  style={{ minHeight: '34px' }}
-                >
-                  {years.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </SearchableSelect>
-              </div>
-
-              <span className="text-[#B8C8DB]">/</span>
-
-              <div className="flex items-center gap-1">
-                <span className="text-xs font-semibold text-[#516070]">Selesai</span>
-                <SearchableSelect
-                  id="select-end-month-anal"
-                  value={endMonth}
-                  onChange={(e) => setEndMonth(Number(e.target.value))}
-                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
-                  style={{ minHeight: '34px' }}
-                >
-                  {months.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.name}
-                    </option>
-                  ))}
-                </SearchableSelect>
-                <SearchableSelect
-                  id="select-end-year-anal"
-                  value={endYear}
-                  onChange={(e) => setEndYear(Number(e.target.value))}
-                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
-                  style={{ minHeight: '34px' }}
-                >
-                  {years.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </SearchableSelect>
-              </div>
-            </div>
-
-            {user?.role === 'admin' && (
-              <button
-                id="export-lab-btn"
-                onClick={handleExportXlsx}
-                className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl whitespace-nowrap shrink-0"
-                style={{ height: '40px' }}
-              >
-                <Download className="h-4 w-4 text-white" />
-                <span>Unduh Rekap</span>
-              </button>
-            )}
-          </div>
+      {/* 1. Controls & Sub-Navigation Toolbar */}
+      <div className="si-card bg-white rounded-[20px] p-4 sm:p-5 shadow-[0_6px_24px_rgba(33,49,69,0.06)] flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl self-start">
+          <button
+            onClick={() => setSubTab('overview')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+              subTab === 'overview'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            <Layers3 className="h-4 w-4" />
+            <span>Ringkasan Klinik</span>
+          </button>
+          <button
+            onClick={() => setSubTab('category')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+              subTab === 'category'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            <Dna className="h-4 w-4" />
+            <span>Per Kategori · {uniqueCategories.length}</span>
+          </button>
+          <button
+            id="tab-progress-toggle"
+            onClick={() => setSubTab('progress')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+              subTab === 'progress'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            <Activity className="h-4 w-4" />
+            <span>Progres Harian</span>
+          </button>
         </div>
 
-        {/* Segmented Sub-Navigation */}
-        <div className="pt-4 border-t border-[#E5EEFF] flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl">
-            <button
-              onClick={() => setSubTab('overview')}
-              className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
-                subTab === 'overview'
-                  ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
-                  : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
-              }`}
-              style={{ minHeight: '36px' }}
-            >
-              <Layers3 className="h-4 w-4" />
-              <span>Ringkasan Klinik</span>
-            </button>
-            <button
-              onClick={() => setSubTab('category')}
-              className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
-                subTab === 'category'
-                  ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
-                  : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
-              }`}
-              style={{ minHeight: '36px' }}
-            >
-              <Dna className="h-4 w-4" />
-              <span>Per Kategori · {uniqueCategories.length}</span>
-            </button>
-            <button
-              id="tab-progress-toggle"
-              onClick={() => setSubTab('progress')}
-              className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
-                subTab === 'progress'
-                  ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
-                  : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
-              }`}
-              style={{ minHeight: '36px' }}
-            >
-              <Activity className="h-4 w-4" />
-              <span>Progres Harian</span>
-            </button>
+        {/* Date range period selector & export action */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 bg-[#EFF4FF] px-3 py-1.5 border border-[#D3E4FE] rounded-xl">
+            <Calendar className="h-4 w-4 text-[#213145] flex-none" />
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-semibold text-[#516070]">Dari</span>
+              <SearchableSelect
+                id="select-start-month-anal"
+                value={startMonth}
+                onChange={(e) => setStartMonth(Number(e.target.value))}
+                className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                style={{ minHeight: '34px' }}
+              >
+                {months.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.name}
+                  </option>
+                ))}
+              </SearchableSelect>
+              <SearchableSelect
+                id="select-start-year-anal"
+                value={startYear}
+                onChange={(e) => setStartYear(Number(e.target.value))}
+                className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                style={{ minHeight: '34px' }}
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </SearchableSelect>
+            </div>
+
+            <span className="text-[#B8C8DB]">/</span>
+
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-semibold text-[#516070]">Selesai</span>
+              <SearchableSelect
+                id="select-end-month-anal"
+                value={endMonth}
+                onChange={(e) => setEndMonth(Number(e.target.value))}
+                className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                style={{ minHeight: '34px' }}
+              >
+                {months.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.name}
+                  </option>
+                ))}
+              </SearchableSelect>
+              <SearchableSelect
+                id="select-end-year-anal"
+                value={endYear}
+                onChange={(e) => setEndYear(Number(e.target.value))}
+                className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                style={{ minHeight: '34px' }}
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </SearchableSelect>
+            </div>
           </div>
 
-          <span className="text-xs text-[#74777C] hidden sm:inline">
-            {sortedParams.length} parameter laboratorium terpantau
-          </span>
+          {user?.role === 'admin' && (
+            <button
+              id="export-lab-btn"
+              onClick={handleExportXlsx}
+              className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl whitespace-nowrap shrink-0"
+              style={{ height: '40px' }}
+            >
+              <Download className="h-4 w-4 text-white" />
+              <span>Unduh Rekap</span>
+            </button>
+          )}
         </div>
       </div>
 

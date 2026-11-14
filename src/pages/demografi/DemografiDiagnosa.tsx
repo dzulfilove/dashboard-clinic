@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   HeartPulse, 
   Search, 
@@ -182,38 +183,33 @@ export default React.memo(function DemografiDiagnosa() {
 
   return (
     <div className="space-y-6">
-      {/* Upper Module Heading */}
-      <div 
-        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100 gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <HeartPulse className="h-5 w-5 text-teal-600 animate-pulse" />
-            <span>Demografi Berdasarkan Diagnosa (ICD-10)</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Analisis statistik sebaran penyakit, profil demografi penderita, dan tren diagnosis medis di klinik.
-          </p>
-        </div>
+      <PageHeader
+        title="Demografi Berdasarkan Diagnosa (ICD-10)"
+        subtitle="Analisis statistik sebaran penyakit, profil demografi penderita, dan tren diagnosis medis di klinik."
+      />
 
-        {/* Date Filters */}
-        <div className="flex flex-wrap items-center gap-2.5 bg-slate-50 p-2 rounded-2xl border border-slate-50">
-          <div className="flex items-center space-x-1.5 text-slate-500">
-            <Calendar className="h-3.5 w-3.5" />
+      {/* Date Filter Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-[#516070]">
+          Rentang tanggal analisis diagnosa
+        </span>
+        <div className="flex flex-wrap items-center gap-2.5 bg-white px-3.5 py-2 rounded-2xl border border-[#E5EEFF] shadow-sm">
+          <div className="flex items-center space-x-1.5 text-[#516070]">
+            <Calendar className="h-4 w-4 text-[#213145]" />
             <span className="text-xs font-bold uppercase tracking-wider">Periode:</span>
           </div>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-teal-500 font-medium"
+            className="text-xs bg-[#F8F9FF] border border-[#D3E4FE] rounded-xl px-2.5 py-1.5 text-[#0B1C30] focus:outline-none focus:border-[#213145] font-medium"
           />
-          <span className="text-slate-400 text-xs font-semibold">s/d</span>
+          <span className="text-[#74777C] text-xs font-semibold">s/d</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="text-xs bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-slate-700 focus:outline-none focus:ring-1 focus:ring-teal-500 font-medium"
+            className="text-xs bg-[#F8F9FF] border border-[#D3E4FE] rounded-xl px-2.5 py-1.5 text-[#0B1C30] focus:outline-none focus:border-[#213145] font-medium"
           />
         </div>
       </div>

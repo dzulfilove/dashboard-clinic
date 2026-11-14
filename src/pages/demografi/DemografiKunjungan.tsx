@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Users, 
   MapPin, 
@@ -563,60 +564,68 @@ export default React.memo(function DemografiKunjungan() {
 
   const totalPatients = byGender.reduce((acc, curr) => acc + curr.jumlah, 0);
 
+  const currentSubtitle =
+    activeTab === 'loyal'
+      ? 'Daftar pasien dengan intensitas kunjungan klinik tertinggi (All-Time & Periodik).'
+      : activeTab === 'wilayah'
+      ? 'Analisis persebaran domisili pasien berdasarkan Kabupaten/Kota, Kecamatan, dan Kelurahan.'
+      : 'Analisis statistik profil gender dan kelompok usia pasien terdaftar.';
+
   return (
     <div className="space-y-6">
-      {/* Upper Module Heading */}
-      <div 
-        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-[#E5EEFF] gap-4"
-      >
-        <div>
-          <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase">
-            ANALISIS REKAM MEDIS &amp; KUNJUNGAN
-          </span>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] tracking-tight font-display mt-0.5 flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-[#213145]" />
-            <span>Demografi Kunjungan &amp; Pasien</span>
-          </h1>
-          <p className="text-[#516070] text-xs mt-1 font-normal">
-            {activeTab === 'loyal' && 'Daftar pasien dengan intensitas kunjungan klinik tertinggi (All-Time & Periodik).'}
-            {activeTab === 'wilayah' && 'Analisis persebaran domisili pasien berdasarkan Kabupaten/Kota, Kecamatan, dan Kelurahan.'}
-            {activeTab === 'pasien' && 'Analisis statistik profil gender dan kelompok usia pasien terdaftar.'}
-          </p>
+      <PageHeader
+        title="Demografi Kunjungan & Pasien"
+        subtitle={currentSubtitle}
+      />
+
+      {/* Tab Navigation & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl border border-[#E5EEFF] self-start">
+          <button
+            onClick={() => setActiveTab('loyal')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'loyal'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            Pasien Loyal
+          </button>
+          <button
+            onClick={() => setActiveTab('wilayah')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'wilayah'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            Demografi Wilayah
+          </button>
+          <button
+            onClick={() => setActiveTab('pasien')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'pasien'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            Demografi Pasien
+          </button>
         </div>
 
-        {/* Custom Tab selectors & Action Button */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          {activeTab === 'loyal' && (
-            <button
-              onClick={() => setShowImportTagihan(true)}
-              className="si-btn si-btn--primary text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
-              style={{ background: '#213145', color: '#ffffff' }}
-            >
-              <Upload className="h-3.5 w-3.5 text-[#CCDCEF]" />
-              <span>Import Tagihan</span>
-            </button>
-          )}
-          <div className="si-segment p-1 bg-[#EFF4FF] rounded-2xl flex items-center gap-1 self-start md:self-center border border-[#CCDCEF]/30">
-            <button
-              onClick={() => setActiveTab('loyal')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'loyal' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
-            >
-              Pasien Loyal
-            </button>
-            <button
-              onClick={() => setActiveTab('wilayah')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'wilayah' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
-            >
-              Demografi Wilayah
-            </button>
-            <button
-              onClick={() => setActiveTab('pasien')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer ${activeTab === 'pasien' ? 'bg-white text-[#213145] shadow-xs' : 'text-[#516070] hover:text-[#0B1C30]'}`}
-            >
-              Demografi Pasien
-            </button>
-          </div>
-        </div>
+        {activeTab === 'loyal' && (
+          <button
+            onClick={() => setShowImportTagihan(true)}
+            className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0 self-start sm:self-auto"
+            style={{ height: '40px' }}
+          >
+            <Upload className="h-4 w-4 text-[#CCDCEF]" />
+            <span>Import Tagihan</span>
+          </button>
+        )}
       </div>
 
       {loading || isVisualizing ? (

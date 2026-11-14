@@ -4,6 +4,7 @@ import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
+import PageHeader from '../../components/PageHeader.js';
 import { Users, Plus, Trash2, Edit3, ClipboardList, TrendingUp, FileText, Clock, CheckCircle, AlertCircle, Search, X, Syringe, Send, MessageSquare, Bell, BellRing, Check, UserPlus, Loader2, Filter, CalendarDays, CalendarPlus, Stethoscope, Settings, BarChart2 } from 'lucide-react';
 import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
@@ -937,40 +938,36 @@ export default React.memo(function FollowUpVaksinPage() {
 
   return (
     <div className="space-y-6" id="follow-up-vaksin-main-container">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <Syringe className="h-5 w-5 text-teal-600" />
-            <span>Follow Up Pasien Vaksinasi</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Manajemen penjadwalan, pemantauan berkala, dan sistem pengingat otomatis untuk pasien penerima vaksinasi.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {stats.pendingCount > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSendBroadcast}
-              className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-2xl shadow-sm transition-all text-xs relative cursor-pointer"
-            >
-              <BellRing className="h-4 w-4 animate-bounce" />
-              <span>Broadcast Hari Ini ({stats.pendingCount})</span>
-            </motion.button>
-          )}
+      <PageHeader
+        title="Follow Up Pasien Vaksinasi"
+        subtitle="Manajemen penjadwalan, pemantauan berkala, dan sistem pengingat otomatis untuk pasien penerima vaksinasi."
+      />
 
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-2.5">
+        {stats.pendingCount > 0 && (
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={openAddModal}
-            className="flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium py-2 px-4 text-xs rounded-2xl shadow-sm cursor-pointer"
+            onClick={handleSendBroadcast}
+            className="flex items-center gap-2 bg-[#FF8574] hover:bg-[#F06B58] text-[#222526] font-bold py-2 px-4 rounded-xl shadow-xs transition-all text-xs cursor-pointer whitespace-nowrap shrink-0"
+            style={{ height: '40px' }}
           >
-            <Plus className="h-4 w-4" />
-            <span>Tambah Rencana Follow Up</span>
+            <BellRing className="h-4 w-4" />
+            <span>Broadcast Hari Ini ({stats.pendingCount})</span>
           </motion.button>
-        </div>
+        )}
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={openAddModal}
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
+        >
+          <Plus className="h-4 w-4" />
+          <span>Tambah Rencana Follow Up</span>
+        </motion.button>
       </div>
 
       {/* Broadcast Alert Warning Banner */}

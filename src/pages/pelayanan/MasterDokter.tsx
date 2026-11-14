@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Search, 
   Plus, 
@@ -256,49 +257,44 @@ export default React.memo(function MasterDokter() {
 
   return (
     <div className="space-y-6">
-      {/* Upper header */}
-      <div 
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <Stethoscope className="h-5 w-5 text-teal-600" />
-            <span>Master Data Dokter</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Daftar tenaga medis dan DPJP unit pelayanan Klinik Puri Medika.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={downloadTemplate}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-lg transition shadow-sm"
-          >
-            <Download className="h-3 w-3" />
-            <span>Template</span>
-          </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white font-medium text-xs rounded-lg transition shadow-sm"
-          >
-            <FileUp className="h-3 w-3" />
-            <span>Import CSV</span>
-          </button>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleImportCSV} 
-            accept=".csv" 
-            className="hidden" 
-          />
-          <button
-            onClick={handleOpenAddModal}
-            className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium text-xs rounded-lg shadow-sm"
-          >
-            <Plus className="h-3 w-3" />
-            <span>Tambah Dokter</span>
-          </button>
-        </div>
+      <PageHeader
+        title="Master Data Dokter"
+        subtitle="Daftar tenaga medis dan DPJP unit pelayanan Klinik Puri Medika."
+      />
+
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-2.5">
+        <button
+          onClick={downloadTemplate}
+          className="si-btn si-btn--outline text-xs font-semibold px-3.5 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
+        >
+          <Download className="h-4 w-4 text-[#213145]" />
+          <span>Template</span>
+        </button>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="si-btn si-btn--soft text-xs font-semibold px-3.5 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
+        >
+          <FileUp className="h-4 w-4" />
+          <span>Import CSV</span>
+        </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImportCSV}
+          accept=".csv"
+          className="hidden"
+        />
+        <button
+          onClick={handleOpenAddModal}
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
+        >
+          <Plus className="h-4 w-4" />
+          <span>Tambah Dokter</span>
+        </button>
       </div>
 
       <AnimatePresence>

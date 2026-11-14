@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../../services/api.js';
+import PageHeader from '../../components/PageHeader.js';
 import { Plus, Trash2, Edit2, X, Check, Search, ChevronLeft, ChevronRight, Database, CheckCircle, Info, ClipboardList } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -87,25 +88,20 @@ export default React.memo(function MasterICD10() {
 
   return (
     <div className="space-y-6">
-      {/* Upper header */}
-      <div 
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-teal-600" />
-            <span>Master Data ICD-10 Diagnosis</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Gunakan katalog rujukan kodifikasi klinis WHO ICD-10 untuk diagnosa pelayanan rawat jalan dan rekam medis.
-          </p>
-        </div>
-        
-        <button 
+      <PageHeader
+        title="Master Data ICD-10 Diagnosis"
+        subtitle="Gunakan katalog rujukan kodifikasi klinis WHO ICD-10 untuk diagnosa pelayanan rawat jalan dan rekam medis."
+      />
+
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <button
           onClick={() => { setEditingItem(null); setFormData({ kode_icd: '', deskripsi: '' }); setIsModalOpen(true); }}
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium text-xs rounded-lg shadow-sm cursor-pointer"
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
         >
-          <Plus className="h-3.5 w-3.5" /> Tambah ICD-10
+          <Plus className="h-4 w-4" />
+          <span>Tambah ICD-10</span>
         </button>
       </div>
 

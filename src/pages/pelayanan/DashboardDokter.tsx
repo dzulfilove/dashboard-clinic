@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { createPortal } from 'react-dom';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Stethoscope, 
   Users, 
@@ -126,20 +127,10 @@ export default React.memo(function DashboardDokter() {
   return (
     <>
       <div className="space-y-6">
-      {/* SECTION 1 — Header */}
-      <div className="bg-white p-6 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-[#CCDCEF]/60 text-[#213145] rounded-xl border border-[#CCDCEF]">
-            <Stethoscope className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-[#213145] tracking-tight font-display">Dashboard Kinerja Dokter DPJP</h1>
-            <p className="text-xs text-[#667085] font-medium mt-0.5">
-              Analitik kunjungan dan distribusi pelayanan per dokter penanggung jawab {data?.periode ? `(${formatIndonesianDate(data.periode.from)} s/d ${formatIndonesianDate(data.periode.to)})` : ''}
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard Kinerja Dokter DPJP"
+        subtitle={`Analitik kunjungan dan distribusi pelayanan per dokter penanggung jawab${data?.periode ? ` (${formatIndonesianDate(data.periode.from)} s/d ${formatIndonesianDate(data.periode.to)})` : ''}.`}
+      />
 
       {/* SECTION 2 — Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] flex flex-col md:flex-row md:items-center justify-between gap-4">

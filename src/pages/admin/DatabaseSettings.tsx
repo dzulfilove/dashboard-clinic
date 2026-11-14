@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Database,
   RefreshCw,
@@ -100,16 +101,10 @@ export default React.memo(function DatabaseSettings() {
 
   return (
     <div className="space-y-6">
-      {/* Upper header */}
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-          <Database className="h-5 w-5 text-teal-600" />
-          <span>Pengaturan & Diagnostik Sinkronisasi Database VPS</span>
-        </h1>
-        <p className="text-slate-500 text-xs mt-1">
-          Konfigurasikan integrasi MySQL VPS eksternal, validasi status socket server, dan jalankan migrasi schema otomatis.
-        </p>
-      </div>
+      <PageHeader
+        title="Pengaturan & Diagnostik Sinkronisasi Database VPS"
+        subtitle="Konfigurasikan integrasi MySQL VPS eksternal, validasi status socket server, dan jalankan migrasi schema otomatis."
+      />
 
       {feedback && (
         <div className="p-4 bg-rose-50 border border-rose-150 text-rose-800 rounded-xl">

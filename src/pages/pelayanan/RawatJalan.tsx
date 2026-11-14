@@ -4,6 +4,7 @@ import { AsyncPasienSelect } from '../../components/AsyncPasienSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
 import { motion, AnimatePresence } from 'motion/react';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Users, 
   Plus, 
@@ -1165,55 +1166,61 @@ export default React.memo(function RawatJalan() {
 
   return (
     <div className="space-y-6">
-      {/* Upper Module Heading */}
-      <div 
-        className="flex flex-col md:flex-row md:items-center md:justify-between pb-3 border-b border-slate-100/70 gap-4 anim-fade-up anim-delay-1"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <FileCheck className="h-5 w-5 text-teal-600" />
-            <span>Rawat Jalan (Outpatient Services)</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Pencatatan log kunjungan medis, rincian tindakan, pengisian triase, dan rekapitulasi pelayanan rawat jalan.
-          </p>
-        </div>
+      <PageHeader
+        title="Rawat Jalan (Outpatient Services)"
+        subtitle="Pencatatan log kunjungan medis, rincian tindakan, pengisian triase, dan rekapitulasi pelayanan rawat jalan."
+      />
 
-        {/* Custom Tab selectors & Manual Input trigger */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 anim-fade-up anim-delay-2">
-          <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl self-start">
-            <button
-              onClick={() => setActiveTab('statistik')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${activeTab === 'statistik' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
-            >
-              Statistik
-            </button>
-            <button
-              onClick={() => setActiveTab('kunjungan')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${activeTab === 'kunjungan' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
-            >
-              Daftar Kunjungan
-            </button>
-            <button
-              onClick={() => setActiveTab('input')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold tracking-wide transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer ${activeTab === 'input' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-500 hover:text-slate-900'}`}
-            >
-              Input Data
-            </button>
-          </div>
-          
+      {/* Tab Navigation & Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl border border-[#E5EEFF] self-start">
           <button
-            onClick={() => {
-              resetManualForm();
-              setIsManualModalOpen(true);
-            }}
-            id="btn-registrasi-manual"
-            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-extrabold text-xs rounded-2xl shadow-sm cursor-pointer"
+            onClick={() => setActiveTab('statistik')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'statistik'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
           >
-            <Plus className="h-4 w-4" />
-            <span>Registrasi Manual</span>
+            Statistik
+          </button>
+          <button
+            onClick={() => setActiveTab('kunjungan')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'kunjungan'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            Daftar Kunjungan
+          </button>
+          <button
+            onClick={() => setActiveTab('input')}
+            className={`px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'input'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+            }`}
+            style={{ minHeight: '36px' }}
+          >
+            Input Data
           </button>
         </div>
+
+        <button
+          onClick={() => {
+            resetManualForm();
+            setIsManualModalOpen(true);
+          }}
+          id="btn-registrasi-manual"
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0 self-start sm:self-auto"
+          style={{ height: '40px' }}
+        >
+          <Plus className="h-4 w-4" />
+          <span>Registrasi Manual</span>
+        </button>
       </div>
 
       {/* Floating feedback portal */}

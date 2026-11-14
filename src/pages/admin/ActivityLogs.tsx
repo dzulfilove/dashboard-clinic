@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Activity, 
   Search, 
@@ -199,28 +200,21 @@ export default React.memo(function ActivityLogs() {
 
   return (
     <div className="space-y-6">
-      {/* Header controls layout */}
-      <div 
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-teal-600" />
-            <span>Log Audit &amp; Aktivitas Petugas (Audit Trail)</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Mencatat aktivitas tambah data (CRUD) serta penelusuran fitur/modul klinis secara real-time disertai detail akun email petugas.
-          </p>
-        </div>
+      <PageHeader
+        title="Log Audit & Aktivitas Petugas (Audit Trail)"
+        subtitle="Mencatat aktivitas tambah data (CRUD) serta penelusuran fitur/modul klinis secara real-time disertai detail akun email petugas."
+      />
 
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <button
           id="btn-refresh-logs"
           onClick={fetchLogs}
           disabled={loading}
-          className="flex items-center justify-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 border border-slate-100 rounded-2xl shadow-sm transition-all disabled:opacity-50 cursor-pointer text-xs"
-          style={{ minHeight: '44px' }}
+          className="si-btn si-btn--outline text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 disabled:opacity-50 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
         >
-          <RefreshCw className={`h-4 w-4 text-teal-600 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 text-[#213145] ${loading ? 'animate-spin' : ''}`} />
           <span>Muat Ulang Log</span>
         </button>
       </div>
