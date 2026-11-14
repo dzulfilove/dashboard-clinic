@@ -4,7 +4,7 @@
  */
 import { Router } from 'express';
 import {
-  pickVersi, hitungCapaian, statusCapaian, jumlahHariBulan,
+  pickVersi, toYMD, hitungCapaian, statusCapaian, jumlahHariBulan,
   hariEfektif, kelengkapan, penyebutKonstan, rasioMustahil,
   type CaraHitung, type VersiDefinisi,
 } from '../services/mutuCapaian.js';
@@ -43,7 +43,8 @@ export function createMutuRouter(deps: { db: any; authenticateToken: any; roleGu
     const hariIni = new Date().toISOString().slice(0, 10);
     res.json(ind.map((i: any) => {
       const milik = versi.filter((v) => Number(v.indikator_id) === Number(i.id));
-      return { ...i, versi_aktif: pickVersi(milik, hariIni), jumlah_versi: milik.length };
+      const v = pickVersi(milik, hariIni);
+      return { ...i, versi_aktif: v ? { ...v, berlaku_dari: toYMD(v.berlaku_dari) } : null, jumlah_versi: milik.length };
     }));
   });
 
