@@ -152,10 +152,8 @@ export default React.memo(function MutuInput() {
       }
       return;
     }
-    if ((n === null) !== (d === null)) {
-      setStatusSel((s) => ({ ...s, [k]: 'Numerator dan denominator harus diisi bersama.' }));
-      return;
-    }
+    // Setengah terisi: pengguna masih mengetik pasangannya, jangan ganggu dengan galat.
+    if ((n === null) !== (d === null)) return;
     if (n !== null && d !== null && n > d) {
       setStatusSel((s) => ({ ...s, [k]: 'Numerator tidak boleh melebihi denominator.' }));
       return;
