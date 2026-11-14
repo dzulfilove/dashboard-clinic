@@ -589,7 +589,7 @@ html {
   width: 72px;
   display: flex;
   flex-direction: column;
-  justify-content: safe center;
+  justify-content: center;
   align-items: flex-start;
   padding: 70px 0;
   position: sticky;
@@ -603,16 +603,34 @@ html {
 .rail {
   position: relative;
   width: 72px;
+  max-height: calc(100vh - 148px);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-  padding: 10px 12px;
+  padding: 10px 0;
   background: var(--si-navy);
   transform-origin: left center;
   filter: drop-shadow(6px 12px 18px rgba(11, 28, 48, 0.28));
   transition: width 360ms cubic-bezier(0.22, 1, 0.36, 1);
   animation: rail-masuk 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.rail-scroll {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 0 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+
+.rail-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .rail::before,
@@ -950,22 +968,22 @@ html {
   }
 }
 
-.rail:not(.rail-dinamis) > .rail-brand-wrap,
-.rail:not(.rail-dinamis) > .rail-item,
-.rail:not(.rail-dinamis) > .rail-gap {
+.rail:not(.rail-dinamis) .rail-scroll > .rail-brand-wrap,
+.rail:not(.rail-dinamis) .rail-scroll > .rail-item,
+.rail:not(.rail-dinamis) .rail-scroll > .rail-gap {
   animation: rail-item-masuk 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
   animation-delay: calc(var(--r, 9) * 45ms + 350ms);
 }
 
-.rail > :nth-child(2) { --r: 1; }
-.rail > :nth-child(3) { --r: 2; }
-.rail > :nth-child(4) { --r: 3; }
-.rail > :nth-child(5) { --r: 4; }
-.rail > :nth-child(6) { --r: 5; }
-.rail > :nth-child(7) { --r: 6; }
-.rail > :nth-child(8) { --r: 7; }
-.rail > :nth-child(9) { --r: 8; }
-.rail > :nth-child(n + 10) { --r: 9; }
+.rail-scroll > :nth-child(2) { --r: 1; }
+.rail-scroll > :nth-child(3) { --r: 2; }
+.rail-scroll > :nth-child(4) { --r: 3; }
+.rail-scroll > :nth-child(5) { --r: 4; }
+.rail-scroll > :nth-child(6) { --r: 5; }
+.rail-scroll > :nth-child(7) { --r: 6; }
+.rail-scroll > :nth-child(8) { --r: 7; }
+.rail-scroll > :nth-child(9) { --r: 8; }
+.rail-scroll > :nth-child(n + 10) { --r: 9; }
 
 @media (max-width: 719px) {
   .app-shell {
@@ -982,20 +1000,25 @@ html {
 
   .rail {
     width: 100%;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
+    max-height: none;
     padding: 8px 12px;
     border-radius: 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
     animation: none;
     transition: none;
     filter: drop-shadow(0 8px 18px rgba(11, 28, 48, 0.2));
   }
 
-  .rail::-webkit-scrollbar {
+  .rail-scroll {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .rail-scroll::-webkit-scrollbar {
     display: none;
   }
 
@@ -1020,18 +1043,18 @@ html {
     flex: none;
   }
 
-  .rail:not(.rail-dinamis) > .rail-brand-wrap,
-  .rail:not(.rail-dinamis) > .rail-item,
-  .rail:not(.rail-dinamis) > .rail-gap {
+  .rail:not(.rail-dinamis) .rail-scroll > .rail-brand-wrap,
+  .rail:not(.rail-dinamis) .rail-scroll > .rail-item,
+  .rail:not(.rail-dinamis) .rail-scroll > .rail-gap {
     animation: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rail,
-  .rail:not(.rail-dinamis) > .rail-brand-wrap,
-  .rail:not(.rail-dinamis) > .rail-item,
-  .rail:not(.rail-dinamis) > .rail-gap {
+  .rail:not(.rail-dinamis) .rail-scroll > .rail-brand-wrap,
+  .rail:not(.rail-dinamis) .rail-scroll > .rail-item,
+  .rail:not(.rail-dinamis) .rail-scroll > .rail-gap {
     animation: none !important;
   }
 

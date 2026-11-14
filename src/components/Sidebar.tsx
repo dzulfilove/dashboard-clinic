@@ -20,6 +20,9 @@ type IconName =
   | 'dokter'
   | 'vaksin'
   | 'master'
+  | 'icd10'
+  | 'wilayah'
+  | 'pasien'
   | 'demografi'
   | 'diagnosa'
   | 'admin'
@@ -244,6 +247,56 @@ function RailIcon({ name, filled }: { name: IconName; filled: boolean }) {
         </svg>
       );
 
+    case 'icd10':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M6 2.5A2.5 2.5 0 0 0 3.5 5v14A2.5 2.5 0 0 0 6 21.5h12a2.5 2.5 0 0 0 2.5-2.5V8.3a1.5 1.5 0 0 0-.44-1.06l-4.3-4.3A1.5 1.5 0 0 0 14.7 2.5H6Zm2.5 8h7a.8.8 0 1 1 0 1.6h-7a.8.8 0 1 1 0-1.6Zm0 4h5a.8.8 0 1 1 0 1.6h-5a.8.8 0 1 1 0-1.6Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M14.5 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8.5L14.5 3Z" />
+          <path d="M14 3v5.5h5.5" />
+          <path d="M8.5 12.5h7" />
+          <path d="M8.5 16h5" />
+        </svg>
+      );
+
+    case 'wilayah':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M12 2.2a7.3 7.3 0 0 0-7.3 7.3c0 5.1 6.2 11.4 6.65 11.86a.9.9 0 0 0 1.3 0C13.1 20.9 19.3 14.6 19.3 9.5A7.3 7.3 0 0 0 12 2.2Zm0 10a2.7 2.7 0 1 1 0-5.4 2.7 2.7 0 0 1 0 5.4Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 21s-6.5-6.2-6.5-11.5a6.5 6.5 0 1 1 13 0C18.5 14.8 12 21 12 21Z" />
+          <circle cx="12" cy="9.5" r="2.3" />
+        </svg>
+      );
+
+    case 'pasien':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="4.5" width="18" height="15" rx="2.5" fill="currentColor" />
+          <circle cx="9" cy="10.5" r="2" fill="#213145" />
+          <path d="M5.8 15.8a3.5 3.5 0 0 1 6.4 0" stroke="#213145" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+          <path d="M14.5 10.5h3.5M14.5 14h3.5" stroke="#213145" strokeWidth="1.7" strokeLinecap="round" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="4.5" width="18" height="15" rx="2.5" />
+          <circle cx="9" cy="10.5" r="1.8" />
+          <path d="M6 15.5a3.3 3.3 0 0 1 6 0" />
+          <path d="M14.5 10.5h3.5" />
+          <path d="M14.5 14h3.5" />
+        </svg>
+      );
+
     case 'demografi':
       return filled ? (
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -397,17 +450,13 @@ export default React.memo(function Sidebar() {
     const p = location.pathname;
     if (p.startsWith('/lab')) return 'lab';
     if (p.startsWith('/farmasi')) return 'farmasi';
-    if (p.startsWith('/pelayanan/master-')) return 'pelayanan-master';
     if (p.startsWith('/pelayanan')) return 'pelayanan';
     if (p.startsWith('/demografi')) return 'demografi';
     if (p.startsWith('/admin') || p === '/design-system') return 'sistem';
     return 'home';
   }, [location.pathname]);
 
-  const activeParentGroup = useMemo(() => {
-    if (contextId === 'pelayanan-master') return 'pelayanan';
-    return contextId;
-  }, [contextId]);
+  const activeParentGroup = contextId;
 
   const baseItems: RailMenuItem[] = useMemo(() => {
     const all: RailMenuItem[] = [
@@ -482,19 +531,15 @@ export default React.memo(function Sidebar() {
       ];
     } else if (contextId === 'pelayanan') {
       items = [
+        { path: '/pelayanan/dashboard-dokter', label: 'Dashboard Dokter', icon: 'dokter', roles: ['admin', 'perawat'] },
         { path: '/pelayanan/igd', label: 'IGD (Gawat Darurat)', icon: 'igd', roles: ['admin', 'perawat'] },
         { path: '/pelayanan/rawat-inap', label: 'Rawat Inap', icon: 'rawatInap', roles: ['admin', 'perawat'] },
-        { path: '/pelayanan/dashboard-dokter', label: 'Dashboard Dokter', icon: 'dokter', roles: ['admin', 'perawat'] },
         { path: '/pelayanan/followup-vaksin', label: 'Follow Up Vaksin', icon: 'vaksin', roles: ['admin', 'perawat'] },
-        { path: '/pelayanan/master-pasien', label: 'Master Pelayanan', icon: 'master', roles: ['admin', 'perawat'] },
-      ];
-    } else if (contextId === 'pelayanan-master') {
-      items = [
-        { path: '/pelayanan/master-pasien', label: 'Master Data Pasien', icon: 'admin', roles: ['admin', 'perawat'] },
-        { path: '/pelayanan/master-dokter', label: 'Master Data Dokter', icon: 'dokter', roles: ['admin', 'perawat'] },
-        { path: '/pelayanan/master-tindakan', label: 'Master Tindakan', icon: 'master', roles: ['admin', 'perawat'] },
-        { path: '/pelayanan/master-icd10', label: 'Master ICD-10', icon: 'diagnosa', roles: ['admin', 'perawat'] },
-        { path: '/pelayanan/master-wilayah', label: 'Master Wilayah', icon: 'demografi', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-tindakan', label: 'Master Data Tindakan', icon: 'master', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-icd10', label: 'Master Data ICD-10', icon: 'icd10', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-dokter', label: 'Master Data Dokter', icon: 'admin', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-pasien', label: 'Master Data Pasien', icon: 'pasien', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/master-wilayah', label: 'Master Wilayah', icon: 'wilayah', roles: ['admin', 'perawat'] },
       ];
     } else if (contextId === 'demografi') {
       items = [
@@ -678,6 +723,10 @@ export default React.memo(function Sidebar() {
       penanda.style.opacity = '1';
     }
 
+    if (activeEl) {
+      activeEl.scrollIntoView({ block: 'nearest' });
+    }
+
     prevRef.current = {
       height: baru,
       markerTop: ke,
@@ -708,88 +757,90 @@ export default React.memo(function Sidebar() {
   return (
     <aside id="side-navigation" className="rail-kolom">
       <nav ref={railRef} className="rail" aria-label="Menu utama">
-        <div ref={penandaRef} className="rail-penanda" aria-hidden="true" />
+        <div className="rail-scroll">
+          <div ref={penandaRef} className="rail-penanda" aria-hidden="true" />
 
-        <div className="rail-brand-wrap" title="Klinik Puri Medika">
-          <div className="rail-brand-slot">
-            <div className="rail-brand">
-              <Logo size={24} />
+          <div className="rail-brand-wrap" title="Klinik Puri Medika">
+            <div className="rail-brand-slot">
+              <div className="rail-brand">
+                <Logo size={24} />
+              </div>
+            </div>
+            <div className="rail-brand-text">
+              <span className="rail-brand-title">
+                Puri Medika<span>.</span>
+              </span>
+              <span className="rail-brand-sub">Sistem Klinik</span>
             </div>
           </div>
-          <div className="rail-brand-text">
-            <span className="rail-brand-title">
-              Puri Medika<span>.</span>
+
+          <div className="rail-gap" aria-hidden="true" />
+
+          {baseItems.map((item, idx) => {
+            const isActive = location.pathname === item.path;
+            const showSubHere = item.groupId === activeParentGroup && contextItems.length > 0;
+            return (
+              <React.Fragment key={item.path}>
+                <Link
+                  to={item.path}
+                  className="rail-item"
+                  aria-label={item.label}
+                  data-label={item.label}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <span className="rail-ikon">
+                    <RailIcon name={item.icon} filled={isActive} />
+                    {item.badge !== undefined && (
+                      <span className="rail-badge">{item.badge}</span>
+                    )}
+                  </span>
+                  <span className="rail-label">{item.label}</span>
+                </Link>
+
+                {showSubHere && (
+                  <>
+                    {contextItems.map((subItem) => {
+                      const isSubActive = location.pathname === subItem.path;
+                      return (
+                        <Link
+                          key={subItem.path}
+                          to={subItem.path}
+                          className="rail-item rail-item--sub"
+                          aria-label={subItem.label}
+                          data-label={subItem.label}
+                          aria-current={isSubActive ? 'page' : undefined}
+                        >
+                          <span className="rail-ikon">
+                            <RailIcon name={subItem.icon} filled={isSubActive} />
+                          </span>
+                          <span className="rail-label">{subItem.label}</span>
+                        </Link>
+                      );
+                    })}
+                    {idx < baseItems.length - 1 && (
+                      <div className="rail-gap" aria-hidden="true" />
+                    )}
+                  </>
+                )}
+              </React.Fragment>
+            );
+          })}
+
+          <div className="rail-gap" aria-hidden="true" />
+
+          <a
+            href="#/login"
+            onClick={handleLogout}
+            className="rail-item rail-item--logout"
+            aria-label="Keluar dari Sistem"
+            data-label="Keluar dari Sistem"
+          >
+            <span className="rail-ikon">
+              <RailIcon name="logout" filled={false} />
             </span>
-            <span className="rail-brand-sub">Sistem Klinik</span>
-          </div>
+            <span className="rail-label">Keluar</span>
+          </a>
         </div>
-
-        <div className="rail-gap" aria-hidden="true" />
-
-        {baseItems.map((item, idx) => {
-          const isActive = location.pathname === item.path;
-          const showSubHere = item.groupId === activeParentGroup && contextItems.length > 0;
-          return (
-            <React.Fragment key={item.path}>
-              <Link
-                to={item.path}
-                className="rail-item"
-                aria-label={item.label}
-                data-label={item.label}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <span className="rail-ikon">
-                  <RailIcon name={item.icon} filled={isActive} />
-                  {item.badge !== undefined && (
-                    <span className="rail-badge">{item.badge}</span>
-                  )}
-                </span>
-                <span className="rail-label">{item.label}</span>
-              </Link>
-
-              {showSubHere && (
-                <>
-                  {contextItems.map((subItem) => {
-                    const isSubActive = location.pathname === subItem.path;
-                    return (
-                      <Link
-                        key={subItem.path}
-                        to={subItem.path}
-                        className="rail-item rail-item--sub"
-                        aria-label={subItem.label}
-                        data-label={subItem.label}
-                        aria-current={isSubActive ? 'page' : undefined}
-                      >
-                        <span className="rail-ikon">
-                          <RailIcon name={subItem.icon} filled={isSubActive} />
-                        </span>
-                        <span className="rail-label">{subItem.label}</span>
-                      </Link>
-                    );
-                  })}
-                  {idx < baseItems.length - 1 && (
-                    <div className="rail-gap" aria-hidden="true" />
-                  )}
-                </>
-              )}
-            </React.Fragment>
-          );
-        })}
-
-        <div className="rail-gap" aria-hidden="true" />
-
-        <a
-          href="#/login"
-          onClick={handleLogout}
-          className="rail-item rail-item--logout"
-          aria-label="Keluar dari Sistem"
-          data-label="Keluar dari Sistem"
-        >
-          <span className="rail-ikon">
-            <RailIcon name="logout" filled={false} />
-          </span>
-          <span className="rail-label">Keluar</span>
-        </a>
       </nav>
     </aside>
   );
