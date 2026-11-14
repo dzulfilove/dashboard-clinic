@@ -1,44 +1,9 @@
 import { create } from 'zustand';
 import { User } from '../types.js';
+import { normalizeRole } from '../utils/role.js';
 
-function sanitizeRole(role: any): 'admin' | 'perawat' | 'analis' | 'farmasi' {
-  if (!role) return 'admin';
-  let roleStr = '';
-  
-  if (typeof role === 'string') {
-    if (role.trim().startsWith('[') || role.trim().startsWith('{')) {
-      try {
-        const parsed = JSON.parse(role);
-        return sanitizeRole(parsed);
-      } catch (e) {
-        roleStr = role;
-      }
-    } else {
-      roleStr = role;
-    }
-  } else if (Array.isArray(role)) {
-    if (role.length === 0) return 'admin';
-    return sanitizeRole(role[0]);
-  } else if (typeof role === 'object' && role !== null) {
-    const val = role.Value || role.value || role.name || role.Name || role.label || JSON.stringify(role);
-    return sanitizeRole(val);
-  } else {
-    roleStr = String(role);
-  }
-
-  const clean = roleStr.toLowerCase().trim();
-  if (clean.includes('admin') || clean.includes('it') || clean.includes('developer') || clean.includes('owner') || clean.includes('sys')) {
-    return 'admin';
-  } else if (clean.includes('perawat') || clean.includes('nurse')) {
-    return 'perawat';
-  } else if (clean.includes('analis') || clean.includes('analyst') || clean.includes('lab') || clean.includes('laboratorium')) {
-    return 'analis';
-  } else if (clean.includes('farmasi') || clean.includes('apotek') || clean.includes('apoteker')) {
-    return 'farmasi';
-  }
-
-  return 'admin';
-}
+// GAGAL-TERTUTUP: nilai tak dikenal -> 'viewer' (sebelumnya 'admin').
+const sanitizeRole = (role: any) => normalizeRole(role);
 
 interface AuthState {
   token: string | null;

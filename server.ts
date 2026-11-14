@@ -16,6 +16,7 @@ import nodemailer from 'nodemailer';
 import { db, initializeDatabase, readVirtualDb, writeVirtualDb, runMigrationScript } from './src/db/connection.js';
 
 import { getWahaConfig, setWahaConfig } from "./waha_config.js";
+import { extractRole } from './src/utils/role.js';
 // Simple in-memory rate limiter untuk OTP (production: gunakan Redis)
 import { initWahaCron } from "./waha_cron.js";
 const otpRateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -93,65 +94,24 @@ async function logActivity(email: string, actionType: string, moduleName: string
 
 // Helper to extract role cleanly from Baserow multiple select or text fields
 function helperExtractRole(peranField: any, divisiField: any): string {
-  let rolesStr = '';
-  if (peranField) {
-    if (Array.isArray(peranField)) {
-      rolesStr = peranField.map((r: any) => {
-        if (r && typeof r === 'object') {
-          return r.value || r.name || JSON.stringify(r);
-        }
-        return String(r);
-      }).join(' ');
-    } else if (typeof peranField === 'string') {
-      rolesStr = peranField;
-    } else if (typeof peranField === 'object' && peranField !== null) {
-      rolesStr = peranField.value || peranField.name || JSON.stringify(peranField);
-    } else {
-      rolesStr = String(peranField);
-    }
+  // Delegasi ke sumber tunggal (src/utils/role.ts).
+  // GAGAL-TERTUTUP: nilai tak dikenal -> 'viewer', bukan 'admin'.
+  const role = extractRole(peranField, divisiField);
+  if (role === 'viewer') {
+    console.warn('[auth] peran tidak dikenali, diberikan akses terbatas (viewer):',
+      JSON.stringify({ peran: peranField, divisi: divisiField }));
   }
-
-  let divStr = '';
-  if (divisiField) {
-    if (Array.isArray(divisiField)) {
-      divStr = divisiField.map((r: any) => {
-        if (r && typeof r === 'object') {
-          return r.value || r.name || JSON.stringify(r);
-        }
-        return String(r);
-      }).join(' ');
-    } else if (typeof divisiField === 'string') {
-      divStr = divisiField;
-    } else if (typeof divisiField === 'object' && divisiField !== null) {
-      divStr = divisiField.value || divisiField.name || JSON.stringify(divisiField);
-    } else {
-      divStr = String(divisiField);
-    }
-  }
-
-  const combined = (rolesStr + ' ' + divStr).trim().toLowerCase();
-
-  if (combined.includes('admin') || combined.includes('it') || combined.includes('developer') || combined.includes('owner')) {
-    return 'admin';
-  } else if (combined.includes('perawat')) {
-    return 'perawat';
-  } else if (combined.includes('analis') || combined.includes('analyst') || combined.includes('lab') || combined.includes('laboratorium')) {
-    return 'analis';
-  } else if (combined.includes('farmasi') || combined.includes('apotek') || combined.includes('apoteker')) {
-    return 'farmasi';
-  }
-
-  return rolesStr.trim().toLowerCase() || 'admin';
+  return role;
 }
 
 /* ==================== 1. DIAGNOSTIC SERVICES ==================== */
 
-app.get('/api/db/status', async (req, res) => {
+app.get('/api/db/status', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
   const status = db.getDiagnosticStatus();
   res.json(status);
 });
 
-app.post('/api/db/test-connection', async (req, res) => {
+app.post('/api/db/test-connection', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
   const host = process.env.DB_HOST;
   const user = process.env.DB_USER;
   const password = process.env.DB_PASSWORD;
@@ -183,14 +143,27 @@ app.post('/api/db/test-connection', async (req, res) => {
   }
 });
 
-app.post('/api/db/run-migrations', async (req, res) => {
+app.post('/api/db/run-migrations', authenticateToken, roleGuard(['admin']), async (req: any, res) => {
+  // Validasi input didahulukan, agar guard tetap berlaku apa pun mode database-nya.
+  const { cleanReset, confirm } = req.body || {};
+  if (cleanReset && confirm !== 'RESET') {
+    return res.status(400).json({
+      success: false,
+      message: 'cleanReset butuh konfirmasi eksplisit: kirim { "cleanReset": true, "confirm": "RESET" }.'
+    });
+  }
   const status = db.getDiagnosticStatus();
   if (status.isVirtual) {
     return res.status(400).json({ success: false, message: 'Fitur migrasi hanya dapat dilakukan pada VPS MySQL.' });
   }
   try {
-    const { cleanReset } = req.body;
     const result = await runMigrationScript({ cleanReset: !!cleanReset });
+    await logActivity(
+      (req as any).user?.email || 'unknown',
+      'MIGRATE',
+      'database',
+      `run-migrations dijalankan. cleanReset=${!!cleanReset}. ${JSON.stringify(result).slice(0, 200)}`
+    );
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ success: false, message: `Gagal menjalankan migrasi: ${err.message}` });

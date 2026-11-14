@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import api from '../../services/api.js';
 import { User } from '../../types.js';
+import type { AppRole } from '../../utils/role.js';
 
 export default React.memo(function UsersManagement() {
   const { user: currentUser } = useAuthStore();
@@ -36,7 +37,7 @@ export default React.memo(function UsersManagement() {
   const [nama, setNama] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'admin' | 'perawat' | 'analis' | 'farmasi' | 'lab'>('analis');
+  const [role, setRole] = useState<AppRole>('analis');
 
   // Reset password states
   const [resetUserId, setResetUserId] = useState<number | null>(null);
@@ -415,14 +416,14 @@ export default React.memo(function UsersManagement() {
                       <span className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-lg ${
                         u.role === 'admin' ? 'bg-teal-50 text-teal-700' :
                         u.role === 'perawat' ? 'bg-sky-50 text-sky-700' :
-                        u.role === 'analis' || u.role === 'lab' ? 'bg-emerald-50 text-emerald-700' :
+                        u.role === 'analis' ? 'bg-emerald-50 text-emerald-700' :
                         'bg-amber-50 text-amber-700'
                       }`}>
                         {u.role === 'admin' ? <Shield className="h-3 w-3" /> : <UserCheck className="h-3 w-3" />}
                         <span>
                           {u.role === 'admin' ? 'Sistem Admin' :
                            u.role === 'perawat' ? 'Perawat (Pelayanan Klinik)' :
-                           u.role === 'analis' || u.role === 'lab' ? 'Analis Lab' :
+                           u.role === 'analis' ? 'Analis Lab' :
                            u.role === 'farmasi' ? 'Petugas Farmasi' : u.role}
                         </span>
                       </span>

@@ -1,8 +1,9 @@
+import type { AppRole } from './utils/role.js';
 export interface User {
   id: number;
   nama: string;
   email: string;
-  role: 'admin' | 'lab' | 'farmasi' | 'perawat' | 'analis';
+  role: AppRole;
   created_at?: string;
 }
 
