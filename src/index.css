@@ -589,7 +589,7 @@ html {
   width: 72px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: safe center;
   align-items: flex-start;
   padding: 70px 0;
   position: sticky;
@@ -808,11 +808,53 @@ html {
 
 @media (min-width: 720px) {
   .rail:hover {
-    width: 248px;
+    width: 256px;
   }
 
   .rail:hover .rail-penanda {
-    width: 224px;
+    width: 232px;
+  }
+
+  .rail-item--sub {
+    transition: background-color 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      color 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      padding-left 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .rail:hover .rail-item--sub {
+    padding-left: 12px;
+  }
+
+  .rail-item--sub:not([aria-current="page"]) {
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .rail-item--sub .rail-label {
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+
+  .rail-item--sub[aria-current="page"] .rail-label {
+    font-weight: 700;
+  }
+
+  .rail-item--sub::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    border-radius: 99px;
+    background: rgba(204, 220, 239, 0.25);
+    opacity: 0;
+    transition: opacity 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    pointer-events: none;
+  }
+
+  .rail:hover .rail-item--sub:not([aria-current="page"])::before {
+    opacity: 1;
   }
 
   .rail:hover .rail-label,

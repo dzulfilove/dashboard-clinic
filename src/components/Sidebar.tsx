@@ -29,6 +29,7 @@ type IconName =
   | 'logout';
 
 interface RailMenuItem {
+  groupId?: string;
   path: string;
   label: string;
   icon: IconName;
@@ -403,21 +404,29 @@ export default React.memo(function Sidebar() {
     return 'home';
   }, [location.pathname]);
 
+  const activeParentGroup = useMemo(() => {
+    if (contextId === 'pelayanan-master') return 'pelayanan';
+    return contextId;
+  }, [contextId]);
+
   const baseItems: RailMenuItem[] = useMemo(() => {
     const all: RailMenuItem[] = [
       {
+        groupId: 'home',
         path: '/',
         label: 'Dashboard Terpadu',
         icon: 'home',
         roles: ['admin', 'lab', 'farmasi', 'perawat', 'analis'],
       },
       {
+        groupId: 'lab',
         path: '/lab/dashboard',
         label: 'Laboratorium',
         icon: 'lab',
         roles: ['admin', 'analis'],
       },
       {
+        groupId: 'farmasi',
         path: '/farmasi/forecast',
         label: 'Farmasi & Apotek',
         icon: 'farmasi',
@@ -425,12 +434,14 @@ export default React.memo(function Sidebar() {
         badge: criticalStockCount > 0 ? criticalStockCount : undefined,
       },
       {
+        groupId: 'pelayanan',
         path: '/pelayanan/rawat-jalan',
         label: 'Pelayanan Klinik',
         icon: 'pelayanan',
         roles: ['admin', 'perawat'],
       },
       {
+        groupId: 'demografi',
         path: '/demografi/pasien',
         label: 'Demografi Kunjungan',
         icon: 'demografi',
@@ -438,12 +449,14 @@ export default React.memo(function Sidebar() {
       },
       role === 'admin'
         ? {
+            groupId: 'sistem',
             path: '/admin/users',
             label: 'Administrasi Sistem',
             icon: 'admin',
             roles: ['admin'],
           }
         : {
+            groupId: 'sistem',
             path: '/design-system',
             label: 'Panduan Sistem',
             icon: 'designSystem',
@@ -713,51 +726,55 @@ export default React.memo(function Sidebar() {
 
         <div className="rail-gap" aria-hidden="true" />
 
-        {baseItems.map((item) => {
+        {baseItems.map((item, idx) => {
           const isActive = location.pathname === item.path;
+          const showSubHere = item.groupId === activeParentGroup && contextItems.length > 0;
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className="rail-item"
-              aria-label={item.label}
-              data-label={item.label}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <span className="rail-ikon">
-                <RailIcon name={item.icon} filled={isActive} />
-                {item.badge !== undefined && (
-                  <span className="rail-badge">{item.badge}</span>
-                )}
-              </span>
-              <span className="rail-label">{item.label}</span>
-            </Link>
+            <React.Fragment key={item.path}>
+              <Link
+                to={item.path}
+                className="rail-item"
+                aria-label={item.label}
+                data-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <span className="rail-ikon">
+                  <RailIcon name={item.icon} filled={isActive} />
+                  {item.badge !== undefined && (
+                    <span className="rail-badge">{item.badge}</span>
+                  )}
+                </span>
+                <span className="rail-label">{item.label}</span>
+              </Link>
+
+              {showSubHere && (
+                <>
+                  {contextItems.map((subItem) => {
+                    const isSubActive = location.pathname === subItem.path;
+                    return (
+                      <Link
+                        key={subItem.path}
+                        to={subItem.path}
+                        className="rail-item rail-item--sub"
+                        aria-label={subItem.label}
+                        data-label={subItem.label}
+                        aria-current={isSubActive ? 'page' : undefined}
+                      >
+                        <span className="rail-ikon">
+                          <RailIcon name={subItem.icon} filled={isSubActive} />
+                        </span>
+                        <span className="rail-label">{subItem.label}</span>
+                      </Link>
+                    );
+                  })}
+                  {idx < baseItems.length - 1 && (
+                    <div className="rail-gap" aria-hidden="true" />
+                  )}
+                </>
+              )}
+            </React.Fragment>
           );
         })}
-
-        {contextItems.length > 0 && (
-          <>
-            <div className="rail-gap" aria-hidden="true" />
-            {contextItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className="rail-item"
-                  aria-label={item.label}
-                  data-label={item.label}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="rail-ikon">
-                    <RailIcon name={item.icon} filled={isActive} />
-                  </span>
-                  <span className="rail-label">{item.label}</span>
-                </Link>
-              );
-            })}
-          </>
-        )}
 
         <div className="rail-gap" aria-hidden="true" />
 
