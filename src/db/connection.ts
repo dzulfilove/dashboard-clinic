@@ -227,7 +227,8 @@ async function runMigrationsIfRequired() {
       !tableList.includes('kelurahan') ||
       !tableList.includes('pasien_loyal') ||
       !tableList.includes('pasien_loyal_pesan') ||
-      !tableList.includes('tagihan_pasien')
+      !tableList.includes('tagihan_pasien') ||
+      !tableList.includes('mutu_indikator')
     ) {
       console.log('Some tables are missing. Automatically running safe migrator on startup...');
       await runMigrationScript({ cleanReset: false });

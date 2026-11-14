@@ -16,12 +16,26 @@ export interface VersiDefinisi {
   target_tipe: 'min' | 'max' | 'sama';
 }
 
+/**
+ * Normalisasi tanggal ke YYYY-MM-DD.
+ * MySQL mengembalikan kolom DATE sebagai objek Date, bukan string; memakai
+ * String(Date) menghasilkan "Sat Jan 01 2025 ..." yang merusak perbandingan.
+ * Komponen lokal dipakai (bukan toISOString) agar tidak bergeser oleh zona waktu.
+ */
+export function toYMD(v: any): string {
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    const p = (n: number) => String(n).padStart(2, '0');
+    return `${v.getFullYear()}-${p(v.getMonth() + 1)}-${p(v.getDate())}`;
+  }
+  return String(v ?? '').slice(0, 10);
+}
+
 /** Versi yang berlaku pada tanggal tertentu: berlaku_dari terbesar yang <= tanggal. */
-export function pickVersi<T extends { berlaku_dari: string }>(versi: T[], tanggal: string): T | null {
-  const batas = String(tanggal).slice(0, 10);
+export function pickVersi<T extends { berlaku_dari: any }>(versi: T[], tanggal: any): T | null {
+  const batas = toYMD(tanggal);
   const kandidat = versi
-    .filter((v) => String(v.berlaku_dari).slice(0, 10) <= batas)
-    .sort((a, b) => String(b.berlaku_dari).localeCompare(String(a.berlaku_dari)));
+    .filter((v) => toYMD(v.berlaku_dari) <= batas)
+    .sort((a, b) => toYMD(b.berlaku_dari).localeCompare(toYMD(a.berlaku_dari)));
   return kandidat[0] ?? null;
 }
 

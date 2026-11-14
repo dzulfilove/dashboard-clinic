@@ -3,7 +3,7 @@
  * Jalankan: npx tsx scripts/test-mutu.ts
  */
 import {
-  pickVersi, hitungCapaian, statusCapaian, jumlahHariBulan,
+  pickVersi, toYMD, hitungCapaian, statusCapaian, jumlahHariBulan,
   hariEfektif, kelengkapan, penyebutKonstan, rasioMustahil,
 } from '../src/services/mutuCapaian.js';
 
@@ -58,6 +58,15 @@ eq(pickVersi(versi, '2025-12-31')!.id, 1, 'Des 2025 pakai versi lama');
 eq(pickVersi(versi, '2026-03-01')!.id, 2, 'tepat tanggal berlaku pakai versi baru');
 eq(pickVersi(versi, '2026-06-30')!.id, 2, 'Jun 2026 pakai versi baru');
 eq(pickVersi(versi, '2024-12-31'), null, 'sebelum versi pertama -> null');
+
+console.log('\n--- tanggal dari MySQL berupa objek Date ---');
+const versiDate = [
+  { id: 1, berlaku_dari: new Date(2025, 0, 1) },
+  { id: 2, berlaku_dari: new Date(2026, 2, 1) },
+];
+eq(toYMD(new Date(2025, 0, 1)), '2025-01-01', 'Date -> YYYY-MM-DD (komponen lokal)');
+eq(pickVersi(versiDate, new Date(2026, 10, 14))!.id, 2, 'versi Date: Nov 2026 -> versi 2026-03-01');
+eq(pickVersi(versiDate, '2025-06-15')!.id, 1, 'versi Date: Jun 2025 -> versi 2025-01-01');
 
 console.log('\n--- deteksi penyebut konstan & rasio mustahil ---');
 const harian = [1,2,3,4,5,6,7].map((d) => ({ tanggal: `2026-01-0${d}`, denominator: 5 }));
