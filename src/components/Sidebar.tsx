@@ -697,8 +697,18 @@ export default React.memo(function Sidebar() {
       <nav ref={railRef} className="rail" aria-label="Menu utama">
         <div ref={penandaRef} className="rail-penanda" aria-hidden="true" />
 
-        <div className="rail-brand" title="Klinik Puri Medika">
-          <Logo size={24} />
+        <div className="rail-brand-wrap" title="Klinik Puri Medika">
+          <div className="rail-brand-slot">
+            <div className="rail-brand">
+              <Logo size={24} />
+            </div>
+          </div>
+          <div className="rail-brand-text">
+            <span className="rail-brand-title">
+              Puri Medika<span>.</span>
+            </span>
+            <span className="rail-brand-sub">Sistem Klinik</span>
+          </div>
         </div>
 
         <div className="rail-gap" aria-hidden="true" />
@@ -714,10 +724,13 @@ export default React.memo(function Sidebar() {
               data-label={item.label}
               aria-current={isActive ? 'page' : undefined}
             >
-              <RailIcon name={item.icon} filled={isActive} />
-              {item.badge !== undefined && (
-                <span className="rail-badge">{item.badge}</span>
-              )}
+              <span className="rail-ikon">
+                <RailIcon name={item.icon} filled={isActive} />
+                {item.badge !== undefined && (
+                  <span className="rail-badge">{item.badge}</span>
+                )}
+              </span>
+              <span className="rail-label">{item.label}</span>
             </Link>
           );
         })}
@@ -736,7 +749,10 @@ export default React.memo(function Sidebar() {
                   data-label={item.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <RailIcon name={item.icon} filled={isActive} />
+                  <span className="rail-ikon">
+                    <RailIcon name={item.icon} filled={isActive} />
+                  </span>
+                  <span className="rail-label">{item.label}</span>
                 </Link>
               );
             })}
@@ -752,7 +768,10 @@ export default React.memo(function Sidebar() {
           aria-label="Keluar dari Sistem"
           data-label="Keluar dari Sistem"
         >
-          <RailIcon name="logout" filled={false} />
+          <span className="rail-ikon">
+            <RailIcon name="logout" filled={false} />
+          </span>
+          <span className="rail-label">Keluar</span>
         </a>
       </nav>
     </aside>
