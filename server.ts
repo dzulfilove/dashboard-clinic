@@ -9,6 +9,7 @@ import path from 'path';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { randomInt } from 'crypto';
 import ExcelJS from 'exceljs';
 import { createServer as createViteServer } from 'vite';
 import axios from 'axios';
@@ -20,6 +21,49 @@ import { extractRole } from './src/utils/role.js';
 // Simple in-memory rate limiter untuk OTP (production: gunakan Redis)
 import { initWahaCron } from "./waha_cron.js";
 const otpRateLimitMap = new Map<string, { count: number; resetAt: number }>();
+// Limiter tambahan: per IP untuk pengiriman OTP (mencegah spam email lewat SMTP klinik)
+const otpIpLimitMap = new Map<string, { count: number; resetAt: number }>();
+// Limiter percobaan verifikasi OTP (mencegah brute force 6 digit)
+const otpVerifyAttempts = new Map<string, { count: number; resetAt: number }>();
+const OTP_VERIFY_MAX = 5;          // maksimal salah 5x
+const OTP_VERIFY_WINDOW = 10 * 60 * 1000;
+
+// Ambil IP klien: utamakan X-Real-IP (diisi nginx dari $remote_addr), lalu entri
+// TERAKHIR X-Forwarded-For (ditambahkan nginx). Entri awal XFF bisa dipalsukan klien.
+function clientIpOf(req: any): string {
+  const real = String(req.headers['x-real-ip'] || '').trim();
+  if (real) return real;
+  const xff = String(req.headers['x-forwarded-for'] || '').trim();
+  if (xff) {
+    const parts = xff.split(',').map((v: string) => v.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function checkOtpIpLimit(ip: string): boolean {
+  const now = Date.now();
+  const e = otpIpLimitMap.get(ip);
+  if (!e || e.resetAt < now) { otpIpLimitMap.set(ip, { count: 1, resetAt: now + OTP_VERIFY_WINDOW }); return true; }
+  if (e.count >= 5) return false;
+  e.count += 1; return true;
+}
+
+function otpVerifyBlocked(key: string): boolean {
+  const now = Date.now();
+  const e = otpVerifyAttempts.get(key);
+  if (!e || e.resetAt < now) return false;
+  return e.count >= OTP_VERIFY_MAX;
+}
+
+function recordOtpFailure(key: string): void {
+  const now = Date.now();
+  const e = otpVerifyAttempts.get(key);
+  if (!e || e.resetAt < now) otpVerifyAttempts.set(key, { count: 1, resetAt: now + OTP_VERIFY_WINDOW });
+  else e.count += 1;
+}
+
+function clearOtpFailures(key: string): void { otpVerifyAttempts.delete(key); }
 
 function checkOtpRateLimit(email: string): boolean {
   const now = Date.now();
@@ -47,7 +91,22 @@ const BASEROW_TABLE_URL = process.env.BASEROW_TABLE_URL;
 const BASEROW_BASE_URL = process.env.BASEROW_BASE_URL;
 
 // Middelewares
-app.use(cors());
+const CORS_ALLOWED = (
+  process.env.CORS_ORIGINS ||
+  'https://dashboard.puribdl.site,https://itdash.puribdl.site,http://localhost:5173,http://localhost:3007'
+).split(',').map((o) => o.trim()).filter(Boolean);
+
+app.use(cors({
+  origin: (origin: string | undefined, cb: (e: Error | null, ok?: boolean) => void) => {
+    // Tanpa Origin = panggilan server-ke-server / curl; bukan browser lintas situs.
+    if (!origin || CORS_ALLOWED.includes(origin)) return cb(null, true);
+    console.warn('[cors] origin ditolak:', origin);
+    cb(null, false);
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 600,
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
@@ -253,6 +312,11 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
   if (!checkOtpRateLimit(email)) {
     return res.status(429).json({ message: 'Terlalu banyak permintaan OTP. Tunggu 1 menit sebelum mencoba lagi.' });
   }
+  const clientIp = clientIpOf(req);
+  if (!checkOtpIpLimit(clientIp)) {
+    console.warn('[auth] batas kirim OTP per IP tercapai:', clientIp);
+    return res.status(429).json({ message: 'Terlalu banyak permintaan OTP dari jaringan ini. Coba lagi nanti.' });
+  }
 
   let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
   let userRow;
@@ -271,8 +335,12 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
         const rows = response.data.results || [];
         userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
       } catch (err: any) {
-        console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
-        isVirtual = true;
+        // JANGAN jatuh ke mode virtual saat Baserow gagal di produksi:
+        // jalur itu membuat email tak dikenal otomatis menjadi akun.
+        console.error('[auth] Baserow tidak dapat diakses:', err.message);
+        return res.status(503).json({
+          message: 'Layanan autentikasi sedang tidak tersedia. Silakan coba beberapa saat lagi.'
+        });
       }
     }
 
@@ -288,8 +356,8 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
           id: maxId + 1,
           nama: email.split('@')[0].split(/[._-]/).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') || 'User Puri Medika',
           email: email.toLowerCase().trim(),
-          role: 'admin',
-          divisi: 'IT',
+          role: 'viewer',
+          divisi: '',
           created_at: new Date().toISOString()
         };
         vdb.users.push(newVirtualUser);
@@ -305,7 +373,7 @@ app.post('/api/auth/send-otp', async (req: any, res: any) => {
     const userName = userRow['Nama Karyawan'] || userRow.nama || 'Karyawan Puri Medika';
 
     // Generate a 6-digit random OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = String(randomInt(100000, 1000000)); // acak kriptografis, bukan Math.random()
     
     // Set OTP expiry to 10 minutes from now
     const expiry = new Date(Date.now() + 10 * 60 * 1000).toISOString();
@@ -359,6 +427,11 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
   if (!email || !otp) {
     return res.status(400).json({ message: 'Email dan Kode OTP wajib diisi.' });
   }
+  const verifyKey = `${String(email).toLowerCase().trim()}|${clientIpOf(req)}`;
+  if (otpVerifyBlocked(verifyKey)) {
+    console.warn('[auth] verifikasi OTP diblokir sementara:', verifyKey.split('|')[0]);
+    return res.status(429).json({ message: 'Terlalu banyak percobaan kode OTP. Minta kode baru atau coba lagi dalam 10 menit.' });
+  }
 
   let isVirtual = !BASEROW_API_TOKEN || !BASEROW_TABLE_URL || !BASEROW_BASE_URL;
   let userRow;
@@ -377,8 +450,12 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
         const rows = response.data.results || [];
         userRow = rows.find((r: any) => r.Email && r.Email.toLowerCase().trim() === email.toLowerCase().trim());
       } catch (err: any) {
-        console.warn('Baserow connection failed, falling back to virtual_db.json for users:', err.message);
-        isVirtual = true;
+        // JANGAN jatuh ke mode virtual saat Baserow gagal di produksi:
+        // jalur itu membuat email tak dikenal otomatis menjadi akun.
+        console.error('[auth] Baserow tidak dapat diakses:', err.message);
+        return res.status(503).json({
+          message: 'Layanan autentikasi sedang tidak tersedia. Silakan coba beberapa saat lagi.'
+        });
       }
     }
 
@@ -393,8 +470,8 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
           id: maxId + 1,
           nama: email.split('@')[0].split(/[._-]/).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') || 'User Puri Medika',
           email: email.toLowerCase().trim(),
-          role: 'admin',
-          divisi: 'IT',
+          role: 'viewer',
+          divisi: '',
           created_at: new Date().toISOString()
         };
         if (!vdb.users) vdb.users = [];
@@ -412,8 +489,10 @@ app.post('/api/auth/verify-otp', async (req: any, res: any) => {
     const expiryStr = isVirtual ? userRow['OTP_2_Expired'] : userRow['OTP 2 Expired'];
 
     if (!savedOtp || savedOtp !== String(otp).trim()) {
+      recordOtpFailure(verifyKey);
       return res.status(401).json({ message: 'Kode OTP yang dimasukkan tidak cocok.' });
     }
+    clearOtpFailures(verifyKey);
 
     if (expiryStr) {
       const expiryDate = new Date(expiryStr);
