@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Pill, 
   Calendar, 
@@ -402,27 +403,21 @@ export default React.memo(function InputKonsumsi() {
 
   return (
     <div className="space-y-6">
-      {/* Navigation Headers and controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-            <Pill className="h-5 w-5 text-teal-600" />
-            <span>Form &amp; Analitik Konsumsi Obat Harian</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Input lembar log harian arus logistik serta analisis tren penggunaan obat klinis secara berkala.
-          </p>
-        </div>
+      <PageHeader
+        title="Form & Analitik Konsumsi Obat Harian"
+        subtitle="Input lembar log harian arus logistik serta analisis tren penggunaan obat klinis secara berkala."
+      />
 
-        {/* Tab Selection Navigation Header */}
-        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-100">
+      {/* Tab Navigation Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl border border-[#E5EEFF]">
           <button
             id="tab-btn-input"
             onClick={() => setActiveTab('input')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'input' 
-                ? 'bg-white text-teal-700 shadow-sm scale-[1.02]' 
-                : 'text-slate-500 hover:text-slate-800'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'input'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
             }`}
             style={{ minHeight: '36px' }}
           >
@@ -432,10 +427,10 @@ export default React.memo(function InputKonsumsi() {
           <button
             id="tab-btn-stats"
             onClick={() => setActiveTab('stats')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'stats' 
-                ? 'bg-white text-teal-700 shadow-xs' 
-                : 'text-slate-500 hover:text-slate-800'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'stats'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
             }`}
             style={{ minHeight: '36px' }}
           >
@@ -445,10 +440,10 @@ export default React.memo(function InputKonsumsi() {
           <button
             id="tab-btn-saldo"
             onClick={() => setActiveTab('saldo')}
-            className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeTab === 'saldo' 
-                ? 'bg-white text-teal-700 shadow-xs' 
-                : 'text-slate-500 hover:text-slate-800'
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+              activeTab === 'saldo'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
             }`}
             style={{ minHeight: '36px' }}
           >

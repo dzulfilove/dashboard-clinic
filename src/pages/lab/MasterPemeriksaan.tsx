@@ -3,6 +3,7 @@ import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   FlaskConical, 
   Save, 
@@ -363,26 +364,19 @@ export default React.memo(function MasterPemeriksaan() {
   });
 
   return (
-    <div className="space-y-5 font-sans max-w-7xl mx-auto text-xs">
-      {/* Page Header Container */}
-      <div 
-        className="bg-white border border-slate-100/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="p-2.5 bg-teal-50 text-teal-700 rounded-xl">
-            <FlaskConical className="h-5 w-5 text-teal-600" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold text-slate-900 tracking-tight">
-              Master Data Pemeriksaan Laboratorium
-            </h1>
-          </div>
-        </div>
+    <div className="space-y-6 font-sans max-w-7xl mx-auto text-xs">
+      <PageHeader
+        title="Master Data Pemeriksaan Laboratorium"
+        subtitle="Kelola kategori kelompok uji serta daftar parameter pemeriksaan laboratorium Klinik Puri Medika."
+      />
+
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <button
           id="btn-add-pemeriksaan"
           onClick={handleAddTrigger}
-          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-xs transition-all cursor-pointer text-xs inline-flex items-center gap-1.5 self-start sm:self-center"
-          style={{ minHeight: '36px' }}
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
         >
           <Plus className="h-4 w-4" />
           <span>Tambah Parameter Baru</span>

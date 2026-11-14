@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore.js';
+import PageHeader from '../components/PageHeader.js';
 import { 
   FlaskConical, 
   Pill, 
@@ -114,53 +115,32 @@ export default React.memo(function Dashboard() {
 
   return (
     <div className="space-y-6 font-sans pb-10">
-      {/* 1. Slate & Ice Banner Hero (.si-banner) */}
-      <motion.div 
+      <PageHeader
+        title={`Selamat Datang, ${user?.nama || 'Petugas'}!`}
+        subtitle="Ringkasan aktivitas operasional terpadu Klinik Puri Medika. Pantau data kunjungan, rekapitulasi laboratorium, dan kontrol persediaan obat farmasi dalam satu layar."
+      />
+
+      {/* 1. Slate & Ice Quick Action Strip */}
+      <motion.div
         id="welcome-banner"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: [0.2, 0.7, 0.2, 1] }}
-        className="si-banner rounded-[28px] p-6 sm:p-8 bg-[#213145] text-white relative overflow-hidden shadow-xl"
+        className="rounded-2xl p-5 sm:p-6 bg-[#213145] text-white relative overflow-hidden shadow-[0_8px_24px_rgba(33,49,69,0.18)]"
       >
-        {/* Subtle Decorative SVG Waves */}
-        <svg 
-          className="absolute right-0 top-0 h-full w-1/2 pointer-events-none opacity-20 sm:opacity-30" 
-          viewBox="0 0 400 240" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <circle cx="360" cy="40" r="140" fill="#CCDCEF" fillOpacity="0.4" />
-          <path d="M180 240C240 180 280 120 400 130V240H180Z" fill="#FF8574" fillOpacity="0.35" />
-          <path d="M260 0C320 80 340 160 400 200V0H260Z" fill="#CCDCEF" fillOpacity="0.25" />
-        </svg>
-
-        <div className="relative z-10 flex flex-col justify-between h-full gap-5">
-          {/* Top Bar inside Banner */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#CCDCEF]/16 text-[#CCDCEF] text-xs font-semibold backdrop-blur-xs">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#CCDCEF]/16 text-[#CCDCEF] font-semibold">
               <Calendar className="h-3.5 w-3.5 text-[#FF8574]" />
               <span>Periode Berjalan: {MONTHS_ID[currentMonth - 1]} {currentYear}</span>
             </div>
-
-            <div className="inline-flex items-center gap-1.5 text-xs text-[#B8C8DB] bg-white/5 px-3 py-1 rounded-full border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse" />
-              <span>Sistem Siap &amp; Sinkron</span>
-            </div>
+            <span className="text-[#B8C8DB]">
+              Akses cepat ke modul analisis dan layanan operasional utama
+            </span>
           </div>
 
-          {/* Banner Heading & Copy */}
-          <div className="max-w-2xl space-y-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display">
-              Selamat Datang, {user?.nama || 'Petugas'}!
-            </h1>
-            <p className="text-sm text-[#B8C8DB] leading-relaxed">
-              Ringkasan aktivitas operasional terpadu Klinik Puri Medika. Pantau data kunjungan, rekapitulasi laboratorium, dan kontrol persediaan obat farmasi dalam satu layar.
-            </p>
-          </div>
-
-          {/* Banner Quick CTAs */}
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            <Link 
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link
               to="/demografi/pasien"
               className="si-btn si-btn--accent text-xs font-bold shadow-md hover:scale-[1.02] transition-transform"
               style={{ background: '#FF8574', color: '#222526' }}
@@ -169,8 +149,8 @@ export default React.memo(function Dashboard() {
               <span>Demografi Pasien</span>
             </Link>
 
-            <Link 
-              to="/farmasi/forecast" 
+            <Link
+              to="/farmasi/forecast"
               className="si-btn si-btn--secondary text-xs font-semibold"
               style={{ background: '#CCDCEF', color: '#213145' }}
             >
@@ -178,8 +158,8 @@ export default React.memo(function Dashboard() {
               <span>Peramalan Stok Obat</span>
             </Link>
 
-            <Link 
-              to="/pelayanan/rawat-jalan" 
+            <Link
+              to="/pelayanan/rawat-jalan"
               className="si-btn si-btn--ghost text-xs font-medium text-white hover:bg-white/10"
             >
               <span>Pelayanan Rawat Jalan</span>

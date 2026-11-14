@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   FlaskConical, 
   Calendar, 
@@ -657,38 +658,34 @@ export default React.memo(function InputPemeriksaan() {
 
   return (
     <div className="space-y-6">
-      {/* Top Header Card - Proper prominent page header with description and icon */}
-      <div className="glass-card p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-slate-800 border-l-4 border-l-green-600">
-        <div>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2 font-display">
-            <FlaskConical className="w-6 h-6 text-green-600 animate-pulse" />
-            Entri Pemeriksaan Laboratorium
-          </h1>
-          <p className="text-xs text-slate-500 mt-1 font-medium">
-            Pencatatan data hasil pemeriksaan klinis & laboratorium pasien terintegrasi klinik
-          </p>
-        </div>
+      <PageHeader
+        title="Entri Pemeriksaan Laboratorium"
+        subtitle="Pencatatan data hasil pemeriksaan klinis & laboratorium pasien terintegrasi klinik."
+      />
 
-        {/* Tab Navigation - Fully light-themed with colored containers for all buttons */}
-        <div className="flex flex-wrap items-center gap-1.5 p-1.5 bg-slate-50 rounded-xl border border-slate-200/80">
+      {/* Tab Navigation Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl border border-[#E5EEFF]">
           <button
             onClick={() => setActiveTab('manual')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 text-xs rounded-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'manual'
-                ? 'bg-green-600 text-white shadow-sm border border-green-600'
-                : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
             }`}
+            style={{ minHeight: '36px' }}
           >
             <UserPlus className="w-4 h-4" />
             <span>Input Formulir Pasien</span>
           </button>
           <button
             onClick={() => setActiveTab('import')}
-            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 text-xs rounded-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'import'
-                ? 'bg-green-600 text-white shadow-sm border border-green-600'
-                : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
             }`}
+            style={{ minHeight: '36px' }}
           >
             <FileSpreadsheet className="w-4 h-4" />
             <span>Import Tabel / Antrean</span>
@@ -698,21 +695,18 @@ export default React.memo(function InputPemeriksaan() {
               setActiveTab('tersimpan');
               fetchSavedRecords(1);
             }}
-            className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 text-xs rounded-lg transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'tersimpan'
-                ? 'bg-green-600 text-white shadow-sm border border-green-600'
-                : 'bg-green-50/50 border border-green-150 text-green-700 hover:bg-green-100/60 shadow-xxs'
+                ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
             }`}
+            style={{ minHeight: '36px' }}
           >
             <Database className="w-4 h-4" />
-            <span>Data Pemeriksaan Tersimpan</span>
-            {totalServerRecords > 0 && (
-              <span className={`px-1.5 py-0.5 text-[10px] rounded-full font-bold ${
-                activeTab === 'tersimpan' ? 'bg-green-700 text-white' : 'bg-green-100 text-green-800'
-              }`}>
-                {totalServerRecords}
-              </span>
-            )}
+            <span>
+              Data Pemeriksaan Tersimpan
+              {totalServerRecords > 0 ? ` (${totalServerRecords})` : ''}
+            </span>
           </button>
         </div>
       </div>

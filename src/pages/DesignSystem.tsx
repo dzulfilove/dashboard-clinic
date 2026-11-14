@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PageHeader from '../components/PageHeader.js';
 import { 
   Layers, 
   Copy, 
@@ -32,24 +33,11 @@ export default function DesignSystem() {
   };
 
   return (
-    <div className="space-y-8 font-sans pb-16 text-[#0B1C30]">
-      {/* Header Banner */}
-      <div className="si-banner rounded-[28px] p-8 bg-[#213145] text-white relative overflow-hidden shadow-xl">
-        <div className="relative z-10 flex flex-col justify-between h-full gap-4 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#CCDCEF]/16 text-[#CCDCEF] text-xs font-semibold w-fit">
-            <Sparkles className="h-3.5 w-3.5 text-[#FF8574]" />
-            <span>Slate &amp; Ice Design System v2.0</span>
-          </div>
-
-          <h1 className="text-3xl font-extrabold text-white font-display tracking-tight">
-            Design System &amp; Brand Guidelines
-          </h1>
-
-          <p className="text-sm text-[#B8C8DB] leading-relaxed">
-            Navy untuk struktur, Ice Blue (<code className="text-[#CCDCEF] font-mono">#CCDCEF</code>) sebagai primary base, Charcoal (<code className="text-[#CCDCEF] font-mono">#222526</code>) sebagai secondary text, dan Warm Coral (<code className="text-[#FF8574] font-mono">#FF8574</code>) sebagai aksen tunggal.
-          </p>
-        </div>
-      </div>
+    <div className="space-y-6 font-sans pb-16 text-[#0B1C30]">
+      <PageHeader
+        title="Design System & Brand Guidelines"
+        subtitle="Slate & Ice v2.0: Navy (#213145) untuk struktur, Ice Blue (#CCDCEF) sebagai basis primer, Charcoal (#222526) untuk teks sekunder, dan Warm Coral (#FF8574) sebagai aksen tunggal."
+      />
 
       {/* Tabs */}
       <div className="flex border-b border-[#E5EEFF] gap-6 text-sm font-semibold">

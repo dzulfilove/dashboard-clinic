@@ -3,6 +3,7 @@ import { SearchableSelect } from '../../components/SearchableSelect.js';
 import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Package, 
   Search, 
@@ -431,33 +432,27 @@ export default React.memo(function MasterObat() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="space-y-4"
+      className="space-y-6"
     >
-      {/* Header controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <Package className="h-5 w-5 text-teal-600" />
-            <span>Master Data Katalog Obat</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Daftar pengenalan stok, golongan dosis, unit kemasan, dan patokan harga obat di Klinik Puri Medika.
-          </p>
-        </div>
+      <PageHeader
+        title="Master Data Katalog Obat"
+        subtitle="Daftar pengenalan stok, golongan dosis, unit kemasan, dan patokan harga obat di Klinik Puri Medika."
+      />
 
-        {/* Action button */}
-        {(user?.role === 'admin' || user?.role === 'farmasi') && (
+      {/* Action Bar */}
+      {(user?.role === 'admin' || user?.role === 'farmasi') && (
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <button
             id="add-obat-btn"
             onClick={handleOpenAddForm}
-            className="flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-xl shadow-sm transition-all cursor-pointer text-xs"
-            style={{ minHeight: '38px' }}
+            className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+            style={{ height: '40px' }}
           >
             <Plus className="h-4 w-4" />
             <span>Tambah Obat Baru</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {feedback && (

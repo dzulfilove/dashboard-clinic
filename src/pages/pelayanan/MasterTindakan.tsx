@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Search, 
   Plus, 
@@ -143,26 +144,21 @@ export default React.memo(function MasterTindakan() {
 
   return (
     <div className="space-y-6">
-      {/* Upper header */}
-      <div 
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <Activity className="h-5 w-5 text-teal-600" />
-            <span>Master Data Tindakan Klinik</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Kelola katalog tindakan/pelayanan medis rawat jalan (RALAN) dan rawat inap (RANAP) Klinik Puri Medika.
-          </p>
-        </div>
+      <PageHeader
+        title="Master Data Tindakan Klinik"
+        subtitle="Kelola katalog tindakan/pelayanan medis rawat jalan (RALAN) dan rawat inap (RANAP) Klinik Puri Medika."
+      />
+
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <button
           onClick={handleOpenAddModal}
           id="btn-add-tindakan"
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 active:scale-98 transition text-white font-medium text-xs rounded-lg shadow-sm"
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
         >
-          <Plus className="h-3 w-3" />
-          <span>Tambah</span>
+          <Plus className="h-4 w-4" />
+          <span>Tambah Tindakan</span>
         </button>
       </div>
 

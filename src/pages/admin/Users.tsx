@@ -3,6 +3,7 @@ import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { createPortal } from 'react-dom';
 import Swal from '../../utils/swal.js';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Users, 
   Plus, 
@@ -160,27 +161,20 @@ export default React.memo(function UsersManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Header controls layout */}
-      <div 
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-            <Users className="h-5 w-5 text-teal-600" />
-            <span>Manajemen Akun Hak Akses Petugas</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Pengelolaan sirkulasi akun pelaksana laboratorium, apoteker farmasi, serta kredensial administrator.
-          </p>
-        </div>
+      <PageHeader
+        title="Manajemen Akun Hak Akses Petugas"
+        subtitle="Pengelolaan sirkulasi akun pelaksana laboratorium, apoteker farmasi, serta kredensial administrator."
+      />
 
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <button
           id="add-user-btn"
           onClick={handleOpenAddForm}
-          className="flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-5 rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer"
-          style={{ minHeight: '44px' }}
+          className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4" />
           <span>Daftarkan Petugas</span>
         </button>
       </div>

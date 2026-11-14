@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   TrendingUp, 
   Calendar, 
@@ -82,28 +83,22 @@ export default React.memo(function Forecasting() {
 
   return (
     <div className="space-y-6 font-sans pb-10 text-[#0B1C30]">
-      {/* 1. Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-3 border-b border-[#E5EEFF] gap-4">
-        <div>
-          <span className="overline text-[11px] font-bold tracking-wider text-[#44474C] uppercase">
-            LOGISTIK FARMASI &amp; APOTEK
-          </span>
-          <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] tracking-tight font-display mt-0.5 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-[#213145]" />
-            <span>Peramalan Kebutuhan Obat (Forecasting)</span>
-          </h1>
-          <p className="text-xs text-[#516070] mt-1 font-normal">
-            Proyeksi kebutuhan obat berbasis algoritma <strong>Moving Average (3 Bulan)</strong> dan penentuan Safety Stock &amp; Reorder Point (ROP).
-          </p>
-        </div>
+      <PageHeader
+        title="Peramalan Kebutuhan Obat (Forecasting)"
+        subtitle="Proyeksi kebutuhan obat berbasis algoritma Moving Average (3 Bulan) dan penentuan Safety Stock & Reorder Point (ROP)."
+      />
 
-        {/* Period Selector (Slate & Ice soft button pill) */}
-        <div className="flex items-center space-x-2 bg-white px-3.5 py-2 border border-[#E5EEFF] rounded-2xl shadow-sm self-start md:self-auto">
+      {/* Period Selector Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-[#516070]">
+          Target proyeksi periode berjalan
+        </span>
+        <div className="flex items-center space-x-2 bg-white px-3.5 py-2 border border-[#E5EEFF] rounded-2xl shadow-sm">
           <Calendar className="h-4 w-4 text-[#213145] flex-shrink-0" />
           <span className="text-xs font-semibold text-[#516070]">Target:</span>
-          <SearchableSelect 
+          <SearchableSelect
             id="proj-month-select"
-            value={projMonth} 
+            value={projMonth}
             onChange={(e) => setProjMonth(Number(e.target.value))}
             className="text-xs font-bold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
             style={{ minHeight: '36px' }}
@@ -113,9 +108,9 @@ export default React.memo(function Forecasting() {
             ))}
           </SearchableSelect>
           <span className="text-[#CCDCEF]">|</span>
-          <SearchableSelect 
+          <SearchableSelect
             id="proj-year-select"
-            value={projYear} 
+            value={projYear}
             onChange={(e) => setProjYear(Number(e.target.value))}
             className="text-xs font-bold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
             style={{ minHeight: '36px' }}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import { useAuthStore } from '../../store/authStore.js';
+import PageHeader from '../../components/PageHeader.js';
 import { 
   Layers, 
   Calendar, 
@@ -92,41 +93,36 @@ export default React.memo(function AbcAnalysis() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div 
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 tracking-tight flex items-center gap-2">
-            <Layers className="h-5 w-5 text-teal-600" />
-            <span>Analisis Klasifikasi Inventori ABC (Drug Spend)</span>
-          </h1>
-          <p className="text-slate-500 text-xs mt-1">
-            Ukur efisiensi anggaran pengeluaran obat Klinik Puri Medika berdasarkan Pareto Value-Driven Indexing.
-          </p>
-        </div>
+      <PageHeader
+        title="Analisis Klasifikasi Inventori ABC (Drug Spend)"
+        subtitle="Ukur efisiensi anggaran pengeluaran obat Klinik Puri Medika berdasarkan Pareto Value-Driven Indexing."
+      />
 
-        {/* Month Year Selector */}
-        <div className="flex items-center space-x-2 bg-white px-4 py-2 border border-slate-100/80 rounded-2xl shadow-sm">
-          <Calendar className="h-5 w-5 text-teal-600 flex-shrink-0" />
-          <SearchableSelect 
+      {/* Period Filter Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <span className="text-xs font-semibold text-[#516070]">
+          Pilih periode analisis belanja obat
+        </span>
+        <div className="flex items-center space-x-2 bg-white px-4 py-1.5 border border-[#E5EEFF] rounded-2xl shadow-sm">
+          <Calendar className="h-4 w-4 text-[#213145] flex-shrink-0" />
+          <SearchableSelect
             id="abc-month-select"
-            value={selectedMonth} 
+            value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="text-sm font-semibold bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
-            style={{ minHeight: '44px' }}
+            className="text-xs font-bold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+            style={{ minHeight: '36px' }}
           >
             {months.map(m => (
               <option key={m.value} value={m.value}>{m.name}</option>
             ))}
           </SearchableSelect>
-          <span className="text-slate-300">|</span>
-          <SearchableSelect 
+          <span className="text-[#CCDCEF]">|</span>
+          <SearchableSelect
             id="abc-year-select"
-            value={selectedYear} 
+            value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="text-sm font-semibold bg-transparent border-none text-slate-800 focus:outline-none cursor-pointer"
-            style={{ minHeight: '44px' }}
+            className="text-xs font-bold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+            style={{ minHeight: '36px' }}
           >
             {years.map(y => (
               <option key={y} value={y}>{y}</option>

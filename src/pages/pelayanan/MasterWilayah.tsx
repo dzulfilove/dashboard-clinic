@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
 import Swal from '../../utils/swal.js';
-import { Plus, Trash2, Check, X, Map } from 'lucide-react';
+import { Plus, Trash2, Check, X, Map, RefreshCw } from 'lucide-react';
 import api from '../../services/api';
 import { motion, AnimatePresence } from 'motion/react';
+import PageHeader from '../../components/PageHeader.js';
 
 export default React.memo(function MasterWilayah() {
   const [kota, setKota] = useState<any[]>([]);
@@ -132,23 +133,20 @@ export default React.memo(function MasterWilayah() {
 
   return (
     <div className="space-y-6">
-      <div 
-        className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-            <Map className="h-5 w-5 text-teal-600" />
-            Master Data Wilayah
-          </h1>
-          <p className="text-xs text-slate-400 mt-1 font-normal">
-            Kelola data kota, kecamatan, dan kelurahan untuk registrasi pasien.
-          </p>
-        </div>
-        <button 
-          onClick={fetchData} 
-          className="px-4 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition"
+      <PageHeader
+        title="Master Data Wilayah"
+        subtitle="Kelola data kota, kecamatan, dan kelurahan untuk registrasi pasien."
+      />
+
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <button
+          onClick={fetchData}
+          className="si-btn si-btn--outline text-xs font-semibold px-4 rounded-xl cursor-pointer inline-flex items-center gap-2 whitespace-nowrap shrink-0"
+          style={{ height: '40px' }}
         >
-          Refresh Data
+          <RefreshCw className="h-4 w-4 text-[#213145]" />
+          <span>Refresh Data</span>
         </button>
       </div>
 
