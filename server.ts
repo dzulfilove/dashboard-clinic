@@ -18,6 +18,7 @@ import { db, initializeDatabase, readVirtualDb, writeVirtualDb, runMigrationScri
 
 import { getWahaConfig, setWahaConfig } from "./waha_config.js";
 import { extractRole } from './src/utils/role.js';
+import { createMutuRouter } from './src/routes/mutu.js';
 // Simple in-memory rate limiter untuk OTP (production: gunakan Redis)
 import { initWahaCron } from "./waha_cron.js";
 const otpRateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -580,6 +581,9 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
   res.json({ message: 'Berhasil keluar.' });
 });
 
+
+// Modul Mutu & Indikator (router terpisah: src/routes/mutu.ts)
+app.use('/api/mutu', createMutuRouter({ db, authenticateToken, roleGuard }));
 
 /* ==================== 3. LABORATORY ENDPOINTS ==================== */
 

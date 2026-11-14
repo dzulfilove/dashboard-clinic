@@ -452,3 +452,195 @@ CREATE TABLE IF NOT EXISTS tagihan_pasien (
   FOREIGN KEY (registrasi_igd_id) REFERENCES registrasi_igd(id) ON DELETE SET NULL,
   FOREIGN KEY (registrasi_ranap_id) REFERENCES registrasi_ranap(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============ MODUL MUTU & INDIKATOR (tabel pendukung) ============
+CREATE TABLE IF NOT EXISTS mutu_indikator (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  kode VARCHAR(30) NOT NULL,
+  nama VARCHAR(150) NOT NULL,
+  kategori VARCHAR(40) NOT NULL DEFAULT 'Nasional',
+  satuan VARCHAR(20) NOT NULL DEFAULT '%',
+  cara_hitung ENUM('rasio','rate_per_seribu','angka','rata_rata','waktu') NOT NULL DEFAULT 'rasio',
+  aktif TINYINT(1) NOT NULL DEFAULT 1,
+  dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_mutu_indikator_kode (kode)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_indikator_versi (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  indikator_id INT NOT NULL,
+  berlaku_dari DATE NOT NULL,
+  definisi_numerator VARCHAR(255) NOT NULL,
+  definisi_denominator VARCHAR(255) NOT NULL,
+  target DECIMAL(12,4) NULL,
+  target_tipe ENUM('min','max','sama') NOT NULL DEFAULT 'min',
+  metode_observasi VARCHAR(150) NULL,
+  catatan TEXT NULL,
+  dibuat_oleh VARCHAR(150) NULL,
+  dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_mutu_versi (indikator_id, berlaku_dari),
+  CONSTRAINT fk_mv_indikator FOREIGN KEY (indikator_id) REFERENCES mutu_indikator(id),
+  CONSTRAINT ck_mv_target CHECK (target IS NULL OR target >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_unit_indikator (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  unit_kode VARCHAR(20) NOT NULL,
+  indikator_id INT NOT NULL,
+  berlaku_dari DATE NOT NULL,
+  berlaku_sampai DATE NULL,
+  urutan INT NOT NULL DEFAULT 0,
+  UNIQUE KEY uq_mutu_unit_indikator (unit_kode, indikator_id, berlaku_dari),
+  CONSTRAINT fk_mui_indikator FOREIGN KEY (indikator_id) REFERENCES mutu_indikator(id),
+  CONSTRAINT ck_mui_rentang CHECK (berlaku_sampai IS NULL OR berlaku_sampai >= berlaku_dari)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_pengukuran (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  unit_kode VARCHAR(20) NOT NULL,
+  indikator_id INT NOT NULL,
+  tanggal DATE NOT NULL,
+  numerator DECIMAL(12,4) NULL,
+  denominator DECIMAL(12,4) NULL,
+  nilai DECIMAL(12,4) NULL,
+  status ENUM('draf','final','dikoreksi') NOT NULL DEFAULT 'final',
+  sumber ENUM('manual','otomatis') NOT NULL DEFAULT 'manual',
+  catatan VARCHAR(255) NULL,
+  dicatat_oleh VARCHAR(150) NULL,
+  dicatat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  divalidasi_oleh VARCHAR(150) NULL,
+  divalidasi_pada TIMESTAMP NULL,
+  UNIQUE KEY uq_mutu_pengukuran (unit_kode, indikator_id, tanggal),
+  KEY idx_mp_indikator_tanggal (indikator_id, tanggal),
+  CONSTRAINT fk_mp_indikator FOREIGN KEY (indikator_id) REFERENCES mutu_indikator(id),
+  CONSTRAINT ck_mp_n CHECK (numerator IS NULL OR numerator >= 0),
+  CONSTRAINT ck_mp_d CHECK (denominator IS NULL OR denominator >= 0),
+  CONSTRAINT ck_mp_n_le_d CHECK (numerator IS NULL OR denominator IS NULL OR numerator <= denominator),
+  CONSTRAINT ck_mp_bentuk CHECK ((numerator IS NULL AND denominator IS NULL AND nilai IS NOT NULL)
+                              OR (numerator IS NOT NULL AND denominator IS NOT NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_pengukuran_revisi (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  pengukuran_id INT NOT NULL,
+  numerator_lama DECIMAL(12,4) NULL,
+  denominator_lama DECIMAL(12,4) NULL,
+  nilai_lama DECIMAL(12,4) NULL,
+  numerator_baru DECIMAL(12,4) NULL,
+  denominator_baru DECIMAL(12,4) NULL,
+  nilai_baru DECIMAL(12,4) NULL,
+  alasan VARCHAR(255) NOT NULL,
+  diubah_oleh VARCHAR(150) NULL,
+  diubah_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_mpr_pengukuran (pengukuran_id),
+  CONSTRAINT fk_mpr_pengukuran FOREIGN KEY (pengukuran_id) REFERENCES mutu_pengukuran(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_aturan_validasi (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  kode VARCHAR(30) NOT NULL,
+  nama VARCHAR(150) NOT NULL,
+  keterangan TEXT NULL,
+  tingkat ENUM('tolak','tanda') NOT NULL DEFAULT 'tanda',
+  aktif TINYINT(1) NOT NULL DEFAULT 1,
+  UNIQUE KEY uq_mutu_aturan (kode)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_pengukuran_anomali (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  pengukuran_id INT NOT NULL,
+  aturan_id INT NOT NULL,
+  keterangan VARCHAR(255) NULL,
+  status ENUM('terbuka','diterima','diabaikan') NOT NULL DEFAULT 'terbuka',
+  diputuskan_oleh VARCHAR(150) NULL,
+  diputuskan_pada TIMESTAMP NULL,
+  alasan_keputusan VARCHAR(255) NULL,
+  dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_mutu_anomali (pengukuran_id, aturan_id),
+  CONSTRAINT fk_ma_pengukuran FOREIGN KEY (pengukuran_id) REFERENCES mutu_pengukuran(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ma_aturan FOREIGN KEY (aturan_id) REFERENCES mutu_aturan_validasi(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_periode (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  unit_kode VARCHAR(20) NOT NULL,
+  tahun SMALLINT NOT NULL,
+  bulan TINYINT NOT NULL,
+  status ENUM('terbuka','tertutup','terkunci') NOT NULL DEFAULT 'terbuka',
+  catatan TEXT NULL,
+  ditutup_oleh VARCHAR(150) NULL,
+  ditutup_pada TIMESTAMP NULL,
+  dikunci_oleh VARCHAR(150) NULL,
+  dikunci_pada TIMESTAMP NULL,
+  UNIQUE KEY uq_mutu_periode (unit_kode, tahun, bulan),
+  CONSTRAINT ck_mup_bulan CHECK (bulan BETWEEN 1 AND 12)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_analisa (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  periode_id INT NOT NULL,
+  indikator_id INT NOT NULL,
+  narasi TEXT NULL,
+  rencana TEXT NULL,
+  status ENUM('draf','menunggu_persetujuan','disetujui') NOT NULL DEFAULT 'draf',
+  disetujui_oleh VARCHAR(150) NULL,
+  disetujui_pada TIMESTAMP NULL,
+  diperbarui_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_mutu_analisa (periode_id, indikator_id),
+  CONSTRAINT fk_man_periode FOREIGN KEY (periode_id) REFERENCES mutu_periode(id) ON DELETE CASCADE,
+  CONSTRAINT fk_man_indikator FOREIGN KEY (indikator_id) REFERENCES mutu_indikator(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_tindak_lanjut (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  analisa_id INT NOT NULL,
+  uraian TEXT NOT NULL,
+  pic_nama VARCHAR(150) NULL,
+  tenggat DATE NULL,
+  status ENUM('direncanakan','berjalan','selesai','batal') NOT NULL DEFAULT 'direncanakan',
+  realisasi TEXT NULL,
+  hasil_evaluasi ENUM('berhasil','tidak_berhasil','belum_terlaksana') NULL,
+  dievaluasi_pada_periode_id INT NULL,
+  dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  ditutup_pada TIMESTAMP NULL,
+  KEY idx_mtl_analisa (analisa_id),
+  KEY idx_mtl_status_tenggat (status, tenggat),
+  CONSTRAINT fk_mtl_analisa FOREIGN KEY (analisa_id) REFERENCES mutu_analisa(id) ON DELETE CASCADE,
+  CONSTRAINT fk_mtl_evaluasi FOREIGN KEY (dievaluasi_pada_periode_id) REFERENCES mutu_periode(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS mutu_hari_libur (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  unit_kode VARCHAR(20) NULL,
+  tanggal DATE NOT NULL,
+  keterangan VARCHAR(100) NULL,
+  UNIQUE KEY uq_mutu_libur (unit_kode, tanggal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO mutu_aturan_validasi (kode, nama, keterangan, tingkat) VALUES ('N_GT_D', 'Numerator melebihi denominator', 'Untuk indikator kepatuhan ini tidak mungkin dan biasanya berarti definisi penyebut salah.', 'tolak');
+INSERT IGNORE INTO mutu_aturan_validasi (kode, nama, keterangan, tingkat) VALUES ('RASIO_GT_100', 'Capaian di atas 100 persen', 'Disimpan tetapi wajib ditinjau sebelum periode dikunci.', 'tanda');
+INSERT IGNORE INTO mutu_aturan_validasi (kode, nama, keterangan, tingkat) VALUES ('D_KONSTAN', 'Penyebut sama berulang', 'Penyebut identik 7 hari berturut-turut, biasanya angka disalin bukan diukur.', 'tanda');
+INSERT IGNORE INTO mutu_aturan_validasi (kode, nama, keterangan, tingkat) VALUES ('HARI_KOSONG', 'Hari efektif tidak terisi', 'Mengurangi kepercayaan pada capaian periode.', 'tanda');
+
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-NAS-01', 'Kepatuhan Cuci Tangan', 'Nasional', '%', 'rasio');
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-NAS-02', 'Kepatuhan Penggunaan APD', 'Nasional', '%', 'rasio');
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-NAS-03', 'Kepatuhan Identifikasi Pasien', 'Nasional', '%', 'rasio');
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-KLI-01', 'Ketepatan Penginputan Tagihan Pasien', 'Klinik', '%', 'rasio');
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-KLI-02', 'Respon Time IGD < 5 Menit', 'Klinik', '%', 'rasio');
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-KPS-01', 'Kepatuhan Pengisian Safety Surgical Check', 'Keselamatan Pasien', '%', 'rasio');
+INSERT IGNORE INTO mutu_indikator (kode, nama, kategori, satuan, cara_hitung) VALUES ('IKM-KPS-02', 'Angka Kejadian Phlebitis', 'Keselamatan Pasien', 'per 1000 hari', 'rate_per_seribu');
+
+INSERT IGNORE INTO mutu_indikator_versi (indikator_id, berlaku_dari, definisi_numerator, definisi_denominator, target, target_tipe, catatan)
+SELECT i.id, '2025-01-01', d.n, d.den, NULL, 'min', d.cat
+FROM mutu_indikator i JOIN (
+  SELECT 'IKM-NAS-01' k, 'Jumlah momen cuci tangan sesuai standar' n, 'Jumlah peluang cuci tangan diobservasi' den, 'Definisi penyebut menunggu keputusan Tim Mutu (petugas vs peluang).' cat
+  UNION ALL SELECT 'IKM-NAS-02', 'Jumlah petugas patuh APD sesuai indikasi', 'Jumlah petugas terindikasi memakai APD', 'Menunggu keputusan Tim Mutu.'
+  UNION ALL SELECT 'IKM-NAS-03', 'Jumlah petugas melakukan identifikasi pasien dengan benar', 'Jumlah seluruh petugas bertugas', 'Penyebut berpotensi diambil dari jadwal petugas.'
+  UNION ALL SELECT 'IKM-KLI-01', 'Jumlah penginputan tagihan pasien benar', 'Jumlah tagihan terverifikasi kasir', 'Verifikasi silang dengan tagihan_pasien dimungkinkan.'
+  UNION ALL SELECT 'IKM-KLI-02', 'Jumlah pasien IGD ditangani kurang dari 5 menit', 'Jumlah seluruh pasien IGD', 'Penyebut dapat otomatis dari registrasi_igd. Jam kedatangan belum tersedia.'
+  UNION ALL SELECT 'IKM-KPS-01', 'Jumlah petugas mengisi safety surgical check', 'Jumlah seluruh prosedur operasi', 'Menunggu keputusan Tim Mutu.'
+  UNION ALL SELECT 'IKM-KPS-02', 'Jumlah kejadian phlebitis', 'Jumlah kumulatif hari pemasangan infus', 'Satuan per 1000 hari infus, bukan persen.'
+) d ON d.k = i.kode;
+
+INSERT IGNORE INTO mutu_unit_indikator (unit_kode, indikator_id, berlaku_dari, berlaku_sampai, urutan)
+SELECT 'IGD', id, '2025-01-01', NULL, id FROM mutu_indikator;
