@@ -1,23 +1,20 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { SearchableSelect } from '../../components/SearchableSelect.js';
-import { motion } from 'motion/react';
 import { useAuthStore } from '../../store/authStore.js';
-import { 
-  TrendingUp, 
-  Download, 
-  FlaskConical, 
-  Award, 
-  AlertCircle, 
-  RefreshCw, 
+import {
+  TrendingUp,
+  Download,
+  FlaskConical,
+  Award,
+  AlertCircle,
   Calendar,
   Layers,
-  ArrowUp,
   ArrowDown,
   Activity,
   Layers3,
   Dna,
   ArrowUpRight,
-  Filter
+  Search
 } from 'lucide-react';
 import { useRecharts } from '../../components/RechartsLoader.js';
 import api from '../../services/api.js';
@@ -25,30 +22,59 @@ import { LabData } from '../../types.js';
 import AnalyticLoader from '../../components/AnalyticLoader.js';
 import { MONTHS_ID } from '../../utils/dateFormat.js';
 
-// Framer Motion animation sets identical to Dashboard
-const containerVariants = {
-  hidden: { opacity: 0, y: 15 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.55,
-      ease: [0.16, 1, 0.3, 1],
-      staggerChildren: 0.08
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.45, ease: 'easeOut' }
-  }
-};
-
 const YEARS = [2024, 2025, 2026, 2027];
+
+// Slate & Ice v2.0 cohesive data visualization palette
+const CHART_COLORS = [
+  '#213145', // Brand Navy
+  '#4F7CAC', // Steel Blue
+  '#FF8574', // Coral Accent
+  '#7C96B8', // Ice Slate
+  '#334E68', // Deep Slate
+  '#94A3B8', // Cool Gray
+  '#10B981'  // Emerald Semantic
+];
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name?: string;
+    value?: number | string;
+    color?: string;
+  }>;
+  label?: string;
+  unit?: string;
+}
+
+function SlateTooltip({ active, payload, label, unit = 'uji' }: CustomTooltipProps) {
+  if (!active || !payload || payload.length === 0) return null;
+
+  return (
+    <div className="bg-[#213145] text-white px-3.5 py-2.5 rounded-xl shadow-[0_12px_32px_rgba(11,28,48,0.24)] text-xs min-w-[140px]">
+      {label && (
+        <p className="font-semibold text-[#CCDCEF] mb-1.5 pb-1 border-b border-white/10">
+          {label}
+        </p>
+      )}
+      <div className="space-y-1">
+        {payload.map((entry, idx) => (
+          <div key={idx} className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1.5 text-white/90">
+              <span
+                className="w-2 h-2 rounded-full flex-none"
+                style={{ backgroundColor: entry.color || '#CCDCEF' }}
+              />
+              <span className="truncate max-w-[140px]">{entry.name}</span>
+            </span>
+            <span className="font-mono font-semibold tabular-nums text-white">
+              {Number(entry.value || 0).toLocaleString('id-ID')} {unit}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default React.memo(function DashboardLab() {
   const { user } = useAuthStore();
@@ -68,12 +94,11 @@ export default React.memo(function DashboardLab() {
   const Area = recharts?.Area;
 
   const [loading, setLoading] = useState(true);
-  const [isVisualizing, setIsVisualizing] = useState(true);
   const [labData, setLabData] = useState<LabData[]>([]);
   const [trendData, setTrendData] = useState<any[]>([]);
   const [feedback, setFeedback] = useState<string | null>(null);
 
-  // Sub-navigation tabs: 'overview' for overall comparisons, 'category' for individual category dashboard, 'progress' for exam types progress
+  // Sub-navigation tabs
   const [subTab, setSubTab] = useState<'overview' | 'category' | 'progress'>('overview');
 
   // Daily parameter timeline for granular progression
@@ -86,57 +111,62 @@ export default React.memo(function DashboardLab() {
 
   // Month-Year period range selector state
   const d = new Date();
-  const [startMonth, setStartMonth] = useState(1); // Default from January
-  const [startYear, setStartYear] = useState(2026); // Default seed year
-  const [endMonth, setEndMonth] = useState(d.getMonth() + 1); // Default to current month
-  const [endYear, setEndYear] = useState(2026); // Default seed year
+  const [startMonth, setStartMonth] = useState(1);
+  const [startYear, setStartYear] = useState(2026);
+  const [endMonth, setEndMonth] = useState(d.getMonth() + 1);
+  const [endYear, setEndYear] = useState(2026);
 
-  const months = MONTHS_ID.map((name, idx) => ({ value: idx + 1, name }));
+  const months = useMemo(
+    () => MONTHS_ID.map((name, idx) => ({ value: idx + 1, name })),
+    []
+  );
   const years = YEARS;
 
-  // Formats raw database flat records to recharts multi-series timeline data and filters by current range
-  const processTrendData = useCallback((rawTrends: any[], sM = 1, sY = 2026, eM = 12, eY = 2026) => {
-    const timelineMap: { [key: string]: any } = {};
-    
-    rawTrends.forEach((row: any) => {
-      const monthObj = months.find(m => m.value === row.bulan);
-      const label = `${monthObj ? monthObj.name.substring(0, 3) : row.bulan} ${row.tahun}`;
-      const periodKey = `${row.tahun}-${String(row.bulan).padStart(2, '0')}`;
-      
-      if (!timelineMap[periodKey]) {
-        timelineMap[periodKey] = {
-          name: label,
-          sortKey: periodKey,
-          HEMATOLOGI: 0,
-          'KIMIA DARAH': 0,
-          IMUNOSEROLOGI: 0,
-          URINALISIS: 0,
-          Total: 0
-        };
-      }
-      
-      const categoryName = row.kategori.toUpperCase();
-      timelineMap[periodKey][categoryName] = (timelineMap[periodKey][categoryName] || 0) + Number(row.total);
-      timelineMap[periodKey].Total += Number(row.total);
-    });
+  // Format raw database flat records to Recharts multi-series timeline data
+  const processTrendData = useCallback(
+    (rawTrends: any[], sM = 1, sY = 2026, eM = 12, eY = 2026) => {
+      const timelineMap: { [key: string]: any } = {};
 
-    const startKey = `${sY}-${String(sM).padStart(2, '0')}`;
-    const endKey = `${eY}-${String(eM).padStart(2, '0')}`;
+      rawTrends.forEach((row: any) => {
+        const monthObj = months.find((m) => m.value === row.bulan);
+        const label = `${monthObj ? monthObj.name.substring(0, 3) : row.bulan} ${row.tahun}`;
+        const periodKey = `${row.tahun}-${String(row.bulan).padStart(2, '0')}`;
 
-    const sortedList = Object.values(timelineMap)
-      .sort((a: any, b: any) => a.sortKey.localeCompare(b.sortKey))
-      .filter((item: any) => item.sortKey >= startKey && item.sortKey <= endKey);
+        if (!timelineMap[periodKey]) {
+          timelineMap[periodKey] = {
+            name: label,
+            sortKey: periodKey,
+            Total: 0
+          };
+        }
 
-    setTrendData(sortedList);
-  }, []);
+        const categoryName = String(row.kategori || 'LAINNYA').toUpperCase();
+        timelineMap[periodKey][categoryName] =
+          (timelineMap[periodKey][categoryName] || 0) + Number(row.total);
+        timelineMap[periodKey].Total += Number(row.total);
+      });
+
+      const startKey = `${sY}-${String(sM).padStart(2, '0')}`;
+      const endKey = `${eY}-${String(eM).padStart(2, '0')}`;
+
+      const sortedList = Object.values(timelineMap)
+        .sort((a: any, b: any) => a.sortKey.localeCompare(b.sortKey))
+        .filter((item: any) => item.sortKey >= startKey && item.sortKey <= endKey);
+
+      setTrendData(sortedList);
+    },
+    [months]
+  );
 
   // Fetch Laboratory volumes and history trend curves
   useEffect(() => {
     async function fetchLabAnalytics() {
-      // Validate range to prevent requests with invalid range
-      const isRangeValid = startYear < endYear || (startYear === endYear && startMonth <= endMonth);
+      const isRangeValid =
+        startYear < endYear || (startYear === endYear && startMonth <= endMonth);
       if (!isRangeValid) {
-        setFeedback('Rentang tanggal tidak valid. Bulan Selesai harus sesudah atau sama dengan Bulan Mulai.');
+        setFeedback(
+          'Rentang tanggal tidak valid. Bulan Selesai harus sesudah atau sama dengan Bulan Mulai.'
+        );
         setLabData([]);
         setTrendData([]);
         setDailyProgressData([]);
@@ -148,9 +178,13 @@ export default React.memo(function DashboardLab() {
       try {
         setLoading(true);
         const [dataRes, trendRes, progressRes] = await Promise.all([
-          api.get(`/lab/data?start_bulan=${startMonth}&start_tahun=${startYear}&end_bulan=${endMonth}&end_tahun=${endYear}`),
+          api.get(
+            `/lab/data?start_bulan=${startMonth}&start_tahun=${startYear}&end_bulan=${endMonth}&end_tahun=${endYear}`
+          ),
           api.get('/lab/tren'),
-          api.get(`/lab/parameter-harian?start_bulan=${startMonth}&start_tahun=${startYear}&end_bulan=${endMonth}&end_tahun=${endYear}`)
+          api.get(
+            `/lab/parameter-harian?start_bulan=${startMonth}&start_tahun=${startYear}&end_bulan=${endMonth}&end_tahun=${endYear}`
+          )
         ]);
 
         setLabData(dataRes.data);
@@ -167,18 +201,12 @@ export default React.memo(function DashboardLab() {
     fetchLabAnalytics();
   }, [startMonth, startYear, endMonth, endYear, processTrendData]);
 
-  useEffect(() => {
-    setIsVisualizing(true);
-    const timer = setTimeout(() => {
-      setIsVisualizing(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [subTab, activeCategory, startMonth, startYear, endMonth, endYear, selectedProgressParam]);
-
-  // Handle setting default selected category once labData is loaded
+  // Default selected category once labData is loaded
   useEffect(() => {
     if (labData.length > 0 && !activeCategory) {
-      const uniqueCats = Array.from(new Set(labData.map(d => d.kategori).filter(Boolean)));
+      const uniqueCats = Array.from(
+        new Set(labData.map((item) => item.kategori).filter(Boolean))
+      );
       if (uniqueCats.length > 0) {
         setActiveCategory(uniqueCats[0]);
       }
@@ -187,28 +215,28 @@ export default React.memo(function DashboardLab() {
 
   const getDaysInRangeCount = useCallback(() => {
     const sD = new Date(startYear, startMonth - 1, 1);
-    const eD = new Date(endYear, endMonth, 0); // Last day of endMonth
+    const eD = new Date(endYear, endMonth, 0);
     const diffTime = Math.abs(eD.getTime() - sD.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays || 30;
   }, [startYear, startMonth, endYear, endMonth]);
 
-  // Process daily progression for each lab parameter
-  const getProgressList = useCallback(() => {
-    // Group dailyProgressData by parameterId
-    const grouped: { [id: number]: {
-      id: number;
-      nama_parameter: string;
-      kategori: string;
-      total: number;
-      activeDays: number;
-      maxCount: number;
-      maxDate: string;
-      dailySeries: { tanggal: string; jumlah: number }[];
-    } } = {};
+  // Daily progression list
+  const progressList = useMemo(() => {
+    const grouped: {
+      [id: number]: {
+        id: number;
+        nama_parameter: string;
+        kategori: string;
+        total: number;
+        activeDays: number;
+        maxCount: number;
+        maxDate: string;
+        dailySeries: { tanggal: string; jumlah: number }[];
+      };
+    } = {};
 
-    // Initialize all parameters we know about from labData to guarantee everything is listed
-    labData.forEach(p => {
+    labData.forEach((p) => {
       grouped[p.parameter_id] = {
         id: p.parameter_id,
         nama_parameter: p.nama_parameter,
@@ -221,7 +249,6 @@ export default React.memo(function DashboardLab() {
       };
     });
 
-    // Populate daily entries
     dailyProgressData.forEach((row: any) => {
       const pId = row.parameter_id;
       if (!grouped[pId]) {
@@ -246,387 +273,483 @@ export default React.memo(function DashboardLab() {
         grouped[pId].activeDays += 1;
         if (Number(row.jumlah) > grouped[pId].maxCount) {
           grouped[pId].maxCount = Number(row.jumlah);
-          
-          // Format date to local standard ID (e.g. DD/MM)
           try {
             const dateObj = new Date(row.tanggal);
-            const formattedDate = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
-            grouped[pId].maxDate = formattedDate;
-          } catch (e) {
+            grouped[pId].maxDate = dateObj.toLocaleDateString('id-ID', {
+              day: '2-digit',
+              month: 'short'
+            });
+          } catch {
             grouped[pId].maxDate = row.tanggal;
           }
         }
       }
     });
 
-    // Sort series by date for each parameter
-    Object.values(grouped).forEach(g => {
-      g.dailySeries.sort((a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime());
+    Object.values(grouped).forEach((g) => {
+      g.dailySeries.sort(
+        (a, b) => new Date(a.tanggal).getTime() - new Date(b.tanggal).getTime()
+      );
     });
 
     return Object.values(grouped).sort((a, b) => b.total - a.total);
   }, [labData, dailyProgressData]);
 
   // Overall KPIs
-  const totalExams = useMemo(() => labData.reduce((sum, d) => sum + d.jumlah, 0), [labData]);
+  const totalExams = useMemo(
+    () => labData.reduce((sum, item) => sum + item.jumlah, 0),
+    [labData]
+  );
 
-  // Sorting descending to identify peak parameters
-  const sortedParams = useMemo(() => [...labData].sort((a, b) => b.jumlah - a.jumlah), [labData]);
+  const sortedParams = useMemo(
+    () => [...labData].sort((a, b) => b.jumlah - a.jumlah),
+    [labData]
+  );
   const peakParameter = sortedParams[0];
-  const lowParameter = sortedParams.filter(d => d.jumlah > 0).pop();
+  const lowParameter = sortedParams.filter((item) => item.jumlah > 0).pop();
 
-  // Group current month data by category for category comparison list & charts
-  const categoryShareDataMap: { [cat: string]: number } = useMemo(() => {
+  // Category breakdown
+  const categoryChartData = useMemo(() => {
     const map: { [cat: string]: number } = {};
-    labData.forEach(d => {
-      const key = d.kategori || 'LAIN-LAIN';
-      map[key] = (map[key] || 0) + d.jumlah;
+    labData.forEach((item) => {
+      const key = item.kategori || 'LAIN-LAIN';
+      map[key] = (map[key] || 0) + item.jumlah;
     });
-    return map;
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
   }, [labData]);
 
-  const COLORS = ['#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6', '#EF4444'];
-  const categoryChartData = useMemo(() => Object.entries(categoryShareDataMap).map(([name, value]) => ({
-    name,
-    value
-  })), [categoryShareDataMap]);
+  const uniqueCategories = useMemo(
+    () => Array.from(new Set(labData.map((item) => item.kategori).filter(Boolean))),
+    [labData]
+  );
 
-  // Unique categories helper
-  const uniqueCategories = Array.from(new Set(labData.map(d => d.kategori).filter(Boolean)));
+  const comparisonChartData = useMemo(
+    () =>
+      categoryChartData.map((cat, idx) => ({
+        name: cat.name,
+        'Jumlah Pengujian': cat.value,
+        color: CHART_COLORS[idx % CHART_COLORS.length]
+      })),
+    [categoryChartData]
+  );
 
-  // Category-specific details (FOR CATEGORY DASHBOARD)
-  const categorySpecificParams = labData.filter(d => d.kategori === activeCategory);
-  const categoryTotal = categorySpecificParams.reduce((sum, d) => sum + d.jumlah, 0);
-  const categoryPeakParam = [...categorySpecificParams].sort((a, b) => b.jumlah - a.jumlah)[0];
-  const categoryContributionPercent = totalExams > 0 ? Math.round((categoryTotal / totalExams) * 100) : 0;
-  const topTenCategoryParams = [...categorySpecificParams]
-    .sort((a, b) => b.jumlah - a.jumlah)
-    .slice(0, 10);
+  // Extract active trend categories sorted by overall volume
+  const trendCategories = useMemo(() => {
+    const totals: Record<string, number> = {};
+    trendData.forEach((point) => {
+      Object.keys(point).forEach((key) => {
+        if (key !== 'name' && key !== 'sortKey' && key !== 'Total') {
+          totals[key] = (totals[key] || 0) + Number(point[key] || 0);
+        }
+      });
+    });
+    return Object.entries(totals)
+      .filter(([, val]) => val > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([name]) => name);
+  }, [trendData]);
 
-  // Render comparative category bar chart data
-  const comparisonChartData = categoryChartData.map((cat, idx) => ({
-    name: cat.name,
-    'Jumlah Pengujian': cat.value,
-    color: COLORS[idx % COLORS.length]
-  }));
+  // Category-specific metrics
+  const categorySpecificParams = useMemo(
+    () =>
+      labData
+        .filter((item) => item.kategori === activeCategory)
+        .sort((a, b) => b.jumlah - a.jumlah),
+    [labData, activeCategory]
+  );
+  const categoryTotal = useMemo(
+    () => categorySpecificParams.reduce((sum, item) => sum + item.jumlah, 0),
+    [categorySpecificParams]
+  );
+  const categoryPeakParam = categorySpecificParams[0];
+  const categoryContributionPercent =
+    totalExams > 0 ? Math.round((categoryTotal / totalExams) * 100) : 0;
+  const topTenCategoryParams = useMemo(
+    () => categorySpecificParams.slice(0, 10),
+    [categorySpecificParams]
+  );
+
+  const filteredProgressItems = useMemo(() => {
+    const query = progressSearch.trim().toLowerCase();
+    if (!query) return progressList;
+    return progressList.filter(
+      (item) =>
+        item.nama_parameter.toLowerCase().includes(query) ||
+        item.kategori.toLowerCase().includes(query)
+    );
+  }, [progressList, progressSearch]);
+
+  const activeProgressParamId =
+    selectedProgressParam || filteredProgressItems[0]?.id || progressList[0]?.id;
+  const activeProgressParam = progressList.find(
+    (p) => p.id === activeProgressParamId
+  );
+
+  const startPeriodLabel = `${months[startMonth - 1]?.name || ''} ${startYear}`;
+  const endPeriodLabel = `${months[endMonth - 1]?.name || ''} ${endYear}`;
 
   const handleExportXlsx = () => {
-    window.open(`/api/lab/export?start_bulan=${startMonth}&start_tahun=${startYear}&end_bulan=${endMonth}&end_tahun=${endYear}`, '_blank');
+    window.open(
+      `/api/lab/export?start_bulan=${startMonth}&start_tahun=${startYear}&end_bulan=${endMonth}&end_tahun=${endYear}`,
+      '_blank'
+    );
   };
 
   return (
-    <div className="space-y-6 font-sans text-xs">
-      
-      {/* 1. Header controls */}
-      <div 
-        className="bg-white p-6 rounded-2xl border border-[#E5EEFF] shadow-[0_2px_8px_rgba(11,28,48,0.06)] flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[#222526]"
-      >
-        <div>
-          <h1 className="text-xl font-extrabold text-[#213145] tracking-tight flex items-center gap-2 font-display">
-            <TrendingUp className="h-5 w-5 text-[#213145]" />
-            <span>Dashboard Tren &amp; Analisis Laboratorium</span>
-          </h1>
-        </div>
-
-        {/* Date range period selector card */}
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto md:justify-end">
-          <div className="flex items-center space-x-1.5 bg-[#F8F9FF] px-3 py-1.5 border border-[#CCDCEF] rounded-xl shadow-xxs">
-            <Calendar className="h-4 w-4 text-[#213145] flex-shrink-0" />
-            <div className="flex items-center space-x-1">
-              <span className="text-[#667085] font-bold text-xs uppercase">Dari:</span>
-              <SearchableSelect 
-                id="select-start-month-anal"
-                value={startMonth} 
-                onChange={(e) => setStartMonth(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
-                style={{ minHeight: '36px' }}
-              >
-                {months.map(m => (
-                  <option key={m.value} value={m.value}>{m.name}</option>
-                ))}
-              </SearchableSelect>
-              <SearchableSelect 
-                id="select-start-year-anal"
-                value={startYear} 
-                onChange={(e) => setStartYear(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
-                style={{ minHeight: '36px' }}
-              >
-                {years.map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </SearchableSelect>
-            </div>
-            
-            <span className="text-[#CCDCEF]">|</span>
-            
-            <div className="flex items-center space-x-1">
-              <span className="text-[#667085] font-bold text-xs uppercase">Selesai:</span>
-              <SearchableSelect 
-                id="select-end-month-anal"
-                value={endMonth} 
-                onChange={(e) => setEndMonth(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
-                style={{ minHeight: '36px' }}
-              >
-                {months.map(m => (
-                  <option key={m.value} value={m.value}>{m.name}</option>
-                ))}
-              </SearchableSelect>
-              <SearchableSelect 
-                id="select-end-year-anal"
-                value={endYear} 
-                onChange={(e) => setEndYear(Number(e.target.value))}
-                className="text-xs font-normal bg-transparent border-none text-[#213145] focus:outline-none cursor-pointer"
-                style={{ minHeight: '36px' }}
-              >
-                {years.map(y => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </SearchableSelect>
-            </div>
+    <div className="space-y-6 font-sans text-[#222526] pb-10">
+      {/* 1. Header & Period Controls */}
+      <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 shadow-[0_6px_24px_rgba(33,49,69,0.06)] space-y-5">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] tracking-tight font-display">
+              Tren &amp; Analisis Laboratorium
+            </h1>
+            <p className="text-xs text-[#516070] font-medium">
+              Periode {startPeriodLabel} – {endPeriodLabel} ·{' '}
+              <span className="tabular-nums font-semibold text-[#213145]">
+                {totalExams.toLocaleString('id-ID')} pengujian
+              </span>{' '}
+              · {uniqueCategories.length} kategori aktif
+            </p>
           </div>
 
-          {/* Excel Export Button ONLY for Admin */}
-          {user?.role === 'admin' && (
+          {/* Date range period selector & export action */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-wrap items-center gap-2 bg-[#EFF4FF] px-3 py-1.5 border border-[#D3E4FE] rounded-xl">
+              <Calendar className="h-4 w-4 text-[#213145] flex-none" />
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-semibold text-[#516070]">Dari</span>
+                <SearchableSelect
+                  id="select-start-month-anal"
+                  value={startMonth}
+                  onChange={(e) => setStartMonth(Number(e.target.value))}
+                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                  style={{ minHeight: '34px' }}
+                >
+                  {months.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.name}
+                    </option>
+                  ))}
+                </SearchableSelect>
+                <SearchableSelect
+                  id="select-start-year-anal"
+                  value={startYear}
+                  onChange={(e) => setStartYear(Number(e.target.value))}
+                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                  style={{ minHeight: '34px' }}
+                >
+                  {years.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </SearchableSelect>
+              </div>
+
+              <span className="text-[#B8C8DB]">/</span>
+
+              <div className="flex items-center gap-1">
+                <span className="text-xs font-semibold text-[#516070]">Selesai</span>
+                <SearchableSelect
+                  id="select-end-month-anal"
+                  value={endMonth}
+                  onChange={(e) => setEndMonth(Number(e.target.value))}
+                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                  style={{ minHeight: '34px' }}
+                >
+                  {months.map((m) => (
+                    <option key={m.value} value={m.value}>
+                      {m.name}
+                    </option>
+                  ))}
+                </SearchableSelect>
+                <SearchableSelect
+                  id="select-end-year-anal"
+                  value={endYear}
+                  onChange={(e) => setEndYear(Number(e.target.value))}
+                  className="text-xs font-semibold bg-transparent border-none text-[#0B1C30] focus:outline-none cursor-pointer"
+                  style={{ minHeight: '34px' }}
+                >
+                  {years.map((y) => (
+                    <option key={y} value={y}>
+                      {y}
+                    </option>
+                  ))}
+                </SearchableSelect>
+              </div>
+            </div>
+
+            {user?.role === 'admin' && (
+              <button
+                id="export-lab-btn"
+                onClick={handleExportXlsx}
+                className="si-btn si-btn--primary text-xs font-semibold px-4 rounded-xl whitespace-nowrap shrink-0"
+                style={{ height: '40px' }}
+              >
+                <Download className="h-4 w-4 text-white" />
+                <span>Unduh Rekap</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Segmented Sub-Navigation */}
+        <div className="pt-4 border-t border-[#E5EEFF] flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex flex-wrap items-center gap-1 p-1 bg-[#EFF4FF] rounded-xl">
             <button
-              id="export-lab-btn"
-              onClick={handleExportXlsx}
-              className="flex items-center space-x-1 bg-[#213145] hover:bg-[#122030] text-white text-xs font-semibold py-2 px-4 rounded-xl shadow-xs transition-colors cursor-pointer"
+              onClick={() => setSubTab('overview')}
+              className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+                subTab === 'overview'
+                  ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                  : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+              }`}
               style={{ minHeight: '36px' }}
             >
-              <Download className="h-3.5 w-3.5 text-white" />
-              <span>Unduh Rekap</span>
+              <Layers3 className="h-4 w-4" />
+              <span>Ringkasan Klinik</span>
             </button>
-          )}
+            <button
+              onClick={() => setSubTab('category')}
+              className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+                subTab === 'category'
+                  ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                  : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+              }`}
+              style={{ minHeight: '36px' }}
+            >
+              <Dna className="h-4 w-4" />
+              <span>Per Kategori · {uniqueCategories.length}</span>
+            </button>
+            <button
+              id="tab-progress-toggle"
+              onClick={() => setSubTab('progress')}
+              className={`px-4 py-2 rounded-lg text-xs transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0 ${
+                subTab === 'progress'
+                  ? 'bg-white text-[#0B1C30] font-bold shadow-[0_2px_8px_rgba(11,28,48,0.08)]'
+                  : 'text-[#516070] hover:text-[#0B1C30] hover:bg-white/60 font-semibold'
+              }`}
+              style={{ minHeight: '36px' }}
+            >
+              <Activity className="h-4 w-4" />
+              <span>Progres Harian</span>
+            </button>
+          </div>
+
+          <span className="text-xs text-[#74777C] hidden sm:inline">
+            {sortedParams.length} parameter laboratorium terpantau
+          </span>
         </div>
       </div>
 
       {feedback && (
-        <div id="anal-error-alert" className="p-3 bg-[#FF8574]/15 border border-[#FF8574]/40 text-[#222526] rounded-2xl flex items-center space-x-2 font-normal shadow-sm">
-          <AlertCircle className="h-4 w-4 text-[#D94E3B] flex-shrink-0" />
-          <span>{feedback}</span>
+        <div
+          id="anal-error-alert"
+          className="si-alert si-alert--danger bg-white rounded-2xl p-4 flex items-center gap-3 text-xs text-[#B91C1C]"
+        >
+          <div className="w-9 h-9 rounded-xl bg-[#FEF2F2] text-[#B91C1C] flex items-center justify-center flex-none">
+            <AlertCircle className="h-4 w-4" />
+          </div>
+          <span className="font-medium">{feedback}</span>
         </div>
       )}
 
-      {/* 2. Interactive Navigation Sub-Tabs bar */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.08 }}
-        className="flex flex-wrap items-center gap-1.5 p-1.5 bg-[#F8F9FF] rounded-xl border border-[#E5EEFF] mb-4"
-      >
-        <button
-          onClick={() => setSubTab('overview')}
-          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border ${
-            subTab === 'overview'
-              ? 'bg-[#213145] text-white shadow-sm border-[#213145]'
-              : 'bg-white border-[#CCDCEF] text-[#213145] hover:bg-[#F8F9FF] shadow-xxs'
-          }`}
-          style={{ minHeight: '36px' }}
-        >
-          <Layers3 className="h-4 w-4" />
-          <span>Ringkasan &amp; Perbandingan Kategori (Klinik-Wide)</span>
-        </button>
-        <button
-          onClick={() => setSubTab('category')}
-          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border ${
-            subTab === 'category'
-              ? 'bg-[#213145] text-white shadow-sm border-[#213145]'
-              : 'bg-white border-[#CCDCEF] text-[#213145] hover:bg-[#F8F9FF] shadow-xxs'
-          }`}
-          style={{ minHeight: '36px' }}
-        >
-          <Dna className="h-4 w-4" />
-          <span>Dashboard Masing-Masing Kategori ({uniqueCategories.length})</span>
-        </button>
-        <button
-          id="tab-progress-toggle"
-          onClick={() => setSubTab('progress')}
-          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer border ${
-            subTab === 'progress'
-              ? 'bg-[#213145] text-white shadow-sm border-[#213145]'
-              : 'bg-white border-[#CCDCEF] text-[#213145] hover:bg-[#F8F9FF] shadow-xxs'
-          }`}
-          style={{ minHeight: '36px' }}
-        >
-          <Activity className="h-4 w-4" />
-          <span>Progres &amp; Tren Harian Jenis Pemeriksaan</span>
-        </button>
-      </motion.div>
-
-      {/* ===================== VIEW 1: GENERAL KLINIK OVERVIEW COMPARISONS ===================== */}
-      {loading || isVisualizing ? (
+      {loading ? (
         <AnalyticLoader message="Menganalisis data laboratorium & visualisasi..." />
       ) : (
         <>
+          {/* ===================== VIEW 1: OVERVIEW ===================== */}
           {subTab === 'overview' && (
-        <div className="space-y-6">
-          
-          {/* Lab Overall KPIs Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* KPI: Total examinations */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-              transition={{ duration: 0.3, delay: 0.16 }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-            >
-              <div className="flex items-center justify-between">
-                <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                  <FlaskConical className="h-6 w-6" />
-                </div>
-                <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-                  Volume Total
-                </span>
-              </div>
-              <div className="mt-4">
-                <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                  {loading ? '...' : totalExams}
-                </h3>
-                <p className="text-xs font-normal text-white/80 mt-1">Total Pengujian Rentang Terpilih</p>
-              </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-            </motion.div>
-
-            {/* KPI: Highest category or parameter */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-              transition={{ duration: 0.3, delay: 0.24 }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-            >
-              <div className="flex items-center justify-between">
-                <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                  <Award className="h-6 w-6" />
-                </div>
-                <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
-                  <span>Puncak</span>
-                  <ArrowUp className="h-2.5 w-2.5 inline" />
-                </span>
-              </div>
-              <div className="mt-4">
-                {loading ? (
-                  <h3 className="text-xl font-semibold text-white tracking-tight font-display">...</h3>
-                ) : peakParameter ? (
+            <div className="space-y-6">
+              {/* KPI Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* KPI 1: Total Pengujian */}
+                <div className="si-card bg-white rounded-[20px] p-5 flex flex-col justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate leading-tight">
-                      {peakParameter.nama_parameter}
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="overline text-xs font-bold tracking-wider text-[#516070] uppercase">
+                        Total Pengujian
+                      </span>
+                      <div className="w-10 h-10 rounded-xl bg-[#E5EEFF] text-[#213145] flex items-center justify-center flex-none">
+                        <FlaskConical className="h-5 w-5" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] font-display tabular-nums tracking-tight">
+                      {totalExams.toLocaleString('id-ID')}
                     </h3>
-                    <p className="text-xs font-mono text-emerald-200 font-bold mt-1">{peakParameter.jumlah} Uji</p>
+                    <p className="text-xs text-[#516070] mt-1">
+                      Sampel laboratorium rentang terpilih
+                    </p>
                   </div>
-                ) : (
-                  <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Belum ada data</h3>
-                )}
-                <p className="text-xs font-normal text-white/80 mt-1">Parameter Volume Tertinggi</p>
-              </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-            </motion.div>
-
-            {/* KPI: Lowest Parameter count */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-              transition={{ duration: 0.3, delay: 0.32 }}
-              className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-            >
-              <div className="flex items-center justify-between">
-                <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                  <Award className="h-6 w-6" />
+                  <div className="pt-3 border-t border-[#E5EEFF] text-xs text-[#74777C] flex items-center justify-between">
+                    <span>{uniqueCategories.length} kategori aktif</span>
+                    <span className="font-mono font-semibold text-[#213145] tabular-nums">
+                      {sortedParams.length} parameter
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
-                  <span>Terendah</span>
-                  <ArrowDown className="h-2.5 w-2.5 inline" />
-                </span>
-              </div>
-              <div className="mt-4">
-                {loading ? (
-                  <h3 className="text-xl font-semibold text-white tracking-tight font-display">...</h3>
-                ) : lowParameter ? (
+
+                {/* KPI 2: Parameter Tertinggi */}
+                <div className="si-card bg-white rounded-[20px] p-5 flex flex-col justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate leading-tight">
-                      {lowParameter.nama_parameter}
-                    </h3>
-                    <p className="text-xs font-mono text-amber-200 font-bold mt-1">{lowParameter.jumlah} Uji</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="overline text-xs font-bold tracking-wider text-[#516070] uppercase">
+                        Volume Tertinggi
+                      </span>
+                      <div className="w-10 h-10 rounded-xl bg-[#FFE9E5] text-[#A13E32] flex items-center justify-center flex-none">
+                        <Award className="h-5 w-5" />
+                      </div>
+                    </div>
+                    {peakParameter ? (
+                      <>
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] font-display tracking-tight truncate">
+                          {peakParameter.nama_parameter}
+                        </h3>
+                        <p className="text-xs font-semibold text-[#213145] mt-1 font-mono tabular-nums">
+                          {peakParameter.jumlah.toLocaleString('id-ID')} uji tercatat
+                        </p>
+                      </>
+                    ) : (
+                      <h3 className="text-base font-bold text-[#74777C] font-display">
+                        Belum ada data
+                      </h3>
+                    )}
                   </div>
-                ) : (
-                  <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Belum ada data</h3>
-                )}
-                <p className="text-xs font-normal text-white/80 mt-1">Parameter Volume Terendah</p>
+                  <div className="pt-3 border-t border-[#E5EEFF] text-xs text-[#74777C] flex items-center justify-between">
+                    <span className="truncate max-w-[160px]">
+                      {peakParameter ? peakParameter.kategori : '—'}
+                    </span>
+                    <span className="font-mono font-semibold text-[#A13E32] tabular-nums">
+                      {peakParameter && totalExams > 0
+                        ? `${Math.round((peakParameter.jumlah / totalExams) * 100)}% porsi`
+                        : '0%'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* KPI 3: Volume Terendah */}
+                <div className="si-card bg-white rounded-[20px] p-5 flex flex-col justify-between gap-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="overline text-xs font-bold tracking-wider text-[#516070] uppercase">
+                        Volume Terendah
+                      </span>
+                      <div className="w-10 h-10 rounded-xl bg-[#EFF4FF] text-[#516070] flex items-center justify-center flex-none">
+                        <ArrowDown className="h-5 w-5" />
+                      </div>
+                    </div>
+                    {lowParameter ? (
+                      <>
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] font-display tracking-tight truncate">
+                          {lowParameter.nama_parameter}
+                        </h3>
+                        <p className="text-xs font-semibold text-[#516070] mt-1 font-mono tabular-nums">
+                          {lowParameter.jumlah.toLocaleString('id-ID')} uji tercatat
+                        </p>
+                      </>
+                    ) : (
+                      <h3 className="text-base font-bold text-[#74777C] font-display">
+                        Belum ada data
+                      </h3>
+                    )}
+                  </div>
+                  <div className="pt-3 border-t border-[#E5EEFF] text-xs text-[#74777C] flex items-center justify-between">
+                    <span className="truncate max-w-[160px]">
+                      {lowParameter ? lowParameter.kategori : '—'}
+                    </span>
+                    <span>Parameter aktif</span>
+                  </div>
+                </div>
               </div>
-              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-            </motion.div>
 
-          </div>
-
-          {/* Main Visualizations: Multi-Category Comparison and Trend */}
-          {loading ? (
-            <div className="bg-white p-12 border rounded-xl text-center">
-              <RefreshCw className="h-6 w-6 text-teal-650 animate-spin mx-auto mb-2" />
-              <span>Memproses grafik statistik perbandingan...</span>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              
-              {/* STK-1: Chart Perbandingan antar Kategori (Requested Feature) */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-                className="glass-card p-4 lg:col-span-2"
-              >
-                <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
-                  <h3 className="font-medium text-slate-700 flex items-center gap-1.5 text-xs tracking-wider uppercase">
-                    <Layers className="h-4 w-4 text-teal-605" />
-                    <span>Perbandingan Volume Aktivitas per Kategori Lab</span>
-                  </h3>
-                  <span className="text-xs font-normal text-slate-400 font-mono">
-                    {months.find(m => m.value === startMonth)?.name} {startYear} - {months.find(m => m.value === endMonth)?.name} {endYear}
-                  </span>
-                </div>
-
-                <div className="h-64 w-full">
-                  {recharts && comparisonChartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={comparisonChartData} margin={{ top: 10, right: 10, left: -25, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                        <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
-                        <YAxis fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
-                        <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px', padding: '6px' }} />
-                        <Bar dataKey="Jumlah Pengujian" fill="#0EA5E9" radius={[4, 4, 0, 0]}>
-                          {comparisonChartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  ) : comparisonChartData.length > 0 ? (
-                    <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-slate-400">Belum ada pengujian lab terdata.</div>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* STK-2: Distribution Pie Chart */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.48 }}
-                className="glass-card p-4 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="border-b border-slate-100 pb-2 mb-3">
-                    <h3 className="font-medium text-slate-700 text-xs tracking-wider uppercase">
-                      Persentase Kontribusi Kategori
-                    </h3>
+              {/* Comparison Bar + Share Donut */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                {/* Bar Chart */}
+                <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 lg:col-span-7 flex flex-col justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-[#E5EEFF]">
+                    <div>
+                      <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                        Perbandingan Volume per Kategori
+                      </h3>
+                      <p className="text-xs text-[#516070] mt-0.5">
+                        Distribusi jumlah pengujian berdasarkan kategori laboratorium
+                      </p>
+                    </div>
+                    <span className="text-xs font-mono text-[#74777C] tabular-nums">
+                      {startPeriodLabel} – {endPeriodLabel}
+                    </span>
                   </div>
 
-                   <div className="h-40 w-full flex items-center justify-center">
+                  <div className="h-72 w-full">
+                    {recharts && comparisonChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={comparisonChartData}
+                          margin={{ top: 8, right: 12, left: -18, bottom: 4 }}
+                        >
+                          <CartesianGrid
+                            strokeDasharray="3 3"
+                            vertical={false}
+                            stroke="#E5EEFF"
+                          />
+                          <XAxis
+                            dataKey="name"
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            stroke="#516070"
+                          />
+                          <YAxis
+                            fontSize={12}
+                            tickLine={false}
+                            axisLine={false}
+                            stroke="#74777C"
+                          />
+                          <Tooltip
+                            content={<SlateTooltip />}
+                            cursor={{ fill: '#EFF4FF', opacity: 0.7 }}
+                          />
+                          <Bar
+                            dataKey="Jumlah Pengujian"
+                            radius={[8, 8, 0, 0]}
+                            maxBarSize={48}
+                          >
+                            {comparisonChartData.map((_, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : comparisonChartData.length > 0 ? (
+                      <div className="h-full flex items-center justify-center text-xs text-[#74777C]">
+                        Memuat grafik...
+                      </div>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-xs text-[#74777C]">
+                        Belum ada pengujian lab terdata pada periode ini.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Donut Chart + Clean Share Breakdown */}
+                <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 lg:col-span-5 flex flex-col justify-between gap-4">
+                  <div className="pb-4 border-b border-[#E5EEFF]">
+                    <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                      Kontribusi Kategori
+                    </h3>
+                    <p className="text-xs text-[#516070] mt-0.5">
+                      Porsi masing-masing kategori terhadap total sampel
+                    </p>
+                  </div>
+
+                  <div className="h-44 w-full flex items-center justify-center">
                     {recharts && categoryChartData.length > 0 && totalExams > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -634,678 +757,822 @@ export default React.memo(function DashboardLab() {
                             data={categoryChartData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={45}
-                            outerRadius={65}
-                            paddingAngle={4}
+                            innerRadius={50}
+                            outerRadius={74}
+                            paddingAngle={3}
                             dataKey="value"
+                            stroke="none"
                           >
-                            {categoryChartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            {categoryChartData.map((_, index) => (
+                              <Cell
+                                key={`pie-${index}`}
+                                fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={{ borderRadius: '8px', fontSize: "12px" }} />
+                          <Tooltip content={<SlateTooltip />} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : categoryChartData.length > 0 && totalExams > 0 ? (
-                      <div className="text-slate-400 text-center py-6">Memuat grafik...</div>
+                      <div className="text-xs text-[#74777C]">Memuat grafik...</div>
                     ) : (
-                      <div className="text-slate-400 text-center py-6">Kosong</div>
+                      <div className="text-xs text-[#74777C]">Belum ada data</div>
                     )}
                   </div>
+
+                  <div className="space-y-2.5 pt-3 border-t border-[#E5EEFF]">
+                    {categoryChartData.map((cat, idx) => {
+                      const pct =
+                        totalExams > 0 ? Math.round((cat.value / totalExams) * 100) : 0;
+                      const color = CHART_COLORS[idx % CHART_COLORS.length];
+                      return (
+                        <div key={cat.name} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <span
+                                className="h-2.5 w-2.5 rounded-full flex-none"
+                                style={{ backgroundColor: color }}
+                              />
+                              <span className="font-semibold text-[#0B1C30] truncate">
+                                {cat.name}
+                              </span>
+                            </div>
+                            <span className="font-mono text-[#516070] tabular-nums flex-none">
+                              {cat.value.toLocaleString('id-ID')} ({pct}%)
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-[#EFF4FF] rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${pct}%`,
+                                backgroundColor: color
+                              }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Historical Multi-Series Area Trend */}
+              <div className="si-card bg-white rounded-[20px] p-5 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-[#E5EEFF]">
+                  <div>
+                    <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                      Tren Bulanan Pengujian Laboratorium
+                    </h3>
+                    <p className="text-xs text-[#516070] mt-0.5">
+                      Pergerakan volume pengujian per kategori utama dan total keseluruhan
+                    </p>
+                  </div>
+                  <span className="text-xs font-mono text-[#74777C]">
+                    {trendData.length} bulan terdata
+                  </span>
                 </div>
 
-                <div className="space-y-1.5 border-t border-slate-50 pt-2 text-xs">
-                  {categoryChartData.map((cat, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1.5 min-w-0">
-                        <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></span>
-                        <span className="font-normal text-slate-600 truncate uppercase">{cat.name}</span>
-                      </div>
-                      <span className="font-medium text-slate-700 font-mono flex-shrink-0">
-                        {cat.value} ({totalExams > 0 ? Math.round((cat.value / totalExams) * 100) : 0}%)
-                      </span>
+                <div className="h-72 w-full">
+                  {recharts && trendData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={trendData}
+                        margin={{ top: 10, right: 12, left: -18, bottom: 0 }}
+                      >
+                        <defs>
+                          {trendCategories.map((cat, idx) => {
+                            const color = CHART_COLORS[idx % CHART_COLORS.length];
+                            return (
+                              <linearGradient
+                                key={cat}
+                                id={`gradCat-${idx}`}
+                                x1="0"
+                                y1="0"
+                                x2="0"
+                                y2="1"
+                              >
+                                <stop offset="5%" stopColor={color} stopOpacity={0.2} />
+                                <stop offset="95%" stopColor={color} stopOpacity={0} />
+                              </linearGradient>
+                            );
+                          })}
+                        </defs>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="#E5EEFF"
+                        />
+                        <XAxis
+                          dataKey="name"
+                          fontSize={12}
+                          tickLine={false}
+                          axisLine={false}
+                          stroke="#516070"
+                        />
+                        <YAxis
+                          fontSize={12}
+                          tickLine={false}
+                          axisLine={false}
+                          stroke="#74777C"
+                        />
+                        <Tooltip content={<SlateTooltip />} />
+                        <Legend
+                          wrapperStyle={{ fontSize: '12px', paddingTop: '12px' }}
+                        />
+                        {trendCategories.map((cat, idx) => {
+                          const color = CHART_COLORS[idx % CHART_COLORS.length];
+                          return (
+                            <Area
+                              key={cat}
+                              type="monotone"
+                              dataKey={cat}
+                              name={cat}
+                              stroke={color}
+                              strokeWidth={2}
+                              fillOpacity={1}
+                              fill={`url(#gradCat-${idx})`}
+                            />
+                          );
+                        })}
+                        <Area
+                          type="monotone"
+                          dataKey="Total"
+                          name="Total Pengujian"
+                          stroke="#213145"
+                          strokeWidth={2.25}
+                          fill="transparent"
+                          strokeDasharray="5 4"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  ) : trendData.length > 0 ? (
+                    <div className="h-full flex items-center justify-center text-xs text-[#74777C]">
+                      Memuat grafik...
                     </div>
-                  ))}
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-xs text-[#74777C]">
+                      Tidak ada visualisasi historis pada rentang ini.
+                    </div>
+                  )}
                 </div>
-              </motion.div>
-
+              </div>
             </div>
           )}
 
-          {/* STK-3: Long-term stacked historical curves comparison */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.56 }}
-            className="glass-card p-4"
-          >
-            <h3 className="font-medium text-slate-700 text-xs tracking-wider uppercase mb-3 flex items-center gap-1.5">
-              <Activity className="h-4 w-4 text-slate-500" />
-              <span>Analisis Tren &amp; Perkembangan Pengujian Lab (12 Bulan)</span>
-            </h3>
-            
-            <div className="h-60 w-full">
-              {recharts && trendData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorHematologi" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorKimia" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
-                    <YAxis fontSize={12} tickLine={false} axisLine={false} stroke="#64748B" />
-                    <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px' }} />
-                    <Legend wrapperStyle={{ fontSize: "12px", paddingTop: '10px' }} />
-                    <Area type="monotone" dataKey="HEMATOLOGI" name="Hematologi" stroke="#0EA5E9" fillOpacity={1} fill="url(#colorHematologi)" />
-                    <Area type="monotone" dataKey="KIMIA DARAH" name="Kimia Darah" stroke="#10B981" fillOpacity={1} fill="url(#colorKimia)" />
-                    <Area type="monotone" dataKey="Total" name="Total Pengujian" stroke="#64748B" strokeWidth={2} fill="transparent" strokeDasharray="4 4" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : trendData.length > 0 ? (
-                <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
-              ) : (
-                <div className="h-full flex items-center justify-center text-slate-400">Tidak ada visualisasi historis.</div>
-              )}
-            </div>
-          </motion.div>
-
-        </div>
-      )}
-
-      {/* ===================== VIEW 2: DASHBOARD MASING-MASING KATEGORI ===================== */}
-      {subTab === 'category' && (
-        <div className="space-y-6">
-          
-          {/* Interactive Category Selector bar */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.08 }}
-            className="bg-slate-50/50 border border-slate-100/60 p-3 rounded-2xl flex flex-wrap items-center gap-1.5 shadow-sm"
-          >
-            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mr-2 flex items-center gap-1">
-              <Filter className="h-3.5 w-3.5 text-teal-600" />
-              <span>Pilih Kategori:</span>
-            </span>
-            {uniqueCategories.map((cat, idx) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium uppercase transition-all tracking-wide cursor-pointer ${
-                  activeCategory === cat
-                    ? 'bg-slate-950 text-white shadow-xs'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-850'
-                }`}
-                style={{ minHeight: '32px' }}
-              >
-                {cat}
-              </button>
-            ))}
-          </motion.div>
-
-          {!activeCategory ? (
-            <div className="text-center py-12 text-slate-400 bg-white border border-slate-200 rounded-xl">
-              <span>Belum ada data kategori lab yang terdaftar pada sistem.</span>
-            </div>
-          ) : (
+          {/* ===================== VIEW 2: PER KATEGORI ===================== */}
+          {subTab === 'category' && (
             <div className="space-y-6">
-              
-              {/* Category-Specific KPIs layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                
-                {/* Metric 1 */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.16 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                      <Layers className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-                      Kategori
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                      {categoryTotal} <span className="text-xs text-white/50 font-normal">Uji</span>
-                    </h3>
-                    <p className="text-xs font-normal text-white/80 mt-1">Total Pengujian Kategori</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+              {/* Category Selector */}
+              <div className="si-card bg-white rounded-[20px] p-4 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-bold text-[#516070] uppercase tracking-wider mr-1">
+                  Kategori:
+                </span>
+                {uniqueCategories.map((cat) => {
+                  const isActive = activeCategory === cat;
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                        isActive
+                          ? 'bg-[#213145] text-white shadow-[0_6px_16px_rgba(33,49,69,0.22)]'
+                          : 'bg-[#EFF4FF] text-[#516070] hover:bg-[#E5EEFF] hover:text-[#0B1C30]'
+                      }`}
+                      style={{ minHeight: '34px' }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
+              </div>
 
-                {/* Metric 2 */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.24 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                      <TrendingUp className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full">
-                      Rasio
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-xl font-semibold text-emerald-200 tracking-tight font-display">
-                      {categoryContributionPercent}%
-                    </h3>
-                    <p className="text-xs font-normal text-white/80 mt-1">Rasio Penetrasi Lab</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
-
-                {/* Metric 3 */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                  transition={{ duration: 0.3, delay: 0.32 }}
-                  className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group sm:col-span-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                      <ArrowUpRight className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-mono font-medium bg-white/20 text-white px-2.5 py-0.5 rounded-full flex items-center gap-0.5">
-                      <span>Teraktif</span>
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    {categoryPeakParam ? (
+              {!activeCategory ? (
+                <div className="si-card bg-white rounded-[20px] p-12 text-center text-xs text-[#74777C]">
+                  Belum ada data kategori lab yang terdaftar pada sistem.
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Category KPI Row */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div className="si-card bg-white rounded-[20px] p-5 flex flex-col justify-between gap-4">
                       <div>
-                        <h3 className="text-xl font-semibold text-white tracking-tight font-display truncate">
-                          {categoryPeakParam.nama_parameter}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="overline text-xs font-bold tracking-wider text-[#516070] uppercase">
+                            Volume Kategori
+                          </span>
+                          <div className="w-10 h-10 rounded-xl bg-[#E5EEFF] text-[#213145] flex items-center justify-center flex-none">
+                            <Layers className="h-5 w-5" />
+                          </div>
+                        </div>
+                        <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                          {categoryTotal.toLocaleString('id-ID')}
                         </h3>
-                        <p className="text-xs font-mono text-sky-200 font-bold mt-1">
-                          {categoryPeakParam.jumlah} Uji Kali Ini
+                        <p className="text-xs text-[#516070] mt-1">
+                          Total pengujian {activeCategory}
                         </p>
                       </div>
-                    ) : (
-                      <h3 className="text-sm font-semibold text-white/50 tracking-tight font-display mt-1">Tidak ada volume</h3>
-                    )}
-                    <p className="text-xs font-normal text-white/80 mt-1">Pemeriksaan Teraktif ({activeCategory})</p>
-                  </div>
-                  <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                </motion.div>
+                      <div className="pt-3 border-t border-[#E5EEFF] text-xs text-[#74777C] flex items-center justify-between">
+                        <span>Parameter terdaftar</span>
+                        <span className="font-mono font-semibold text-[#213145] tabular-nums">
+                          {categorySpecificParams.length} jenis
+                        </span>
+                      </div>
+                    </div>
 
+                    <div className="si-card bg-white rounded-[20px] p-5 flex flex-col justify-between gap-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="overline text-xs font-bold tracking-wider text-[#516070] uppercase">
+                            Kontribusi Lab
+                          </span>
+                          <div className="w-10 h-10 rounded-xl bg-[#EFF4FF] text-[#213145] flex items-center justify-center flex-none">
+                            <TrendingUp className="h-5 w-5" />
+                          </div>
+                        </div>
+                        <h3 className="text-2xl sm:text-3xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                          {categoryContributionPercent}%
+                        </h3>
+                        <p className="text-xs text-[#516070] mt-1">
+                          Porsi dari {totalExams.toLocaleString('id-ID')} total sampel
+                        </p>
+                      </div>
+                      <div className="pt-3 border-t border-[#E5EEFF]">
+                        <div className="w-full h-1.5 bg-[#EFF4FF] rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#213145] rounded-full transition-all duration-500"
+                            style={{ width: `${categoryContributionPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="si-card bg-white rounded-[20px] p-5 flex flex-col justify-between gap-4">
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="overline text-xs font-bold tracking-wider text-[#516070] uppercase">
+                            Pemeriksaan Teraktif
+                          </span>
+                          <div className="w-10 h-10 rounded-xl bg-[#FFE9E5] text-[#A13E32] flex items-center justify-center flex-none">
+                            <ArrowUpRight className="h-5 w-5" />
+                          </div>
+                        </div>
+                        {categoryPeakParam ? (
+                          <>
+                            <h3 className="text-xl sm:text-2xl font-extrabold text-[#0B1C30] font-display truncate">
+                              {categoryPeakParam.nama_parameter}
+                            </h3>
+                            <p className="text-xs font-semibold text-[#213145] mt-1 font-mono tabular-nums">
+                              {categoryPeakParam.jumlah.toLocaleString('id-ID')} uji tercatat
+                            </p>
+                          </>
+                        ) : (
+                          <h3 className="text-base font-bold text-[#74777C] font-display">
+                            Tidak ada volume
+                          </h3>
+                        )}
+                      </div>
+                      <div className="pt-3 border-t border-[#E5EEFF] text-xs text-[#74777C] flex items-center justify-between">
+                        <span>{activeCategory}</span>
+                        <span className="font-mono font-semibold text-[#A13E32] tabular-nums">
+                          {categoryPeakParam && categoryTotal > 0
+                            ? `${Math.round((categoryPeakParam.jumlah / categoryTotal) * 100)}% kategori`
+                            : '0%'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Top 10 Bar Chart + Details Table */}
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                    <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 lg:col-span-7">
+                      <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-[#E5EEFF]">
+                        <div>
+                          <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                            10 Besar Pemeriksaan ({activeCategory})
+                          </h3>
+                          <p className="text-xs text-[#516070] mt-0.5">
+                            Top {topTenCategoryParams.length} dari{' '}
+                            {categorySpecificParams.length} parameter
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="h-[340px] w-full">
+                        {recharts && topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
+                          <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                              data={topTenCategoryParams}
+                              layout="vertical"
+                              margin={{ top: 4, right: 16, left: 8, bottom: 4 }}
+                            >
+                              <CartesianGrid
+                                strokeDasharray="3 3"
+                                horizontal={true}
+                                vertical={false}
+                                stroke="#E5EEFF"
+                              />
+                              <XAxis
+                                type="number"
+                                fontSize={12}
+                                tickLine={false}
+                                axisLine={false}
+                                stroke="#74777C"
+                              />
+                              <YAxis
+                                type="category"
+                                dataKey="nama_parameter"
+                                fontSize={12}
+                                tickLine={false}
+                                axisLine={false}
+                                stroke="#0B1C30"
+                                width={160}
+                                interval={0}
+                              />
+                              <Tooltip
+                                content={<SlateTooltip />}
+                                cursor={{ fill: '#EFF4FF', opacity: 0.7 }}
+                              />
+                              <Bar
+                                dataKey="jumlah"
+                                radius={[0, 6, 6, 0]}
+                                barSize={18}
+                                name="Jumlah Uji"
+                              >
+                                {topTenCategoryParams.map((_, idx) => (
+                                  <Cell
+                                    key={`top-${idx}`}
+                                    fill={idx === 0 ? '#FF8574' : '#213145'}
+                                  />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        ) : topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
+                          <div className="h-full flex items-center justify-center text-xs text-[#74777C]">
+                            Memuat grafik...
+                          </div>
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-xs text-[#74777C]">
+                            Belum ada parameter berangka diinput pada kategori ini.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Structured Table (Single elevation, zero nested card box) */}
+                    <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 lg:col-span-5 flex flex-col justify-between gap-4">
+                      <div className="pb-3 border-b border-[#E5EEFF]">
+                        <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                          Rincian Parameter ({activeCategory})
+                        </h3>
+                        <p className="text-xs text-[#516070] mt-0.5">
+                          Daftar lengkap seluruh pemeriksaan pada kategori aktif
+                        </p>
+                      </div>
+
+                      <div className="max-h-[300px] overflow-y-auto -mx-2 px-2">
+                        <table className="si-table w-full text-left text-xs">
+                          <thead className="sticky top-0 z-10">
+                            <tr>
+                              <th className="rounded-l-lg">Jenis Pemeriksaan</th>
+                              <th className="text-right rounded-r-lg w-28">Jumlah Uji</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {categorySpecificParams.length > 0 ? (
+                              categorySpecificParams.map((param) => (
+                                <tr key={param.parameter_id}>
+                                  <td className="font-medium text-[#0B1C30]">
+                                    {param.nama_parameter}
+                                  </td>
+                                  <td className="text-right font-mono font-semibold text-[#213145] tabular-nums">
+                                    {param.jumlah.toLocaleString('id-ID')}
+                                  </td>
+                                </tr>
+                              ))
+                            ) : (
+                              <tr>
+                                <td
+                                  colSpan={2}
+                                  className="py-8 text-center text-[#74777C]"
+                                >
+                                  Tidak ada item pemeriksaan
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="bg-[#EFF4FF] px-4 py-3 rounded-xl flex items-center justify-between text-xs font-semibold text-[#0B1C30]">
+                        <span>Grand Total ({activeCategory})</span>
+                        <span className="font-mono font-bold text-[#213145] tabular-nums">
+                          {categoryTotal.toLocaleString('id-ID')} uji
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ===================== VIEW 3: PROGRES HARIAN PARAMETER ===================== */}
+          {subTab === 'progress' && (
+            <div
+              id="view-parameter-progress"
+              className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start"
+            >
+              {/* LEFT PANEL: PARAMETER SELECTOR */}
+              <div className="si-card bg-white rounded-[20px] p-5 lg:col-span-4 space-y-4 lg:sticky lg:top-6">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E5EEFF]">
+                  <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                    Pilih Parameter
+                  </h3>
+                  <span className="text-xs font-mono text-[#74777C] tabular-nums">
+                    {progressList.length} jenis
+                  </span>
+                </div>
+
+                {/* Local Search Input */}
+                <div className="relative">
+                  <Search className="h-4 w-4 text-[#74777C] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="progress-search-input"
+                    type="text"
+                    placeholder="Cari nama parameter atau kategori..."
+                    value={progressSearch}
+                    onChange={(e) => setProgressSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-[#F8F9FF] border border-[#D3E4FE] rounded-xl text-xs text-[#0B1C30] placeholder:text-[#74777C] focus:outline-none focus:border-[#213145]"
+                    style={{ minHeight: '38px' }}
+                  />
+                </div>
+
+                {/* Parameter List */}
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                  {filteredProgressItems.length === 0 ? (
+                    <div className="text-center py-8 text-[#74777C] text-xs">
+                      Parameter tidak ditemukan.
+                    </div>
+                  ) : (
+                    filteredProgressItems.map((p) => {
+                      const isSelected = p.id === activeProgressParamId;
+                      const totalDays = getDaysInRangeCount();
+                      const coveragePct = Math.round((p.activeDays / totalDays) * 100);
+
+                      return (
+                        <button
+                          key={p.id}
+                          id={`progress-param-btn-${p.id}`}
+                          onClick={() => setSelectedProgressParam(p.id)}
+                          className={`w-full text-left p-3 rounded-xl transition-all text-xs cursor-pointer block ${
+                            isSelected
+                              ? 'bg-[#213145] text-white shadow-[0_8px_20px_rgba(33,49,69,0.22)]'
+                              : 'bg-[#F8F9FF] hover:bg-[#EFF4FF] text-[#0B1C30]'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-semibold truncate">
+                              {p.nama_parameter}
+                            </span>
+                            <span
+                              className={`font-mono font-semibold tabular-nums flex-none ${
+                                isSelected ? 'text-[#CCDCEF]' : 'text-[#213145]'
+                              }`}
+                            >
+                              {p.total.toLocaleString('id-ID')}
+                            </span>
+                          </div>
+                          <div
+                            className={`flex items-center justify-between text-xs mt-1 ${
+                              isSelected ? 'text-[#B8C8DB]' : 'text-[#74777C]'
+                            }`}
+                          >
+                            <span className="truncate max-w-[140px]">
+                              {p.kategori}
+                            </span>
+                            <span className="font-mono tabular-nums">
+                              {p.activeDays} hr ({coveragePct}%)
+                            </span>
+                          </div>
+
+                          <div
+                            className={`w-full rounded-full h-1 mt-2 overflow-hidden ${
+                              isSelected ? 'bg-white/15' : 'bg-[#E5EEFF]'
+                            }`}
+                          >
+                            <div
+                              className="h-full rounded-full transition-all duration-300"
+                              style={{
+                                width: `${Math.min(100, Math.max(0, coveragePct))}%`,
+                                backgroundColor: isSelected ? '#FF8574' : '#213145'
+                              }}
+                            />
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
               </div>
 
-              {/* Category comparison charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-                
-                {/* 1. Bar chart comparing individual tests inside this category */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.4 }}
-                  className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-3"
-                >
-                  <div className="border-b border-slate-100 pb-2 mb-3 flex items-center justify-between">
-                    <span className="font-semibold text-slate-800 text-xs uppercase tracking-wider">
-                      10 Besar Volume Pemeriksaan ({activeCategory})
-                    </span>
-                    <span className="text-xs bg-teal-50 text-teal-700 font-semibold px-2 py-0.5 rounded-full">
-                      Top 10 dari {categorySpecificParams.length} Parameter
-                    </span>
+              {/* RIGHT PANEL: FLAT SINGLE-ELEVATION ANALYTICS */}
+              <div className="lg:col-span-8 space-y-5">
+                {!activeProgressParam ? (
+                  <div className="si-card bg-white rounded-[20px] p-12 text-center text-xs text-[#74777C]">
+                    Silakan pilih jenis pemeriksaan di panel sebelah kiri untuk melihat analisis harian.
                   </div>
+                ) : (
+                  (() => {
+                    const totalDays = getDaysInRangeCount();
+                    const coveragePct = Math.round(
+                      (activeProgressParam.activeDays / totalDays) * 100
+                    );
+                    const dailyAvg = (activeProgressParam.total / totalDays).toFixed(1);
 
-                  <div className="h-[340px] w-full">
-                    {recharts && topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                           data={topTenCategoryParams}
-                           layout="vertical"
-                           margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#F1F5F9" />
-                          <XAxis type="number" fontSize={11} tickLine={false} axisLine={false} stroke="#64748B" />
-                          <YAxis 
-                            type="category" 
-                            dataKey="nama_parameter" 
-                            fontSize={11} 
-                            tickLine={false} 
-                            axisLine={false} 
-                            stroke="#1E293B" 
-                            width={160}
-                            interval={0}
-                          />
-                          <Tooltip contentStyle={{ fontSize: "12px", borderRadius: "8px" }} />
-                          <Bar dataKey="jumlah" fill="#14B8A6" radius={[0, 4, 4, 0]} name="Hasil Rentang Terpilih" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    ) : topTenCategoryParams.length > 0 && categoryTotal > 0 ? (
-                      <div className="h-full flex items-center justify-center text-slate-400">Memuat grafik...</div>
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-slate-400">
-                        Belum ada parameter berangka diinput pada kategori ini.
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
+                    return (
+                      <>
+                        {/* Active Parameter Title Bar */}
+                        <div className="si-card bg-white rounded-[20px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-[#516070]">
+                              {activeProgressParam.kategori} · {startPeriodLabel} –{' '}
+                              {endPeriodLabel}
+                            </p>
+                            <h2 className="text-lg sm:text-xl font-extrabold text-[#0B1C30] font-display mt-0.5">
+                              {activeProgressParam.nama_parameter}
+                            </h2>
+                          </div>
+                          <div className="text-left sm:text-right">
+                            <span className="text-xs text-[#74777C] block">
+                              Akumulasi Rentang
+                            </span>
+                            <span className="text-base font-extrabold font-mono text-[#213145] tabular-nums">
+                              {activeProgressParam.total.toLocaleString('id-ID')} uji
+                            </span>
+                          </div>
+                        </div>
 
-                {/* 2. Structured Table of all specific items in this category */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.48 }}
-                  className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm lg:col-span-2 space-y-3"
-                >
-                  <div className="border-b border-slate-100 pb-2">
-                    <span className="font-semibold text-slate-800 text-xs uppercase tracking-wider block">
-                      Tabel Rincian parameter ({activeCategory})
-                    </span>
-                  </div>
+                        {/* 4 Clean Single-Level Metric Cards */}
+                        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                          <div className="si-card bg-white rounded-[20px] p-4 flex flex-col justify-between gap-3">
+                            <div className="flex items-center justify-between">
+                              <span className="overline text-xs font-bold text-[#516070] uppercase">
+                                Volume Uji
+                              </span>
+                              <div className="w-8 h-8 rounded-lg bg-[#E5EEFF] text-[#213145] flex items-center justify-center">
+                                <FlaskConical className="h-4 w-4" />
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                                {activeProgressParam.total.toLocaleString('id-ID')}
+                              </p>
+                              <p className="text-xs text-[#74777C] mt-0.5">
+                                Total sampel
+                              </p>
+                            </div>
+                          </div>
 
-                  <div className="border border-slate-100 rounded-2xl overflow-hidden max-h-64 overflow-y-auto shadow-sm">
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="bg-slate-50 font-semibold text-slate-605 border-b border-slate-100/60">
-                          <th className="px-3 py-2">Jenis Pemeriksaan</th>
-                          <th className="px-3 py-2 text-right w-24">Jumlah Uji</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {categorySpecificParams.length > 0 ? (
-                          categorySpecificParams.map((param, index) => (
-                            <tr key={index} className="hover:bg-slate-50">
-                              <td className="px-3 py-2 font-normal text-slate-700">{param.nama_parameter}</td>
-                              <td className="px-3 py-2 text-right font-mono font-semibold text-slate-900">{param.jumlah}</td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={2} className="px-3 py-4 text-center text-slate-400">Tidak ada item</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                          <div className="si-card bg-white rounded-[20px] p-4 flex flex-col justify-between gap-3">
+                            <div className="flex items-center justify-between">
+                              <span className="overline text-xs font-bold text-[#516070] uppercase">
+                                Rerata Harian
+                              </span>
+                              <div className="w-8 h-8 rounded-lg bg-[#EFF4FF] text-[#213145] flex items-center justify-center">
+                                <Activity className="h-4 w-4" />
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                                {dailyAvg}
+                              </p>
+                              <p className="text-xs text-[#74777C] mt-0.5">
+                                Uji per hari
+                              </p>
+                            </div>
+                          </div>
 
-                  <div className="bg-teal-50/40 p-2.5 rounded-lg border border-teal-100/60 text-xs text-teal-850 flex items-center justify-between font-medium">
-                    <span>Grand Total Kategori ({activeCategory}):</span>
-                    <span className="font-mono text-xs text-teal-700 font-semibold">{categoryTotal}</span>
-                  </div>
-                </motion.div>
+                          <div className="si-card bg-white rounded-[20px] p-4 flex flex-col justify-between gap-3">
+                            <div className="flex items-center justify-between">
+                              <span className="overline text-xs font-bold text-[#516070] uppercase">
+                                Puncak Harian
+                              </span>
+                              <div className="w-8 h-8 rounded-lg bg-[#FFE9E5] text-[#A13E32] flex items-center justify-center">
+                                <TrendingUp className="h-4 w-4" />
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                                {activeProgressParam.maxCount.toLocaleString('id-ID')}
+                              </p>
+                              <p className="text-xs text-[#74777C] mt-0.5 truncate">
+                                Tgl {activeProgressParam.maxDate}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="si-card bg-white rounded-[20px] p-4 flex flex-col justify-between gap-3">
+                            <div className="flex items-center justify-between">
+                              <span className="overline text-xs font-bold text-[#516070] uppercase">
+                                Konsistensi
+                              </span>
+                              <div className="w-8 h-8 rounded-lg bg-[#E5EEFF] text-[#213145] flex items-center justify-center">
+                                <Calendar className="h-4 w-4" />
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-2xl font-extrabold text-[#0B1C30] font-display tabular-nums">
+                                {coveragePct}%
+                              </p>
+                              <p className="text-xs text-[#74777C] mt-0.5 truncate tabular-nums">
+                                {activeProgressParam.activeDays}/{totalDays} hari terisi
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Daily Area Timeline Chart */}
+                        <div className="si-card bg-white rounded-[20px] p-5 sm:p-6">
+                          <div className="pb-4 mb-4 border-b border-[#E5EEFF] flex items-center justify-between">
+                            <div>
+                              <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                                Dinamika Kuantitas Harian
+                              </h3>
+                              <p className="text-xs text-[#516070] mt-0.5">
+                                Tren harian tanggal-ke-tanggal pada rentang terpilih
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="h-64 w-full">
+                            {recharts && activeProgressParam.dailySeries.length > 0 ? (
+                              <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart
+                                  data={activeProgressParam.dailySeries.map((day) => {
+                                    let label = day.tanggal;
+                                    try {
+                                      const dt = new Date(day.tanggal);
+                                      label = dt.toLocaleDateString('id-ID', {
+                                        day: '2-digit',
+                                        month: '2-digit'
+                                      });
+                                    } catch {
+                                      // fallback to raw string
+                                    }
+                                    return {
+                                      ...day,
+                                      formattedDate: label
+                                    };
+                                  })}
+                                  margin={{ top: 10, right: 12, left: -18, bottom: 0 }}
+                                >
+                                  <defs>
+                                    <linearGradient
+                                      id="colorJumlahSlate"
+                                      x1="0"
+                                      y1="0"
+                                      x2="0"
+                                      y2="1"
+                                    >
+                                      <stop
+                                        offset="5%"
+                                        stopColor="#213145"
+                                        stopOpacity={0.22}
+                                      />
+                                      <stop
+                                        offset="95%"
+                                        stopColor="#CCDCEF"
+                                        stopOpacity={0.02}
+                                      />
+                                    </linearGradient>
+                                  </defs>
+                                  <CartesianGrid
+                                    strokeDasharray="3 3"
+                                    stroke="#E5EEFF"
+                                    vertical={false}
+                                  />
+                                  <XAxis
+                                    dataKey="formattedDate"
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    dy={6}
+                                    stroke="#516070"
+                                  />
+                                  <YAxis
+                                    fontSize={12}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    dx={-4}
+                                    stroke="#74777C"
+                                  />
+                                  <Tooltip content={<SlateTooltip />} />
+                                  <Area
+                                    type="monotone"
+                                    dataKey="jumlah"
+                                    stroke="#213145"
+                                    strokeWidth={2.5}
+                                    fillOpacity={1}
+                                    fill="url(#colorJumlahSlate)"
+                                    name="Jumlah Uji"
+                                  />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            ) : activeProgressParam.dailySeries.length > 0 ? (
+                              <div className="h-full flex items-center justify-center text-[#74777C] text-xs">
+                                Memuat grafik...
+                              </div>
+                            ) : (
+                              <div className="h-full flex items-center justify-center text-[#74777C] text-xs">
+                                Belum ada rekam transaksi harian pada rentang bulan terpilih.
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Chronological Daily Log Grid */}
+                        <div className="si-card bg-white rounded-[20px] p-5 sm:p-6 space-y-4">
+                          <div className="pb-3 border-b border-[#E5EEFF] flex items-center justify-between">
+                            <div>
+                              <h3 className="text-sm font-bold text-[#0B1C30] font-display">
+                                Log Input Harian Kronologis
+                              </h3>
+                              <p className="text-xs text-[#516070] mt-0.5">
+                                Rekap aktivitas harian untuk {activeProgressParam.nama_parameter}
+                              </p>
+                            </div>
+                            <span className="text-xs font-mono text-[#74777C] tabular-nums">
+                              {activeProgressParam.dailySeries.length} entri
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                            {activeProgressParam.dailySeries.length === 0 ? (
+                              <div className="text-[#74777C] col-span-full text-center py-6 text-xs">
+                                Tidak ada log data ditemukan untuk parameter ini.
+                              </div>
+                            ) : (
+                              activeProgressParam.dailySeries.map((day, idx) => {
+                                let dayName = '';
+                                let formattedDateStr = day.tanggal;
+                                try {
+                                  const dt = new Date(day.tanggal);
+                                  dayName = dt.toLocaleDateString('id-ID', {
+                                    weekday: 'short'
+                                  });
+                                  formattedDateStr = dt.toLocaleDateString('id-ID', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric'
+                                  });
+                                } catch {
+                                  // fallback
+                                }
+
+                                const hasActivity = day.jumlah > 0;
+                                return (
+                                  <div
+                                    key={idx}
+                                    className={`p-2.5 rounded-xl flex items-center justify-between gap-2 transition-colors ${
+                                      hasActivity
+                                        ? 'bg-[#EFF4FF] border border-[#D3E4FE]'
+                                        : 'bg-[#F8F9FF] border border-[#E5EEFF] text-[#74777C]'
+                                    }`}
+                                  >
+                                    <div className="min-w-0">
+                                      <span className="text-xs font-semibold text-[#516070] block uppercase">
+                                        {dayName}
+                                      </span>
+                                      <span className="text-xs font-medium text-[#0B1C30] block truncate">
+                                        {formattedDateStr}
+                                      </span>
+                                    </div>
+                                    <span
+                                      className={`text-xs font-bold font-mono tabular-nums px-2 py-0.5 rounded-lg flex-none ${
+                                        hasActivity
+                                          ? 'bg-[#213145] text-white'
+                                          : 'bg-[#E5EEFF] text-[#74777C]'
+                                      }`}
+                                    >
+                                      {day.jumlah}
+                                    </span>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()
+                )}
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* ===================== VIEW 3: GRANULAR TELEMETRY PROGRESS BY PARAMETER ===================== */}
-      {subTab === 'progress' && (
-        <div id="view-parameter-progress" className="space-y-6">
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-            
-            {/* LEFT SIDE: SEARCH & PARAMETER SELECTOR CARD */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.16 }}
-              className="bg-white p-4 rounded-2xl border border-slate-100/80 shadow-sm space-y-3 lg:col-span-1"
-            >
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Pilih Jenis Pemeriksaan</span>
-                <span className="text-xs font-mono text-slate-400">Total: {getProgressList().length} Jenis</span>
-              </div>
-
-              {/* Local Search Input */}
-              <div className="relative">
-                <input
-                  id="progress-search-input"
-                  type="text"
-                  placeholder="Cari nama pemeriksaan/parameter..."
-                  value={progressSearch}
-                  onChange={(e) => setProgressSearch(e.target.value)}
-                  className="w-full pl-3 pr-8 py-1.5 bg-slate-50 border border-slate-200/70 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-300 font-normal shadow-sm"
-                  style={{ minHeight: '32px' }}
-                />
-              </div>
-
-              {/* Parameters List scrollbox */}
-              <div className="space-y-1.5 max-h-[440px] overflow-y-auto pr-1">
-                {(() => {
-                  const items = getProgressList().filter(item => 
-                    item.nama_parameter.toLowerCase().includes(progressSearch.toLowerCase()) ||
-                    item.kategori.toLowerCase().includes(progressSearch.toLowerCase())
-                  );
-
-                  if (items.length === 0) {
-                    return (
-                      <div className="text-center py-8 text-slate-400 text-xs font-normal">
-                        Parameter tidak ditemukan.
-                      </div>
-                    );
-                  }
-
-                  const activeParamId = selectedProgressParam || items[0]?.id;
-
-                  return items.map((p) => {
-                    const isSelected = p.id === activeParamId;
-                    const totalDays = getDaysInRangeCount();
-                    const coveragePct = Math.round((p.activeDays / totalDays) * 100);
-
-                    return (
-                      <button
-                        key={p.id}
-                        id={`progress-param-btn-${p.id}`}
-                        onClick={() => setSelectedProgressParam(p.id)}
-                        className={`w-full text-left p-2.5 rounded-xl border transition-all text-xs cursor-pointer block ${
-                          isSelected
-                            ? 'bg-teal-50 border-teal-200 text-teal-800 shadow-sm scale-[1.01]'
-                            : 'bg-white border-slate-100/80 text-slate-700 hover:bg-slate-50 hover:border-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1.5">
-                          <span className="font-semibold truncate max-w-[150px]">{p.nama_parameter}</span>
-                          <span className="font-mono text-xs font-semibold bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 block flex-shrink-0">
-                            {p.total} uji
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-slate-400 mt-1">
-                          <span className="uppercase tracking-wider text-xs font-medium font-mono truncate">{p.kategori}</span>
-                          <span className="font-mono text-xs">{p.activeDays} hari ({coveragePct}%)</span>
-                        </div>
-                        
-                        {/* Custom micro-progress consistency bar */}
-                        <div className="w-full bg-slate-100 rounded-full h-1 mt-1.5 overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full ${isSelected ? 'bg-teal-600' : 'bg-slate-400'}`}
-                            style={{ width: `${Math.min(100, Math.max(0, coveragePct))}%` }}
-                          />
-                        </div>
-                      </button>
-                    );
-                  });
-                })()}
-              </div>
-            </motion.div>
-
-            {/* RIGHT SIDE: DETAILED PROGRESS ANALYSIS FOR CURRENT PARAMETER */}
-            <div className="lg:col-span-2 space-y-4">
-              {(() => {
-                const list = getProgressList();
-                const itemsFiltered = list.filter(item => 
-                  item.nama_parameter.toLowerCase().includes(progressSearch.toLowerCase()) ||
-                  item.kategori.toLowerCase().includes(progressSearch.toLowerCase())
-                );
-                
-                const activeParamId = selectedProgressParam || itemsFiltered[0]?.id || list[0]?.id;
-                const activeParam = list.find(p => p.id === activeParamId);
-
-                if (!activeParam) {
-                  return (
-                    <div className="bg-white p-12 text-center rounded-2xl border border-slate-100/80 text-slate-400 text-xs shadow-sm">
-                      Silakan pilih jenis pemeriksaan di panel sebelah kiri untuk memuat rekap analisis.
-                    </div>
-                  );
-                }
-
-                const totalDays = getDaysInRangeCount();
-                const coveragePct = Math.round((activeParam.activeDays / totalDays) * 100);
-                const dailyAvg = (activeParam.total / totalDays).toFixed(1);
-
-                return (
-                  <div className="space-y-6">
-                    
-                    {/* Active Param Header & Stats Grid */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                        <div>
-                          <span className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded font-bold uppercase tracking-wider font-mono text-xs mb-1">
-                            {activeParam.kategori}
-                          </span>
-                          <h3 className="text-sm font-semibold text-slate-800 leading-tight">
-                            {activeParam.nama_parameter}
-                          </h3>
-                        </div>
-                        <div className="text-right sm:text-right">
-                          <span className="text-xs text-slate-400 block font-medium">Rentang Aktif</span>
-                          <span className="text-xs font-semibold text-teal-700 font-mono">
-                            {months[startMonth - 1]?.name} {startYear} - {months[endMonth - 1]?.name} {endYear}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Display metric cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-                        {/* Metric 1: Kuantitas Uji */}
-                        <motion.div 
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.3, delay: 0.08 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                              <FlaskConical className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
-                              Volume
-                            </span>
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                              {activeParam.total} <span className="text-xs font-normal text-white/50">Uji</span>
-                            </h3>
-                            <p className="text-xs font-normal text-white/80 mt-1">Volume Kuantitas Uji</p>
-                          </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                        </motion.div>
-
-                        {/* Metric 2: Rata-rata/Hari */}
-                        <motion.div 
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.3, delay: 0.16 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                              <Activity className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
-                              Harian
-                            </span>
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                              {dailyAvg} <span className="text-xs font-normal text-white/50">Uji/hr</span>
-                            </h3>
-                            <p className="text-xs font-normal text-white/80 mt-1">Rerata Frekuensi Uji</p>
-                          </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                        </motion.div>
-
-                        {/* Metric 3: Puncak Tertinggi */}
-                        <motion.div 
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.3, delay: 0.24 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                              <TrendingUp className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
-                              Puncak
-                            </span>
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                              {activeParam.maxCount} <span className="text-xs font-normal text-white/50">Uji</span>
-                            </h3>
-                            <p className="text-xs font-normal text-white/80 mt-1 truncate">Maksimum tgl {activeParam.maxDate}</p>
-                          </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                        </motion.div>
-
-                        {/* Metric 4: Konsistensi Data */}
-                        <motion.div 
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          whileHover={{ y: -4, scale: 1.01, boxShadow: '0 12px 30px rgba(0,0,0,0.12)' }}
-                          transition={{ duration: 0.3, delay: 0.32 }}
-                          className="bg-gradient-to-br from-emerald-800/80 to-teal-700/80 backdrop-blur-xl rounded-2xl p-5 border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative overflow-hidden group"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="p-3 bg-white/20 text-white rounded-xl group-hover:scale-105 transition-transform">
-                              <Calendar className="h-5 w-5" />
-                            </div>
-                            <span className="text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-full">
-                              Rasio
-                            </span>
-                          </div>
-                          <div className="mt-4">
-                            <h3 className="text-xl font-semibold text-white tracking-tight font-display">
-                              {coveragePct}%
-                            </h3>
-                            <p className="text-xs font-normal text-white/80 mt-1 truncate">{activeParam.activeDays}/{totalDays} Hari Terisi</p>
-                          </div>
-                          <div className="absolute bottom-0 inset-x-0 h-1 bg-white/40"></div>
-                        </motion.div>
-                      </div>
-                    </div>
-
-                    {/* Progression Timeline Chart */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                      <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                        <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">Dinamika Kuantitas Harian (Tanggal-ke-Tanggal)</span>
-                      </div>
-
-                      <div className="h-64 mt-2">
-                        {recharts && activeParam.dailySeries.length > 0 ? (
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={activeParam.dailySeries.map(day => {
-                              let label = day.tanggal;
-                              try {
-                                const dt = new Date(day.tanggal);
-                                label = dt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' });
-                              } catch(e) {}
-                              return {
-                                ...day,
-                                formattedDate: label
-                              };
-                            })} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                              <defs>
-                                <linearGradient id="colorJumlah" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#0D9488" stopOpacity={0.25}/>
-                                  <stop offset="95%" stopColor="#0D9488" stopOpacity={0.01}/>
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                              <XAxis 
-                                dataKey="formattedDate" 
-                                fontSize={12} 
-                                tickLine={false} 
-                                dy={6}
-                                stroke="#64748B" 
-                              />
-                              <YAxis 
-                                fontSize={12} 
-                                tickLine={false} 
-                                axisLine={false} 
-                                dx={-6}
-                                stroke="#64748B" 
-                              />
-                              <Tooltip contentStyle={{ fontSize: "12px", borderRadius: '8px' }} />
-                              <Area 
-                                type="monotone" 
-                                dataKey="jumlah" 
-                                stroke="#0D9488" 
-                                strokeWidth={2.5} 
-                                fillOpacity={1} 
-                                fill="url(#colorJumlah)" 
-                                name="Jumlah Uji" 
-                              />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        ) : activeParam.dailySeries.length > 0 ? (
-                          <div className="h-full flex items-center justify-center text-slate-400 text-xs">Memuat grafik...</div>
-                        ) : (
-                          <div className="h-full flex items-center justify-center text-slate-400 text-xs">
-                            Belum ada rekam transaksi harian pada rentang bulan terpilih.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Calendar Daily Heatmap Log Grid */}
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                      <div className="border-b border-slate-100 pb-2">
-                        <span className="font-semibold text-xs uppercase tracking-wider text-slate-500">
-                          Log Input Harian Kronologis ({activeParam.nama_parameter})
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto pr-1">
-                        {(() => {
-                          if (activeParam.dailySeries.length === 0) {
-                            return <div className="text-slate-400 col-span-full text-center py-4 text-xs">Tidak ada log data ditemukan untuk parameter ini.</div>;
-                          }
-                          return activeParam.dailySeries.map((day, idx) => {
-                            let dayName = '';
-                            let formattedDateStr = day.tanggal;
-                            try {
-                              const dt = new Date(day.tanggal);
-                              dayName = dt.toLocaleDateString('id-ID', { weekday: 'short' });
-                              formattedDateStr = dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-                            } catch(e){}
-
-                            return (
-                              <div key={idx} className={`p-2 rounded-lg border transition-all text-left flex items-center justify-between gap-1.5 ${
-                                day.jumlah > 0 
-                                  ? 'bg-teal-50/40 border-teal-100 shadow-2xs' 
-                                  : 'bg-slate-50/50 border-slate-100 text-slate-400'
-                              }`}>
-                                <div>
-                                  <span className="text-xs font-semibold text-slate-400 block tracking-wider uppercase">{dayName}</span>
-                                  <span className="text-xs font-medium leading-none block mt-0.5 truncate">{formattedDateStr}</span>
-                                </div>
-                                <span className={`text-xs font-bold font-mono px-1.5 py-0.5 rounded ${
-                                  day.jumlah > 0 ? 'bg-teal-600 text-white' : 'bg-slate-200/50 text-slate-400'
-                                }`}>
-                                  {day.jumlah}
-                                </span>
-                              </div>
-                            );
-                          });
-                        })()}
-                      </div>
-                    </div>
-
-                  </div>
-                );
-              })()}
-            </div>
-
-          </div>
-        </div>
-      )}
         </>
       )}
-
     </div>
   );
 });
