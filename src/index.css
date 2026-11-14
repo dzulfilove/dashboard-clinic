@@ -824,6 +824,38 @@ html {
   color: var(--si-coral);
 }
 
+.rail-item--parent {
+  border: 0;
+  background: rgba(204, 220, 239, 0.14);
+  color: #ffffff;
+  font-family: inherit;
+}
+
+.rail-item--parent:hover {
+  background: rgba(204, 220, 239, 0.22);
+}
+
+.rail-item--parent .rail-label {
+  font-weight: 700;
+}
+
+.rail-chevron {
+  width: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  color: var(--si-ice-on-navy);
+  transition: opacity 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    width 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  flex: none;
+}
+
+.rail-chevron svg {
+  width: 15px;
+  height: 15px;
+}
+
 @media (min-width: 720px) {
   .rail:hover {
     width: 256px;
@@ -831,6 +863,12 @@ html {
 
   .rail:hover .rail-penanda {
     width: 232px;
+  }
+
+  .rail:hover .rail-chevron {
+    width: 28px;
+    padding-right: 10px;
+    opacity: 1;
   }
 
   .rail-item--sub {

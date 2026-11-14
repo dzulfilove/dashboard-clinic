@@ -29,6 +29,7 @@ type IconName =
   | 'designSystem'
   | 'logs'
   | 'database'
+  | 'rawatJalan'
   | 'logout';
 
 interface RailMenuItem {
@@ -389,6 +390,24 @@ function RailIcon({ name, filled }: { name: IconName; filled: boolean }) {
         </svg>
       );
 
+    case 'rawatJalan':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M7 2.5A2.5 2.5 0 0 0 4.5 5v14A2.5 2.5 0 0 0 7 21.5h10a2.5 2.5 0 0 0 2.5-2.5V7.8a1.5 1.5 0 0 0-.44-1.06l-3.8-3.8A1.5 1.5 0 0 0 14.2 2.5H7Zm1.5 7h7a.8.8 0 1 1 0 1.6h-7a.8.8 0 1 1 0-1.6Zm0 4h7a.8.8 0 1 1 0 1.6h-7a.8.8 0 1 1 0-1.6Zm0 4h4.5a.8.8 0 1 1 0 1.6H8.5a.8.8 0 1 1 0-1.6Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M14.5 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7.5L14.5 3Z" />
+          <path d="M14 3v4.5h4.5" />
+          <path d="M8.5 11.5h7" />
+          <path d="M8.5 15h7" />
+          <path d="M8.5 18.5h4" />
+        </svg>
+      );
+
     case 'logout':
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -520,18 +539,21 @@ export default React.memo(function Sidebar() {
     let items: RailMenuItem[] = [];
     if (contextId === 'lab') {
       items = [
+        { path: '/lab/dashboard', label: 'Tren & Analisis Lab', icon: 'lab', roles: ['admin', 'analis'] },
         { path: '/lab/input', label: 'Input Pemeriksaan Lab', icon: 'labInput', roles: ['admin', 'analis'] },
         { path: '/lab/master', label: 'Master Pemeriksaan Lab', icon: 'labMaster', roles: ['admin', 'analis'] },
       ];
     } else if (contextId === 'farmasi') {
       items = [
         { path: '/farmasi/input', label: 'Konsumsi Obat Harian', icon: 'farmasiInput', roles: ['admin', 'farmasi'] },
+        { path: '/farmasi/forecast', label: 'Peramalan (Forecast)', icon: 'farmasi', roles: ['admin', 'farmasi'] },
         { path: '/farmasi/abc', label: 'Analisis ABC Spend', icon: 'farmasiAbc', roles: ['admin', 'farmasi'] },
         { path: '/farmasi/master', label: 'Master Data Obat', icon: 'farmasiMaster', roles: ['admin', 'farmasi'] },
       ];
     } else if (contextId === 'pelayanan') {
       items = [
         { path: '/pelayanan/dashboard-dokter', label: 'Dashboard Dokter', icon: 'dokter', roles: ['admin', 'perawat'] },
+        { path: '/pelayanan/rawat-jalan', label: 'Rawat Jalan', icon: 'rawatJalan', roles: ['admin', 'perawat'] },
         { path: '/pelayanan/igd', label: 'IGD (Gawat Darurat)', icon: 'igd', roles: ['admin', 'perawat'] },
         { path: '/pelayanan/rawat-inap', label: 'Rawat Inap', icon: 'rawatInap', roles: ['admin', 'perawat'] },
         { path: '/pelayanan/followup-vaksin', label: 'Follow Up Vaksin', icon: 'vaksin', roles: ['admin', 'perawat'] },
@@ -544,6 +566,12 @@ export default React.memo(function Sidebar() {
     } else if (contextId === 'demografi') {
       items = [
         {
+          path: '/demografi/pasien',
+          label: 'Demografi Pasien',
+          icon: 'pasien',
+          roles: ['admin', 'perawat', 'analis', 'farmasi', 'lab'],
+        },
+        {
           path: '/demografi/diagnosa',
           label: 'Demografi Diagnosa',
           icon: 'diagnosa',
@@ -553,6 +581,7 @@ export default React.memo(function Sidebar() {
     } else if (contextId === 'sistem' && role === 'admin') {
       items = [
         { path: '/design-system', label: 'Design System Guide', icon: 'designSystem', roles: ['admin'] },
+        { path: '/admin/users', label: 'Kelola Pengguna', icon: 'admin', roles: ['admin'] },
         { path: '/admin/logs', label: 'Log Aktivitas', icon: 'logs', roles: ['admin'] },
         { path: '/admin/db-settings', label: 'Pengaturan Database', icon: 'database', roles: ['admin'] },
       ];
@@ -572,8 +601,10 @@ export default React.memo(function Sidebar() {
     const isDesktop = window.matchMedia('(min-width: 720px)').matches;
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const itemEls = Array.from(rail.querySelectorAll<HTMLAnchorElement>('.rail-item'));
-    const currentHrefs = new Set(itemEls.map((el) => el.getAttribute('href') || ''));
+    const itemEls = Array.from(rail.querySelectorAll<HTMLElement>('.rail-item'));
+    const currentHrefs = new Set(
+      itemEls.map((el) => el.dataset.railKey || el.getAttribute('href') || '')
+    );
 
     if (!isDesktop) {
       rail.classList.remove('rail-cair');
@@ -587,7 +618,7 @@ export default React.memo(function Sidebar() {
       return;
     }
 
-    const activeEl = rail.querySelector<HTMLAnchorElement>('.rail-item[aria-current="page"]');
+    const activeEl = rail.querySelector<HTMLElement>('.rail-item[aria-current="page"]');
 
     if (prevRef.current === null) {
       const baru = rail.offsetHeight;
@@ -662,8 +693,8 @@ export default React.memo(function Sidebar() {
     }
 
     const newItems = itemEls.filter((el) => {
-      const href = el.getAttribute('href') || '';
-      return href !== '' && !prev.hrefs.has(href);
+      const key = el.dataset.railKey || el.getAttribute('href') || '';
+      return key !== '' && !prev.hrefs.has(key);
     });
 
     if (newItems.length > 0) {
@@ -777,25 +808,51 @@ export default React.memo(function Sidebar() {
           <div className="rail-gap" aria-hidden="true" />
 
           {baseItems.map((item, idx) => {
-            const isActive = location.pathname === item.path;
             const showSubHere = item.groupId === activeParentGroup && contextItems.length > 0;
+            const isActive = !showSubHere && location.pathname === item.path;
             return (
-              <React.Fragment key={item.path}>
-                <Link
-                  to={item.path}
-                  className="rail-item"
-                  aria-label={item.label}
-                  data-label={item.label}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="rail-ikon">
-                    <RailIcon name={item.icon} filled={isActive} />
-                    {item.badge !== undefined && (
-                      <span className="rail-badge">{item.badge}</span>
-                    )}
-                  </span>
-                  <span className="rail-label">{item.label}</span>
-                </Link>
+              <React.Fragment key={item.groupId || item.path}>
+                {showSubHere ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(item.path)}
+                    data-rail-key={`base:${item.groupId}`}
+                    className="rail-item rail-item--parent"
+                    aria-label={item.label}
+                    aria-expanded="true"
+                    data-label={item.label}
+                  >
+                    <span className="rail-ikon">
+                      <RailIcon name={item.icon} filled={true} />
+                      {item.badge !== undefined && (
+                        <span className="rail-badge">{item.badge}</span>
+                      )}
+                    </span>
+                    <span className="rail-label">{item.label}</span>
+                    <span className="rail-chevron" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </span>
+                  </button>
+                ) : (
+                  <Link
+                    to={item.path}
+                    data-rail-key={`base:${item.groupId}`}
+                    className="rail-item"
+                    aria-label={item.label}
+                    data-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <span className="rail-ikon">
+                      <RailIcon name={item.icon} filled={isActive} />
+                      {item.badge !== undefined && (
+                        <span className="rail-badge">{item.badge}</span>
+                      )}
+                    </span>
+                    <span className="rail-label">{item.label}</span>
+                  </Link>
+                )}
 
                 {showSubHere && (
                   <>
@@ -805,6 +862,7 @@ export default React.memo(function Sidebar() {
                         <Link
                           key={subItem.path}
                           to={subItem.path}
+                          data-rail-key={`sub:${subItem.path}`}
                           className="rail-item rail-item--sub"
                           aria-label={subItem.label}
                           data-label={subItem.label}
@@ -830,6 +888,7 @@ export default React.memo(function Sidebar() {
 
           <a
             href="#/login"
+            data-rail-key="logout"
             onClick={handleLogout}
             className="rail-item rail-item--logout"
             aria-label="Keluar dari Sistem"
