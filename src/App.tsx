@@ -7,6 +7,7 @@ import Loader from './components/Loader.js';
 // Layout & guards
 import Sidebar from './components/Sidebar.js';
 import ProtectedRoute from './components/ProtectedRoute.js';
+import { MUTU_READ_ROLES, MUTU_WRITE_ROLES } from './utils/role.js';
 import { prefetchRoutes } from './routePrefetch.js';
 
 // Pages (Lazy Loaded)
@@ -21,6 +22,11 @@ const Forecasting = lazy(() => import('./pages/farmasi/Forecasting.js'));
 const AbcAnalysis = lazy(() => import('./pages/farmasi/AbcAnalysis.js'));
 const UsersManagement = lazy(() => import('./pages/admin/Users.js'));
 const ActivityLogs = lazy(() => import('./pages/admin/ActivityLogs.js'));
+const MutuInput = lazy(() => import('./pages/mutu/MutuInput.js'));
+const MutuIndikator = lazy(() => import('./pages/mutu/MutuIndikator.js'));
+const MutuPeriode = lazy(() => import('./pages/mutu/MutuPeriode.js'));
+const MutuLaporan = lazy(() => import('./pages/mutu/MutuLaporan.js'));
+const MutuTindakLanjut = lazy(() => import('./pages/mutu/MutuTindakLanjut.js'));
 const DatabaseSettings = lazy(() => import('./pages/admin/DatabaseSettings.js'));
 const RawatJalan = lazy(() => import('./pages/pelayanan/RawatJalan.js'));
 const IGD = lazy(() => import('./pages/pelayanan/IGD.js'));
@@ -274,6 +280,48 @@ function AppContent() {
                             <DesignSystem />
                           </ProtectedRoute>
                         } 
+                      />
+
+                      {/* MODUL MUTU & INDIKATOR */}
+                      <Route
+                        path="/mutu/input"
+                        element={
+                          <ProtectedRoute allowedRoles={MUTU_WRITE_ROLES}>
+                            <MutuInput />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/mutu/indikator"
+                        element={
+                          <ProtectedRoute allowedRoles={MUTU_WRITE_ROLES}>
+                            <MutuIndikator />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/mutu/periode"
+                        element={
+                          <ProtectedRoute allowedRoles={MUTU_WRITE_ROLES}>
+                            <MutuPeriode />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/mutu/laporan"
+                        element={
+                          <ProtectedRoute allowedRoles={MUTU_READ_ROLES}>
+                            <MutuLaporan />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/mutu/tindak-lanjut"
+                        element={
+                          <ProtectedRoute allowedRoles={MUTU_WRITE_ROLES}>
+                            <MutuTindakLanjut />
+                          </ProtectedRoute>
+                        }
                       />
 
                       {/* Wildcard Fallback redirection */}

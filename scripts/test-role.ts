@@ -3,7 +3,7 @@
  * Uji pemetaan peran. Jalankan: npx tsx scripts/test-role.ts
  * Kasus diambil dari data Baserow nyata (31 akun) + kasus yang dulu salah.
  */
-import { extractRole, normalizeRole } from '../src/utils/role.js';
+import { extractRole, normalizeRole, MUTU_READ_ROLES, MUTU_WRITE_ROLES, isReadOnly } from '../src/utils/role.js';
 
 let gagal = 0;
 function eq(actual: any, expected: any, label: string) {
@@ -52,6 +52,14 @@ eq(normalizeRole('[{"value":"farmasi"}]'), 'farmasi', 'JSON array objek');
 eq(normalizeRole({ value: 'mutu' }), 'mutu', 'objek dengan .value');
 eq(normalizeRole('marketing'), 'viewer', 'string tak dikenal');
 eq(normalizeRole('viewer'), 'viewer', 'idempoten viewer');
+
+console.log('\n--- aturan akses modul mutu ---');
+eq(isReadOnly('auditor'), true, 'auditor read-only');
+eq(isReadOnly('viewer'), true, 'viewer read-only');
+eq(isReadOnly('mutu'), false, 'mutu boleh menulis');
+eq(MUTU_WRITE_ROLES.includes('auditor'), false, 'auditor tidak boleh menulis mutu');
+eq(MUTU_READ_ROLES.includes('auditor'), true, 'auditor boleh membaca mutu');
+eq(MUTU_WRITE_ROLES.includes('perawat'), false, 'perawat tidak otomatis boleh menulis mutu');
 
 console.log(gagal === 0 ? '\nSEMUA LULUS' : `\n${gagal} GAGAL`);
 process.exit(gagal === 0 ? 0 : 1);

@@ -30,6 +30,7 @@ type IconName =
   | 'logs'
   | 'database'
   | 'rawatJalan'
+  | 'mutu'
   | 'logout';
 
 interface RailMenuItem {
@@ -375,6 +376,21 @@ function RailIcon({ name, filled }: { name: IconName; filled: boolean }) {
         </svg>
       );
 
+    case 'mutu':
+      return filled ? (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M9 2.5h6a2 2 0 0 1 2 2V5h1a2.2 2.2 0 0 1 2.2 2.2v12.3A2.2 2.2 0 0 1 18 21.7H6a2.2 2.2 0 0 1-2.2-2.2V7.2A2.2 2.2 0 0 1 6 5h1v-.5a2 2 0 0 1 2-2Zm2 2.5v1h2V5H11Zm-1 8.1a1 1 0 0 0-1.4 1.4l2 2a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L11.3 13l-1.3-1.4Z"
+          />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 3.5h6a1.5 1.5 0 0 1 1.5 1.5V6H17a2 2 0 0 1 2 2v11.5a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h.5v-.5A1.5 1.5 0 0 1 9 3.5Z" />
+          <path d="m9 14 2 2 4-4" />
+        </svg>
+      );
+
     case 'database':
       return filled ? (
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -507,6 +523,13 @@ export default React.memo(function Sidebar() {
         label: 'Pelayanan Klinik',
         icon: 'pelayanan',
         roles: ['admin', 'perawat'],
+      },
+      {
+        groupId: 'mutu',
+        path: '/mutu/input',
+        label: 'Mutu & Indikator',
+        icon: 'mutu',
+        roles: ['admin', 'mutu', 'kepala_unit', 'auditor'],
       },
       {
         groupId: 'demografi',

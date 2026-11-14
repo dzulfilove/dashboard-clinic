@@ -12,6 +12,14 @@ export type AppRole =
 
 export const MUTU_ROLES: AppRole[] = ['admin', 'mutu', 'kepala_unit', 'auditor'];
 export const READ_ONLY_ROLES: AppRole[] = ['auditor', 'viewer'];
+/** Boleh mengisi dan mengubah data mutu. */
+export const MUTU_WRITE_ROLES: AppRole[] = ['admin', 'mutu', 'kepala_unit'];
+/** Boleh membaca modul mutu (auditor hanya baca). */
+export const MUTU_READ_ROLES: AppRole[] = ['admin', 'mutu', 'kepala_unit', 'auditor'];
+/** Auditor dan viewer tidak boleh menulis di mana pun. */
+export function isReadOnly(role: AppRole): boolean {
+  return role === 'auditor' || role === 'viewer';
+}
 
 function toText(v: any): string {
   if (v === null || v === undefined) return '';
